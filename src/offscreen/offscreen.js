@@ -12,6 +12,8 @@ browser.runtime.sendMessage({ type: 'offscreen-ready' });
  */
 function initOffscreen() {
   console.log('MarkSnip offscreen document initialized');
+  console.log('🔧 Browser downloads API available:', !!browser.downloads);
+  console.log('🔧 Chrome downloads API available:', !!(typeof chrome !== 'undefined' && chrome.downloads));
   TurndownService.prototype.defaultEscape = TurndownService.prototype.escape;
 }
 
@@ -72,6 +74,15 @@ async function handleMessages(message, sender) {
       break;
     case 'get-article-content':
       await handleGetArticleContent(message);
+      break;
+    case 'cleanup-blob-url':
+      // Clean up blob URL in offscreen document (has DOM access)
+      try {
+        URL.revokeObjectURL(message.url);
+        console.log('🧹 [Offscreen] Cleaned up blob URL:', message.url);
+      } catch (err) {
+        console.log('⚠️ [Offscreen] Could not cleanup blob URL:', err.message);
+      }
       break;
   }
 }
@@ -1190,9 +1201,17 @@ async function preDownloadImages(imageList, markdown, providedOptions = null) {
 */
 async function downloadMarkdown(markdown, title, tabId, imageList = {}, mdClipsFolder = '', providedOptions = null) {
   const options = providedOptions || defaultOptions;
+  
+  console.log(`📁 [Offscreen] Downloading markdown: title="${title}", folder="${mdClipsFolder}", saveAs=${options.saveAs}`);
+  console.log(`🔧 [Offscreen] Download mode: ${options.downloadMode}, browser.downloads available: ${!!browser.downloads}`);
  
- // Download via the downloads API
- if (options.downloadMode == 'downloadsApi' && browser.downloads) {
+ // Check if Downloads API is available in offscreen context
+ const hasDownloadsAPI = !!(browser.downloads || (typeof chrome !== 'undefined' && chrome.downloads));
+ 
+ if (options.downloadMode === 'downloadsApi' && hasDownloadsAPI) {
+   // Downloads API is available in offscreen - use it directly
+   const downloadsAPI = browser.downloads || chrome.downloads;
+   
    try {
      // Create blob for markdown content
      const blob = new Blob([markdown], { type: "text/markdown;charset=utf-8" });
@@ -1200,23 +1219,38 @@ async function downloadMarkdown(markdown, title, tabId, imageList = {}, mdClipsF
      
      if(mdClipsFolder && !mdClipsFolder.endsWith('/')) mdClipsFolder += '/';
      
-     // Start the markdown download
-     const id = await browser.downloads.download({
+     const fullFilename = mdClipsFolder + title + ".md";
+     
+     console.log(`🚀 [Offscreen] Starting Downloads API download: URL=${url}, filename="${fullFilename}"`);
+     
+     // CRITICAL: Notify service worker to track this URL BEFORE starting download
+     await browser.runtime.sendMessage({
+       type: 'track-download-url',
        url: url,
-       filename: mdClipsFolder + title + ".md",
+       filename: fullFilename,
+       isMarkdown: true
+     });
+     
+     // Start the markdown download using the available API
+     const id = await downloadsAPI.download({
+       url: url,
+       filename: fullFilename,
        saveAs: options.saveAs
      });
 
+     console.log(`✅ [Offscreen] Downloads API download started with ID: ${id}`);
+     
      // Notify service worker about download completion
      browser.runtime.sendMessage({
        type: 'download-complete',
        downloadId: id,
-       url: url
+       url: url,
+       filename: fullFilename
      });
 
      // FIXED: Delegate image downloads to service worker instead of handling here
      if (options.downloadImages && Object.keys(imageList).length > 0) {
-       console.log('Delegating image downloads to service worker:', Object.keys(imageList).length, 'images');
+       console.log('🖼️ [Offscreen] Delegating image downloads to service worker:', Object.keys(imageList).length, 'images');
        
        // Send image download request to service worker
        await browser.runtime.sendMessage({
@@ -1228,34 +1262,94 @@ async function downloadMarkdown(markdown, title, tabId, imageList = {}, mdClipsF
        });
      }
    } catch (err) {
-     console.error("Download failed", err);
+     console.error("❌ [Offscreen] Downloads API failed, notifying service worker to take over:", err);
+     
+     // Signal service worker to take over the download
+     await browser.runtime.sendMessage({
+       type: 'offscreen-download-failed',
+       markdown: markdown,
+       title: title,
+       tabId: tabId,
+       imageList: imageList,
+       mdClipsFolder: mdClipsFolder,
+       options: options,
+       error: err.message
+     });
    }
-  } else {
+ } else if (options.downloadMode === 'downloadsApi') {
+   // Downloads API requested but not available in offscreen - create blob and delegate to service worker
+   console.log(`🔄 [Offscreen] Downloads API not available in offscreen, creating blob and delegating to service worker`);
+   
+   try {
+     // Create blob URL in offscreen document (has DOM access)
+     const blob = new Blob([markdown], { type: "text/markdown;charset=utf-8" });
+     const url = URL.createObjectURL(blob);
+     
+     if(mdClipsFolder && !mdClipsFolder.endsWith('/')) mdClipsFolder += '/';
+     const fullFilename = mdClipsFolder + title + ".md";
+     
+     console.log(`🎯 [Offscreen] Created blob URL: ${url}, delegating to service worker`);
+     
+     // Send blob URL to service worker for Downloads API
+     await browser.runtime.sendMessage({
+       type: 'service-worker-download',
+       blobUrl: url,
+       filename: fullFilename,
+       tabId: tabId,
+       imageList: imageList,
+       mdClipsFolder: mdClipsFolder,
+       options: options
+     });
+   } catch (err) {
+     console.error("❌ [Offscreen] Failed to create blob, falling back to content script:", err);
+     await downloadViaContentScript(markdown, title, tabId, imageList, mdClipsFolder, options);
+   }
+ } else {
     // Use content script method via service worker
-    try {
-      const filename = mdClipsFolder + generateValidFileName(title, options.disallowedChars) + ".md";
-      const base64Content = base64EncodeUnicode(markdown);
-      
-      // Send message to service worker to handle the download
-      await browser.runtime.sendMessage({
-        type: "execute-content-download",
-        tabId: tabId,
-        filename: filename,
-        content: base64Content
-      });
+    console.log(`🔗 [Offscreen] Using content script method (downloadMode: ${options.downloadMode})`);
+    await downloadViaContentScript(markdown, title, tabId, imageList, mdClipsFolder, options);
+  }
+}
 
-      // FIXED: Also delegate image downloads for content script method
-      if (options.downloadImages && Object.keys(imageList).length > 0) {
-        await browser.runtime.sendMessage({
-          type: 'download-images-content-script',
-          imageList: imageList,
-          tabId: tabId,
-          options: options
-        });
-      }
-    } catch (error) {
-      console.error("Failed to initiate download:", error);
+/**
+ * Download via content script method (fallback when Downloads API not available)
+ */
+async function downloadViaContentScript(markdown, title, tabId, imageList, mdClipsFolder, options) {
+  try {
+    // For content script downloads, we need to handle the subfolder differently
+    // since data URI downloads don't support subfolders
+    let filename;
+    if (mdClipsFolder) {
+      // Flatten the path by including folder in filename
+      filename = `${mdClipsFolder.replace(/\//g, '_')}${generateValidFileName(title, options.disallowedChars)}.md`;
+      console.log(`🔗 [Offscreen] Flattening subfolder path: "${mdClipsFolder}" + "${title}" -> "${filename}"`);
+    } else {
+      filename = generateValidFileName(title, options.disallowedChars) + ".md";
     }
+    
+    const base64Content = base64EncodeUnicode(markdown);
+    
+    console.log(`🔗 [Offscreen] Using content script download: ${filename}`);
+    
+    // Send message to service worker to handle the download
+    await browser.runtime.sendMessage({
+      type: "execute-content-download",
+      tabId: tabId,
+      filename: filename,
+      content: base64Content
+    });
+
+    // Handle image downloads for content script method
+    if (options.downloadImages && Object.keys(imageList).length > 0) {
+      await browser.runtime.sendMessage({
+        type: 'download-images-content-script',
+        imageList: imageList,
+        tabId: tabId,
+        options: options
+      });
+    }
+  } catch (error) {
+    console.error("❌ [Offscreen] Failed to initiate content script download:", error);
   }
 }
 
