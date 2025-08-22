@@ -641,7 +641,11 @@ function turndown(content, options, article) {
   // add a rule for links
   turndownService.addRule('links', {
     filter: (node, tdopts) => {
-      return node.nodeName == 'A' && node.getAttribute('href')
+      // Only process links if linkStyle is NOT 'referenced'
+      // This allows the built-in referenceLink rule to handle referenced links
+      return node.nodeName == 'A' && 
+            node.getAttribute('href') && 
+            tdopts.linkStyle !== 'referenced'
     },
     replacement: (content, node, tdopts) => {
       // get the href
