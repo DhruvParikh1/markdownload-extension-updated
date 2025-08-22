@@ -61,7 +61,10 @@
       "description": "Copy current tab as Markdown to the clipboard"
     },
     "copy_selection_as_markdown": {
-      "description": "Copy current selection as Markdown to the clipboard"
+      "description": "Copy current selection as Markdown to the clipboard",
+      "suggested_key": {
+        "default": "Alt+Shift+S"
+      }
     },
     "copy_tab_as_markdown_link": {
       "suggested_key": {
@@ -70,13 +73,22 @@
       "description": "Copy current tab URL as Markdown link to the clipboard"
     },
     "copy_selected_tab_as_markdown_link": {
-      "description": "Copy selected tabs URL as Markdown link to the clipboard"
+      "description": "Copy selected tabs URL as Markdown link to the clipboard",
+      "suggested_key": {
+        "default": "Alt+Shift+T"
+      }
     },
     "copy_selection_to_obsidian": {
-      "description": "Copy current selection as Markdown to Obsidian"
+      "description": "Copy current selection as Markdown to Obsidian",
+      "suggested_key": {
+        "default": "Alt+Shift+O"
+      }
     },
     "copy_tab_to_obsidian": {
-      "description": "Copy current tab as Markdown to Obsidian"
+      "description": "Copy current tab as Markdown to Obsidian",
+      "suggested_key": {
+        "default": "Alt+Shift+B"
+      }
     }
   },
   "web_accessible_resources": [
