@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "MarkSnip - Markdown Web Clipper",
-  "version": "3.8.0",
+  "version": "3.9.0",
   "author": "Dhruv Parikh",
   "description": "A web clipper to download articles in markdown format. Turndown & Readability are used as core libraries.",
   "icons": {
