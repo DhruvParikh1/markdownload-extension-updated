@@ -100,9 +100,6 @@ async function handleMessages(message, sender, sendResponse) {
     case "download-complete":
       handleDownloadComplete(message);
       break;
-    case "execute-script-in-tab":
-      await executeScriptInTab(message.tabId, message.code);
-      break;
 
     case "get-tab-content":
       await getTabContentForOffscreen(message.tabId, message.selection, message.requestId);
@@ -141,25 +138,6 @@ async function handleMessages(message, sender, sendResponse) {
       // Legacy fallback - shouldn't be used anymore
       console.log(`⚠️ [Service Worker] Legacy offscreen-download-failed: ${message.error}`);
       break;
-  }
-}
-
-/**
- * Execute script in tab  - helper function for offscreen document
- * @param {number} tabId - Tab ID to execute script in
- * @param {string} codeString - Code to execute in the tab
- */ 
-async function executeScriptInTab(tabId, codeString) {
-  try {
-    await browser.scripting.executeScript({
-      target: { tabId: tabId },
-      func: (code) => {
-        return eval(code);
-      },
-      args: [codeString]
-    });
-  } catch (error) {
-    console.error("Failed to execute script in tab:", error);
   }
 }
 

@@ -207,10 +207,9 @@ async function handleContextMenuCopy(info, tabId, providedOptions = null) {
       article
     );
     await copyToClipboard(markdown);
-    await executeScriptInTab(tabId, `copyToClipboard(${JSON.stringify(markdown)})`);
   }
   else if (info.menuItemId === "copy-markdown-image") {
-    await executeScriptInTab(tabId, `copyToClipboard("![](${info.srcUrl})")`);
+    await copyToClipboard(`![](${info.srcUrl})`);
   }
   else if (info.menuItemId === "copy-markdown-obsidian") {
     const article = await getArticleFromContent(tabId, true, options);  // Added options
@@ -220,9 +219,8 @@ async function handleContextMenuCopy(info, tabId, providedOptions = null) {
     const obsidianFolder = await formatObsidianFolder(article, options);
     const { markdown } = await convertArticleToMarkdown(article, false, options);
     await copyToClipboard(markdown);
-    await executeScriptInTab(tabId, `copyToClipboard(${JSON.stringify(markdown)})`);
     await browser.tabs.update({
-      url: `obsidian://advanced-uri?vault=${obsidianVault}&clipboard=true&mode=new&filepath=${obsidianFolder}${generateValidFileName(title, options.disallowedChars)}`
+      url: `obsidian://advanced-uri?vault=${encodeURIComponent(obsidianVault)}&clipboard=true&mode=new&filepath=${encodeURIComponent(obsidianFolder + generateValidFileName(title, options.disallowedChars))}`
     });
   }
   else if (info.menuItemId === "copy-markdown-obsall") {
@@ -233,30 +231,17 @@ async function handleContextMenuCopy(info, tabId, providedOptions = null) {
     const obsidianFolder = await formatObsidianFolder(article, options);
     const { markdown } = await convertArticleToMarkdown(article, false, options);
     await copyToClipboard(markdown);
-    await executeScriptInTab(tabId, `copyToClipboard(${JSON.stringify(markdown)})`);
     await browser.tabs.update({
-      url: `obsidian://advanced-uri?vault=${obsidianVault}&clipboard=true&mode=new&filepath=${obsidianFolder}${generateValidFileName(title, options.disallowedChars)}`
+      url: `obsidian://advanced-uri?vault=${encodeURIComponent(obsidianVault)}&clipboard=true&mode=new&filepath=${encodeURIComponent(obsidianFolder + generateValidFileName(title, options.disallowedChars))}`
     });
   }
   else {
     const article = await getArticleFromContent(tabId, info.menuItemId === "copy-markdown-selection", options);  // Added options
     const { markdown } = await convertArticleToMarkdown(article, false, options);
     await copyToClipboard(markdown);
-    await executeScriptInTab(tabId, `copyToClipboard(${JSON.stringify(markdown)})`);
   }
 }
 
-/**
- * Execute script in tab
- */
-async function executeScriptInTab(tabId, codeString) {
-  // Instead of directly calling browser.scripting, send a message to service worker
-  return browser.runtime.sendMessage({
-    type: "execute-script-in-tab",
-    tabId: tabId,
-    code: codeString
-  });
-}
 
 /**
  * Copy text to clipboard
