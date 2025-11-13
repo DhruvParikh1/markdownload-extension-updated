@@ -273,15 +273,20 @@ async function handleContextMenuCopy(info, tabId, providedOptions = null) {
  * Copy text to clipboard
  */
 async function copyToClipboard(text) {
-  try {
-    // Try modern Clipboard API first (available in offscreen documents)
-    if (navigator.clipboard && navigator.clipboard.writeText) {
+  // Try modern Clipboard API first (but it usually fails in offscreen documents)
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    try {
       await navigator.clipboard.writeText(text);
       console.log('✅ [Offscreen] Successfully copied to clipboard using Clipboard API:', text.substring(0, 100) + '...');
       return true;
+    } catch (clipboardError) {
+      console.log('⚠️ [Offscreen] Clipboard API failed (document not focused), falling back to execCommand:', clipboardError.message);
+      // Fall through to execCommand method
     }
+  }
 
-    // Fallback to old method
+  // Fallback to execCommand method (works in offscreen documents)
+  try {
     const textArea = document.getElementById('clipboard-text');
     if (!textArea) {
       console.error('❌ [Offscreen] Clipboard textarea not found');
@@ -289,18 +294,21 @@ async function copyToClipboard(text) {
     }
 
     textArea.value = text;
+    textArea.focus();
     textArea.select();
+
+    // Try to copy using execCommand
     const success = document.execCommand('copy');
 
     if (success) {
       console.log('✅ [Offscreen] Successfully copied to clipboard using execCommand:', text.substring(0, 100) + '...');
+      return true;
     } else {
       console.error('❌ [Offscreen] Failed to copy to clipboard using execCommand');
+      return false;
     }
-
-    return success;
   } catch (error) {
-    console.error('❌ [Offscreen] Error copying to clipboard:', error);
+    console.error('❌ [Offscreen] Error in execCommand fallback:', error);
     return false;
   }
 }
