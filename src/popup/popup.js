@@ -65,9 +65,34 @@ document.getElementById("downloadSelection").addEventListener("click", downloadS
 document.getElementById("copy").addEventListener("click", copyToClipboard);
 document.getElementById("copySelection").addEventListener("click", copySelectionToClipboard);
 
+document.getElementById("sendToObsidian").addEventListener("click", sendToObsidian);
+
 document.getElementById("batchProcess").addEventListener("click", showBatchProcess);
 document.getElementById("convertUrls").addEventListener("click", handleBatchConversion);
 document.getElementById("cancelBatch").addEventListener("click", hideBatchProcess);
+
+// Save batch URL list to storage
+function saveBatchUrls() {
+    const urlList = document.getElementById("urlList").value;
+    browser.storage.local.set({ batchUrlList: urlList }).catch(err => {
+        console.error("Error saving batch URL list:", err);
+    });
+}
+
+// Load batch URL list from storage
+async function loadBatchUrls() {
+    try {
+        const data = await browser.storage.local.get('batchUrlList');
+        if (data.batchUrlList) {
+            document.getElementById("urlList").value = data.batchUrlList;
+        }
+    } catch (err) {
+        console.error("Error loading batch URL list:", err);
+    }
+}
+
+// Add event listener to save URLs as user types
+document.getElementById("urlList").addEventListener("input", saveBatchUrls);
 
 function showBatchProcess(e) {
     e.preventDefault();
@@ -158,7 +183,7 @@ async function handleBatchConversion(e) {
         return;
     }
 
-    document.getElementById("spinner").style.display = 'block';
+    document.getElementById("spinner").style.display = 'flex';
     document.getElementById("convertUrls").style.display = 'none';
     progressUI.show();
     progressUI.reset();
@@ -267,7 +292,10 @@ async function handleBatchConversion(e) {
 
         progressUI.setStatus('Complete!');
         await new Promise(resolve => setTimeout(resolve, 1000)); // Show completion briefly
-        
+
+        // Clear saved batch URLs after successful completion
+        await browser.storage.local.remove('batchUrlList');
+
         console.log('Batch conversion complete');
         hideBatchProcess(e);
         window.close();
@@ -281,66 +309,55 @@ async function handleBatchConversion(e) {
 }
 
 const checkInitialSettings = options => {
-    if (options.includeTemplate)
-        document.querySelector("#includeTemplate").classList.add("checked");
+    // Set checkbox states
+    document.querySelector("#includeTemplate").checked = options.includeTemplate || false;
+    document.querySelector("#downloadImages").checked = options.downloadImages || false;
 
-    if (options.downloadImages)
-        document.querySelector("#downloadImages").classList.add("checked");
-
-    if (options.clipSelection)
-        document.querySelector("#selected").classList.add("checked");
-    else
-        document.querySelector("#document").classList.add("checked");
+    // Set segmented control state
+    if (options.clipSelection) {
+        document.querySelector("#selected").classList.add("active");
+        document.querySelector("#document").classList.remove("active");
+    } else {
+        document.querySelector("#document").classList.add("active");
+        document.querySelector("#selected").classList.remove("active");
+    }
 }
 
 const toggleClipSelection = options => {
     options.clipSelection = !options.clipSelection;
-    document.querySelector("#selected").classList.toggle("checked");
-    document.querySelector("#document").classList.toggle("checked");
+    document.querySelector("#selected").classList.toggle("active");
+    document.querySelector("#document").classList.toggle("active");
     browser.storage.sync.set(options).then(() => clipSite()).catch((error) => {
         console.error(error);
     });
 }
 
 const toggleIncludeTemplate = options => {
-    options.includeTemplate = !options.includeTemplate;
-    document.querySelector("#includeTemplate").classList.toggle("checked");
+    const el = document.getElementById("includeTemplate");
+    if (el) {
+        options.includeTemplate = el.checked;
+    }
+
     browser.storage.sync.set(options).then(() => {
-        return browser.contextMenus.update("toggle-includeTemplate", {
-            checked: options.includeTemplate
-        });
-    }).then(() => {
-        // Try to update tab context menu if it exists
-        return browser.contextMenus.update("tabtoggle-includeTemplate", {
-            checked: options.includeTemplate
-        }).catch(err => {
-            // Silently ignore if this menu doesn't exist
-            console.debug("Tab context menu not available:", err.message);
-        });
-    }).then(() => {
-        return clipSite();
+        // Re-clip the site to update the preview
+        return browser.tabs.query({ currentWindow: true, active: true });
+    }).then((tabs) => {
+        if (tabs && tabs[0]) {
+            return clipSite(tabs[0].id);
+        }
     }).catch((error) => {
-        console.error(error);
+        console.error("Error toggling include template:", error);
     });
 }
 
 const toggleDownloadImages = options => {
-    options.downloadImages = !options.downloadImages;
-    document.querySelector("#downloadImages").classList.toggle("checked");
-    browser.storage.sync.set(options).then(() => {
-        return browser.contextMenus.update("toggle-downloadImages", {
-            checked: options.downloadImages
-        });
-    }).then(() => {
-        // Try to update tab context menu if it exists
-        return browser.contextMenus.update("tabtoggle-downloadImages", {
-            checked: options.downloadImages
-        }).catch(err => {
-            // Silently ignore if this menu doesn't exist
-            console.debug("Tab context menu not available:", err.message);
-        });
-    }).catch((error) => {
-        console.error("Error updating options or menus:", error);
+    const el = document.getElementById("downloadImages");
+    if (el) {
+        options.downloadImages = el.checked;
+    }
+
+    browser.storage.sync.set(options).catch((error) => {
+        console.error("Error updating options:", error);
     });
 }
 
@@ -409,7 +426,10 @@ const clipSite = id => {
 // Inject the necessary scripts - updated for Manifest V3
 browser.storage.sync.get(defaultOptions).then(options => {
     checkInitialSettings(options);
-    
+
+    // Load batch URL list from storage
+    loadBatchUrls();
+
     // Set up event listeners (unchanged)
     document.getElementById("selected").addEventListener("click", (e) => {
         e.preventDefault();
@@ -419,12 +439,10 @@ browser.storage.sync.get(defaultOptions).then(options => {
         e.preventDefault();
         toggleClipSelection(options);
     });
-    document.getElementById("includeTemplate").addEventListener("click", (e) => {
-        e.preventDefault();
+    document.getElementById("includeTemplate").addEventListener("click", () => {
         toggleIncludeTemplate(options);
     });
-    document.getElementById("downloadImages").addEventListener("click", (e) => {
-        e.preventDefault();
+    document.getElementById("downloadImages").addEventListener("click", () => {
         toggleDownloadImages(options);
     });
     
@@ -503,40 +521,162 @@ async function downloadSelection(e) {
 }
 
 // Function to handle copying text to clipboard
-function copyToClipboard(e) {
+async function copyToClipboard(e) {
     e.preventDefault();
-    const text = cm.getValue();
-    navigator.clipboard.writeText(text).then(() => {
-        showCopySuccess();
-    }).catch(err => {
-        console.error("Error copying text: ", err);
-    });
+    const copyButton = document.getElementById("copy");
+    if (!cm || !copyButton) return;
+
+    try {
+        const hasSelection = cm.somethingSelected();
+        const textToCopy = hasSelection ? cm.getSelection() : cm.getValue();
+
+        if (!textToCopy.trim()) {
+            return;
+        }
+
+        await navigator.clipboard.writeText(textToCopy);
+
+        // Show success feedback
+        const originalHTML = copyButton.innerHTML;
+        copyButton.innerHTML = `
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Copied!
+        `;
+        copyButton.classList.add("success");
+
+        // Reset button after 2 seconds
+        setTimeout(() => {
+            copyButton.innerHTML = originalHTML;
+            copyButton.classList.remove("success");
+        }, 2000);
+
+    } catch (error) {
+        console.error('Failed to copy text:', error);
+
+        // Show error feedback
+        const originalHTML = copyButton.innerHTML;
+        copyButton.innerHTML = `
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
+            </svg>
+            Failed
+        `;
+        copyButton.classList.add("error");
+
+        setTimeout(() => {
+            copyButton.innerHTML = originalHTML;
+            copyButton.classList.remove("error");
+        }, 2000);
+    }
 }
 
 function copySelectionToClipboard(e) {
     e.preventDefault();
-    if (cm.somethingSelected()) {
-        const selectedText = cm.getSelection();
-        navigator.clipboard.writeText(selectedText).then(() => {
-            showCopySuccess();
-        }).catch(err => {
-            console.error("Error copying selection: ", err);
-        });
-    }
+    const copySelButton = document.getElementById("copySelection");
+    if (!cm || !cm.somethingSelected() || !copySelButton) return;
+
+    const selectedText = cm.getSelection();
+    navigator.clipboard.writeText(selectedText).then(() => {
+        // Show success feedback
+        const originalHTML = copySelButton.innerHTML;
+        copySelButton.innerHTML = `
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Copied!
+        `;
+        copySelButton.classList.add("success");
+
+        setTimeout(() => {
+            copySelButton.innerHTML = originalHTML;
+            copySelButton.classList.remove("success");
+        }, 2000);
+    }).catch(err => {
+        console.error("Error copying selection:", err);
+    });
 }
 
-function showCopySuccess() {
-    const statusDiv = document.createElement('div');
-    statusDiv.className = 'copy-success';
-    statusDiv.textContent = 'Copied!';
-    document.body.appendChild(statusDiv);
-    
-    setTimeout(() => {
-        statusDiv.classList.add('fade-out');
+// Function to send markdown to Obsidian
+async function sendToObsidian(e) {
+    e.preventDefault();
+    const obsidianButton = document.getElementById("sendToObsidian");
+    if (!obsidianButton) return;
+
+    const originalHTML = obsidianButton.innerHTML;
+
+    try {
+        // Get current options including Obsidian settings
+        const options = await browser.storage.sync.get();
+
+        // Check if Obsidian integration is enabled
+        if (!options.obsidianIntegration) {
+            // Show error state
+            obsidianButton.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
+                </svg>
+                Not Enabled
+            `;
+            obsidianButton.classList.add("error");
+
+            setTimeout(() => {
+                obsidianButton.innerHTML = originalHTML;
+                obsidianButton.classList.remove("error");
+            }, 3000);
+            return;
+        }
+
+        // Get markdown content
+        const markdown = cm.getValue();
+        const title = document.getElementById("title").value || 'Untitled';
+
+        // Get current tab
+        const tabs = await browser.tabs.query({ currentWindow: true, active: true });
+        const currentTab = tabs[0];
+
+        // Send message to service worker to handle Obsidian integration
+        await browser.runtime.sendMessage({
+            type: 'obsidian-integration',
+            markdown: markdown,
+            tabId: currentTab.id,
+            vault: options.obsidianVault || '',
+            folder: options.obsidianFolder || '',
+            title: title
+        });
+
+        // Show success state
+        obsidianButton.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Sent to Obsidian!
+        `;
+        obsidianButton.classList.add("success");
+
+        // Close popup after showing success
         setTimeout(() => {
-            document.body.removeChild(statusDiv);
-        }, 300);
-    }, 1000);
+            window.close();
+        }, 1500);
+
+    } catch (error) {
+        console.error('Error sending to Obsidian:', error);
+
+        // Show error state
+        obsidianButton.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
+            </svg>
+            Failed
+        `;
+        obsidianButton.classList.add("error");
+
+        setTimeout(() => {
+            obsidianButton.innerHTML = originalHTML;
+            obsidianButton.classList.remove("error");
+        }, 3000);
+    }
 }
 
 //function that handles messages from the injected script into the site

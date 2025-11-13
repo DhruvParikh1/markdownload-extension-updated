@@ -1,60 +1,186 @@
-
 <!DOCTYPE html>
-
 <html>
-  <head>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="lib/codemirror.css">
-    <link rel="stylesheet" href="lib/xq-dark.css">
-    <link rel="stylesheet" href="lib/xq-light.css">
-    <link rel="stylesheet" href="popup.css">
-  </head>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MarkSnip</title>
+  <link rel="stylesheet" href="lib/codemirror.css">
+  <link rel="stylesheet" href="lib/xq-dark.css">
+  <link rel="stylesheet" href="lib/xq-light.css">
+  <link rel="stylesheet" href="popup.css">
+</head>
 
 <body>
-  <div id="container">
+  <!-- Loading Spinner -->
+  <div id="spinner" class="loading-state">
+    <div class="spinner-ring"></div>
+    <p class="loading-text">Processing page...</p>
+  </div>
+
+  <!-- Main Container -->
+  <div id="container" class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <h1 class="app-title">MarkSnip</h1>
+        <p class="app-subtitle">Convert to Markdown</p>
+      </div>
+      <div class="header-actions">
+        <a href="#" id="batchProcess" class="icon-btn" title="Batch Processing">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <path d="M9 15h6"/>
+          </svg>
+        </a>
+        <a href="/options/options.html" id="options" target="_blank" class="icon-btn" title="Settings">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M12 1v6m0 6v6m8.66-15L17 7.34M7 17l-3.66 3.66M23 12h-6m-6 0H1m20.66 8.66L17 16.34M7 7 3.34 3.34"/>
+          </svg>
+        </a>
+      </div>
+    </header>
+
+    <!-- Quick Settings -->
+    <section class="settings-panel">
+      <div class="setting-row">
+        <label class="setting-label">
+          <input type="checkbox" id="downloadImages" class="setting-checkbox">
+          <span class="checkbox-custom"></span>
+          <span class="setting-text">Download Images</span>
+        </label>
+      </div>
+      
+      <div class="setting-row">
+        <label class="setting-label">
+          <input type="checkbox" id="includeTemplate" class="setting-checkbox">
+          <span class="checkbox-custom"></span>
+          <span class="setting-text">Include Template</span>
+        </label>
+      </div>
+
+      <div class="setting-row" id="clipOption">
+        <span class="setting-text-static">Content:</span>
+        <div class="segmented-control">
+          <button class="segment" id="selected" data-value="selection">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M9 2v2H7c-1.1 0-2 .9-2 2v2H3c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2v-2h2c1.1 0 2-.9 2-2v-2h2c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-2V2c0-1.1-.9-2-2-2h-2c-1.1 0-2 .9-2 2zm10 4v8h-2v-2c0-1.1-.9-2-2-2h-2V6h6zM7 10h8v8H7v-8z"/>
+            </svg>
+            Selection
+          </button>
+          <button class="segment" id="document" data-value="document">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/>
+            </svg>
+            Document
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Title Input -->
+    <section class="title-section">
+      <label for="title" class="input-label">Title</label>
+      <input type="text" id="title" class="title-input" placeholder="Document title...">
+    </section>
+
+    <!-- Editor Section -->
+    <section class="editor-section">
+      <div class="editor-header">
+        <span class="editor-label">Markdown Preview</span>
+        <div class="editor-actions">
+          <button id="copySelection" class="editor-btn" style="display: none;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            Copy Selection
+          </button>
+          <button id="copy" class="editor-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            Copy All
+          </button>
+        </div>
+      </div>
+      <textarea id="md" class="markdown-textarea"></textarea>
+    </section>
+
+    <!-- Action Buttons -->
+    <section class="action-section">
+      <button id="downloadSelection" class="btn btn-secondary" style="display: none;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Download Selection
+      </button>
+      <button id="sendToObsidian" class="btn btn-secondary">
+        <svg alt="Obsidian" width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#A88BFA" d="m6.91927 14.5955c.64053-.1907 1.67255-.4839 2.85923-.5565-.71191-1.7968-.88376-3.3691-.74554-4.76905.15962-1.61678.72977-2.9662 1.28554-4.11442.1186-.24501.2326-.47313.3419-.69198.1549-.30984.3004-.60109.4365-.8953.2266-.48978.3948-.92231.4798-1.32416.0836-.39515.0841-.74806-.0148-1.08657-.099-.338982-.3093-.703864-.7093-1.1038132-.5222-.1353116-1.1017-.0165173-1.53613.3742922l-5.15591 4.638241c-.28758.25871-.47636.60929-.53406.99179l-.44455 2.94723c.69903.6179 2.42435 2.41414 3.47374 4.90644.09364.2224.1819.4505.26358.6838z"></path>
+          <path fill="#A88BFA" d="m2.97347 10.3512c-.02431.1037-.05852.205-.10221.3024l-2.724986 6.0735c-.279882.6238-.15095061 1.3552.325357 1.8457l4.288349 4.4163c2.1899-3.2306 1.87062-6.2699.87032-8.6457-.75846-1.8013-1.90801-3.2112-2.65683-3.9922z"></path>
+          <path fill="#A88BFA" d="m5.7507 23.5094c.07515.012.15135.0192.2281.0215.81383.0244 2.18251.0952 3.29249.2997.90551.1669 2.70051.6687 4.17761 1.1005 1.1271.3294 2.2886-.5707 2.4522-1.7336.1192-.8481.343-1.8075.7553-2.6869l-.0095.0033c-.6982-1.9471-1.5865-3.2044-2.5178-4.0073-.9284-.8004-1.928-1.1738-2.8932-1.3095-1.60474-.2257-3.07497.1961-4.00103.4682.55465 2.3107.38396 5.0295-1.48417 7.8441z"></path>
+          <path fill="#A88BFA" d="m17.3708 19.3102c.9267-1.3985 1.5868-2.4862 1.9352-3.0758.1742-.295.1427-.6648-.0638-.9383-.5377-.7126-1.5666-2.1607-2.1272-3.5015-.5764-1.3785-.6624-3.51876-.6673-4.56119-.0019-.39626-.1275-.78328-.3726-1.09465l-3.3311-4.23183c-.0117.19075-.0392.37998-.0788.56747-.1109.52394-.32 1.04552-.5585 1.56101-.1398.30214-.3014.62583-.4646.95284-.1086.21764-.218.4368-.3222.652-.5385 1.11265-1.0397 2.32011-1.1797 3.73901-.1299 1.31514.0478 2.84484.8484 4.67094.1333.0113.2675.0262.4023.0452 1.1488.1615 2.3546.6115 3.4647 1.5685.9541.8226 1.8163 2.0012 2.5152 3.6463z"></path>
+        </svg>
+        Send to Obsidian
+      </button>
+      <button id="download" class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Download
+      </button>
+    </section>
+  </div>
+
+  <!-- Batch Processing Container -->
+  <div id="batchContainer" class="batch-container">
+    <header class="batch-header">
+      <h2 class="batch-title">Batch Processing</h2>
+      <button id="cancelBatch" class="icon-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </header>
     
-    <a href="#" class="button toggle" id="downloadImages"><i class="check"></i>Download Images</a>
-    <a href="/options/options.html" id="options" target="_blank">open options</a>
-    <a href="#" id="batchProcess">batch</a>
-    <div class="row" id="clipOption">
-      <a href="#" class="button toggle" id="selected"><i class="check"></i>Selected Text</a>
-      <a href="#" class="button toggle" id="document"><i class="check"></i>Entire Document</a>
-    </div>
-    <a href="#" class="button toggle" id="includeTemplate"><i class="check"></i>Include front/back template</a>
-    <input type="text" id="title"></input>
-    <textarea id="md"></textarea>
-    <div class="button-row">
-        <a href="#" class="button" id="download">Download</a>
-        <a href="#" class="button" id="copy">Copy</a>
-    </div>
-    <div class="button-row">
-        <a href="#" class="button" id="downloadSelection">Download selected</a>
-        <a href="#" class="button" id="copySelection">Copy selected</a>
+    <div class="batch-content">
+      <label for="urlList" class="input-label">URLs (one per line)</label>
+      <textarea id="urlList" class="url-textarea" placeholder="https://example.com/page1&#10;https://example.com/page2&#10;&#10;Or use markdown links:&#10;[Page Title](https://example.com)"></textarea>
+      
+      <div id="progressContainer" class="progress-container" style="display: none;">
+        <div class="progress-header">
+          <span id="progressStatus" class="progress-label">Processing...</span>
+          <span id="progressCount" class="progress-count">0/0</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div id="progressBar" class="progress-bar"></div>
+        </div>
+        <p id="currentUrl" class="current-url"></p>
+      </div>
+      
+      <section class="action-section" style="padding-top: 0;"></section>
+        <button id="convertUrls" class="btn btn-primary btn-block">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="16 18 22 12 16 6"/>
+            <polyline points="8 6 2 12 8 18"/>
+          </svg>
+          Convert All URLs
+        </button>
+      </section>
     </div>
   </div>
-  <div id="batchContainer" style="display: none;">
-    <h2 class="batch-title">Batch Processing</h2>
-    <textarea id="urlList" placeholder="Enter URLs to convert (one per line)&#10;Example:&#10;https://example.com/page1&#10;https://example.com/page2"></textarea>
-    <div class="button-row">
-        <a href="#" class="button" id="convertUrls">Convert All</a>
-        <a href="#" class="button" id="cancelBatch">Cancel</a>
-    </div>
-    <div id="progressContainer" style="display: none;">
-      <div class="progress-header">
-          <span id="progressStatus">Processing URLs...</span>
-          <span id="progressCount">0/0</span>
-      </div>
-      <div class="progress-bar-container">
-          <div id="progressBar"></div>
-      </div>
-      <div id="currentUrl"></div>
-  </div>
-</div>
-  <div id="spinner"></div>
+
   <script type="application/javascript" src="../browser-polyfill.min.js"></script>
   <script type="application/javascript" src="lib/codemirror.js"></script>
   <script type="application/javascript" src="lib/modes/markdown/markdown.js"></script>
   <script type="application/javascript" src="popup.js"></script>
 </body>
-
 </html>
