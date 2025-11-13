@@ -574,6 +574,24 @@ body {
     background: var(--bg-primary);
 }
 
+.btn.success {
+    background: var(--success) !important;
+    border-color: var(--success) !important;
+    color: var(--text-inverse) !important;
+}
+
+.btn.error {
+    background: var(--error) !important;
+    border-color: var(--error) !important;
+    color: var(--text-inverse) !important;
+}
+
+.editor-btn.success {
+    background: var(--success) !important;
+    border-color: var(--success) !important;
+    color: var(--text-inverse) !important;
+}
+
 .btn-block {
     width: 100%;
     padding: var(--space-3) var(--space-4);

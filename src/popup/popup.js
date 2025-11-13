@@ -307,18 +307,29 @@ const toggleClipSelection = options => {
 }
 
 const toggleIncludeTemplate = options => {
-    options.includeTemplate = !options.includeTemplate;
-    document.querySelector("#includeTemplate").checked = options.includeTemplate;
+    const el = document.getElementById("includeTemplate");
+    if (el) {
+        options.includeTemplate = el.checked;
+    }
+
     browser.storage.sync.set(options).then(() => {
-        return clipSite();
+        // Re-clip the site to update the preview
+        return browser.tabs.query({ currentWindow: true, active: true });
+    }).then((tabs) => {
+        if (tabs && tabs[0]) {
+            return clipSite(tabs[0].id);
+        }
     }).catch((error) => {
-        console.error(error);
+        console.error("Error toggling include template:", error);
     });
 }
 
 const toggleDownloadImages = options => {
-    options.downloadImages = !options.downloadImages;
-    document.querySelector("#downloadImages").checked = options.downloadImages;
+    const el = document.getElementById("downloadImages");
+    if (el) {
+        options.downloadImages = el.checked;
+    }
+
     browser.storage.sync.set(options).catch((error) => {
         console.error("Error updating options:", error);
     });
@@ -483,45 +494,90 @@ async function downloadSelection(e) {
 }
 
 // Function to handle copying text to clipboard
-function copyToClipboard(e) {
+async function copyToClipboard(e) {
     e.preventDefault();
-    const text = cm.getValue();
-    navigator.clipboard.writeText(text).then(() => {
-        showCopySuccess();
-    }).catch(err => {
-        console.error("Error copying text: ", err);
-    });
+    const copyButton = document.getElementById("copy");
+    if (!cm || !copyButton) return;
+
+    try {
+        const hasSelection = cm.somethingSelected();
+        const textToCopy = hasSelection ? cm.getSelection() : cm.getValue();
+
+        if (!textToCopy.trim()) {
+            return;
+        }
+
+        await navigator.clipboard.writeText(textToCopy);
+
+        // Show success feedback
+        const originalHTML = copyButton.innerHTML;
+        copyButton.innerHTML = `
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Copied!
+        `;
+        copyButton.classList.add("success");
+
+        // Reset button after 2 seconds
+        setTimeout(() => {
+            copyButton.innerHTML = originalHTML;
+            copyButton.classList.remove("success");
+        }, 2000);
+
+    } catch (error) {
+        console.error('Failed to copy text:', error);
+
+        // Show error feedback
+        const originalHTML = copyButton.innerHTML;
+        copyButton.innerHTML = `
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
+            </svg>
+            Failed
+        `;
+        copyButton.classList.add("error");
+
+        setTimeout(() => {
+            copyButton.innerHTML = originalHTML;
+            copyButton.classList.remove("error");
+        }, 2000);
+    }
 }
 
 function copySelectionToClipboard(e) {
     e.preventDefault();
-    if (cm.somethingSelected()) {
-        const selectedText = cm.getSelection();
-        navigator.clipboard.writeText(selectedText).then(() => {
-            showCopySuccess();
-        }).catch(err => {
-            console.error("Error copying selection: ", err);
-        });
-    }
-}
+    const copySelButton = document.getElementById("copySelection");
+    if (!cm || !cm.somethingSelected() || !copySelButton) return;
 
-function showCopySuccess() {
-    const statusDiv = document.createElement('div');
-    statusDiv.className = 'copy-success';
-    statusDiv.textContent = 'Copied!';
-    document.body.appendChild(statusDiv);
+    const selectedText = cm.getSelection();
+    navigator.clipboard.writeText(selectedText).then(() => {
+        // Show success feedback
+        const originalHTML = copySelButton.innerHTML;
+        copySelButton.innerHTML = `
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Copied!
+        `;
+        copySelButton.classList.add("success");
 
-    setTimeout(() => {
-        statusDiv.classList.add('fade-out');
         setTimeout(() => {
-            document.body.removeChild(statusDiv);
-        }, 300);
-    }, 1000);
+            copySelButton.innerHTML = originalHTML;
+            copySelButton.classList.remove("success");
+        }, 2000);
+    }).catch(err => {
+        console.error("Error copying selection:", err);
+    });
 }
 
 // Function to send markdown to Obsidian
 async function sendToObsidian(e) {
     e.preventDefault();
+    const obsidianButton = document.getElementById("sendToObsidian");
+    if (!obsidianButton) return;
+
+    const originalHTML = obsidianButton.innerHTML;
 
     try {
         // Get current options including Obsidian settings
@@ -529,7 +585,19 @@ async function sendToObsidian(e) {
 
         // Check if Obsidian integration is enabled
         if (!options.obsidianIntegration) {
-            showObsidianError('Obsidian integration is not enabled. Please enable it in settings.');
+            // Show error state
+            obsidianButton.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
+                </svg>
+                Not Enabled
+            `;
+            obsidianButton.classList.add("error");
+
+            setTimeout(() => {
+                obsidianButton.innerHTML = originalHTML;
+                obsidianButton.classList.remove("error");
+            }, 3000);
             return;
         }
 
@@ -551,52 +619,37 @@ async function sendToObsidian(e) {
             title: title
         });
 
-        // Show success message
-        showObsidianSuccess();
+        // Show success state
+        obsidianButton.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Sent to Obsidian!
+        `;
+        obsidianButton.classList.add("success");
 
-        // Close popup after a brief delay
+        // Close popup after showing success
         setTimeout(() => {
             window.close();
-        }, 1000);
+        }, 1500);
 
     } catch (error) {
         console.error('Error sending to Obsidian:', error);
-        showObsidianError('Failed to send to Obsidian: ' + error.message);
+
+        // Show error state
+        obsidianButton.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
+            </svg>
+            Failed
+        `;
+        obsidianButton.classList.add("error");
+
+        setTimeout(() => {
+            obsidianButton.innerHTML = originalHTML;
+            obsidianButton.classList.remove("error");
+        }, 3000);
     }
-}
-
-function showObsidianSuccess() {
-    const statusDiv = document.createElement('div');
-    statusDiv.className = 'copy-success';
-    statusDiv.textContent = 'Sent to Obsidian!';
-    statusDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: var(--accent); color: white; padding: 12px 20px; border-radius: 6px; font-size: 14px; font-weight: 500; z-index: 10000; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
-    document.body.appendChild(statusDiv);
-
-    setTimeout(() => {
-        statusDiv.style.opacity = '0';
-        statusDiv.style.transition = 'opacity 300ms';
-        setTimeout(() => {
-            document.body.removeChild(statusDiv);
-        }, 300);
-    }, 700);
-}
-
-function showObsidianError(message) {
-    const statusDiv = document.createElement('div');
-    statusDiv.className = 'copy-error';
-    statusDiv.textContent = message;
-    statusDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: var(--error); color: white; padding: 12px 20px; border-radius: 6px; font-size: 14px; font-weight: 500; z-index: 10000; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
-    document.body.appendChild(statusDiv);
-
-    setTimeout(() => {
-        statusDiv.style.opacity = '0';
-        statusDiv.style.transition = 'opacity 300ms';
-        setTimeout(() => {
-            if (document.body.contains(statusDiv)) {
-                document.body.removeChild(statusDiv);
-            }
-        }, 300);
-    }, 3000);
 }
 
 //function that handles messages from the injected script into the site
