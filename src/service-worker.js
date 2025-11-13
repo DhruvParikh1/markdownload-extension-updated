@@ -684,9 +684,15 @@ async function handleStorageChange(changes, areaName) {
  */
 async function openObsidianUri(vault, folder, title) {
   try {
-    const uri = `obsidian://advanced-uri?vault=${encodeURIComponent(vault)}&clipboard=true&mode=new&filepath=${encodeURIComponent(folder + title)}`;
+    // Ensure title has .md extension
+    const filename = title.endsWith('.md') ? title : title + '.md';
+    const filepath = folder + filename;
+
+    // Use correct URI scheme: adv-uri (not advanced-uri)
+    const uri = `obsidian://adv-uri?vault=${encodeURIComponent(vault)}&filepath=${encodeURIComponent(filepath)}&clipboard=true&mode=new`;
+
+    console.log('Opening Obsidian URI:', uri);
     await browser.tabs.update({ url: uri });
-    console.log('Opened Obsidian URI:', uri);
   } catch (error) {
     console.error('Failed to open Obsidian URI:', error);
   }
