@@ -967,22 +967,74 @@ async function getArticleFromDom(domString, options) {
    }
  });
 
- // Simplify the DOM into an article with class preservation options
- console.log('[MarkSnip Debug] Before Readability - callouts:', dom.body.querySelectorAll('.callout, [data-callout]').length);
- console.log('[MarkSnip Debug] Before Readability - tables:', dom.body.querySelectorAll('table').length);
+ // Try to detect article containers before using Readability
+ // This helps preserve content on sites with clear article boundaries
+ const articleContainerSelectors = [
+   '.markdown-preview-sizer',          // Obsidian Publish
+   '.markdown-preview-view',           // Obsidian Publish (outer)
+   'article.post-content',             // Medium, Ghost
+   '.article-content',                 // Generic article sites
+   '[role="article"]',                 // Semantic HTML
+   'main article',                     // Semantic HTML
+   '.entry-content',                   // WordPress
+   '.post-body',                       // Blogger
+   '#article-content'                  // Generic
+ ];
 
- const article = new Readability(dom, {
-   classesToPreserve: ['callout', 'callout-title', 'callout-content', 'callout-icon', 'language-', 'highlight'],
-   keepClasses: true,  // Keep all classes
-   charThreshold: 0   // Lower threshold to include more content
- }).parse();
+ let articleContainer = null;
+ for (const selector of articleContainerSelectors) {
+   articleContainer = dom.body.querySelector(selector);
+   if (articleContainer) {
+     console.log('[MarkSnip Debug] Found article container using selector:', selector);
+     break;
+   }
+ }
 
- if (article && article.content) {
-   const tempDiv = document.createElement('div');
-   tempDiv.innerHTML = article.content;
-   console.log('[MarkSnip Debug] After Readability - callouts:', tempDiv.querySelectorAll('.callout, [data-callout]').length);
-   console.log('[MarkSnip Debug] After Readability - tables:', tempDiv.querySelectorAll('table').length);
-   console.log('[MarkSnip Debug] After Readability - content length:', article.content.length);
+ let article;
+
+ if (articleContainer) {
+   // We found a clear article container - use it directly and skip aggressive Readability
+   console.log('[MarkSnip Debug] Using detected article container, bypassing aggressive Readability');
+   console.log('[MarkSnip Debug] Container has callouts:', articleContainer.querySelectorAll('.callout, [data-callout]').length);
+   console.log('[MarkSnip Debug] Container has tables:', articleContainer.querySelectorAll('table').length);
+
+   // Extract title from h1 if available
+   const titleElement = articleContainer.querySelector('h1') || dom.querySelector('h1');
+   const title = titleElement ? titleElement.textContent.trim() : dom.title;
+
+   // Create article object directly from container
+   article = {
+     title: title,
+     byline: null,
+     dir: null,
+     content: articleContainer.innerHTML,
+     textContent: articleContainer.textContent,
+     length: articleContainer.textContent.length,
+     excerpt: articleContainer.textContent.substring(0, 200),
+     siteName: null
+   };
+
+   console.log('[MarkSnip Debug] Direct extraction - callouts preserved:', article.content.includes('callout'));
+   console.log('[MarkSnip Debug] Direct extraction - tables preserved:', article.content.includes('<table'));
+ } else {
+   // No clear container found, fall back to Readability
+   console.log('[MarkSnip Debug] No article container detected, using Readability');
+   console.log('[MarkSnip Debug] Before Readability - callouts:', dom.body.querySelectorAll('.callout, [data-callout]').length);
+   console.log('[MarkSnip Debug] Before Readability - tables:', dom.body.querySelectorAll('table').length);
+
+   article = new Readability(dom, {
+     classesToPreserve: ['callout', 'callout-title', 'callout-content', 'callout-icon', 'language-', 'highlight'],
+     keepClasses: true,  // Keep all classes
+     charThreshold: 0   // Lower threshold to include more content
+   }).parse();
+
+   if (article && article.content) {
+     const tempDiv = document.createElement('div');
+     tempDiv.innerHTML = article.content;
+     console.log('[MarkSnip Debug] After Readability - callouts:', tempDiv.querySelectorAll('.callout, [data-callout]').length);
+     console.log('[MarkSnip Debug] After Readability - tables:', tempDiv.querySelectorAll('table').length);
+     console.log('[MarkSnip Debug] After Readability - content length:', article.content.length);
+   }
  }
 
  // Add essential metadata
