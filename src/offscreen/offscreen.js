@@ -916,19 +916,21 @@ async function getArticleFromDom(domString, options) {
  console.log('[MarkSnip Debug] Found callouts:', callouts.length);
  callouts?.forEach(callout => {
    console.log('[MarkSnip Debug] Processing callout:', callout.getAttribute('data-callout'), callout.className);
-   // Mark callout containers as article content to ensure preservation
-   callout.setAttribute('data-marksnip-preserve', 'callout');
-   // Add 'article' class which Readability recognizes as content
-   callout.classList.add('article', 'content', 'main');
 
-   // If callout is wrapped in el-div, unwrap it
+   // Unwrap from el-div first if wrapped
    const parent = callout.parentElement;
    if (parent && parent.classList.contains('el-div')) {
      console.log('[MarkSnip Debug] Unwrapping callout from el-div');
-     // Replace the parent with the callout itself
      parent.parentElement?.insertBefore(callout, parent);
      parent.remove();
    }
+
+   // Wrap in a section tag with article/content classes for Readability
+   const section = dom.createElement('section');
+   section.className = 'article content main marksnip-callout';
+   section.setAttribute('data-marksnip-preserve', 'callout');
+   callout.parentElement?.insertBefore(section, callout);
+   section.appendChild(callout);
  });
 
  // Process table wrapper divs to prevent Readability.js from stripping them
@@ -939,12 +941,16 @@ async function getArticleFromDom(domString, options) {
    const table = tableWrapper.querySelector('table');
    if (table) {
      console.log('[MarkSnip Debug] Unwrapping table from el-table wrapper');
-     // Mark the table itself to help with preservation
-     table.setAttribute('data-marksnip-preserve', 'table');
-     table.classList.add('article', 'content', 'main');
      // Unwrap: replace the wrapper with the table
      tableWrapper.parentElement?.insertBefore(table, tableWrapper);
      tableWrapper.remove();
+
+     // Wrap table in a section tag with article/content classes
+     const section = dom.createElement('section');
+     section.className = 'article content main marksnip-table';
+     section.setAttribute('data-marksnip-preserve', 'table');
+     table.parentElement?.insertBefore(section, table);
+     section.appendChild(table);
    }
  });
 
@@ -966,7 +972,9 @@ async function getArticleFromDom(domString, options) {
  console.log('[MarkSnip Debug] Before Readability - tables:', dom.body.querySelectorAll('table').length);
 
  const article = new Readability(dom, {
-   classesToPreserve: ['callout', 'callout-title', 'callout-content', 'callout-icon', 'language-', 'highlight']
+   classesToPreserve: ['callout', 'callout-title', 'callout-content', 'callout-icon', 'language-', 'highlight'],
+   keepClasses: true,  // Keep all classes
+   charThreshold: 0   // Lower threshold to include more content
  }).parse();
 
  if (article && article.content) {
