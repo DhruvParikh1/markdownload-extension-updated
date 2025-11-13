@@ -218,8 +218,16 @@ async function handleContextMenuCopy(info, tabId, providedOptions = null) {
     const obsidianVault = options.obsidianVault;
     const obsidianFolder = await formatObsidianFolder(article, options);
     const { markdown } = await convertArticleToMarkdown(article, false, options);
-    await copyToClipboard(markdown);
 
+    console.log('[Offscreen] Copying markdown to clipboard for Obsidian...');
+    const clipboardSuccess = await copyToClipboard(markdown);
+
+    if (!clipboardSuccess) {
+      console.error('❌ [Offscreen] Failed to copy to clipboard, aborting Obsidian integration');
+      return;
+    }
+
+    console.log('[Offscreen] Clipboard successful, opening Obsidian URI...');
     // Offscreen document doesn't have access to tabs API, send message to service worker
     await browser.runtime.sendMessage({
       type: 'open-obsidian-uri',
@@ -235,8 +243,16 @@ async function handleContextMenuCopy(info, tabId, providedOptions = null) {
     const obsidianVault = options.obsidianVault;
     const obsidianFolder = await formatObsidianFolder(article, options);
     const { markdown } = await convertArticleToMarkdown(article, false, options);
-    await copyToClipboard(markdown);
 
+    console.log('[Offscreen] Copying markdown to clipboard for Obsidian...');
+    const clipboardSuccess = await copyToClipboard(markdown);
+
+    if (!clipboardSuccess) {
+      console.error('❌ [Offscreen] Failed to copy to clipboard, aborting Obsidian integration');
+      return;
+    }
+
+    console.log('[Offscreen] Clipboard successful, opening Obsidian URI...');
     // Offscreen document doesn't have access to tabs API, send message to service worker
     await browser.runtime.sendMessage({
       type: 'open-obsidian-uri',
@@ -257,10 +273,36 @@ async function handleContextMenuCopy(info, tabId, providedOptions = null) {
  * Copy text to clipboard
  */
 async function copyToClipboard(text) {
-  const textArea = document.getElementById('clipboard-text');
-  textArea.value = text;
-  textArea.select();
-  document.execCommand('copy');
+  try {
+    // Try modern Clipboard API first (available in offscreen documents)
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(text);
+      console.log('✅ [Offscreen] Successfully copied to clipboard using Clipboard API:', text.substring(0, 100) + '...');
+      return true;
+    }
+
+    // Fallback to old method
+    const textArea = document.getElementById('clipboard-text');
+    if (!textArea) {
+      console.error('❌ [Offscreen] Clipboard textarea not found');
+      return false;
+    }
+
+    textArea.value = text;
+    textArea.select();
+    const success = document.execCommand('copy');
+
+    if (success) {
+      console.log('✅ [Offscreen] Successfully copied to clipboard using execCommand:', text.substring(0, 100) + '...');
+    } else {
+      console.error('❌ [Offscreen] Failed to copy to clipboard using execCommand');
+    }
+
+    return success;
+  } catch (error) {
+    console.error('❌ [Offscreen] Error copying to clipboard:', error);
+    return false;
+  }
 }
 
 /**
