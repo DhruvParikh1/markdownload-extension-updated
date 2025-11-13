@@ -17,6 +17,7 @@ browser.runtime.onMessage.addListener(handleMessages);
 browser.contextMenus.onClicked.addListener(handleContextMenuClick);
 browser.commands.onCommand.addListener(handleCommands);
 browser.downloads.onChanged.addListener(handleDownloadChange);
+browser.storage.onChanged.addListener(handleStorageChange);
 
 // Create context menus when service worker starts
 createMenus();
@@ -657,6 +658,18 @@ async function handleCommands(command) {
   else if (command == "copy_tab_to_obsidian") {
     const info = { menuItemId: "copy-markdown-obsall" };
     await copyMarkdownFromContext(info, tab);
+  }
+}
+
+/**
+ * Handle storage changes - recreate menus when options change
+ */
+async function handleStorageChange(changes, areaName) {
+  // Only handle sync storage changes
+  if (areaName === 'sync') {
+    console.log('Options changed, recreating context menus...');
+    // Recreate all context menus with updated options
+    await createMenus();
   }
 }
 
