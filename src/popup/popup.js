@@ -160,7 +160,7 @@ async function handleBatchConversion(e) {
         return;
     }
 
-    document.getElementById("spinner").style.display = 'block';
+    document.getElementById("spinner").style.display = 'flex';
     document.getElementById("convertUrls").style.display = 'none';
     progressUI.show();
     progressUI.reset();
