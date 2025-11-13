@@ -593,9 +593,10 @@ body {
 }
 
 .btn-block {
+    flex-shrink: 0;
     width: 100%;
     padding: var(--space-2) var(--space-4);
-    margin-top: var(--space-3);
+    margin-top: 0;
 }
 
 /* Batch Container */
@@ -627,15 +628,15 @@ body {
     display: flex;
     flex-direction: column;
     padding: var(--space-4);
-    overflow: auto;
     min-height: 0;
+    overflow: hidden;
 }
 
 .url-textarea {
     flex: 1;
-    min-height: 120px;
+    min-height: 0;
     padding: var(--space-3);
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-3);
     background: var(--bg-primary);
     border: 1px solid var(--border-medium);
     border-radius: var(--radius-md);
@@ -644,6 +645,7 @@ body {
     line-height: 1.6;
     color: var(--text-primary);
     resize: none;
+    overflow-y: auto;
 }
 
 .url-textarea::placeholder {
@@ -652,8 +654,9 @@ body {
 
 /* Progress Container */
 .progress-container {
-    margin-bottom: var(--space-4);
-    padding: var(--space-4);
+    flex-shrink: 0;
+    margin-bottom: var(--space-3);
+    padding: var(--space-3);
     background: var(--bg-secondary);
     border: 1px solid var(--border-light);
     border-radius: var(--radius-md);
