@@ -65,6 +65,8 @@ document.getElementById("downloadSelection").addEventListener("click", downloadS
 document.getElementById("copy").addEventListener("click", copyToClipboard);
 document.getElementById("copySelection").addEventListener("click", copySelectionToClipboard);
 
+document.getElementById("sendToObsidian").addEventListener("click", sendToObsidian);
+
 document.getElementById("batchProcess").addEventListener("click", showBatchProcess);
 document.getElementById("convertUrls").addEventListener("click", handleBatchConversion);
 document.getElementById("cancelBatch").addEventListener("click", hideBatchProcess);
@@ -281,22 +283,24 @@ async function handleBatchConversion(e) {
 }
 
 const checkInitialSettings = options => {
-    if (options.includeTemplate)
-        document.querySelector("#includeTemplate").classList.add("checked");
+    // Set checkbox states
+    document.querySelector("#includeTemplate").checked = options.includeTemplate || false;
+    document.querySelector("#downloadImages").checked = options.downloadImages || false;
 
-    if (options.downloadImages)
-        document.querySelector("#downloadImages").classList.add("checked");
-
-    if (options.clipSelection)
-        document.querySelector("#selected").classList.add("checked");
-    else
-        document.querySelector("#document").classList.add("checked");
+    // Set segmented control state
+    if (options.clipSelection) {
+        document.querySelector("#selected").classList.add("active");
+        document.querySelector("#document").classList.remove("active");
+    } else {
+        document.querySelector("#document").classList.add("active");
+        document.querySelector("#selected").classList.remove("active");
+    }
 }
 
 const toggleClipSelection = options => {
     options.clipSelection = !options.clipSelection;
-    document.querySelector("#selected").classList.toggle("checked");
-    document.querySelector("#document").classList.toggle("checked");
+    document.querySelector("#selected").classList.toggle("active");
+    document.querySelector("#document").classList.toggle("active");
     browser.storage.sync.set(options).then(() => clipSite()).catch((error) => {
         console.error(error);
     });
@@ -304,7 +308,7 @@ const toggleClipSelection = options => {
 
 const toggleIncludeTemplate = options => {
     options.includeTemplate = !options.includeTemplate;
-    document.querySelector("#includeTemplate").classList.toggle("checked");
+    document.querySelector("#includeTemplate").checked = options.includeTemplate;
     browser.storage.sync.set(options).then(() => {
         return browser.contextMenus.update("toggle-includeTemplate", {
             checked: options.includeTemplate
@@ -326,7 +330,7 @@ const toggleIncludeTemplate = options => {
 
 const toggleDownloadImages = options => {
     options.downloadImages = !options.downloadImages;
-    document.querySelector("#downloadImages").classList.toggle("checked");
+    document.querySelector("#downloadImages").checked = options.downloadImages;
     browser.storage.sync.set(options).then(() => {
         return browser.contextMenus.update("toggle-downloadImages", {
             checked: options.downloadImages
@@ -530,13 +534,93 @@ function showCopySuccess() {
     statusDiv.className = 'copy-success';
     statusDiv.textContent = 'Copied!';
     document.body.appendChild(statusDiv);
-    
+
     setTimeout(() => {
         statusDiv.classList.add('fade-out');
         setTimeout(() => {
             document.body.removeChild(statusDiv);
         }, 300);
     }, 1000);
+}
+
+// Function to send markdown to Obsidian
+async function sendToObsidian(e) {
+    e.preventDefault();
+
+    try {
+        // Get current options including Obsidian settings
+        const options = await browser.storage.sync.get();
+
+        // Check if Obsidian integration is enabled
+        if (!options.obsidianIntegration) {
+            showObsidianError('Obsidian integration is not enabled. Please enable it in settings.');
+            return;
+        }
+
+        // Get markdown content
+        const markdown = cm.getValue();
+        const title = document.getElementById("title").value || 'Untitled';
+
+        // Get current tab
+        const tabs = await browser.tabs.query({ currentWindow: true, active: true });
+        const currentTab = tabs[0];
+
+        // Send message to service worker to handle Obsidian integration
+        await browser.runtime.sendMessage({
+            type: 'obsidian-integration',
+            markdown: markdown,
+            tabId: currentTab.id,
+            vault: options.obsidianVault || '',
+            folder: options.obsidianFolder || '',
+            title: title
+        });
+
+        // Show success message
+        showObsidianSuccess();
+
+        // Close popup after a brief delay
+        setTimeout(() => {
+            window.close();
+        }, 1000);
+
+    } catch (error) {
+        console.error('Error sending to Obsidian:', error);
+        showObsidianError('Failed to send to Obsidian: ' + error.message);
+    }
+}
+
+function showObsidianSuccess() {
+    const statusDiv = document.createElement('div');
+    statusDiv.className = 'copy-success';
+    statusDiv.textContent = 'Sent to Obsidian!';
+    statusDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: var(--accent); color: white; padding: 12px 20px; border-radius: 6px; font-size: 14px; font-weight: 500; z-index: 10000; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
+    document.body.appendChild(statusDiv);
+
+    setTimeout(() => {
+        statusDiv.style.opacity = '0';
+        statusDiv.style.transition = 'opacity 300ms';
+        setTimeout(() => {
+            document.body.removeChild(statusDiv);
+        }, 300);
+    }, 700);
+}
+
+function showObsidianError(message) {
+    const statusDiv = document.createElement('div');
+    statusDiv.className = 'copy-error';
+    statusDiv.textContent = message;
+    statusDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: var(--error); color: white; padding: 12px 20px; border-radius: 6px; font-size: 14px; font-weight: 500; z-index: 10000; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
+    document.body.appendChild(statusDiv);
+
+    setTimeout(() => {
+        statusDiv.style.opacity = '0';
+        statusDiv.style.transition = 'opacity 300ms';
+        setTimeout(() => {
+            if (document.body.contains(statusDiv)) {
+                document.body.removeChild(statusDiv);
+            }
+        }, 300);
+    }, 3000);
 }
 
 //function that handles messages from the injected script into the site
