@@ -139,6 +139,9 @@ async function handleMessages(message, sender, sendResponse) {
       // Legacy fallback - shouldn't be used anymore
       console.log(`⚠️ [Service Worker] Legacy offscreen-download-failed: ${message.error}`);
       break;
+    case "open-obsidian-uri":
+      await openObsidianUri(message.vault, message.folder, message.title);
+      break;
   }
 }
 
@@ -670,6 +673,19 @@ async function handleStorageChange(changes, areaName) {
     console.log('Options changed, recreating context menus...');
     // Recreate all context menus with updated options
     await createMenus();
+  }
+}
+
+/**
+ * Open Obsidian URI in current tab
+ */
+async function openObsidianUri(vault, folder, title) {
+  try {
+    const uri = `obsidian://advanced-uri?vault=${encodeURIComponent(vault)}&clipboard=true&mode=new&filepath=${encodeURIComponent(folder + title)}`;
+    await browser.tabs.update({ url: uri });
+    console.log('Opened Obsidian URI:', uri);
+  } catch (error) {
+    console.error('Failed to open Obsidian URI:', error);
   }
 }
 

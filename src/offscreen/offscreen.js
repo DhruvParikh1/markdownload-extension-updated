@@ -219,8 +219,13 @@ async function handleContextMenuCopy(info, tabId, providedOptions = null) {
     const obsidianFolder = await formatObsidianFolder(article, options);
     const { markdown } = await convertArticleToMarkdown(article, false, options);
     await copyToClipboard(markdown);
-    await browser.tabs.update({
-      url: `obsidian://advanced-uri?vault=${encodeURIComponent(obsidianVault)}&clipboard=true&mode=new&filepath=${encodeURIComponent(obsidianFolder + generateValidFileName(title, options.disallowedChars))}`
+
+    // Offscreen document doesn't have access to tabs API, send message to service worker
+    await browser.runtime.sendMessage({
+      type: 'open-obsidian-uri',
+      vault: obsidianVault,
+      folder: obsidianFolder,
+      title: generateValidFileName(title, options.disallowedChars)
     });
   }
   else if (info.menuItemId === "copy-markdown-obsall") {
@@ -231,8 +236,13 @@ async function handleContextMenuCopy(info, tabId, providedOptions = null) {
     const obsidianFolder = await formatObsidianFolder(article, options);
     const { markdown } = await convertArticleToMarkdown(article, false, options);
     await copyToClipboard(markdown);
-    await browser.tabs.update({
-      url: `obsidian://advanced-uri?vault=${encodeURIComponent(obsidianVault)}&clipboard=true&mode=new&filepath=${encodeURIComponent(obsidianFolder + generateValidFileName(title, options.disallowedChars))}`
+
+    // Offscreen document doesn't have access to tabs API, send message to service worker
+    await browser.runtime.sendMessage({
+      type: 'open-obsidian-uri',
+      vault: obsidianVault,
+      folder: obsidianFolder,
+      title: generateValidFileName(title, options.disallowedChars)
     });
   }
   else {
