@@ -310,18 +310,6 @@ const toggleIncludeTemplate = options => {
     options.includeTemplate = !options.includeTemplate;
     document.querySelector("#includeTemplate").checked = options.includeTemplate;
     browser.storage.sync.set(options).then(() => {
-        return browser.contextMenus.update("toggle-includeTemplate", {
-            checked: options.includeTemplate
-        });
-    }).then(() => {
-        // Try to update tab context menu if it exists
-        return browser.contextMenus.update("tabtoggle-includeTemplate", {
-            checked: options.includeTemplate
-        }).catch(err => {
-            // Silently ignore if this menu doesn't exist
-            console.debug("Tab context menu not available:", err.message);
-        });
-    }).then(() => {
         return clipSite();
     }).catch((error) => {
         console.error(error);
@@ -331,20 +319,8 @@ const toggleIncludeTemplate = options => {
 const toggleDownloadImages = options => {
     options.downloadImages = !options.downloadImages;
     document.querySelector("#downloadImages").checked = options.downloadImages;
-    browser.storage.sync.set(options).then(() => {
-        return browser.contextMenus.update("toggle-downloadImages", {
-            checked: options.downloadImages
-        });
-    }).then(() => {
-        // Try to update tab context menu if it exists
-        return browser.contextMenus.update("tabtoggle-downloadImages", {
-            checked: options.downloadImages
-        }).catch(err => {
-            // Silently ignore if this menu doesn't exist
-            console.debug("Tab context menu not available:", err.message);
-        });
-    }).catch((error) => {
-        console.error("Error updating options or menus:", error);
+    browser.storage.sync.set(options).catch((error) => {
+        console.error("Error updating options:", error);
     });
 }
 

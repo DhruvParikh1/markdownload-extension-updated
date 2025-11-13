@@ -315,12 +315,12 @@ body {
 .setting-checkbox:checked + .checkbox-custom::after {
     content: '';
     position: absolute;
-    left: 5px;
-    top: 2px;
-    width: 4px;
-    height: 8px;
+    left: 5.5px;
+    top: 1.5px;
+    width: 4.5px;
+    height: 9px;
     border: solid var(--text-inverse);
-    border-width: 0 2px 2px 0;
+    border-width: 0 2.5px 2.5px 0;
     transform: rotate(45deg) scale(1);
     animation: checkmarkAppear 150ms ease-out;
 }
