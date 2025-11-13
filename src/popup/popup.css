@@ -146,6 +146,8 @@ body {
     color: var(--text-primary);
     background: var(--bg-primary);
     overflow: hidden;
+    position: relative;
+    scrollbar-gutter: stable; /* Reserve scrollbar space for smoothness */
 }
 
 /* Loading State */
@@ -183,9 +185,10 @@ body {
 .container {
     display: none;
     flex-direction: column;
-    height: 100vh;
+    height: 100%;
     background: var(--bg-primary);
     animation: fadeIn 200ms ease-out;
+    overflow: hidden; // Smooth overflow handling
 }
 
 /* Header */
@@ -593,10 +596,8 @@ body {
 }
 
 .btn-block {
-    flex-shrink: 0;
+    flex: 0 0 auto;
     width: 100%;
-    padding: var(--space-2) var(--space-4);
-    margin-top: 0;
 }
 
 /* Batch Container */
