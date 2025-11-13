@@ -71,6 +71,29 @@ document.getElementById("batchProcess").addEventListener("click", showBatchProce
 document.getElementById("convertUrls").addEventListener("click", handleBatchConversion);
 document.getElementById("cancelBatch").addEventListener("click", hideBatchProcess);
 
+// Save batch URL list to storage
+function saveBatchUrls() {
+    const urlList = document.getElementById("urlList").value;
+    browser.storage.local.set({ batchUrlList: urlList }).catch(err => {
+        console.error("Error saving batch URL list:", err);
+    });
+}
+
+// Load batch URL list from storage
+async function loadBatchUrls() {
+    try {
+        const data = await browser.storage.local.get('batchUrlList');
+        if (data.batchUrlList) {
+            document.getElementById("urlList").value = data.batchUrlList;
+        }
+    } catch (err) {
+        console.error("Error loading batch URL list:", err);
+    }
+}
+
+// Add event listener to save URLs as user types
+document.getElementById("urlList").addEventListener("input", saveBatchUrls);
+
 function showBatchProcess(e) {
     e.preventDefault();
     document.getElementById("container").style.display = 'none';
@@ -269,7 +292,10 @@ async function handleBatchConversion(e) {
 
         progressUI.setStatus('Complete!');
         await new Promise(resolve => setTimeout(resolve, 1000)); // Show completion briefly
-        
+
+        // Clear saved batch URLs after successful completion
+        await browser.storage.local.remove('batchUrlList');
+
         console.log('Batch conversion complete');
         hideBatchProcess(e);
         window.close();
@@ -400,7 +426,10 @@ const clipSite = id => {
 // Inject the necessary scripts - updated for Manifest V3
 browser.storage.sync.get(defaultOptions).then(options => {
     checkInitialSettings(options);
-    
+
+    // Load batch URL list from storage
+    loadBatchUrls();
+
     // Set up event listeners (unchanged)
     document.getElementById("selected").addEventListener("click", (e) => {
         e.preventDefault();
