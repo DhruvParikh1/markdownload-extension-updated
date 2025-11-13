@@ -633,7 +633,7 @@ body {
 
 .url-textarea {
     flex: 1;
-    min-height: 280px;
+    min-height: 120px;
     padding: var(--space-3);
     margin-bottom: var(--space-4);
     background: var(--bg-primary);
@@ -643,7 +643,7 @@ body {
     font-size: var(--text-sm);
     line-height: 1.6;
     color: var(--text-primary);
-    resize: vertical;
+    resize: none;
 }
 
 .url-textarea::placeholder {
