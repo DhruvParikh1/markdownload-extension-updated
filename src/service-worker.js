@@ -716,36 +716,30 @@ async function handleObsidianIntegration(message) {
     // Ensure content script is loaded
     await ensureScripts(tabId);
 
-    // Copy to clipboard in the actual tab (which has user interaction context)
+    // Copy to clipboard using execCommand (doesn't require user gesture)
     await browser.scripting.executeScript({
       target: { tabId: tabId },
-      func: async (markdownText) => {
-        // Try modern Clipboard API first (should work in tab with user interaction)
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          try {
-            await navigator.clipboard.writeText(markdownText);
-            console.log('[Tab] ✅ Copied to clipboard using Clipboard API');
-            return;
-          } catch (e) {
-            console.log('[Tab] ⚠️ Clipboard API failed, trying execCommand:', e.message);
-          }
-        }
+      func: (markdownText) => {
+        // Use execCommand directly since Clipboard API requires user gesture
+        // and user gestures don't transfer from popup to tab
+        const textarea = document.createElement('textarea');
+        textarea.value = markdownText;
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-999999px';
+        textarea.style.top = '-999999px';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
 
-        // Fallback to execCommand
-        if (typeof copyToClipboard === 'function') {
-          copyToClipboard(markdownText);
-          console.log('[Tab] ✅ Copied to clipboard using copyToClipboard function');
-        } else {
-          // Manual execCommand fallback
-          const textarea = document.createElement('textarea');
-          textarea.value = markdownText;
-          textarea.style.position = 'fixed';
-          textarea.style.left = '-999999px';
-          document.body.appendChild(textarea);
-          textarea.select();
+        try {
           const success = document.execCommand('copy');
-          document.body.removeChild(textarea);
           console.log('[Tab] ' + (success ? '✅' : '❌') + ' Copied to clipboard using execCommand');
+          return success;
+        } catch (e) {
+          console.error('[Tab] ❌ Failed to copy:', e);
+          return false;
+        } finally {
+          document.body.removeChild(textarea);
         }
       },
       args: [markdown]
