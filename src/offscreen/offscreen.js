@@ -916,27 +916,48 @@ async function getArticleFromDom(domString, options) {
    // Mark callout containers as article content to ensure preservation
    callout.setAttribute('data-marksnip-preserve', 'callout');
    // Add 'article' class which Readability recognizes as content
-   callout.classList.add('article', 'content');
- });
+   callout.classList.add('article', 'content', 'main');
 
- // Process table wrapper divs to prevent Readability.js from stripping them
- dom.body.querySelectorAll('.el-table')?.forEach(tableWrapper => {
-   tableWrapper.setAttribute('data-marksnip-preserve', 'table');
-   // Mark as article content
-   tableWrapper.classList.add('article', 'content');
- });
-
- // Process semantic container divs that might contain important content
- dom.body.querySelectorAll('.el-div')?.forEach(container => {
-   // Check if it contains important content like callouts or tables
-   if (container.querySelector('.callout, [data-callout], table, .el-table')) {
-     container.setAttribute('data-marksnip-preserve', 'container');
-     container.classList.add('article', 'content');
+   // If callout is wrapped in el-div, unwrap it
+   const parent = callout.parentElement;
+   if (parent && parent.classList.contains('el-div')) {
+     // Replace the parent with the callout itself
+     parent.parentElement?.insertBefore(callout, parent);
+     parent.remove();
    }
  });
 
- // Simplify the DOM into an article
- const article = new Readability(dom).parse();
+ // Process table wrapper divs to prevent Readability.js from stripping them
+ // Unwrap tables from their el-table wrapper divs
+ dom.body.querySelectorAll('.el-table')?.forEach(tableWrapper => {
+   const table = tableWrapper.querySelector('table');
+   if (table) {
+     // Mark the table itself to help with preservation
+     table.setAttribute('data-marksnip-preserve', 'table');
+     table.classList.add('article', 'content', 'main');
+     // Unwrap: replace the wrapper with the table
+     tableWrapper.parentElement?.insertBefore(table, tableWrapper);
+     tableWrapper.remove();
+   }
+ });
+
+ // Process any remaining semantic container divs
+ dom.body.querySelectorAll('.el-div')?.forEach(container => {
+   // Check if it contains important content
+   const hasImportantContent = container.querySelector('.callout, [data-callout], table, pre, code');
+   if (hasImportantContent) {
+     // Unwrap: move children up and remove the wrapper
+     while (container.firstChild) {
+       container.parentElement?.insertBefore(container.firstChild, container);
+     }
+     container.remove();
+   }
+ });
+
+ // Simplify the DOM into an article with class preservation options
+ const article = new Readability(dom, {
+   classesToPreserve: ['callout', 'callout-title', 'callout-content', 'callout-icon', 'language-', 'highlight']
+ }).parse();
 
  // Add essential metadata
  article.baseURI = dom.baseURI;
