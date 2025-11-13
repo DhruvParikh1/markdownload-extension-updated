@@ -13,8 +13,6 @@ npm test          # Run all tests
 npm run test:e2e  # Run browser tests
 ```
 
-**Current Status:** ✅ 106/112 tests passing (94.6%)
-
 ## Test Architecture
 
 ### Three Levels of Testing
@@ -346,6 +344,3 @@ test('should convert heading', () => {
 - [Turndown](https://github.com/mixmark-io/turndown)
 - [Readability](https://github.com/mozilla/readability)
 
----
-
-**For 10,000+ users relying on this extension, these tests ensure stability and catch real bugs before they reach production.**
