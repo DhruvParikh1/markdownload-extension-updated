@@ -1,6 +1,6 @@
 # MarkSnip Test Suite
 
-**Production-Grade Testing for 10,000+ Users**
+**Production-Grade Testing**
 
 Comprehensive test suite with **real functionality testing** using actual libraries (Turndown.js, Readability.js) and end-to-end browser testing.
 
