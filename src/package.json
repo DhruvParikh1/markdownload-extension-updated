@@ -5,9 +5,21 @@
     "start:firefoxdeveloper": "web-ext run -f firefoxdeveloperedition -u https://en.wikipedia.org/wiki/Special:Random --bc",
     "start:chromedevwin": "web-ext run -t chromium --chromium-binary \"C:\\Program Files\\Google\\Chrome Dev\\Application\\chrome.exe\" -u https://en.wikipedia.org/wiki/Special:Random --bc",
     "start:waveboxwin": "web-ext run -t chromium --chromium-binary %localappdata%/WaveboxApp/Application/wavebox.exe",
-    "start:androidwin11": "adb connect 127.0.0.1:58526 && web-ext run -t firefox-android --adb-device 127.0.0.1:58526 --firefox-apk org.mozilla.fenix"
+    "start:androidwin11": "adb connect 127.0.0.1:58526 && web-ext run -t firefox-android --adb-device 127.0.0.1:58526 --firefox-apk org.mozilla.fenix",
+    "test": "jest",
+    "test:unit": "jest --testPathPattern=tests/unit",
+    "test:integration": "jest --testPathPattern=tests/integration",
+    "test:e2e": "playwright test",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:verbose": "jest --verbose",
+    "test:all": "npm run test && npm run test:e2e"
   },
   "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "@types/jest": "^29.5.11",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "web-ext": "^7.4.0"
   }
 }
