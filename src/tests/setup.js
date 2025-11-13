@@ -3,12 +3,17 @@
  * Runs before each test file to set up the testing environment
  */
 
+// Polyfills for Node.js environment
+const { TextEncoder, TextDecoder } = require('util');
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
 // Mock browser/chrome APIs globally
 global.browser = require('./mocks/browser-api');
 global.chrome = global.browser; // Chrome uses 'chrome' instead of 'browser'
 
 // Mock DOMParser if not available
-if (typeof DOMParser === 'undefined') {
+if (typeof DOMParser === 'undefined' && typeof window !== 'undefined') {
   global.DOMParser = window.DOMParser;
 }
 
