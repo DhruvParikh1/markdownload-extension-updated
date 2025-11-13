@@ -910,6 +910,31 @@ async function getArticleFromDom(domString, options) {
    header.outerHTML = header.outerHTML;
  });
 
+ // Process callouts to prevent Readability.js from stripping them
+ // Callouts are often in structures like: <div class="el-div"><div class="callout">...</div></div>
+ dom.body.querySelectorAll('.callout, [data-callout]')?.forEach(callout => {
+   // Mark callout containers as article content to ensure preservation
+   callout.setAttribute('data-marksnip-preserve', 'callout');
+   // Add 'article' class which Readability recognizes as content
+   callout.classList.add('article', 'content');
+ });
+
+ // Process table wrapper divs to prevent Readability.js from stripping them
+ dom.body.querySelectorAll('.el-table')?.forEach(tableWrapper => {
+   tableWrapper.setAttribute('data-marksnip-preserve', 'table');
+   // Mark as article content
+   tableWrapper.classList.add('article', 'content');
+ });
+
+ // Process semantic container divs that might contain important content
+ dom.body.querySelectorAll('.el-div')?.forEach(container => {
+   // Check if it contains important content like callouts or tables
+   if (container.querySelector('.callout, [data-callout], table, .el-table')) {
+     container.setAttribute('data-marksnip-preserve', 'container');
+     container.classList.add('article', 'content');
+   }
+ });
+
  // Simplify the DOM into an article
  const article = new Readability(dom).parse();
 
