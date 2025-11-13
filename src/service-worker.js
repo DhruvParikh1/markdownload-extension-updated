@@ -707,25 +707,46 @@ async function handleObsidianIntegration(message) {
     // Copy to clipboard in the actual tab (which has user interaction context)
     await browser.scripting.executeScript({
       target: { tabId: tabId },
-      func: (markdownText) => {
+      func: async (markdownText) => {
+        // Try modern Clipboard API first (should work in tab with user interaction)
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          try {
+            await navigator.clipboard.writeText(markdownText);
+            console.log('[Tab] ✅ Copied to clipboard using Clipboard API');
+            return;
+          } catch (e) {
+            console.log('[Tab] ⚠️ Clipboard API failed, trying execCommand:', e.message);
+          }
+        }
+
+        // Fallback to execCommand
         if (typeof copyToClipboard === 'function') {
           copyToClipboard(markdownText);
+          console.log('[Tab] ✅ Copied to clipboard using copyToClipboard function');
         } else {
-          // Fallback clipboard implementation
+          // Manual execCommand fallback
           const textarea = document.createElement('textarea');
           textarea.value = markdownText;
           textarea.style.position = 'fixed';
           textarea.style.left = '-999999px';
           document.body.appendChild(textarea);
           textarea.select();
-          document.execCommand('copy');
+          const success = document.execCommand('copy');
           document.body.removeChild(textarea);
+          console.log('[Tab] ' + (success ? '✅' : '❌') + ' Copied to clipboard using execCommand');
         }
       },
       args: [markdown]
     });
 
-    console.log('[Service Worker] Clipboard successful, opening Obsidian URI...');
+    console.log('[Service Worker] Clipboard copy initiated, waiting for clipboard to sync...');
+
+    // Wait for clipboard to fully sync to system before navigating away
+    // This ensures Obsidian can read the clipboard when it opens
+    // 200ms should be enough for the async clipboard operation to complete
+    await new Promise(resolve => setTimeout(resolve, 200));
+
+    console.log('[Service Worker] Opening Obsidian URI...');
 
     // Open Obsidian URI
     await openObsidianUri(vault, folder, title);
