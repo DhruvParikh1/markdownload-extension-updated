@@ -142,6 +142,9 @@ async function handleMessages(message, sender, sendResponse) {
     case "open-obsidian-uri":
       await openObsidianUri(message.vault, message.folder, message.title);
       break;
+    case "obsidian-integration":
+      await handleObsidianIntegration(message);
+      break;
   }
 }
 
@@ -686,6 +689,48 @@ async function openObsidianUri(vault, folder, title) {
     console.log('Opened Obsidian URI:', uri);
   } catch (error) {
     console.error('Failed to open Obsidian URI:', error);
+  }
+}
+
+/**
+ * Handle Obsidian integration - copy to clipboard in tab and open URI
+ */
+async function handleObsidianIntegration(message) {
+  const { markdown, tabId, vault, folder, title } = message;
+
+  try {
+    console.log('[Service Worker] Copying markdown to clipboard in tab:', tabId);
+
+    // Ensure content script is loaded
+    await ensureScripts(tabId);
+
+    // Copy to clipboard in the actual tab (which has user interaction context)
+    await browser.scripting.executeScript({
+      target: { tabId: tabId },
+      func: (markdownText) => {
+        if (typeof copyToClipboard === 'function') {
+          copyToClipboard(markdownText);
+        } else {
+          // Fallback clipboard implementation
+          const textarea = document.createElement('textarea');
+          textarea.value = markdownText;
+          textarea.style.position = 'fixed';
+          textarea.style.left = '-999999px';
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textarea);
+        }
+      },
+      args: [markdown]
+    });
+
+    console.log('[Service Worker] Clipboard successful, opening Obsidian URI...');
+
+    // Open Obsidian URI
+    await openObsidianUri(vault, folder, title);
+  } catch (error) {
+    console.error('[Service Worker] Failed Obsidian integration:', error);
   }
 }
 

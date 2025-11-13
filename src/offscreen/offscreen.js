@@ -219,18 +219,12 @@ async function handleContextMenuCopy(info, tabId, providedOptions = null) {
     const obsidianFolder = await formatObsidianFolder(article, options);
     const { markdown } = await convertArticleToMarkdown(article, false, options);
 
-    console.log('[Offscreen] Copying markdown to clipboard for Obsidian...');
-    const clipboardSuccess = await copyToClipboard(markdown);
-
-    if (!clipboardSuccess) {
-      console.error('❌ [Offscreen] Failed to copy to clipboard, aborting Obsidian integration');
-      return;
-    }
-
-    console.log('[Offscreen] Clipboard successful, opening Obsidian URI...');
-    // Offscreen document doesn't have access to tabs API, send message to service worker
+    console.log('[Offscreen] Sending markdown to service worker for Obsidian integration...');
+    // Offscreen document can't access clipboard, send to service worker to handle
     await browser.runtime.sendMessage({
-      type: 'open-obsidian-uri',
+      type: 'obsidian-integration',
+      markdown: markdown,
+      tabId: tabId,
       vault: obsidianVault,
       folder: obsidianFolder,
       title: generateValidFileName(title, options.disallowedChars)
@@ -244,18 +238,12 @@ async function handleContextMenuCopy(info, tabId, providedOptions = null) {
     const obsidianFolder = await formatObsidianFolder(article, options);
     const { markdown } = await convertArticleToMarkdown(article, false, options);
 
-    console.log('[Offscreen] Copying markdown to clipboard for Obsidian...');
-    const clipboardSuccess = await copyToClipboard(markdown);
-
-    if (!clipboardSuccess) {
-      console.error('❌ [Offscreen] Failed to copy to clipboard, aborting Obsidian integration');
-      return;
-    }
-
-    console.log('[Offscreen] Clipboard successful, opening Obsidian URI...');
-    // Offscreen document doesn't have access to tabs API, send message to service worker
+    console.log('[Offscreen] Sending markdown to service worker for Obsidian integration...');
+    // Offscreen document can't access clipboard, send to service worker to handle
     await browser.runtime.sendMessage({
-      type: 'open-obsidian-uri',
+      type: 'obsidian-integration',
+      markdown: markdown,
+      tabId: tabId,
       vault: obsidianVault,
       folder: obsidianFolder,
       title: generateValidFileName(title, options.disallowedChars)
