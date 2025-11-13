@@ -207,10 +207,9 @@ async function handleContextMenuCopy(info, tabId, providedOptions = null) {
       article
     );
     await copyToClipboard(markdown);
-    await executeScriptInTab(tabId, `copyToClipboard(${JSON.stringify(markdown)})`);
   }
   else if (info.menuItemId === "copy-markdown-image") {
-    await executeScriptInTab(tabId, `copyToClipboard("![](${info.srcUrl})")`);
+    await copyToClipboard(`![](${info.srcUrl})`);
   }
   else if (info.menuItemId === "copy-markdown-obsidian") {
     const article = await getArticleFromContent(tabId, true, options);  // Added options
@@ -219,10 +218,16 @@ async function handleContextMenuCopy(info, tabId, providedOptions = null) {
     const obsidianVault = options.obsidianVault;
     const obsidianFolder = await formatObsidianFolder(article, options);
     const { markdown } = await convertArticleToMarkdown(article, false, options);
-    await copyToClipboard(markdown);
-    await executeScriptInTab(tabId, `copyToClipboard(${JSON.stringify(markdown)})`);
-    await browser.tabs.update({
-      url: `obsidian://advanced-uri?vault=${obsidianVault}&clipboard=true&mode=new&filepath=${obsidianFolder}${generateValidFileName(title, options.disallowedChars)}`
+
+    console.log('[Offscreen] Sending markdown to service worker for Obsidian integration...');
+    // Offscreen document can't access clipboard, send to service worker to handle
+    await browser.runtime.sendMessage({
+      type: 'obsidian-integration',
+      markdown: markdown,
+      tabId: tabId,
+      vault: obsidianVault,
+      folder: obsidianFolder,
+      title: generateValidFileName(title, options.disallowedChars)
     });
   }
   else if (info.menuItemId === "copy-markdown-obsall") {
@@ -232,40 +237,68 @@ async function handleContextMenuCopy(info, tabId, providedOptions = null) {
     const obsidianVault = options.obsidianVault;
     const obsidianFolder = await formatObsidianFolder(article, options);
     const { markdown } = await convertArticleToMarkdown(article, false, options);
-    await copyToClipboard(markdown);
-    await executeScriptInTab(tabId, `copyToClipboard(${JSON.stringify(markdown)})`);
-    await browser.tabs.update({
-      url: `obsidian://advanced-uri?vault=${obsidianVault}&clipboard=true&mode=new&filepath=${obsidianFolder}${generateValidFileName(title, options.disallowedChars)}`
+
+    console.log('[Offscreen] Sending markdown to service worker for Obsidian integration...');
+    // Offscreen document can't access clipboard, send to service worker to handle
+    await browser.runtime.sendMessage({
+      type: 'obsidian-integration',
+      markdown: markdown,
+      tabId: tabId,
+      vault: obsidianVault,
+      folder: obsidianFolder,
+      title: generateValidFileName(title, options.disallowedChars)
     });
   }
   else {
     const article = await getArticleFromContent(tabId, info.menuItemId === "copy-markdown-selection", options);  // Added options
     const { markdown } = await convertArticleToMarkdown(article, false, options);
     await copyToClipboard(markdown);
-    await executeScriptInTab(tabId, `copyToClipboard(${JSON.stringify(markdown)})`);
   }
 }
 
-/**
- * Execute script in tab
- */
-async function executeScriptInTab(tabId, codeString) {
-  // Instead of directly calling browser.scripting, send a message to service worker
-  return browser.runtime.sendMessage({
-    type: "execute-script-in-tab",
-    tabId: tabId,
-    code: codeString
-  });
-}
 
 /**
  * Copy text to clipboard
  */
 async function copyToClipboard(text) {
-  const textArea = document.getElementById('clipboard-text');
-  textArea.value = text;
-  textArea.select();
-  document.execCommand('copy');
+  // Try modern Clipboard API first (but it usually fails in offscreen documents)
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    try {
+      await navigator.clipboard.writeText(text);
+      console.log('✅ [Offscreen] Successfully copied to clipboard using Clipboard API:', text.substring(0, 100) + '...');
+      return true;
+    } catch (clipboardError) {
+      console.log('⚠️ [Offscreen] Clipboard API failed (document not focused), falling back to execCommand:', clipboardError.message);
+      // Fall through to execCommand method
+    }
+  }
+
+  // Fallback to execCommand method (works in offscreen documents)
+  try {
+    const textArea = document.getElementById('clipboard-text');
+    if (!textArea) {
+      console.error('❌ [Offscreen] Clipboard textarea not found');
+      return false;
+    }
+
+    textArea.value = text;
+    textArea.focus();
+    textArea.select();
+
+    // Try to copy using execCommand
+    const success = document.execCommand('copy');
+
+    if (success) {
+      console.log('✅ [Offscreen] Successfully copied to clipboard using execCommand:', text.substring(0, 100) + '...');
+      return true;
+    } else {
+      console.error('❌ [Offscreen] Failed to copy to clipboard using execCommand');
+      return false;
+    }
+  } catch (error) {
+    console.error('❌ [Offscreen] Error in execCommand fallback:', error);
+    return false;
+  }
 }
 
 /**

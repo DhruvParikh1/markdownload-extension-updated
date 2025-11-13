@@ -17,6 +17,7 @@ browser.runtime.onMessage.addListener(handleMessages);
 browser.contextMenus.onClicked.addListener(handleContextMenuClick);
 browser.commands.onCommand.addListener(handleCommands);
 browser.downloads.onChanged.addListener(handleDownloadChange);
+browser.storage.onChanged.addListener(handleStorageChange);
 
 // Create context menus when service worker starts
 createMenus();
@@ -100,9 +101,6 @@ async function handleMessages(message, sender, sendResponse) {
     case "download-complete":
       handleDownloadComplete(message);
       break;
-    case "execute-script-in-tab":
-      await executeScriptInTab(message.tabId, message.code);
-      break;
 
     case "get-tab-content":
       await getTabContentForOffscreen(message.tabId, message.selection, message.requestId);
@@ -141,25 +139,12 @@ async function handleMessages(message, sender, sendResponse) {
       // Legacy fallback - shouldn't be used anymore
       console.log(`⚠️ [Service Worker] Legacy offscreen-download-failed: ${message.error}`);
       break;
-  }
-}
-
-/**
- * Execute script in tab  - helper function for offscreen document
- * @param {number} tabId - Tab ID to execute script in
- * @param {string} codeString - Code to execute in the tab
- */ 
-async function executeScriptInTab(tabId, codeString) {
-  try {
-    await browser.scripting.executeScript({
-      target: { tabId: tabId },
-      func: (code) => {
-        return eval(code);
-      },
-      args: [codeString]
-    });
-  } catch (error) {
-    console.error("Failed to execute script in tab:", error);
+    case "open-obsidian-uri":
+      await openObsidianUri(message.vault, message.folder, message.title);
+      break;
+    case "obsidian-integration":
+      await handleObsidianIntegration(message);
+      break;
   }
 }
 
@@ -679,6 +664,100 @@ async function handleCommands(command) {
   else if (command == "copy_tab_to_obsidian") {
     const info = { menuItemId: "copy-markdown-obsall" };
     await copyMarkdownFromContext(info, tab);
+  }
+}
+
+/**
+ * Handle storage changes - recreate menus when options change
+ */
+async function handleStorageChange(changes, areaName) {
+  // Only handle sync storage changes
+  if (areaName === 'sync') {
+    console.log('Options changed, recreating context menus...');
+    // Recreate all context menus with updated options
+    await createMenus();
+  }
+}
+
+/**
+ * Open Obsidian URI in current tab
+ */
+async function openObsidianUri(vault, folder, title) {
+  try {
+    // Ensure title has .md extension
+    const filename = title.endsWith('.md') ? title : title + '.md';
+    const filepath = folder + filename;
+
+    // Use correct URI scheme: adv-uri (not advanced-uri)
+    const uri = `obsidian://adv-uri?vault=${encodeURIComponent(vault)}&filepath=${encodeURIComponent(filepath)}&clipboard=true&mode=new`;
+
+    console.log('Opening Obsidian URI:', uri);
+    await browser.tabs.update({ url: uri });
+  } catch (error) {
+    console.error('Failed to open Obsidian URI:', error);
+  }
+}
+
+/**
+ * Handle Obsidian integration - copy to clipboard in tab and open URI
+ */
+async function handleObsidianIntegration(message) {
+  const { markdown, tabId, vault, folder, title } = message;
+
+  try {
+    console.log('[Service Worker] Copying markdown to clipboard in tab:', tabId);
+
+    // Ensure content script is loaded
+    await ensureScripts(tabId);
+
+    // Copy to clipboard in the actual tab (which has user interaction context)
+    await browser.scripting.executeScript({
+      target: { tabId: tabId },
+      func: async (markdownText) => {
+        // Try modern Clipboard API first (should work in tab with user interaction)
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          try {
+            await navigator.clipboard.writeText(markdownText);
+            console.log('[Tab] ✅ Copied to clipboard using Clipboard API');
+            return;
+          } catch (e) {
+            console.log('[Tab] ⚠️ Clipboard API failed, trying execCommand:', e.message);
+          }
+        }
+
+        // Fallback to execCommand
+        if (typeof copyToClipboard === 'function') {
+          copyToClipboard(markdownText);
+          console.log('[Tab] ✅ Copied to clipboard using copyToClipboard function');
+        } else {
+          // Manual execCommand fallback
+          const textarea = document.createElement('textarea');
+          textarea.value = markdownText;
+          textarea.style.position = 'fixed';
+          textarea.style.left = '-999999px';
+          document.body.appendChild(textarea);
+          textarea.select();
+          const success = document.execCommand('copy');
+          document.body.removeChild(textarea);
+          console.log('[Tab] ' + (success ? '✅' : '❌') + ' Copied to clipboard using execCommand');
+        }
+      },
+      args: [markdown]
+    });
+
+    console.log('[Service Worker] Clipboard copy initiated, waiting for clipboard to sync...');
+
+    // Wait for clipboard to fully sync to system before navigating away
+    // This ensures Obsidian can read the clipboard when it opens
+    // 200ms should be enough for the async clipboard operation to complete
+    await new Promise(resolve => setTimeout(resolve, 200));
+
+    console.log('[Service Worker] Opening Obsidian URI...');
+
+    // Open Obsidian URI
+    await openObsidianUri(vault, folder, title);
+  } catch (error) {
+    console.error('[Service Worker] Failed Obsidian integration:', error);
   }
 }
 
