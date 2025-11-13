@@ -410,12 +410,10 @@ browser.storage.sync.get(defaultOptions).then(options => {
         e.preventDefault();
         toggleClipSelection(options);
     });
-    document.getElementById("includeTemplate").addEventListener("click", (e) => {
-        e.preventDefault();
+    document.getElementById("includeTemplate").addEventListener("click", () => {
         toggleIncludeTemplate(options);
     });
-    document.getElementById("downloadImages").addEventListener("click", (e) => {
-        e.preventDefault();
+    document.getElementById("downloadImages").addEventListener("click", () => {
         toggleDownloadImages(options);
     });
     
