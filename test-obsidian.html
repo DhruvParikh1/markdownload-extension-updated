@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Writing - Advanced URI Documentation - Obsidian Publish</title>
+</head>
+<body>
+<div class="site-body">
+    <div class="site-body-center-column">
+        <div class="render-container">
+            <div class="render-container-inner">
+                <div class="publish-renderer">
+                    <div class="markdown-preview-view markdown-rendered">
+                        <div class="markdown-preview-sizer">
+                            <h1 class="page-header">Writing</h1>
+
+                            <div class="el-div">
+                                <div data-callout-metadata="" data-callout-fold="" data-callout="caution" class="callout">
+                                    <div class="callout-title" dir="auto">
+                                        <div class="callout-icon"></div>
+                                        <div class="callout-title-inner">Caution</div>
+                                    </div>
+                                    <div class="callout-content">
+                                        <p dir="auto">Make sure your values are properly encoded</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="el-div">
+                                <div data-callout-metadata="" data-callout-fold="" data-callout="info" class="callout">
+                                    <div class="callout-title" dir="auto">
+                                        <div class="callout-icon"></div>
+                                        <div class="callout-title-inner">Info</div>
+                                    </div>
+                                    <div class="callout-content">
+                                        <p dir="auto">The <code>data</code> parameter can be replaced with <code>clipboard=true</code> to get the content from the clipboard.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="el-table" dir="auto" style="overflow-x: auto;">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th dir="auto">/</th>
+                                            <th dir="ltr">parameters</th>
+                                            <th dir="ltr">explanation</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td dir="ltr">write</td>
+                                            <td dir="ltr">&lt;identification&gt;, data</td>
+                                            <td dir="ltr">Only writes <code>data</code> to the file if the file is not already present</td>
+                                        </tr>
+                                        <tr>
+                                            <td dir="ltr">overwrite</td>
+                                            <td dir="ltr">&lt;identification&gt;, data, mode=overwrite</td>
+                                            <td dir="ltr">Writes <code>data</code> to <code>filepath</code> even if the file already exists</td>
+                                        </tr>
+                                        <tr>
+                                            <td dir="ltr">append</td>
+                                            <td dir="ltr">&lt;identification&gt;, data, mode=append</td>
+                                            <td dir="ltr">Only appends <code>data</code> to the file</td>
+                                        </tr>
+                                        <tr>
+                                            <td dir="ltr">prepend</td>
+                                            <td dir="ltr">&lt;identification&gt;, data, mode=prepend</td>
+                                            <td dir="ltr">Only prepends <code>data</code> to the file</td>
+                                        </tr>
+                                        <tr>
+                                            <td dir="ltr">new</td>
+                                            <td dir="ltr">filepath, data, mode=new</td>
+                                            <td dir="ltr">Definitely creates a new file. If <code>filepath</code> already exists, an incrementing number is appended</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="el-div">
+                                <div data-callout-metadata="" data-callout-fold="" data-callout="example" class="callout">
+                                    <div class="callout-title" dir="auto">
+                                        <div class="callout-icon"></div>
+                                        <div class="callout-title-inner">Example</div>
+                                    </div>
+                                    <div class="callout-content">
+                                        <p dir="auto"><strong>Write</strong> "Hello World" to "my-file.md":</p>
+                                        <pre class="language-uri"><code>obsidian://adv-uri?vault=&lt;your-vault&gt;&amp;filepath=my-file&amp;data=Hello%20World</code></pre>
+                                        <p dir="auto"><strong>Overwrite</strong> "This text is overwritten" to "my-file.md":</p>
+                                        <pre class="language-uri"><code>obsidian://adv-uri?vault=&lt;your-vault&gt;&amp;filepath=my-file&amp;data=This%20text%20is%20overwritten&amp;mode=overwrite</code></pre>
+                                        <p dir="auto"><strong>Append</strong> "Hello World" to today's <strong>daily note</strong>:</p>
+                                        <pre class="language-uri"><code>obsidian://adv-uri?vault=&lt;your-vault&gt;&amp;daily=true&amp;data=Hello%20World&amp;mode=append</code></pre>
+                                        <p dir="auto"><strong>Append</strong> content from the <strong>clipboard</strong> to today's <strong>daily note</strong>:</p>
+                                        <pre class="language-uri"><code>obsidian://adv-uri?vault=&lt;your-vault&gt;&amp;daily=true&amp;clipboard=true&amp;mode=append</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="el-div">
+                                <div data-callout-metadata="" data-callout-fold="" data-callout="note" class="callout">
+                                    <div class="callout-title" dir="auto">
+                                        <div class="callout-icon"></div>
+                                        <div class="callout-title-inner">Note</div>
+                                    </div>
+                                    <div class="callout-content">
+                                        <p dir="auto">You may use the <code>heading</code> or <code>line</code> parameter to append and prepend data to a heading or line.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

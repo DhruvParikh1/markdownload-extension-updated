@@ -912,7 +912,10 @@ async function getArticleFromDom(domString, options) {
 
  // Process callouts to prevent Readability.js from stripping them
  // Callouts are often in structures like: <div class="el-div"><div class="callout">...</div></div>
- dom.body.querySelectorAll('.callout, [data-callout]')?.forEach(callout => {
+ const callouts = dom.body.querySelectorAll('.callout, [data-callout]');
+ console.log('[MarkSnip Debug] Found callouts:', callouts.length);
+ callouts?.forEach(callout => {
+   console.log('[MarkSnip Debug] Processing callout:', callout.getAttribute('data-callout'), callout.className);
    // Mark callout containers as article content to ensure preservation
    callout.setAttribute('data-marksnip-preserve', 'callout');
    // Add 'article' class which Readability recognizes as content
@@ -921,6 +924,7 @@ async function getArticleFromDom(domString, options) {
    // If callout is wrapped in el-div, unwrap it
    const parent = callout.parentElement;
    if (parent && parent.classList.contains('el-div')) {
+     console.log('[MarkSnip Debug] Unwrapping callout from el-div');
      // Replace the parent with the callout itself
      parent.parentElement?.insertBefore(callout, parent);
      parent.remove();
@@ -929,9 +933,12 @@ async function getArticleFromDom(domString, options) {
 
  // Process table wrapper divs to prevent Readability.js from stripping them
  // Unwrap tables from their el-table wrapper divs
- dom.body.querySelectorAll('.el-table')?.forEach(tableWrapper => {
+ const tableWrappers = dom.body.querySelectorAll('.el-table');
+ console.log('[MarkSnip Debug] Found table wrappers:', tableWrappers.length);
+ tableWrappers?.forEach(tableWrapper => {
    const table = tableWrapper.querySelector('table');
    if (table) {
+     console.log('[MarkSnip Debug] Unwrapping table from el-table wrapper');
      // Mark the table itself to help with preservation
      table.setAttribute('data-marksnip-preserve', 'table');
      table.classList.add('article', 'content', 'main');
@@ -955,9 +962,20 @@ async function getArticleFromDom(domString, options) {
  });
 
  // Simplify the DOM into an article with class preservation options
+ console.log('[MarkSnip Debug] Before Readability - callouts:', dom.body.querySelectorAll('.callout, [data-callout]').length);
+ console.log('[MarkSnip Debug] Before Readability - tables:', dom.body.querySelectorAll('table').length);
+
  const article = new Readability(dom, {
    classesToPreserve: ['callout', 'callout-title', 'callout-content', 'callout-icon', 'language-', 'highlight']
  }).parse();
+
+ if (article && article.content) {
+   const tempDiv = document.createElement('div');
+   tempDiv.innerHTML = article.content;
+   console.log('[MarkSnip Debug] After Readability - callouts:', tempDiv.querySelectorAll('.callout, [data-callout]').length);
+   console.log('[MarkSnip Debug] After Readability - tables:', tempDiv.querySelectorAll('table').length);
+   console.log('[MarkSnip Debug] After Readability - content length:', article.content.length);
+ }
 
  // Add essential metadata
  article.baseURI = dom.baseURI;
