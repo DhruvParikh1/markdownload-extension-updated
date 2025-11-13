@@ -125,7 +125,9 @@ MarkSnip supports direct integration with Obsidian via the Advanced URI plugin. 
 
 1. Install and enable the [Advanced Obsidian URI](https://vinzent03.github.io/obsidian-advanced-uri/) plugin in Obsidian
 2. Configure your vault and folder settings in MarkSnip's options
-3. Use the "Copy to Obsidian" context menu option or keyboard shortcut
+3. Right-click on any page you want to save as markdown, then open the "MarkSnip" menu.
+4. Select "Send Tab to Obsidian".
+5. If you have configured your MarkSnip options correctly, it should have created a new note, in the folder you specified, in Obsidian.
 
 The Advanced URI plugin helps bypass URL character limitations by using the clipboard as the source for creating new files.
 
