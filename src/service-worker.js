@@ -684,9 +684,15 @@ async function handleStorageChange(changes, areaName) {
  */
 async function openObsidianUri(vault, folder, title) {
   try {
+    // Ensure folder ends with / if it's not empty
+    let folderPath = folder || '';
+    if (folderPath && !folderPath.endsWith('/')) {
+      folderPath += '/';
+    }
+
     // Ensure title has .md extension
     const filename = title.endsWith('.md') ? title : title + '.md';
-    const filepath = folder + filename;
+    const filepath = folderPath + filename;
 
     // Use correct URI scheme: adv-uri (not advanced-uri)
     const uri = `obsidian://adv-uri?vault=${encodeURIComponent(vault)}&filepath=${encodeURIComponent(filepath)}&clipboard=true&mode=new`;

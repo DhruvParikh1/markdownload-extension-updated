@@ -185,6 +185,7 @@ body {
     flex-direction: column;
     height: 100vh;
     background: var(--bg-primary);
+    animation: fadeIn 200ms ease-out;
 }
 
 /* Header */
@@ -196,6 +197,18 @@ body {
     padding: var(--space-4);
     background: linear-gradient(135deg, var(--accent-darker) 0%, var(--accent-dark) 100%);
     border-bottom: 1px solid var(--accent-darker);
+    animation: slideDown 250ms ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-10px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 .header-content {
@@ -250,6 +263,7 @@ body {
     padding: var(--space-3) var(--space-4);
     background: var(--bg-secondary);
     border-bottom: 1px solid var(--border-light);
+    animation: fadeIn 300ms ease-out 50ms backwards;
 }
 
 .setting-row {
@@ -289,6 +303,10 @@ body {
     flex-shrink: 0;
 }
 
+.setting-label:hover .checkbox-custom {
+    border-color: var(--accent);
+}
+
 .setting-checkbox:checked + .checkbox-custom {
     background: var(--accent);
     border-color: var(--accent);
@@ -303,7 +321,19 @@ body {
     height: 8px;
     border: solid var(--text-inverse);
     border-width: 0 2px 2px 0;
-    transform: rotate(45deg);
+    transform: rotate(45deg) scale(1);
+    animation: checkmarkAppear 150ms ease-out;
+}
+
+@keyframes checkmarkAppear {
+    from {
+        transform: rotate(45deg) scale(0);
+        opacity: 0;
+    }
+    to {
+        transform: rotate(45deg) scale(1);
+        opacity: 1;
+    }
 }
 
 .setting-text {
@@ -361,6 +391,7 @@ body {
 .title-section {
     flex-shrink: 0;
     padding: var(--space-4) var(--space-4) var(--space-3);
+    animation: fadeIn 300ms ease-out 100ms backwards;
 }
 
 .input-label {
@@ -403,6 +434,7 @@ body {
     border-radius: var(--radius-lg);
     overflow: hidden;
     min-height: 0;
+    animation: fadeIn 300ms ease-out 150ms backwards;
 }
 
 .editor-header {
@@ -495,6 +527,7 @@ body {
     flex-wrap: wrap;
     gap: var(--space-2);
     padding: var(--space-4);
+    animation: fadeIn 300ms ease-out 200ms backwards;
 }
 
 .btn {
