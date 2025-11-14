@@ -397,6 +397,32 @@ function turndown(content, options, article) {
     turndownPluginGfm.taskListItems
   ]);
 
+  // Add rule to convert <mark> tags to inline code
+  turndownService.addRule('mark', {
+    filter: ['mark'],
+    replacement: function(content) {
+      return '`' + content + '`';
+    }
+  });
+
+  // Add rule to prevent wrapping headings in links
+  turndownService.addRule('headingLinks', {
+    filter: function(node) {
+      // Check if this is a link containing a heading
+      if (node.nodeName === 'A') {
+        const hasHeading = Array.from(node.children).some(child =>
+          /^H[1-6]$/.test(child.nodeName)
+        );
+        return hasHeading;
+      }
+      return false;
+    },
+    replacement: function(content) {
+      // Just return the content (the heading) without link syntax
+      return content;
+    }
+  });
+
   // Add our custom table rule
   turndownService.addRule('table', {
     filter: 'table',
@@ -418,12 +444,25 @@ function turndown(content, options, article) {
           frontmatter: '',
           backmatter: ''
         });
-        
+
+        // Disable escaping in table cells to prevent underscore escaping
+        cellTurndownService.escape = function(text) {
+          return text;
+        };
+
         // Apply necessary plugins
         cellTurndownService.use([
           turndownPluginGfm.strikethrough,
           turndownPluginGfm.taskListItems
         ]);
+
+        // Handle <br> tags in table cells - convert to <br> HTML (Markdown tables support this)
+        cellTurndownService.addRule('tableBr', {
+          filter: 'br',
+          replacement: function() {
+            return '<br>';
+          }
+        });
         
         // Add custom rules for images, links, etc. to the cell turndown instance
         if (options.tableFormatting?.stripLinks) {
@@ -901,6 +940,18 @@ async function getArticleFromDom(domString, options) {
  dom.body.querySelectorAll('.codehilite > pre')?.forEach(codeSource => {
    if (codeSource.firstChild && codeSource.firstChild.nodeName !== 'CODE' && !codeSource.className.includes('language')) {
      codeSource.id = `code-lang-text`;
+   }
+ });
+
+ // Unwrap headers from anchor tags to prevent Readability from filtering them
+ dom.body.querySelectorAll('a')?.forEach(anchor => {
+   const heading = Array.from(anchor.children).find(child =>
+     /^H[1-6]$/.test(child.nodeName)
+   );
+   if (heading && anchor.children.length === 1) {
+     // If the anchor only contains a heading, unwrap it
+     anchor.parentNode.insertBefore(heading, anchor);
+     anchor.parentNode.removeChild(anchor);
    }
  });
 
