@@ -348,76 +348,11 @@ async function handleBatchConversion(e) {
                 const updatedTab = await browser.tabs.get(tab.id);
                 console.log(`Updated tab URL: ${updatedTab.url}`);
 
-                // Wait longer for JavaScript-heavy pages to fully render
-                // This gives React/Vue/Next.js apps time to fetch data and render content
-                console.log(`Waiting for page to fully render...`);
-
-                // Try to detect when page is truly ready by executing a check in the page context
-                let isReady = false;
-                let attempts = 0;
-                const maxAttempts = 10; // Try for up to 10 seconds
-
-                while (!isReady && attempts < maxAttempts) {
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                    attempts++;
-
-                    try {
-                        // Check if the page has meaningful documentation content
-                        const result = await browser.scripting.executeScript({
-                            target: { tabId: tab.id },
-                            func: (attemptNum) => {
-                                // Look for indicators of actual documentation content
-                                const headings = document.querySelectorAll('h1, h2, h3, h4');
-                                const codeBlocks = document.querySelectorAll('pre code, pre, code[class*="language"]');
-                                const tables = document.querySelectorAll('table');
-                                const paragraphs = document.querySelectorAll('article p, main p, [class*="content"] p');
-
-                                // Get text content length (excluding scripts and styles)
-                                const bodyText = document.body.innerText || '';
-                                const textLength = bodyText.length;
-
-                                // More sophisticated checks
-                                const hasHeadings = headings.length >= 3; // At least 3 headings
-                                const hasCode = codeBlocks.length >= 2; // At least 2 code blocks
-                                const hasParagraphs = paragraphs.length >= 5; // At least 5 paragraphs in content areas
-                                const hasSubstantialText = textLength > 500; // At least 500 characters
-
-                                // Page is ready if it has multiple indicators
-                                const readyIndicators = [hasHeadings, hasCode, hasParagraphs, hasSubstantialText].filter(x => x).length;
-                                const ready = readyIndicators >= 2; // At least 2 of 4 indicators
-
-                                // Log to THIS page's console so user can see it
-                                console.log(`[MarkSnip Debug] Attempt ${attemptNum}: H:${headings.length} C:${codeBlocks.length} P:${paragraphs.length} T:${textLength} chars (${readyIndicators}/4 indicators)`);
-
-                                return {
-                                    ready: ready,
-                                    headings: headings.length,
-                                    codeBlocks: codeBlocks.length,
-                                    paragraphs: paragraphs.length,
-                                    textLength: textLength,
-                                    indicators: readyIndicators
-                                };
-                            },
-                            args: [attempts]
-                        });
-
-                        if (result && result[0]?.result?.ready) {
-                            const stats = result[0].result;
-                            console.log(`✅ Page ready! H:${stats.headings}, C:${stats.codeBlocks}, P:${stats.paragraphs}, T:${stats.textLength} chars`);
-                            isReady = true;
-                        } else {
-                            const stats = result[0]?.result || {};
-                            console.log(`⏳ Waiting... H:${stats.headings || 0} C:${stats.codeBlocks || 0} P:${stats.paragraphs || 0} T:${stats.textLength || 0} (${stats.indicators || 0}/4 indicators, attempt ${attempts}/${maxAttempts})`);
-                        }
-                    } catch (err) {
-                        console.error(`Error checking page readiness: ${err.message}`);
-                        break; // If we can't check, just continue
-                    }
-                }
-
-                if (!isReady) {
-                    console.log(`Max attempts reached, proceeding anyway...`);
-                }
+                // Wait for JavaScript-heavy pages to fully render
+                // Use a generous fixed delay since detection is hard to get right
+                // and manual clipping works fine with proper wait time
+                console.log(`Waiting 5 seconds for page to fully render...`);
+                await new Promise(resolve => setTimeout(resolve, 5000)); // 5 second delay
 
                 console.log(`Starting content extraction for tab ${tab.id}`);
 
