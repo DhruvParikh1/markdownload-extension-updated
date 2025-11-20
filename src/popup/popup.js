@@ -362,25 +362,48 @@ async function handleBatchConversion(e) {
                     attempts++;
 
                     try {
-                        // Check if the page has meaningful content
+                        // Check if the page has meaningful documentation content
                         const result = await browser.scripting.executeScript({
                             target: { tabId: tab.id },
                             func: () => {
-                                // Check if there are meaningful paragraphs or code blocks
-                                const paragraphs = document.querySelectorAll('p, pre, code, li');
-                                const hasContent = paragraphs.length > 10; // Arbitrary threshold
+                                // Look for indicators of actual documentation content
+                                const headings = document.querySelectorAll('h1, h2, h3, h4');
+                                const codeBlocks = document.querySelectorAll('pre code, pre, code[class*="language"]');
+                                const tables = document.querySelectorAll('table');
+                                const paragraphs = document.querySelectorAll('article p, main p, [class*="content"] p');
+
+                                // Get text content length (excluding scripts and styles)
+                                const bodyText = document.body.innerText || '';
+                                const textLength = bodyText.length;
+
+                                // More sophisticated checks
+                                const hasHeadings = headings.length >= 3; // At least 3 headings
+                                const hasCode = codeBlocks.length >= 2; // At least 2 code blocks
+                                const hasParagraphs = paragraphs.length >= 5; // At least 5 paragraphs in content areas
+                                const hasSubstantialText = textLength > 500; // At least 500 characters
+
+                                // Page is ready if it has multiple indicators
+                                const readyIndicators = [hasHeadings, hasCode, hasParagraphs, hasSubstantialText].filter(x => x).length;
+                                const ready = readyIndicators >= 2; // At least 2 of 4 indicators
+
                                 return {
-                                    ready: hasContent,
-                                    elementCount: paragraphs.length
+                                    ready: ready,
+                                    headings: headings.length,
+                                    codeBlocks: codeBlocks.length,
+                                    paragraphs: paragraphs.length,
+                                    textLength: textLength,
+                                    indicators: readyIndicators
                                 };
                             }
                         });
 
                         if (result && result[0]?.result?.ready) {
-                            console.log(`Page is ready with ${result[0].result.elementCount} content elements`);
+                            const stats = result[0].result;
+                            console.log(`Page is ready! Headings: ${stats.headings}, Code: ${stats.codeBlocks}, Paragraphs: ${stats.paragraphs}, Text: ${stats.textLength} chars`);
                             isReady = true;
                         } else {
-                            console.log(`Waiting... found ${result[0]?.result?.elementCount || 0} elements (attempt ${attempts}/${maxAttempts})`);
+                            const stats = result[0]?.result || {};
+                            console.log(`Waiting... H:${stats.headings || 0} C:${stats.codeBlocks || 0} P:${stats.paragraphs || 0} T:${stats.textLength || 0} (${stats.indicators || 0}/4 indicators, attempt ${attempts}/${maxAttempts})`);
                         }
                     } catch (err) {
                         console.error(`Error checking page readiness: ${err.message}`);
