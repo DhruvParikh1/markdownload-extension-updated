@@ -154,7 +154,15 @@
     <div class="batch-content">
       <label for="urlList" class="input-label">URLs (one per line)</label>
       <textarea id="urlList" class="url-textarea" placeholder="https://example.com/page1&#10;https://example.com/page2&#10;&#10;Or use markdown links:&#10;[Page Title](https://example.com)"></textarea>
-      
+
+      <button id="pickLinks" class="btn btn-secondary btn-sm">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+        </svg>
+        Pick Links from Page
+      </button>
+
       <div id="progressContainer" class="progress-container" style="display: none;">
         <div class="progress-header">
           <span id="progressStatus" class="progress-label">Processing...</span>
@@ -165,8 +173,8 @@
         </div>
         <p id="currentUrl" class="current-url"></p>
       </div>
-      
-      <section class="action-section" style="padding-top: 0;"></section>
+
+      <section class="action-section" style="padding-top: 0;">
         <button id="convertUrls" class="btn btn-primary btn-block">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="16 18 22 12 16 6"/>
