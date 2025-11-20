@@ -348,8 +348,51 @@ async function handleBatchConversion(e) {
                 const updatedTab = await browser.tabs.get(tab.id);
                 console.log(`Updated tab URL: ${updatedTab.url}`);
 
-                // Add a small delay to ensure JavaScript has finished executing
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                // Wait longer for JavaScript-heavy pages to fully render
+                // This gives React/Vue/Next.js apps time to fetch data and render content
+                console.log(`Waiting for page to fully render...`);
+
+                // Try to detect when page is truly ready by executing a check in the page context
+                let isReady = false;
+                let attempts = 0;
+                const maxAttempts = 10; // Try for up to 10 seconds
+
+                while (!isReady && attempts < maxAttempts) {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    attempts++;
+
+                    try {
+                        // Check if the page has meaningful content
+                        const result = await browser.scripting.executeScript({
+                            target: { tabId: tab.id },
+                            func: () => {
+                                // Check if there are meaningful paragraphs or code blocks
+                                const paragraphs = document.querySelectorAll('p, pre, code, li');
+                                const hasContent = paragraphs.length > 10; // Arbitrary threshold
+                                return {
+                                    ready: hasContent,
+                                    elementCount: paragraphs.length
+                                };
+                            }
+                        });
+
+                        if (result && result[0]?.result?.ready) {
+                            console.log(`Page is ready with ${result[0].result.elementCount} content elements`);
+                            isReady = true;
+                        } else {
+                            console.log(`Waiting... found ${result[0]?.result?.elementCount || 0} elements (attempt ${attempts}/${maxAttempts})`);
+                        }
+                    } catch (err) {
+                        console.error(`Error checking page readiness: ${err.message}`);
+                        break; // If we can't check, just continue
+                    }
+                }
+
+                if (!isReady) {
+                    console.log(`Max attempts reached, proceeding anyway...`);
+                }
+
+                console.log(`Starting content extraction for tab ${tab.id}`);
 
                 const displayMdPromise = new Promise((resolve, reject) => {
                     const timeout = setTimeout(() => {
@@ -360,7 +403,7 @@ async function handleBatchConversion(e) {
                         if (message.type === "display.md") {
                             clearTimeout(timeout);
                             browser.runtime.onMessage.removeListener(messageListener);
-                            console.log(`Received markdown for tab ${tab.id}`);
+                            console.log(`Received markdown for tab ${tab.id} (${message.markdown.length} chars)`);
 
                             if (tab.customTitle) {
                                 message.article.title = tab.customTitle;
