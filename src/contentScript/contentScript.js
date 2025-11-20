@@ -389,6 +389,29 @@ function injectLinkPickerStyles() {
             margin-top: 12px;
             line-height: 1.5;
         }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.95);
+            }
+        }
     `;
 
     window.linkPickerState.styleElement = document.createElement('style');
@@ -606,23 +629,85 @@ function updateLinkCount() {
 function finishLinkPicker() {
     const links = Array.from(window.linkPickerState.selectedLinks);
 
-    // Send links back to popup
-    browser.runtime.sendMessage({
-        type: "LINK_PICKER_COMPLETE",
-        links: links
-    });
+    if (links.length === 0) {
+        alert('No links selected. Please select elements containing links before clicking Done.');
+        return;
+    }
 
-    cleanupLinkPicker();
+    // Save links to storage so popup can retrieve them when it reopens
+    browser.storage.local.set({
+        linkPickerResults: links,
+        linkPickerTimestamp: Date.now()
+    }).then(() => {
+        console.log(`Saved ${links.length} links to storage`);
+
+        // Show success notification
+        showSuccessNotification(links.length);
+
+        // Also send message in case popup is still open
+        browser.runtime.sendMessage({
+            type: "LINK_PICKER_COMPLETE",
+            links: links
+        }).catch(err => {
+            // Popup might be closed, that's okay - we saved to storage
+            console.log("Popup closed, links saved to storage");
+        });
+
+        // Cleanup after a short delay so user can see the notification
+        setTimeout(() => {
+            cleanupLinkPicker();
+        }, 2000);
+    });
+}
+
+function showSuccessNotification(linkCount) {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 32px 48px;
+        border-radius: 16px;
+        box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4);
+        z-index: 10000000;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        text-align: center;
+        animation: fadeIn 0.3s ease-out;
+    `;
+    notification.innerHTML = `
+        <div style="font-size: 48px; margin-bottom: 16px;">✓</div>
+        <div style="font-size: 18px; font-weight: 600; color: #1f2937; margin-bottom: 8px;">
+            ${linkCount} link${linkCount !== 1 ? 's' : ''} collected!
+        </div>
+        <div style="font-size: 14px; color: #6b7280;">
+            Reopen the extension to see them in the batch processor
+        </div>
+    `;
+    document.body.appendChild(notification);
+
+    // Remove after 2 seconds
+    setTimeout(() => {
+        notification.style.animation = 'fadeOut 0.3s ease-out';
+        setTimeout(() => notification.remove(), 300);
+    }, 1700);
 }
 
 function cancelLinkPicker() {
-    // Send empty result
-    browser.runtime.sendMessage({
-        type: "LINK_PICKER_COMPLETE",
-        links: []
-    });
+    // Clear any stored results
+    browser.storage.local.remove(['linkPickerResults', 'linkPickerTimestamp']).then(() => {
+        // Also send message in case popup is still open
+        browser.runtime.sendMessage({
+            type: "LINK_PICKER_COMPLETE",
+            links: []
+        }).catch(err => {
+            // Popup might be closed, that's okay
+            console.log("Popup closed");
+        });
 
-    cleanupLinkPicker();
+        cleanupLinkPicker();
+    });
 }
 
 function cleanupLinkPicker() {

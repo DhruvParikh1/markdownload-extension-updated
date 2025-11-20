@@ -95,10 +95,27 @@ async function loadBatchUrls() {
 // Add event listener to save URLs as user types
 document.getElementById("urlList").addEventListener("input", saveBatchUrls);
 
-function showBatchProcess(e) {
+async function showBatchProcess(e) {
     e.preventDefault();
     document.getElementById("container").style.display = 'none';
     document.getElementById("batchContainer").style.display = 'flex';
+
+    // Check if there are pending link picker results from storage
+    try {
+        const result = await browser.storage.local.get(['linkPickerResults', 'linkPickerTimestamp']);
+        if (result.linkPickerResults && result.linkPickerResults.length > 0) {
+            // Check if results are recent (within last 30 seconds)
+            const age = Date.now() - (result.linkPickerTimestamp || 0);
+            if (age < 30000) {
+                console.log(`Found ${result.linkPickerResults.length} links from link picker`);
+                handleLinkPickerComplete(result.linkPickerResults);
+                // Clear the stored results after using them
+                await browser.storage.local.remove(['linkPickerResults', 'linkPickerTimestamp']);
+            }
+        }
+    } catch (err) {
+        console.error("Error checking for link picker results:", err);
+    }
 }
 
 function hideBatchProcess(e) {
