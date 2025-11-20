@@ -365,7 +365,7 @@ async function handleBatchConversion(e) {
                         // Check if the page has meaningful documentation content
                         const result = await browser.scripting.executeScript({
                             target: { tabId: tab.id },
-                            func: () => {
+                            func: (attemptNum) => {
                                 // Look for indicators of actual documentation content
                                 const headings = document.querySelectorAll('h1, h2, h3, h4');
                                 const codeBlocks = document.querySelectorAll('pre code, pre, code[class*="language"]');
@@ -386,6 +386,9 @@ async function handleBatchConversion(e) {
                                 const readyIndicators = [hasHeadings, hasCode, hasParagraphs, hasSubstantialText].filter(x => x).length;
                                 const ready = readyIndicators >= 2; // At least 2 of 4 indicators
 
+                                // Log to THIS page's console so user can see it
+                                console.log(`[MarkSnip Debug] Attempt ${attemptNum}: H:${headings.length} C:${codeBlocks.length} P:${paragraphs.length} T:${textLength} chars (${readyIndicators}/4 indicators)`);
+
                                 return {
                                     ready: ready,
                                     headings: headings.length,
@@ -394,16 +397,17 @@ async function handleBatchConversion(e) {
                                     textLength: textLength,
                                     indicators: readyIndicators
                                 };
-                            }
+                            },
+                            args: [attempts]
                         });
 
                         if (result && result[0]?.result?.ready) {
                             const stats = result[0].result;
-                            console.log(`Page is ready! Headings: ${stats.headings}, Code: ${stats.codeBlocks}, Paragraphs: ${stats.paragraphs}, Text: ${stats.textLength} chars`);
+                            console.log(`✅ Page ready! H:${stats.headings}, C:${stats.codeBlocks}, P:${stats.paragraphs}, T:${stats.textLength} chars`);
                             isReady = true;
                         } else {
                             const stats = result[0]?.result || {};
-                            console.log(`Waiting... H:${stats.headings || 0} C:${stats.codeBlocks || 0} P:${stats.paragraphs || 0} T:${stats.textLength || 0} (${stats.indicators || 0}/4 indicators, attempt ${attempts}/${maxAttempts})`);
+                            console.log(`⏳ Waiting... H:${stats.headings || 0} C:${stats.codeBlocks || 0} P:${stats.paragraphs || 0} T:${stats.textLength || 0} (${stats.indicators || 0}/4 indicators, attempt ${attempts}/${maxAttempts})`);
                         }
                     } catch (err) {
                         console.error(`Error checking page readiness: ${err.message}`);
