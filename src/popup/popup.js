@@ -344,6 +344,13 @@ async function handleBatchConversion(e) {
                 progressUI.updateProgress(current, total, `Converting: ${tab.url}`);
                 console.log(`Processing tab ${tab.id}`);
 
+                // Get the updated tab info to ensure we have the correct URL after redirects
+                const updatedTab = await browser.tabs.get(tab.id);
+                console.log(`Updated tab URL: ${updatedTab.url}`);
+
+                // Add a small delay to ensure JavaScript has finished executing
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
                 const displayMdPromise = new Promise((resolve, reject) => {
                     const timeout = setTimeout(() => {
                         reject(new Error('Timeout waiting for markdown generation'));
@@ -362,7 +369,7 @@ async function handleBatchConversion(e) {
                             resolve({
                                 markdown: message.markdown,
                                 title: message.article.title,
-                                url: tab.url,
+                                url: updatedTab.url, // Use the updated URL
                                 imageList: message.imageList,
                                 mdClipsFolder: message.mdClipsFolder
                             });
