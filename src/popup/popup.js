@@ -71,6 +71,8 @@ document.getElementById("batchProcess").addEventListener("click", showBatchProce
 document.getElementById("convertUrls").addEventListener("click", handleBatchConversion);
 document.getElementById("cancelBatch").addEventListener("click", hideBatchProcess);
 document.getElementById("pickLinks").addEventListener("click", activateLinkPicker);
+document.getElementById("multipleFiles").addEventListener("click", toggleBatchOutputMode);
+document.getElementById("singleFile").addEventListener("click", toggleBatchOutputMode);
 
 // Save batch URL list to storage
 function saveBatchUrls() {
@@ -99,6 +101,24 @@ async function showBatchProcess(e) {
     e.preventDefault();
     document.getElementById("container").style.display = 'none';
     document.getElementById("batchContainer").style.display = 'flex';
+
+    // Load saved batch output mode preference
+    try {
+        const { batchOutputMode } = await browser.storage.local.get('batchOutputMode');
+        const mode = batchOutputMode || 'multiple';
+        const multipleBtn = document.getElementById("multipleFiles");
+        const singleBtn = document.getElementById("singleFile");
+
+        if (mode === 'multiple') {
+            multipleBtn.classList.add("active");
+            singleBtn.classList.remove("active");
+        } else {
+            singleBtn.classList.add("active");
+            multipleBtn.classList.remove("active");
+        }
+    } catch (err) {
+        console.error("Error loading batch output mode:", err);
+    }
 
     // Check if there are pending link picker results from storage
     try {
@@ -157,6 +177,22 @@ async function activateLinkPicker(e) {
     } catch (error) {
         console.error("Error activating link picker:", error);
         alert("Failed to activate link picker. Please try again.");
+    }
+}
+
+function toggleBatchOutputMode(e) {
+    e.preventDefault();
+    const multipleBtn = document.getElementById("multipleFiles");
+    const singleBtn = document.getElementById("singleFile");
+
+    if (e.target.id === "multipleFiles" || e.target.closest("#multipleFiles")) {
+        multipleBtn.classList.add("active");
+        singleBtn.classList.remove("active");
+        browser.storage.local.set({ batchOutputMode: 'multiple' });
+    } else {
+        singleBtn.classList.add("active");
+        multipleBtn.classList.remove("active");
+        browser.storage.local.set({ batchOutputMode: 'single' });
     }
 }
 
@@ -228,50 +264,54 @@ function processUrlInput(text) {
 
 async function handleBatchConversion(e) {
     e.preventDefault();
-    
+
     const urlText = document.getElementById("urlList").value;
     const urlObjects = processUrlInput(urlText);
-    
+
     if (urlObjects.length === 0) {
         showError("Please enter valid URLs or markdown links (one per line)", false);
         return;
     }
 
+    // Get output mode preference
+    const { batchOutputMode } = await browser.storage.local.get('batchOutputMode');
+    const outputMode = batchOutputMode || 'multiple';
+
     document.getElementById("spinner").style.display = 'flex';
     document.getElementById("convertUrls").style.display = 'none';
     progressUI.show();
     progressUI.reset();
-    
+
     try {
         const tabs = [];
         const total = urlObjects.length;
         let current = 0;
-        
-        console.log('Starting batch conversion...');
-        
+
+        console.log(`Starting batch conversion in ${outputMode} mode...`);
+
         // Create and load all tabs
         for (const urlObj of urlObjects) {
             current++;
             progressUI.updateProgress(current, total, `Loading: ${urlObj.url}`);
-            
+
             console.log(`Creating tab for ${urlObj.url}`);
-            const tab = await browser.tabs.create({ 
-                url: urlObj.url, 
-                active: false 
+            const tab = await browser.tabs.create({
+                url: urlObj.url,
+                active: false
             });
-            
+
             if (urlObj.title) {
                 tab.customTitle = urlObj.title;
             }
-            
+
             tabs.push(tab);
-            
+
             // Wait for tab load
             await new Promise((resolve, reject) => {
                 const timeout = setTimeout(() => {
                     reject(new Error(`Timeout loading ${urlObj.url}`));
                 }, 30000);
-                
+
                 function listener(tabId, info) {
                     if (tabId === tab.id && info.status === 'complete') {
                         clearTimeout(timeout);
@@ -293,14 +333,17 @@ async function handleBatchConversion(e) {
         // Reset progress for processing phase
         current = 0;
         progressUI.setStatus('Converting pages to Markdown...');
-        
+
+        // Collect all markdown content if in single file mode
+        const collectedContent = [];
+
         // Process each tab
         for (const tab of tabs) {
             try {
                 current++;
                 progressUI.updateProgress(current, total, `Converting: ${tab.url}`);
                 console.log(`Processing tab ${tab.id}`);
-                
+
                 const displayMdPromise = new Promise((resolve, reject) => {
                     const timeout = setTimeout(() => {
                         reject(new Error('Timeout waiting for markdown generation'));
@@ -311,32 +354,68 @@ async function handleBatchConversion(e) {
                             clearTimeout(timeout);
                             browser.runtime.onMessage.removeListener(messageListener);
                             console.log(`Received markdown for tab ${tab.id}`);
-                            
+
                             if (tab.customTitle) {
                                 message.article.title = tab.customTitle;
                             }
-                            
-                            cm.setValue(message.markdown);
-                            document.getElementById("title").value = message.article.title;
-                            imageList = message.imageList;
-                            mdClipsFolder = message.mdClipsFolder;
-                            
-                            resolve();
+
+                            resolve({
+                                markdown: message.markdown,
+                                title: message.article.title,
+                                url: tab.url,
+                                imageList: message.imageList,
+                                mdClipsFolder: message.mdClipsFolder
+                            });
                         }
                     }
-                    
+
                     browser.runtime.onMessage.addListener(messageListener);
                 });
 
                 await clipSite(tab.id);
-                await displayMdPromise;
-                await sendDownloadMessage(cm.getValue());
+                const result = await displayMdPromise;
+
+                if (outputMode === 'single') {
+                    // Collect content for single file mode
+                    collectedContent.push(result);
+                } else {
+                    // Download immediately for multiple files mode
+                    cm.setValue(result.markdown);
+                    document.getElementById("title").value = result.title;
+                    imageList = result.imageList;
+                    mdClipsFolder = result.mdClipsFolder;
+                    await sendDownloadMessage(cm.getValue());
+                }
 
             } catch (error) {
                 console.error(`Error processing tab ${tab.id}:`, error);
                 progressUI.setStatus(`Error: ${error.message}`);
                 await new Promise(resolve => setTimeout(resolve, 2000)); // Show error briefly
             }
+        }
+
+        // If single file mode, combine and download all content
+        if (outputMode === 'single' && collectedContent.length > 0) {
+            progressUI.setStatus('Combining files...');
+
+            // Combine all markdown with separators
+            const combinedMarkdown = collectedContent.map((content, index) => {
+                const separator = index > 0 ? '\n\n---\n\n' : '';
+                const header = `# ${content.title}\n\nSource: ${content.url}\n\n`;
+                return separator + header + content.markdown;
+            }).join('');
+
+            // Create combined title
+            const combinedTitle = collectedContent.length === 1
+                ? collectedContent[0].title
+                : `Batch Export - ${new Date().toISOString().split('T')[0]}`;
+
+            // Set values and download
+            cm.setValue(combinedMarkdown);
+            document.getElementById("title").value = combinedTitle;
+            imageList = collectedContent[0].imageList; // Use first page's image list
+            mdClipsFolder = collectedContent[0].mdClipsFolder;
+            await sendDownloadMessage(cm.getValue());
         }
 
         // Clean up tabs

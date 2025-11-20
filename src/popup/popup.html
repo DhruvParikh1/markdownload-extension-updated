@@ -174,6 +174,25 @@
         <p id="currentUrl" class="current-url"></p>
       </div>
 
+      <div class="setting-row" style="padding: var(--space-3) 0;">
+        <span class="setting-text-static">Output:</span>
+        <div class="segmented-control">
+          <button class="segment active" id="multipleFiles" data-value="multiple">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/>
+              <path d="M8 12h8v2H8z"/>
+            </svg>
+            Multiple Files
+          </button>
+          <button class="segment" id="singleFile" data-value="single">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/>
+            </svg>
+            Single File
+          </button>
+        </div>
+      </div>
+
       <section class="action-section" style="padding-top: 0;">
         <button id="convertUrls" class="btn btn-primary btn-block">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
