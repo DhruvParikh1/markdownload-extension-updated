@@ -196,34 +196,39 @@ function downloadImage(filename, url) {
 
 // ===== Link Picker Feature =====
 
-let linkPickerState = {
-    active: false,
-    selectedLinks: new Set(),
-    selectedElements: new Set(),
-    hoveredElement: null,
-    controlPanel: null,
-    styleElement: null,
-    handlers: {}
-};
+// Use var to allow redeclaration if script is injected multiple times
+if (typeof window.linkPickerState === 'undefined') {
+    window.linkPickerState = {
+        active: false,
+        selectedLinks: new Set(),
+        selectedElements: new Set(),
+        hoveredElement: null,
+        controlPanel: null,
+        styleElement: null,
+        handlers: {}
+    };
+}
 
 // Listen for link picker activation message
-browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.type === "ACTIVATE_LINK_PICKER") {
-        initLinkPickerMode();
-        sendResponse({ success: true });
-    }
-    return true;
-});
+if (!window.linkPickerMessageListenerAdded) {
+    browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+        if (message.type === "ACTIVATE_LINK_PICKER") {
+            initLinkPickerMode();
+            return Promise.resolve({ success: true });
+        }
+    });
+    window.linkPickerMessageListenerAdded = true;
+}
 
 function initLinkPickerMode() {
-    if (linkPickerState.active) {
+    if (window.linkPickerState.active) {
         console.log("Link picker already active");
         return;
     }
 
-    linkPickerState.active = true;
-    linkPickerState.selectedLinks = new Set();
-    linkPickerState.selectedElements = new Set();
+    window.linkPickerState.active = true;
+    window.linkPickerState.selectedLinks = new Set();
+    window.linkPickerState.selectedElements = new Set();
 
     // Inject CSS styles
     injectLinkPickerStyles();
@@ -386,9 +391,9 @@ function injectLinkPickerStyles() {
         }
     `;
 
-    linkPickerState.styleElement = document.createElement('style');
-    linkPickerState.styleElement.textContent = styles;
-    document.head.appendChild(linkPickerState.styleElement);
+    window.linkPickerState.styleElement = document.createElement('style');
+    window.linkPickerState.styleElement.textContent = styles;
+    document.head.appendChild(window.linkPickerState.styleElement);
 
     // Create overlay
     const overlay = document.createElement('div');
@@ -419,7 +424,7 @@ function createControlPanel() {
         </div>
     `;
     document.body.appendChild(panel);
-    linkPickerState.controlPanel = panel;
+    window.linkPickerState.controlPanel = panel;
 
     // Add button event listeners
     document.getElementById('marksnip-link-picker-done').addEventListener('click', finishLinkPicker);
@@ -428,7 +433,7 @@ function createControlPanel() {
 
 function setupLinkPickerEventListeners() {
     // Mouse move handler
-    linkPickerState.handlers.mousemove = function(e) {
+    window.linkPickerState.handlers.mousemove = function(e) {
         // Ignore if hovering over control panel or its children
         if (e.target.closest('#marksnip-link-picker-panel')) {
             removeHighlight();
@@ -439,7 +444,7 @@ function setupLinkPickerEventListeners() {
 
         // Don't highlight if it's our overlay or already selected
         if (element.id === 'marksnip-link-picker-overlay' ||
-            linkPickerState.selectedElements.has(element)) {
+            window.linkPickerState.selectedElements.has(element)) {
             return;
         }
 
@@ -447,7 +452,7 @@ function setupLinkPickerEventListeners() {
     };
 
     // Click handler
-    linkPickerState.handlers.click = function(e) {
+    window.linkPickerState.handlers.click = function(e) {
         // Ignore clicks on control panel
         if (e.target.closest('#marksnip-link-picker-panel')) {
             return;
@@ -459,7 +464,7 @@ function setupLinkPickerEventListeners() {
         const element = e.target;
 
         // Toggle selection
-        if (linkPickerState.selectedElements.has(element)) {
+        if (window.linkPickerState.selectedElements.has(element)) {
             deselectElement(element);
         } else {
             selectElement(element);
@@ -467,7 +472,7 @@ function setupLinkPickerEventListeners() {
     };
 
     // Keyboard handler
-    linkPickerState.handlers.keydown = function(e) {
+    window.linkPickerState.handlers.keydown = function(e) {
         if (e.key === 'Escape') {
             e.preventDefault();
             cancelLinkPicker();
@@ -475,9 +480,9 @@ function setupLinkPickerEventListeners() {
     };
 
     // Add listeners
-    document.addEventListener('mousemove', linkPickerState.handlers.mousemove, true);
-    document.addEventListener('click', linkPickerState.handlers.click, true);
-    document.addEventListener('keydown', linkPickerState.handlers.keydown, true);
+    document.addEventListener('mousemove', window.linkPickerState.handlers.mousemove, true);
+    document.addEventListener('click', window.linkPickerState.handlers.click, true);
+    document.addEventListener('keydown', window.linkPickerState.handlers.keydown, true);
 }
 
 function highlightElement(element, mouseX, mouseY) {
@@ -485,12 +490,12 @@ function highlightElement(element, mouseX, mouseY) {
     removeHighlight();
 
     // Don't highlight selected elements
-    if (linkPickerState.selectedElements.has(element)) {
+    if (window.linkPickerState.selectedElements.has(element)) {
         return;
     }
 
     element.classList.add('marksnip-link-picker-highlight');
-    linkPickerState.hoveredElement = element;
+    window.linkPickerState.hoveredElement = element;
 
     // Count links in this element
     const linkCount = extractLinksFromElement(element).length;
@@ -503,9 +508,9 @@ function highlightElement(element, mouseX, mouseY) {
 }
 
 function removeHighlight() {
-    if (linkPickerState.hoveredElement) {
-        linkPickerState.hoveredElement.classList.remove('marksnip-link-picker-highlight');
-        linkPickerState.hoveredElement = null;
+    if (window.linkPickerState.hoveredElement) {
+        window.linkPickerState.hoveredElement.classList.remove('marksnip-link-picker-highlight');
+        window.linkPickerState.hoveredElement = null;
     }
     removeTooltip();
 }
@@ -537,10 +542,10 @@ function selectElement(element) {
     }
 
     // Add links to set
-    links.forEach(link => linkPickerState.selectedLinks.add(link));
+    links.forEach(link => window.linkPickerState.selectedLinks.add(link));
 
     // Mark element as selected
-    linkPickerState.selectedElements.add(element);
+    window.linkPickerState.selectedElements.add(element);
     element.classList.remove('marksnip-link-picker-highlight');
     element.classList.add('marksnip-link-picker-selected');
 
@@ -551,10 +556,10 @@ function deselectElement(element) {
     const links = extractLinksFromElement(element);
 
     // Remove links from set
-    links.forEach(link => linkPickerState.selectedLinks.delete(link));
+    links.forEach(link => window.linkPickerState.selectedLinks.delete(link));
 
     // Unmark element
-    linkPickerState.selectedElements.delete(element);
+    window.linkPickerState.selectedElements.delete(element);
     element.classList.remove('marksnip-link-picker-selected');
 
     updateLinkCount();
@@ -591,7 +596,7 @@ function extractLinksFromElement(element) {
 }
 
 function updateLinkCount() {
-    const count = linkPickerState.selectedLinks.size;
+    const count = window.linkPickerState.selectedLinks.size;
     const countElement = document.getElementById('marksnip-link-count');
     if (countElement) {
         countElement.textContent = `${count} link${count !== 1 ? 's' : ''}`;
@@ -599,7 +604,7 @@ function updateLinkCount() {
 }
 
 function finishLinkPicker() {
-    const links = Array.from(linkPickerState.selectedLinks);
+    const links = Array.from(window.linkPickerState.selectedLinks);
 
     // Send links back to popup
     browser.runtime.sendMessage({
@@ -622,18 +627,18 @@ function cancelLinkPicker() {
 
 function cleanupLinkPicker() {
     // Remove event listeners
-    if (linkPickerState.handlers.mousemove) {
-        document.removeEventListener('mousemove', linkPickerState.handlers.mousemove, true);
+    if (window.linkPickerState.handlers.mousemove) {
+        document.removeEventListener('mousemove', window.linkPickerState.handlers.mousemove, true);
     }
-    if (linkPickerState.handlers.click) {
-        document.removeEventListener('click', linkPickerState.handlers.click, true);
+    if (window.linkPickerState.handlers.click) {
+        document.removeEventListener('click', window.linkPickerState.handlers.click, true);
     }
-    if (linkPickerState.handlers.keydown) {
-        document.removeEventListener('keydown', linkPickerState.handlers.keydown, true);
+    if (window.linkPickerState.handlers.keydown) {
+        document.removeEventListener('keydown', window.linkPickerState.handlers.keydown, true);
     }
 
     // Remove highlights from selected elements
-    linkPickerState.selectedElements.forEach(element => {
+    window.linkPickerState.selectedElements.forEach(element => {
         element.classList.remove('marksnip-link-picker-selected');
     });
 
@@ -641,8 +646,8 @@ function cleanupLinkPicker() {
     removeHighlight();
 
     // Remove control panel
-    if (linkPickerState.controlPanel) {
-        linkPickerState.controlPanel.remove();
+    if (window.linkPickerState.controlPanel) {
+        window.linkPickerState.controlPanel.remove();
     }
 
     // Remove overlay
@@ -652,12 +657,12 @@ function cleanupLinkPicker() {
     }
 
     // Remove styles
-    if (linkPickerState.styleElement) {
-        linkPickerState.styleElement.remove();
+    if (window.linkPickerState.styleElement) {
+        window.linkPickerState.styleElement.remove();
     }
 
     // Reset state
-    linkPickerState = {
+    window.linkPickerState = {
         active: false,
         selectedLinks: new Set(),
         selectedElements: new Set(),
