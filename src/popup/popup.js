@@ -344,18 +344,36 @@ async function handleBatchConversion(e) {
                 progressUI.updateProgress(current, total, `Converting: ${tab.url}`);
                 console.log(`Processing tab ${tab.id}`);
 
-                // CRITICAL: Activate the tab to force full rendering
-                // Background tabs have throttled JavaScript and delayed rendering
-                console.log(`Activating tab ${tab.id} to force full render...`);
-                await browser.tabs.update(tab.id, { active: true });
-
                 // Get the updated tab info to ensure we have the correct URL after redirects
                 const updatedTab = await browser.tabs.get(tab.id);
                 console.log(`Updated tab URL: ${updatedTab.url}`);
 
-                // Wait for the page to fully render now that it's active
-                console.log(`Waiting 3 seconds for active tab to fully render...`);
-                await new Promise(resolve => setTimeout(resolve, 3000)); // 3 seconds should be enough for active tabs
+                // Trigger rendering in background tab by simulating user interaction
+                // This forces the browser to allocate resources without activating the tab
+                console.log(`Triggering rendering in background tab ${tab.id}...`);
+                try {
+                    await browser.scripting.executeScript({
+                        target: { tabId: tab.id },
+                        func: () => {
+                            // Dispatch events to wake up the page's rendering
+                            window.dispatchEvent(new Event('scroll'));
+                            window.dispatchEvent(new Event('resize'));
+                            window.dispatchEvent(new Event('focus'));
+
+                            // Force a layout recalculation
+                            document.body.offsetHeight;
+
+                            console.log('[MarkSnip] Triggered rendering events');
+                        }
+                    });
+                } catch (err) {
+                    console.log(`Could not trigger rendering events: ${err.message}`);
+                }
+
+                // Wait longer for JavaScript-heavy pages in background tabs
+                // Background tabs are throttled, so they need more time
+                console.log(`Waiting 8 seconds for background tab to fully render...`);
+                await new Promise(resolve => setTimeout(resolve, 8000)); // 8 seconds for background rendering
 
                 console.log(`Starting content extraction for tab ${tab.id}`);
 
