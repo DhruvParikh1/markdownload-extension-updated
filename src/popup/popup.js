@@ -70,6 +70,7 @@ document.getElementById("sendToObsidian").addEventListener("click", sendToObsidi
 document.getElementById("batchProcess").addEventListener("click", showBatchProcess);
 document.getElementById("convertUrls").addEventListener("click", handleBatchConversion);
 document.getElementById("cancelBatch").addEventListener("click", hideBatchProcess);
+document.getElementById("pickLinks").addEventListener("click", activateLinkPicker);
 
 // Save batch URL list to storage
 function saveBatchUrls() {
@@ -94,16 +95,69 @@ async function loadBatchUrls() {
 // Add event listener to save URLs as user types
 document.getElementById("urlList").addEventListener("input", saveBatchUrls);
 
-function showBatchProcess(e) {
+async function showBatchProcess(e) {
     e.preventDefault();
     document.getElementById("container").style.display = 'none';
     document.getElementById("batchContainer").style.display = 'flex';
+
+    // Check if there are pending link picker results from storage
+    try {
+        const result = await browser.storage.local.get(['linkPickerResults', 'linkPickerTimestamp']);
+        if (result.linkPickerResults && result.linkPickerResults.length > 0) {
+            // Check if results are recent (within last 30 seconds)
+            const age = Date.now() - (result.linkPickerTimestamp || 0);
+            if (age < 30000) {
+                console.log(`Found ${result.linkPickerResults.length} links from link picker`);
+                handleLinkPickerComplete(result.linkPickerResults);
+                // Clear the stored results after using them
+                await browser.storage.local.remove(['linkPickerResults', 'linkPickerTimestamp']);
+            }
+        }
+    } catch (err) {
+        console.error("Error checking for link picker results:", err);
+    }
 }
 
 function hideBatchProcess(e) {
     e.preventDefault();
     document.getElementById("container").style.display = 'flex';
     document.getElementById("batchContainer").style.display = 'none';
+}
+
+async function activateLinkPicker(e) {
+    e.preventDefault();
+
+    try {
+        // Get the current active tab
+        const tabs = await browser.tabs.query({ currentWindow: true, active: true });
+        if (!tabs || tabs.length === 0) {
+            console.error("No active tab found");
+            return;
+        }
+
+        const activeTab = tabs[0];
+
+        // Ensure content script is injected
+        await browser.scripting.executeScript({
+            target: { tabId: activeTab.id },
+            files: ["/browser-polyfill.min.js", "/contentScript/contentScript.js"]
+        }).catch(err => {
+            // Script might already be injected, that's okay
+            console.log("Content script may already be injected:", err);
+        });
+
+        // Send message to activate link picker mode
+        await browser.tabs.sendMessage(activeTab.id, {
+            type: "ACTIVATE_LINK_PICKER"
+        });
+
+        // Focus the tab to bring it to front
+        await browser.tabs.update(activeTab.id, { active: true });
+
+    } catch (error) {
+        console.error("Error activating link picker:", error);
+        alert("Failed to activate link picker. Please try again.");
+    }
 }
 
 const defaultOptions = {
@@ -475,6 +529,53 @@ browser.storage.sync.get(defaultOptions).then(options => {
 
 // listen for notifications from the background page
 browser.runtime.onMessage.addListener(notify);
+
+// Listen for link picker results
+browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === "LINK_PICKER_COMPLETE") {
+        handleLinkPickerComplete(message.links);
+    }
+});
+
+function handleLinkPickerComplete(links) {
+    if (!links || links.length === 0) {
+        console.log("No links collected");
+        return;
+    }
+
+    // Get current textarea value
+    const urlListTextarea = document.getElementById("urlList");
+    const currentUrls = urlListTextarea.value.trim();
+
+    // Combine existing URLs with new ones (deduplicate)
+    const existingUrls = currentUrls ? currentUrls.split('\n') : [];
+    const allUrls = [...new Set([...existingUrls, ...links])];
+
+    // Update textarea
+    urlListTextarea.value = allUrls.join('\n');
+
+    // Save to storage
+    saveBatchUrls();
+
+    // Show success message
+    console.log(`Added ${links.length} links to batch processor`);
+
+    // Optional: Show temporary success indicator
+    const pickLinksBtn = document.getElementById("pickLinks");
+    const originalText = pickLinksBtn.innerHTML;
+    pickLinksBtn.innerHTML = `
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        Added ${links.length} links!
+    `;
+    pickLinksBtn.classList.add("success");
+
+    setTimeout(() => {
+        pickLinksBtn.innerHTML = originalText;
+        pickLinksBtn.classList.remove("success");
+    }, 2000);
+}
 
 //function to send the download message to the background page
 function sendDownloadMessage(text) {
