@@ -70,6 +70,9 @@ document.getElementById("sendToObsidian").addEventListener("click", sendToObsidi
 document.getElementById("batchProcess").addEventListener("click", showBatchProcess);
 document.getElementById("convertUrls").addEventListener("click", handleBatchConversion);
 document.getElementById("cancelBatch").addEventListener("click", hideBatchProcess);
+document.getElementById("pickLinks").addEventListener("click", activateLinkPicker);
+document.getElementById("multipleFiles").addEventListener("click", toggleBatchOutputMode);
+document.getElementById("singleFile").addEventListener("click", toggleBatchOutputMode);
 
 // Save batch URL list to storage
 function saveBatchUrls() {
@@ -94,16 +97,103 @@ async function loadBatchUrls() {
 // Add event listener to save URLs as user types
 document.getElementById("urlList").addEventListener("input", saveBatchUrls);
 
-function showBatchProcess(e) {
+async function showBatchProcess(e) {
     e.preventDefault();
     document.getElementById("container").style.display = 'none';
     document.getElementById("batchContainer").style.display = 'flex';
+
+    // Load saved batch output mode preference
+    try {
+        const { batchOutputMode } = await browser.storage.local.get('batchOutputMode');
+        const mode = batchOutputMode || 'multiple';
+        const multipleBtn = document.getElementById("multipleFiles");
+        const singleBtn = document.getElementById("singleFile");
+
+        if (mode === 'multiple') {
+            multipleBtn.classList.add("active");
+            singleBtn.classList.remove("active");
+        } else {
+            singleBtn.classList.add("active");
+            multipleBtn.classList.remove("active");
+        }
+    } catch (err) {
+        console.error("Error loading batch output mode:", err);
+    }
+
+    // Check if there are pending link picker results from storage
+    try {
+        const result = await browser.storage.local.get(['linkPickerResults', 'linkPickerTimestamp']);
+        if (result.linkPickerResults && result.linkPickerResults.length > 0) {
+            // Check if results are recent (within last 30 seconds)
+            const age = Date.now() - (result.linkPickerTimestamp || 0);
+            if (age < 30000) {
+                console.log(`Found ${result.linkPickerResults.length} links from link picker`);
+                handleLinkPickerComplete(result.linkPickerResults);
+                // Clear the stored results after using them
+                await browser.storage.local.remove(['linkPickerResults', 'linkPickerTimestamp']);
+            }
+        }
+    } catch (err) {
+        console.error("Error checking for link picker results:", err);
+    }
 }
 
 function hideBatchProcess(e) {
     e.preventDefault();
     document.getElementById("container").style.display = 'flex';
     document.getElementById("batchContainer").style.display = 'none';
+}
+
+async function activateLinkPicker(e) {
+    e.preventDefault();
+
+    try {
+        // Get the current active tab
+        const tabs = await browser.tabs.query({ currentWindow: true, active: true });
+        if (!tabs || tabs.length === 0) {
+            console.error("No active tab found");
+            return;
+        }
+
+        const activeTab = tabs[0];
+
+        // Ensure content script is injected
+        await browser.scripting.executeScript({
+            target: { tabId: activeTab.id },
+            files: ["/browser-polyfill.min.js", "/contentScript/contentScript.js"]
+        }).catch(err => {
+            // Script might already be injected, that's okay
+            console.log("Content script may already be injected:", err);
+        });
+
+        // Send message to activate link picker mode
+        await browser.tabs.sendMessage(activeTab.id, {
+            type: "ACTIVATE_LINK_PICKER"
+        });
+
+        // Focus the tab to bring it to front
+        await browser.tabs.update(activeTab.id, { active: true });
+
+    } catch (error) {
+        console.error("Error activating link picker:", error);
+        alert("Failed to activate link picker. Please try again.");
+    }
+}
+
+function toggleBatchOutputMode(e) {
+    e.preventDefault();
+    const multipleBtn = document.getElementById("multipleFiles");
+    const singleBtn = document.getElementById("singleFile");
+
+    if (e.target.id === "multipleFiles" || e.target.closest("#multipleFiles")) {
+        multipleBtn.classList.add("active");
+        singleBtn.classList.remove("active");
+        browser.storage.local.set({ batchOutputMode: 'multiple' });
+    } else {
+        singleBtn.classList.add("active");
+        multipleBtn.classList.remove("active");
+        browser.storage.local.set({ batchOutputMode: 'single' });
+    }
 }
 
 const defaultOptions = {
@@ -174,50 +264,54 @@ function processUrlInput(text) {
 
 async function handleBatchConversion(e) {
     e.preventDefault();
-    
+
     const urlText = document.getElementById("urlList").value;
     const urlObjects = processUrlInput(urlText);
-    
+
     if (urlObjects.length === 0) {
         showError("Please enter valid URLs or markdown links (one per line)", false);
         return;
     }
 
+    // Get output mode preference
+    const { batchOutputMode } = await browser.storage.local.get('batchOutputMode');
+    const outputMode = batchOutputMode || 'multiple';
+
     document.getElementById("spinner").style.display = 'flex';
     document.getElementById("convertUrls").style.display = 'none';
     progressUI.show();
     progressUI.reset();
-    
+
     try {
         const tabs = [];
         const total = urlObjects.length;
         let current = 0;
-        
-        console.log('Starting batch conversion...');
-        
+
+        console.log(`Starting batch conversion in ${outputMode} mode...`);
+
         // Create and load all tabs
         for (const urlObj of urlObjects) {
             current++;
             progressUI.updateProgress(current, total, `Loading: ${urlObj.url}`);
-            
+
             console.log(`Creating tab for ${urlObj.url}`);
-            const tab = await browser.tabs.create({ 
-                url: urlObj.url, 
-                active: false 
+            const tab = await browser.tabs.create({
+                url: urlObj.url,
+                active: false
             });
-            
+
             if (urlObj.title) {
                 tab.customTitle = urlObj.title;
             }
-            
+
             tabs.push(tab);
-            
+
             // Wait for tab load
             await new Promise((resolve, reject) => {
                 const timeout = setTimeout(() => {
                     reject(new Error(`Timeout loading ${urlObj.url}`));
                 }, 30000);
-                
+
                 function listener(tabId, info) {
                     if (tabId === tab.id && info.status === 'complete') {
                         clearTimeout(timeout);
@@ -239,14 +333,50 @@ async function handleBatchConversion(e) {
         // Reset progress for processing phase
         current = 0;
         progressUI.setStatus('Converting pages to Markdown...');
-        
+
+        // Collect all markdown content if in single file mode
+        const collectedContent = [];
+
         // Process each tab
         for (const tab of tabs) {
             try {
                 current++;
                 progressUI.updateProgress(current, total, `Converting: ${tab.url}`);
                 console.log(`Processing tab ${tab.id}`);
-                
+
+                // Get the updated tab info to ensure we have the correct URL after redirects
+                const updatedTab = await browser.tabs.get(tab.id);
+                console.log(`Updated tab URL: ${updatedTab.url}`);
+
+                // Trigger rendering in background tab by simulating user interaction
+                // This forces the browser to allocate resources without activating the tab
+                console.log(`Triggering rendering in background tab ${tab.id}...`);
+                try {
+                    await browser.scripting.executeScript({
+                        target: { tabId: tab.id },
+                        func: () => {
+                            // Dispatch events to wake up the page's rendering
+                            window.dispatchEvent(new Event('scroll'));
+                            window.dispatchEvent(new Event('resize'));
+                            window.dispatchEvent(new Event('focus'));
+
+                            // Force a layout recalculation
+                            document.body.offsetHeight;
+
+                            console.log('[MarkSnip] Triggered rendering events');
+                        }
+                    });
+                } catch (err) {
+                    console.log(`Could not trigger rendering events: ${err.message}`);
+                }
+
+                // Wait longer for JavaScript-heavy pages in background tabs
+                // Background tabs are throttled, so they need more time
+                console.log(`Waiting 8 seconds for background tab to fully render...`);
+                await new Promise(resolve => setTimeout(resolve, 8000)); // 8 seconds for background rendering
+
+                console.log(`Starting content extraction for tab ${tab.id}`);
+
                 const displayMdPromise = new Promise((resolve, reject) => {
                     const timeout = setTimeout(() => {
                         reject(new Error('Timeout waiting for markdown generation'));
@@ -256,33 +386,69 @@ async function handleBatchConversion(e) {
                         if (message.type === "display.md") {
                             clearTimeout(timeout);
                             browser.runtime.onMessage.removeListener(messageListener);
-                            console.log(`Received markdown for tab ${tab.id}`);
-                            
+                            console.log(`Received markdown for tab ${tab.id} (${message.markdown.length} chars)`);
+
                             if (tab.customTitle) {
                                 message.article.title = tab.customTitle;
                             }
-                            
-                            cm.setValue(message.markdown);
-                            document.getElementById("title").value = message.article.title;
-                            imageList = message.imageList;
-                            mdClipsFolder = message.mdClipsFolder;
-                            
-                            resolve();
+
+                            resolve({
+                                markdown: message.markdown,
+                                title: message.article.title,
+                                url: updatedTab.url, // Use the updated URL
+                                imageList: message.imageList,
+                                mdClipsFolder: message.mdClipsFolder
+                            });
                         }
                     }
-                    
+
                     browser.runtime.onMessage.addListener(messageListener);
                 });
 
                 await clipSite(tab.id);
-                await displayMdPromise;
-                await sendDownloadMessage(cm.getValue());
+                const result = await displayMdPromise;
+
+                if (outputMode === 'single') {
+                    // Collect content for single file mode
+                    collectedContent.push(result);
+                } else {
+                    // Download immediately for multiple files mode
+                    cm.setValue(result.markdown);
+                    document.getElementById("title").value = result.title;
+                    imageList = result.imageList;
+                    mdClipsFolder = result.mdClipsFolder;
+                    await sendDownloadMessage(cm.getValue());
+                }
 
             } catch (error) {
                 console.error(`Error processing tab ${tab.id}:`, error);
                 progressUI.setStatus(`Error: ${error.message}`);
                 await new Promise(resolve => setTimeout(resolve, 2000)); // Show error briefly
             }
+        }
+
+        // If single file mode, combine and download all content
+        if (outputMode === 'single' && collectedContent.length > 0) {
+            progressUI.setStatus('Combining files...');
+
+            // Combine all markdown with separators
+            const combinedMarkdown = collectedContent.map((content, index) => {
+                const separator = index > 0 ? '\n\n---\n\n' : '';
+                const header = `# ${content.title}\n\nSource: ${content.url}\n\n`;
+                return separator + header + content.markdown;
+            }).join('');
+
+            // Create combined title
+            const combinedTitle = collectedContent.length === 1
+                ? collectedContent[0].title
+                : `Batch Export - ${new Date().toISOString().split('T')[0]}`;
+
+            // Set values and download
+            cm.setValue(combinedMarkdown);
+            document.getElementById("title").value = combinedTitle;
+            imageList = collectedContent[0].imageList; // Use first page's image list
+            mdClipsFolder = collectedContent[0].mdClipsFolder;
+            await sendDownloadMessage(cm.getValue());
         }
 
         // Clean up tabs
@@ -475,6 +641,53 @@ browser.storage.sync.get(defaultOptions).then(options => {
 
 // listen for notifications from the background page
 browser.runtime.onMessage.addListener(notify);
+
+// Listen for link picker results
+browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === "LINK_PICKER_COMPLETE") {
+        handleLinkPickerComplete(message.links);
+    }
+});
+
+function handleLinkPickerComplete(links) {
+    if (!links || links.length === 0) {
+        console.log("No links collected");
+        return;
+    }
+
+    // Get current textarea value
+    const urlListTextarea = document.getElementById("urlList");
+    const currentUrls = urlListTextarea.value.trim();
+
+    // Combine existing URLs with new ones (deduplicate)
+    const existingUrls = currentUrls ? currentUrls.split('\n') : [];
+    const allUrls = [...new Set([...existingUrls, ...links])];
+
+    // Update textarea
+    urlListTextarea.value = allUrls.join('\n');
+
+    // Save to storage
+    saveBatchUrls();
+
+    // Show success message
+    console.log(`Added ${links.length} links to batch processor`);
+
+    // Optional: Show temporary success indicator
+    const pickLinksBtn = document.getElementById("pickLinks");
+    const originalText = pickLinksBtn.innerHTML;
+    pickLinksBtn.innerHTML = `
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        Added ${links.length} links!
+    `;
+    pickLinksBtn.classList.add("success");
+
+    setTimeout(() => {
+        pickLinksBtn.innerHTML = originalText;
+        pickLinksBtn.classList.remove("success");
+    }, 2000);
+}
 
 //function to send the download message to the background page
 function sendDownloadMessage(text) {

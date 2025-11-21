@@ -600,6 +600,13 @@ body {
     width: 100%;
 }
 
+.btn-sm {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-xs);
+    min-width: auto;
+    margin-bottom: var(--space-3);
+}
+
 /* Batch Container */
 .batch-container {
     display: none;
