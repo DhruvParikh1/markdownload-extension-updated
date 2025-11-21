@@ -344,15 +344,18 @@ async function handleBatchConversion(e) {
                 progressUI.updateProgress(current, total, `Converting: ${tab.url}`);
                 console.log(`Processing tab ${tab.id}`);
 
+                // CRITICAL: Activate the tab to force full rendering
+                // Background tabs have throttled JavaScript and delayed rendering
+                console.log(`Activating tab ${tab.id} to force full render...`);
+                await browser.tabs.update(tab.id, { active: true });
+
                 // Get the updated tab info to ensure we have the correct URL after redirects
                 const updatedTab = await browser.tabs.get(tab.id);
                 console.log(`Updated tab URL: ${updatedTab.url}`);
 
-                // Wait for JavaScript-heavy pages to fully render
-                // Use a generous fixed delay since detection is hard to get right
-                // and manual clipping works fine with proper wait time
-                console.log(`Waiting 5 seconds for page to fully render...`);
-                await new Promise(resolve => setTimeout(resolve, 5000)); // 5 second delay
+                // Wait for the page to fully render now that it's active
+                console.log(`Waiting 3 seconds for active tab to fully render...`);
+                await new Promise(resolve => setTimeout(resolve, 3000)); // 3 seconds should be enough for active tabs
 
                 console.log(`Starting content extraction for tab ${tab.id}`);
 
