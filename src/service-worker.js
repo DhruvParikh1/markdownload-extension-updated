@@ -637,7 +637,7 @@ async function handleContextMenuClick(info, tab) {
  * Handle keyboard commands
  */
 async function handleCommands(command) {
-  const tab = await browser.tabs.getCurrent();
+  const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
   
   if (command == "download_tab_as_markdown") {
     const info = { menuItemId: "download-markdown-all" };
