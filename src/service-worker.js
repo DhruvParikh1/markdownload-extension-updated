@@ -40,30 +40,40 @@ browser.downloads.onDeterminingFilename.addListener(handleFilenameConflict);
 function handleFilenameConflict(downloadItem, suggest) {
   console.log(`onDeterminingFilename called for download ${downloadItem.id}`, downloadItem);
   console.log(`Current markSnipDownloads:`, Array.from(markSnipDownloads.keys()));
-  
-  // Check if this is a MarkSnip download by URL pattern (blob URLs we create)
-  const isMarkSnipDownload = markSnipDownloads.has(downloadItem.id) || 
-                            (downloadItem.url && downloadItem.url.startsWith('blob:'));
-  
-  if (isMarkSnipDownload && markSnipDownloads.has(downloadItem.id)) {
-    const downloadInfo = markSnipDownloads.get(downloadItem.id);
-    console.log(`✅ Suggesting correct filename for MarkSnip download ${downloadItem.id}: ${downloadInfo.filename}`);
-    
-    // Suggest the correct filename with subfolder path
-    suggest({
-      filename: downloadInfo.filename,
-      conflictAction: 'uniquify'
-    });
-  } else if (isMarkSnipDownload) {
-    // This is likely a MarkSnip download but we don't have it tracked yet
-    // This shouldn't happen, but let's not interfere
-    console.log(`⚠️  MarkSnip download ${downloadItem.id} not tracked, using original filename: ${downloadItem.filename}`);
-    suggest();
-  } else {
-    // Not our download - let other extensions handle it
-    console.log(`❌ Not a MarkSnip download ${downloadItem.id}, passing through`);
-    suggest();
+  console.log(`Current markSnipUrls:`, Array.from(markSnipUrls.keys()));
+
+  // Check all three tracking methods:
+  // 1. Already tracked by download ID
+  // 2. Pre-tracked by URL in markSnipUrls
+  // 3. Is a blob URL (our blob URLs start with blob:chrome-extension://)
+  const trackedById = markSnipDownloads.has(downloadItem.id);
+  const trackedByUrl = downloadItem.url && markSnipUrls.has(downloadItem.url);
+  const isBlobUrl = downloadItem.url && downloadItem.url.startsWith('blob:');
+
+  const isMarkSnipDownload = trackedById || trackedByUrl || isBlobUrl;
+
+  if (isMarkSnipDownload) {
+    // Get filename from whichever tracking method found it
+    let filename;
+    if (trackedById) {
+      filename = markSnipDownloads.get(downloadItem.id).filename;
+    } else if (trackedByUrl) {
+      filename = markSnipUrls.get(downloadItem.url).filename;
+    }
+
+    if (filename) {
+      console.log(`✅ Suggesting correct filename for MarkSnip download ${downloadItem.id}: ${filename}`);
+      suggest({
+        filename: filename,
+        conflictAction: 'uniquify'
+      });
+      return; // Important: return to prevent fallback suggest()
+    }
   }
+
+  // Not our download or couldn't determine filename
+  console.log(`❌ Not a MarkSnip download ${downloadItem.id}, passing through`);
+  suggest();
 }
 
 /**
@@ -561,6 +571,11 @@ function handleDownloadChange(delta) {
       
       activeDownloads.delete(delta.id);
       markSnipDownloads.delete(delta.id); // Clean up filename tracking
+
+      // Also clean up markSnipUrls by URL if still present
+      if (url && markSnipUrls.has(url)) {
+        markSnipUrls.delete(url);
+      }
     } else if (delta.state && delta.state.current === "interrupted") {
       console.error('❌ Download interrupted:', delta.id, delta.error);
       const url = activeDownloads.get(delta.id);
@@ -578,9 +593,14 @@ function handleDownloadChange(delta) {
       
       activeDownloads.delete(delta.id);
       markSnipDownloads.delete(delta.id); // Clean up filename tracking
+
+      // Also clean up markSnipUrls by URL if still present
+      if (url && markSnipUrls.has(url)) {
+        markSnipUrls.delete(url);
+      }
     }
   }
-  
+
   // Also clean up any remaining URL tracking
   if (markSnipDownloads.has(delta.id)) {
     const downloadInfo = markSnipDownloads.get(delta.id);

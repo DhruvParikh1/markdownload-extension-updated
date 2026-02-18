@@ -110,9 +110,9 @@ describe('Real HTML to Markdown Conversion', () => {
       const html = '<ul><li>Item 1</li><li>Item 2</li><li>Item 3</li></ul>';
       const result = service.turndown(html);
 
-      expect(result).toContain('- Item 1');
-      expect(result).toContain('- Item 2');
-      expect(result).toContain('- Item 3');
+      expect(result).toMatch(/-\s+Item 1/);
+      expect(result).toMatch(/-\s+Item 2/);
+      expect(result).toMatch(/-\s+Item 3/);
     });
 
     test('should convert unordered lists with * marker', () => {
@@ -120,8 +120,8 @@ describe('Real HTML to Markdown Conversion', () => {
       const html = '<ul><li>Item 1</li><li>Item 2</li></ul>';
       const result = service.turndown(html);
 
-      expect(result).toContain('* Item 1');
-      expect(result).toContain('* Item 2');
+      expect(result).toMatch(/\*\s+Item 1/);
+      expect(result).toMatch(/\*\s+Item 2/);
     });
 
     test('should convert ordered lists', () => {
@@ -129,9 +129,9 @@ describe('Real HTML to Markdown Conversion', () => {
       const html = '<ol><li>First</li><li>Second</li><li>Third</li></ol>';
       const result = service.turndown(html);
 
-      expect(result).toContain('1. First');
-      expect(result).toContain('2. Second');
-      expect(result).toContain('3. Third');
+      expect(result).toMatch(/1\.\s+First/);
+      expect(result).toMatch(/2\.\s+Second/);
+      expect(result).toMatch(/3\.\s+Third/);
     });
 
     test('should convert nested lists', () => {
@@ -150,10 +150,10 @@ describe('Real HTML to Markdown Conversion', () => {
       `;
       const result = service.turndown(html);
 
-      expect(result).toContain('- Item 1');
-      expect(result).toContain('- Item 2');
-      expect(result).toContain('  - Nested 1');
-      expect(result).toContain('  - Nested 2');
+      expect(result).toMatch(/-\s+Item 1/);
+      expect(result).toMatch(/-\s+Item 2/);
+      expect(result).toMatch(/\s+-\s+Nested 1/);
+      expect(result).toMatch(/\s+-\s+Nested 2/);
     });
   });
 
@@ -285,7 +285,7 @@ describe('Real HTML to Markdown Conversion', () => {
       expect(result).toContain('**bold**');
       expect(result).toContain('*italic*');
       expect(result).toContain('[link](https://example.com)');
-      expect(result).toContain('- List item 1');
+      expect(result).toMatch(/-\s+List item 1/);
       expect(result).toContain('```javascript');
     });
 

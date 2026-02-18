@@ -2,6 +2,8 @@
   "scripts": {
     "npminstall": "npm install",
     "build": "web-ext build",
+    "build:chrome": "cd .. && mkdir -p dist && cd src && zip -r ../dist/marksnip-chrome-$(node -p \"require('./manifest.json').version\").zip . -x '*.git*' -x '*tests/*' -x '*node_modules/*' -x 'package*.json' -x 'jest.config.js' -x 'playwright.config.js' -x '*.DS_Store'",
+    "build:all": "npm run build && npm run build:chrome",
     "start:firefoxdeveloper": "web-ext run -f firefoxdeveloperedition -u https://en.wikipedia.org/wiki/Special:Random --bc",
     "start:chromedevwin": "web-ext run -t chromium --chromium-binary \"C:\\Program Files\\Google\\Chrome Dev\\Application\\chrome.exe\" -u https://en.wikipedia.org/wiki/Special:Random --bc",
     "start:waveboxwin": "web-ext run -t chromium --chromium-binary %localappdata%/WaveboxApp/Application/wavebox.exe",
