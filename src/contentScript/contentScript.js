@@ -81,7 +81,7 @@ function getHTMLOfSelection() {
         if (selection.rangeCount > 0) {
             let content = '';
             for (let i = 0; i < selection.rangeCount; i++) {
-                range = selection.getRangeAt(0);
+                range = selection.getRangeAt(i);
                 var clonedSelection = range.cloneContents();
                 var div = document.createElement('div');
                 div.appendChild(clonedSelection);

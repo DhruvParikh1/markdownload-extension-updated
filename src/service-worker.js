@@ -963,37 +963,79 @@ async function handleContextMenuClick(info, tab) {
   }
 }
 
+async function getCommandTargetTab() {
+  const queryStrategies = [
+    { active: true, lastFocusedWindow: true },
+    { active: true, currentWindow: true },
+    { active: true }
+  ];
+
+  for (const queryInfo of queryStrategies) {
+    const tabs = await browser.tabs.query(queryInfo);
+    if (tabs && tabs[0]?.id != null) {
+      return tabs[0];
+    }
+  }
+
+  return null;
+}
+
+function isRestrictedTabUrl(url) {
+  if (!url) return false;
+  return (
+    url.startsWith('chrome://') ||
+    url.startsWith('edge://') ||
+    url.startsWith('about:') ||
+    url.startsWith('moz-extension://') ||
+    url.startsWith('chrome-extension://') ||
+    url.startsWith('view-source:')
+  );
+}
+
 /**
  * Handle keyboard commands
  */
 async function handleCommands(command) {
-  const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
-  
-  if (command == "download_tab_as_markdown") {
-    const info = { menuItemId: "download-markdown-all" };
-    await downloadMarkdownFromContext(info, tab);
-  }
-  else if (command == "copy_tab_as_markdown") {
-    const info = { menuItemId: "copy-markdown-all" };
-    await copyMarkdownFromContext(info, tab);
-  }
-  else if (command == "copy_selection_as_markdown") {
-    const info = { menuItemId: "copy-markdown-selection" };
-    await copyMarkdownFromContext(info, tab);
-  }
-  else if (command == "copy_tab_as_markdown_link") {
-    await copyTabAsMarkdownLink(tab);
-  }
-  else if (command == "copy_selected_tab_as_markdown_link") {
-    await copySelectedTabAsMarkdownLink(tab);
-  }
-  else if (command == "copy_selection_to_obsidian") {
-    const info = { menuItemId: "copy-markdown-obsidian" };
-    await copyMarkdownFromContext(info, tab);
-  }
-  else if (command == "copy_tab_to_obsidian") {
-    const info = { menuItemId: "copy-markdown-obsall" };
-    await copyMarkdownFromContext(info, tab);
+  try {
+    const tab = await getCommandTargetTab();
+    if (!tab) {
+      console.warn(`[Commands] No active tab found for command "${command}"`);
+      return;
+    }
+
+    if (isRestrictedTabUrl(tab.url || '')) {
+      console.warn(`[Commands] Ignoring command "${command}" on restricted URL: ${tab.url}`);
+      return;
+    }
+
+    if (command == "download_tab_as_markdown") {
+      const info = { menuItemId: "download-markdown-all" };
+      await downloadMarkdownFromContext(info, tab);
+    }
+    else if (command == "copy_tab_as_markdown") {
+      const info = { menuItemId: "copy-markdown-all" };
+      await copyMarkdownFromContext(info, tab);
+    }
+    else if (command == "copy_selection_as_markdown") {
+      const info = { menuItemId: "copy-markdown-selection" };
+      await copyMarkdownFromContext(info, tab);
+    }
+    else if (command == "copy_tab_as_markdown_link") {
+      await copyTabAsMarkdownLink(tab);
+    }
+    else if (command == "copy_selected_tab_as_markdown_link") {
+      await copySelectedTabAsMarkdownLink(tab);
+    }
+    else if (command == "copy_selection_to_obsidian") {
+      const info = { menuItemId: "copy-markdown-obsidian" };
+      await copyMarkdownFromContext(info, tab);
+    }
+    else if (command == "copy_tab_to_obsidian") {
+      const info = { menuItemId: "copy-markdown-obsall" };
+      await copyMarkdownFromContext(info, tab);
+    }
+  } catch (error) {
+    console.error(`[Commands] Failed to execute "${command}":`, error);
   }
 }
 
