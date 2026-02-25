@@ -71,19 +71,16 @@ document.getElementById("batchProcess").addEventListener("click", showBatchProce
 document.getElementById("convertUrls").addEventListener("click", handleBatchConversion);
 document.getElementById("cancelBatch").addEventListener("click", hideBatchProcess);
 document.getElementById("pickLinks").addEventListener("click", activateLinkPicker);
-document.querySelectorAll("input[name='batchSaveMode']").forEach(el => {
-    el.addEventListener("change", saveBatchSettings);
-});
+document.getElementById("batchSaveModeToggle").addEventListener("change", saveBatchSettings);
 
 function getSelectedBatchSaveMode() {
-    const selected = document.querySelector("input[name='batchSaveMode']:checked");
-    return selected?.value || 'zip';
+    const toggle = document.getElementById("batchSaveModeToggle");
+    return toggle?.checked ? 'individual' : 'zip';
 }
 
 function setSelectedBatchSaveMode(mode) {
-    const normalized = mode === 'individual' ? 'individual' : 'zip';
-    const option = document.querySelector(`input[name='batchSaveMode'][value='${normalized}']`);
-    if (option) option.checked = true;
+    const toggle = document.getElementById("batchSaveModeToggle");
+    if (toggle) toggle.checked = mode === 'individual';
 }
 
 // Save batch settings to storage

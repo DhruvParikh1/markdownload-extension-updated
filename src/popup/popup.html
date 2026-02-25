@@ -156,25 +156,26 @@
       <label for="urlList" class="input-label">URLs (one per line)</label>
       <textarea id="urlList" class="url-textarea" placeholder="https://example.com/page1&#10;https://example.com/page2&#10;&#10;Or use markdown links:&#10;[Page Title](https://example.com)"></textarea>
 
-      <button id="pickLinks" class="btn btn-secondary btn-sm">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-        </svg>
-        Pick Links from Page
-      </button>
+      <div class="batch-toolbar">
+        <button id="pickLinks" class="btn btn-secondary btn-sm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+          Pick Links from Page
+        </button>
+      </div>
 
       <div class="batch-save-mode">
-        <label class="input-label">Save Mode</label>
         <div class="batch-save-mode-options">
-          <label class="batch-save-option">
-            <input type="radio" name="batchSaveMode" value="zip" checked>
-            <span>One ZIP (default)</span>
+          <span class="batch-save-label">ZIP file</span>
+          <label class="toggle-label" for="batchSaveModeToggle">
+            <div class="toggle-switch">
+              <input type="checkbox" id="batchSaveModeToggle" class="toggle-input">
+              <span class="toggle-slider"></span>
+            </div>
           </label>
-          <label class="batch-save-option">
-            <input type="radio" name="batchSaveMode" value="individual">
-            <span>Individual files</span>
-          </label>
+          <span class="batch-save-label">Individual</span>
         </div>
       </div>
 
