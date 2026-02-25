@@ -140,6 +140,14 @@ function createTurndownService(options = {}) {
             }
           });
 
+          // Match production behavior: strip images when noImage is selected.
+          if (mergedOptions.imageStyle === 'noImage') {
+            tempService.addRule('images', {
+              filter: (node) => node.nodeName === 'IMG',
+              replacement: () => ''
+            });
+          }
+
           return tempService.turndown(cell.innerHTML).trim().replace(/\n/g, '<br>');
         });
 

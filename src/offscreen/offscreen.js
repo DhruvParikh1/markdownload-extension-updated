@@ -509,6 +509,13 @@ function turndown(content, options, article) {
         });
         
         // Add custom rules for images, links, etc. to the cell turndown instance
+        if (options.imageStyle === 'noImage') {
+          cellTurndownService.addRule('images', {
+            filter: (node) => node.nodeName === 'IMG',
+            replacement: () => ''
+          });
+        }
+
         if (options.tableFormatting?.stripLinks) {
           cellTurndownService.addRule('links', {
             filter: (node, tdopts) => {

@@ -5,6 +5,7 @@
 
 const { createTurndownService } = require('../helpers/browser-env');
 const { parseArticle } = require('../helpers/browser-env');
+const htmlSamples = require('../fixtures/html-samples');
 
 describe('Real-World Bug Fixes', () => {
   describe('Weather API Documentation Bug', () => {
@@ -178,6 +179,42 @@ describe('Real-World Bug Fixes', () => {
   });
 
   describe('Other Common Markdown Conversion Issues', () => {
+    test('should strip images inside table cells when imageStyle is noImage', () => {
+      const { service } = createTurndownService({ imageStyle: 'noImage' });
+      const html = `
+        <table>
+          <tr>
+            <th>Label</th>
+            <th>Value</th>
+          </tr>
+          <tr>
+            <td>Diagram</td>
+            <td><img src="https://example.com/diagram.png" alt="Diagram"></td>
+          </tr>
+        </table>
+      `;
+
+      const result = service.turndown(html);
+
+      expect(result).toContain('| Diagram |');
+      expect(result).not.toContain('![');
+      expect(result).not.toContain('diagram.png');
+    });
+
+    test('should strip all image markdown from legacy table-heavy pages when imageStyle is noImage', () => {
+      const { service } = createTurndownService({ imageStyle: 'noImage' });
+      const result = service.turndown(htmlSamples.legacyTableHeavyPage.html);
+
+      expect(result).toContain('Aether Notes Archive');
+      expect(result).toContain('| Year |');
+      expect(result).toContain('Notebook summary with inline references.');
+      expect(result).toContain('Closing paragraph.');
+      expect(result).not.toContain('![');
+      expect(result).not.toContain('plate-a.jpg');
+      expect(result).not.toContain('1901-chart.png');
+      expect(result).not.toContain('plate-b.jpg');
+    });
+
     test('should handle nested emphasis in tables', () => {
       const { service } = createTurndownService();
       const html = `

@@ -361,6 +361,41 @@ Link to [about page](https://example.com/about).
 ![Photo](https://example.com/assets/photo.jpg)`
   },
 
+  // Legacy table-heavy page with mixed inline images (modeled after user-reported regressions)
+  legacyTableHeavyPage: {
+    html: `
+      <article>
+        <h1>Aether Notes Archive</h1>
+        <p>Intro paragraph before the table.</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Year</th>
+              <th>Observation</th>
+              <th>Scan</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1898</td>
+              <td>Notebook summary with inline references.</td>
+              <td><img src="https://example.com/scans/1898-plate-a.jpg" alt="Plate A"></td>
+            </tr>
+            <tr>
+              <td>1901</td>
+              <td>
+                Comparative chart and annotations.
+                <div><img src="https://example.com/scans/1901-chart.png" alt="Chart 1901"></div>
+              </td>
+              <td><img src="https://example.com/scans/1901-plate-b.jpg" alt="Plate B"></td>
+            </tr>
+          </tbody>
+        </table>
+        <p>Closing paragraph.</p>
+      </article>
+    `
+  },
+
   // Article with metadata
   articleWithMetadata: {
     html: `
