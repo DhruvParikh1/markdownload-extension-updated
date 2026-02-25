@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.2
+
+- Version bump and release preparation
+
 ## 4.0.1
 
 - Fixed download filename being overridden by other extensions
