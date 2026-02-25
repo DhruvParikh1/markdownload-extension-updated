@@ -1,7 +1,7 @@
 # Privacy Policy
 
 This page is used to inform visitors regarding our policies with the collection, use, and disclosure of Personal Information if anyone
-using the MarkDownload browser extension (the Service).
+using the MarkSnip browser extension (the Service).
 
 tl;dr: We don't collect anything. Any information we clip from websites remains on your machine.
 
