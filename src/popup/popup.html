@@ -34,9 +34,9 @@
           </svg>
         </a>
         <a href="/options/options.html" id="options" target="_blank" class="icon-btn" title="Settings">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
             <circle cx="12" cy="12" r="3"/>
-            <path d="M12 1v6m0 6v6m8.66-15L17 7.34M7 17l-3.66 3.66M23 12h-6m-6 0H1m20.66 8.66L17 16.34M7 7 3.34 3.34"/>
           </svg>
         </a>
       </div>
@@ -44,19 +44,20 @@
 
     <!-- Quick Settings -->
     <section class="settings-panel">
-      <div class="setting-row">
-        <label class="setting-label">
-          <input type="checkbox" id="downloadImages" class="setting-checkbox">
-          <span class="checkbox-custom"></span>
-          <span class="setting-text">Download Images</span>
+      <div class="toggle-row">
+        <label class="toggle-label" for="downloadImages">
+          <span class="toggle-text">Images</span>
+          <div class="toggle-switch">
+            <input type="checkbox" id="downloadImages" class="toggle-input">
+            <span class="toggle-slider"></span>
+          </div>
         </label>
-      </div>
-      
-      <div class="setting-row">
-        <label class="setting-label">
-          <input type="checkbox" id="includeTemplate" class="setting-checkbox">
-          <span class="checkbox-custom"></span>
-          <span class="setting-text">Include Template</span>
+        <label class="toggle-label" for="includeTemplate">
+          <span class="toggle-text">Template</span>
+          <div class="toggle-switch">
+            <input type="checkbox" id="includeTemplate" class="toggle-input">
+            <span class="toggle-slider"></span>
+          </div>
         </label>
       </div>
 
