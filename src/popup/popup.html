@@ -164,6 +164,20 @@
         Pick Links from Page
       </button>
 
+      <div class="batch-save-mode">
+        <label class="input-label">Save Mode</label>
+        <div class="batch-save-mode-options">
+          <label class="batch-save-option">
+            <input type="radio" name="batchSaveMode" value="zip" checked>
+            <span>One ZIP (default)</span>
+          </label>
+          <label class="batch-save-option">
+            <input type="radio" name="batchSaveMode" value="individual">
+            <span>Individual files</span>
+          </label>
+        </div>
+      </div>
+
       <div id="progressContainer" class="progress-container" style="display: none;">
         <div class="progress-header">
           <span id="progressStatus" class="progress-label">Processing...</span>

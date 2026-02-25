@@ -24,6 +24,7 @@ createMenus();
 
 // Track active downloads
 const activeDownloads = new Map();
+let batchConversionInProgress = false;
 
 // Track MarkSnip downloads to handle filename conflicts
 const markSnipDownloads = new Map(); // downloadId -> { filename, imageList }
@@ -155,6 +156,313 @@ async function handleMessages(message, sender, sendResponse) {
     case "obsidian-integration":
       await handleObsidianIntegration(message);
       break;
+    case "start-batch-conversion":
+      await handleBatchConversionInServiceWorker(message);
+      break;
+  }
+}
+
+async function sendBatchProgressUpdate(update) {
+  await browser.runtime.sendMessage({
+    type: 'batch-progress',
+    ...update
+  }).catch(() => {
+    // Popup is likely closed while batch runs, which is expected.
+  });
+}
+
+async function waitForTabLoadCompleteBatch(tabId, timeoutMs = 45000) {
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      browser.tabs.onUpdated.removeListener(listener);
+      reject(new Error(`Timeout loading tab ${tabId}`));
+    }, timeoutMs);
+
+    function listener(updatedTabId, info) {
+      if (updatedTabId === tabId && info.status === 'complete') {
+        clearTimeout(timeout);
+        browser.tabs.onUpdated.removeListener(listener);
+        resolve();
+      }
+    }
+
+    browser.tabs.onUpdated.addListener(listener);
+  });
+}
+
+async function waitForTabContentReadyBatch(tabId, maxWaitMs = 15000, pollIntervalMs = 500) {
+  const start = Date.now();
+  let previousTextLength = 0;
+  let stablePolls = 0;
+
+  while (Date.now() - start < maxWaitMs) {
+    try {
+      const results = await browser.scripting.executeScript({
+        target: { tabId },
+        func: () => {
+          const root = document.querySelector('main, article, [role="main"]') || document.body;
+          const text = (root?.innerText || '').replace(/\s+/g, ' ').trim();
+          return {
+            readyState: document.readyState,
+            textLength: text.length,
+            paragraphCount: root ? root.querySelectorAll('p').length : 0
+          };
+        }
+      });
+
+      const snapshot = results?.[0]?.result;
+      if (snapshot) {
+        const elapsed = Date.now() - start;
+        const lengthStable = Math.abs(snapshot.textLength - previousTextLength) < 40;
+        stablePolls = lengthStable ? stablePolls + 1 : 0;
+        const richStable = snapshot.textLength >= 900 && stablePolls >= 2 && elapsed >= 2000;
+        const shortStable = snapshot.textLength >= 120 && snapshot.paragraphCount >= 1 && stablePolls >= 3 && elapsed >= 2000;
+
+        if (snapshot.readyState === 'complete' && (richStable || shortStable)) {
+          return;
+        }
+
+        previousTextLength = snapshot.textLength;
+      }
+    } catch (err) {
+      console.debug(`[Batch] Content readiness poll failed for tab ${tabId}:`, err);
+    }
+
+    await new Promise(resolve => setTimeout(resolve, pollIntervalMs));
+  }
+}
+
+async function activateTabForBatch(tabId, settleMs = 1500) {
+  await browser.tabs.update(tabId, { active: true });
+  if (settleMs > 0) {
+    await new Promise(resolve => setTimeout(resolve, settleMs));
+  }
+}
+
+function ensureUniqueBatchEntryPath(filePath, usedPaths) {
+  let normalized = (filePath || 'untitled.md').replace(/\\/g, '/').replace(/^\/+/, '');
+  if (!normalized.endsWith('.md')) normalized += '.md';
+
+  if (!usedPaths.has(normalized)) {
+    usedPaths.add(normalized);
+    return normalized;
+  }
+
+  const lastDot = normalized.lastIndexOf('.');
+  const base = lastDot > 0 ? normalized.substring(0, lastDot) : normalized;
+  const ext = lastDot > 0 ? normalized.substring(lastDot) : '';
+  let suffix = 2;
+  let candidate = `${base} (${suffix})${ext}`;
+  while (usedPaths.has(candidate)) {
+    suffix++;
+    candidate = `${base} (${suffix})${ext}`;
+  }
+  usedPaths.add(candidate);
+  return candidate;
+}
+
+function createBatchZipFilename() {
+  return `MarkSnip-batch-${moment().format('YYYYMMDD-HHmmss')}.zip`;
+}
+
+async function triggerBatchZipDownload(files, options, fallbackTabId = null) {
+  try {
+    await ensureOffscreenDocumentExists();
+    console.log(`[Batch] Triggering ZIP download with ${files.length} file(s)`);
+    await browser.runtime.sendMessage({
+      target: 'offscreen',
+      type: 'download-batch-zip',
+      files,
+      zipFilename: createBatchZipFilename(),
+      fallbackTabId: fallbackTabId,
+      options: {
+        ...options,
+        downloadImages: false
+      }
+    });
+    console.log('[Batch] ZIP message dispatched to offscreen');
+  } catch (error) {
+    console.error('[Batch] Failed to trigger ZIP download:', error);
+    throw error;
+  }
+}
+
+async function processBatchTab(urlObj, index, total, options, batchSaveMode = 'zip') {
+  const collectOnly = batchSaveMode === 'zip';
+  const effectiveOptions = collectOnly
+    ? { ...options, downloadImages: false }
+    : options;
+  const tab = await browser.tabs.create({
+    url: urlObj.url,
+    active: true
+  });
+
+  let lastResult = null;
+
+  try {
+    await sendBatchProgressUpdate({
+      status: 'loading',
+      current: index,
+      total,
+      url: urlObj.url
+    });
+
+    await waitForTabLoadCompleteBatch(tab.id, 45000);
+    await ensureScripts(tab.id);
+    await activateTabForBatch(tab.id, 1500);
+
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      await waitForTabContentReadyBatch(tab.id, attempt === 1 ? 15000 : 22000, 500);
+
+      await sendBatchProgressUpdate({
+        status: 'converting',
+        current: index,
+        total,
+        url: urlObj.url,
+        attempt
+      });
+
+      const info = { menuItemId: 'download-markdown-all' };
+      const result = await downloadMarkdownFromContext(
+        info,
+        tab,
+        urlObj.title || null,
+        effectiveOptions,
+        collectOnly
+      );
+      lastResult = result;
+      const likelyIncomplete = !!result?.likelyIncomplete;
+      console.log(`[Batch] ${urlObj.url} attempt ${attempt}: likelyIncomplete=${likelyIncomplete}, markdownLength=${result?.markdownLength || 0}`);
+
+      if (!likelyIncomplete || attempt === 2) {
+        if (likelyIncomplete) {
+          await sendBatchProgressUpdate({
+            status: 'warning',
+            current: index,
+            total,
+            url: urlObj.url,
+            message: 'Content may still be partial after retry'
+          });
+        }
+        return {
+          likelyIncomplete,
+          result: lastResult
+        };
+      }
+
+      await sendBatchProgressUpdate({
+        status: 'retrying',
+        current: index,
+        total,
+        url: urlObj.url,
+        attempt: attempt + 1
+      });
+
+      await browser.tabs.reload(tab.id);
+      await waitForTabLoadCompleteBatch(tab.id, 45000);
+      await ensureScripts(tab.id);
+      await activateTabForBatch(tab.id, 1500);
+    }
+    return {
+      likelyIncomplete: !!lastResult?.likelyIncomplete,
+      result: lastResult
+    };
+  } finally {
+    await browser.tabs.remove(tab.id).catch(() => {});
+  }
+}
+
+async function handleBatchConversionInServiceWorker(message) {
+  const urlObjects = message.urlObjects || [];
+  if (!urlObjects.length) {
+    throw new Error('No URLs to process');
+  }
+
+  if (batchConversionInProgress) {
+    throw new Error('Batch conversion already in progress');
+  }
+
+  const batchSaveMode = message.batchSaveMode === 'individual' ? 'individual' : 'zip';
+
+  batchConversionInProgress = true;
+  const startedAt = Date.now();
+  const options = await getOptions();
+
+  let originalTabId = message.originalTabId || null;
+  if (!originalTabId) {
+    const activeTabs = await browser.tabs.query({ currentWindow: true, active: true });
+    originalTabId = activeTabs?.[0]?.id || null;
+  }
+
+  const failures = [];
+  const collectedFiles = [];
+  const usedPaths = new Set();
+
+  try {
+    await sendBatchProgressUpdate({
+      status: 'started',
+      total: urlObjects.length,
+      batchSaveMode
+    });
+
+    for (let i = 0; i < urlObjects.length; i++) {
+      const urlObj = urlObjects[i];
+      const current = i + 1;
+      try {
+        const { result } = await processBatchTab(urlObj, current, urlObjects.length, options, batchSaveMode);
+
+        if (batchSaveMode === 'zip' && result?.markdown && result?.fullFilename) {
+          const uniquePath = ensureUniqueBatchEntryPath(result.fullFilename, usedPaths);
+          collectedFiles.push({
+            filename: uniquePath,
+            content: result.markdown
+          });
+        }
+      } catch (error) {
+        failures.push({ url: urlObj.url, error: error.message });
+        console.error(`[Batch] Failed processing ${urlObj.url}:`, error);
+        await sendBatchProgressUpdate({
+          status: 'item-error',
+          current,
+          total: urlObjects.length,
+          url: urlObj.url,
+          error: error.message
+        });
+      }
+    }
+
+    if (batchSaveMode === 'zip' && collectedFiles.length > 0) {
+      await sendBatchProgressUpdate({
+        status: 'zipping',
+        total: urlObjects.length
+      });
+
+      await triggerBatchZipDownload(collectedFiles, options, originalTabId);
+    }
+
+    await browser.storage.local.remove('batchUrlList').catch(() => {});
+
+    await sendBatchProgressUpdate({
+      status: 'finished',
+      total: urlObjects.length,
+      failed: failures.length,
+      failures,
+      batchSaveMode,
+      durationMs: Date.now() - startedAt
+    });
+  } catch (error) {
+    await sendBatchProgressUpdate({
+      status: 'failed',
+      total: urlObjects.length,
+      error: error.message,
+      batchSaveMode
+    });
+    throw error;
+  } finally {
+    if (originalTabId) {
+      await browser.tabs.update(originalTabId, { active: true }).catch(() => {});
+    }
+    batchConversionInProgress = false;
   }
 }
 
@@ -379,8 +687,10 @@ async function handleImageDownloadsContentScript(message) {
 async function ensureOffscreenDocumentExists() {
   // Check if offscreen document exists already
   if (typeof chrome !== 'undefined' && chrome.offscreen) {
+    const offscreenUrl = chrome.runtime.getURL('offscreen/offscreen.html');
     const existingContexts = await chrome.runtime.getContexts({
-      contextTypes: ['OFFSCREEN_DOCUMENT']
+      contextTypes: ['OFFSCREEN_DOCUMENT'],
+      documentUrls: [offscreenUrl]
     });
     
     if (existingContexts.length > 0) return;
@@ -388,7 +698,7 @@ async function ensureOffscreenDocumentExists() {
     // Create offscreen document
     await chrome.offscreen.createDocument({
       url: 'offscreen/offscreen.html',
-      reasons: ['DOM_PARSER', 'CLIPBOARD'],
+      reasons: ['DOM_PARSER', 'CLIPBOARD', 'BLOBS'],
       justification: 'HTML to Markdown conversion'
     });
   } else {
@@ -943,11 +1253,12 @@ async function ensureScripts(tabId) {
 /**
  * Download markdown from context menu
  */
-async function downloadMarkdownFromContext(info, tab) {
+async function downloadMarkdownFromContext(info, tab, customTitle = null, providedOptions = null, collectOnly = false) {
   await ensureScripts(tab.id);
   
   if (typeof chrome !== 'undefined' && chrome.offscreen) {
     await ensureOffscreenDocumentExists();
+    const options = providedOptions || await getOptions();
     
     // Create a promise to wait for completion
     const processComplete = new Promise((resolve, reject) => {
@@ -957,7 +1268,7 @@ async function downloadMarkdownFromContext(info, tab) {
           if (message.error) {
             reject(new Error(message.error));
           } else {
-            resolve();
+            resolve(message);
           }
         }
       };
@@ -978,11 +1289,13 @@ async function downloadMarkdownFromContext(info, tab) {
       action: 'download',
       info: info,
       tabId: tab.id,
-      options: await getOptions()
+      options: options,
+      customTitle: customTitle,
+      collectOnly: collectOnly
     });
     
     // Wait for completion
-    await processComplete;
+    return await processComplete;
   } else {
     // Firefox - process directly
     const article = await getArticleFromContent(tab.id, info.menuItemId == "download-markdown-selection");
@@ -990,6 +1303,11 @@ async function downloadMarkdownFromContext(info, tab) {
     const { markdown, imageList } = await convertArticleToMarkdown(article);
     const mdClipsFolder = await formatMdClipsFolder(article);
     await downloadMarkdown(markdown, title, tab.id, imageList, mdClipsFolder);
+    return {
+      success: true,
+      likelyIncomplete: false,
+      markdownLength: markdown.length
+    };
   }
 }
 

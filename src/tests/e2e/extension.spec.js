@@ -13,6 +13,7 @@ test.describe('MarkSnip Extension E2E', () => {
   let browser;
   let context;
   let page;
+  let extensionId;
 
   test.beforeAll(async () => {
     // Launch browser with extension loaded
@@ -26,6 +27,12 @@ test.describe('MarkSnip Extension E2E', () => {
 
     context = browser;
     page = await context.newPage();
+
+    let [serviceWorker] = context.serviceWorkers();
+    if (!serviceWorker) {
+      serviceWorker = await context.waitForEvent('serviceworker', { timeout: 15000 });
+    }
+    extensionId = new URL(serviceWorker.url()).host;
   });
 
   test.afterAll(async () => {
@@ -33,16 +40,11 @@ test.describe('MarkSnip Extension E2E', () => {
   });
 
   test('extension should load successfully', async () => {
-    // Check that extension loaded
-    const extensionId = await page.evaluate(() => {
-      return new Promise((resolve) => {
-        chrome.management.getSelf((info) => {
-          resolve(info.id);
-        });
-      });
-    });
-
+    // Verify service worker is running and extension pages are reachable.
     expect(extensionId).toBeTruthy();
+
+    await page.goto(`chrome-extension://${extensionId}/popup/popup.html`);
+    await expect(page.locator('#container')).toBeVisible();
   });
 
   test('should convert simple HTML page to markdown', async () => {

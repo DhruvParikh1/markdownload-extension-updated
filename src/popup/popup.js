@@ -71,29 +71,48 @@ document.getElementById("batchProcess").addEventListener("click", showBatchProce
 document.getElementById("convertUrls").addEventListener("click", handleBatchConversion);
 document.getElementById("cancelBatch").addEventListener("click", hideBatchProcess);
 document.getElementById("pickLinks").addEventListener("click", activateLinkPicker);
+document.querySelectorAll("input[name='batchSaveMode']").forEach(el => {
+    el.addEventListener("change", saveBatchSettings);
+});
 
-// Save batch URL list to storage
-function saveBatchUrls() {
+function getSelectedBatchSaveMode() {
+    const selected = document.querySelector("input[name='batchSaveMode']:checked");
+    return selected?.value || 'zip';
+}
+
+function setSelectedBatchSaveMode(mode) {
+    const normalized = mode === 'individual' ? 'individual' : 'zip';
+    const option = document.querySelector(`input[name='batchSaveMode'][value='${normalized}']`);
+    if (option) option.checked = true;
+}
+
+// Save batch settings to storage
+function saveBatchSettings() {
     const urlList = document.getElementById("urlList").value;
-    browser.storage.local.set({ batchUrlList: urlList }).catch(err => {
-        console.error("Error saving batch URL list:", err);
+    const batchSaveMode = getSelectedBatchSaveMode();
+    browser.storage.local.set({
+        batchUrlList: urlList,
+        batchSaveMode
+    }).catch(err => {
+        console.error("Error saving batch settings:", err);
     });
 }
 
-// Load batch URL list from storage
-async function loadBatchUrls() {
+// Load batch settings from storage
+async function loadBatchSettings() {
     try {
-        const data = await browser.storage.local.get('batchUrlList');
+        const data = await browser.storage.local.get(['batchUrlList', 'batchSaveMode']);
         if (data.batchUrlList) {
             document.getElementById("urlList").value = data.batchUrlList;
         }
+        setSelectedBatchSaveMode(data.batchSaveMode || 'zip');
     } catch (err) {
-        console.error("Error loading batch URL list:", err);
+        console.error("Error loading batch settings:", err);
     }
 }
 
-// Add event listener to save URLs as user types
-document.getElementById("urlList").addEventListener("input", saveBatchUrls);
+// Save batch URL list as user types
+document.getElementById("urlList").addEventListener("input", saveBatchSettings);
 
 async function showBatchProcess(e) {
     e.preventDefault();
@@ -233,6 +252,171 @@ function processUrlInput(text) {
     return urlObjects;
 }
 
+// Wait for dynamically-rendered pages to populate meaningful content before clipping.
+// Some docs sites report `status: complete` before the main article hydrates.
+async function waitForTabContentReady(tabId, maxWaitMs = 12000, pollIntervalMs = 500) {
+    const start = Date.now();
+    let previousTextLength = 0;
+    let stablePolls = 0;
+
+    while (Date.now() - start < maxWaitMs) {
+        try {
+            const results = await browser.scripting.executeScript({
+                target: { tabId },
+                func: () => {
+                    const root = document.querySelector('main, article, [role="main"]') || document.body;
+                    const text = (root?.innerText || '').replace(/\s+/g, ' ').trim();
+
+                    return {
+                        readyState: document.readyState,
+                        textLength: text.length,
+                        paragraphCount: root ? root.querySelectorAll('p').length : 0,
+                        headingCount: root ? root.querySelectorAll('h1, h2, h3').length : 0
+                    };
+                }
+            });
+
+            const snapshot = results?.[0]?.result;
+            if (snapshot) {
+                const elapsed = Date.now() - start;
+                const lengthStable = Math.abs(snapshot.textLength - previousTextLength) < 40;
+                stablePolls = lengthStable ? stablePolls + 1 : 0;
+
+                const richContentStable =
+                    snapshot.textLength >= 900 &&
+                    stablePolls >= 2 &&
+                    elapsed >= 2000;
+
+                const shortPageStable =
+                    snapshot.textLength >= 120 &&
+                    snapshot.paragraphCount >= 1 &&
+                    stablePolls >= 3 &&
+                    elapsed >= 2000;
+
+                if (snapshot.readyState === 'complete' && (richContentStable || shortPageStable)) {
+                    return;
+                }
+
+                previousTextLength = snapshot.textLength;
+            }
+        } catch (error) {
+            // Ignore intermittent scripting issues and continue polling until timeout.
+            console.debug(`Content readiness check failed for tab ${tabId}:`, error);
+        }
+
+        await new Promise(resolve => setTimeout(resolve, pollIntervalMs));
+    }
+}
+
+async function waitForTabLoadComplete(tabId, timeoutMs = 30000) {
+    return new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+            browser.tabs.onUpdated.removeListener(listener);
+            reject(new Error(`Timeout loading tab ${tabId}`));
+        }, timeoutMs);
+
+        function listener(updatedTabId, info) {
+            if (updatedTabId === tabId && info.status === 'complete') {
+                clearTimeout(timeout);
+                browser.tabs.onUpdated.removeListener(listener);
+                resolve();
+            }
+        }
+
+        browser.tabs.onUpdated.addListener(listener);
+    });
+}
+
+async function activateTabForCapture(tabId, settleMs = 1500) {
+    await browser.tabs.update(tabId, { active: true });
+    if (settleMs > 0) {
+        await new Promise(resolve => setTimeout(resolve, settleMs));
+    }
+}
+
+function isLikelyIncompleteMarkdown(markdown) {
+    if (!markdown || !markdown.trim()) return true;
+
+    const normalized = markdown.replace(/\r/g, '');
+    const lines = normalized.split('\n').map(line => line.trim()).filter(Boolean);
+    const headingLines = lines.filter(line => /^#{1,6}\s/.test(line)).length;
+    const listLines = lines.filter(line => /^[-*+]\s/.test(line)).length;
+    const nonStructuralLines = lines.filter(line => (
+        !/^#{1,6}\s/.test(line) &&
+        !/^[-*+]\s/.test(line) &&
+        !/^\d+\.\s/.test(line) &&
+        !/^>\s/.test(line) &&
+        !/^!\[/.test(line)
+    ));
+    const nonStructuralChars = nonStructuralLines.join(' ').replace(/`/g, '').trim().length;
+    const hasTocMarker = /\bOn this page\b/i.test(normalized) || /\bTable of contents\b/i.test(normalized);
+
+    return (
+        nonStructuralChars < 320 &&
+        (headingLines + listLines) >= 4
+    ) || (
+        hasTocMarker &&
+        nonStructuralChars < 500
+    );
+}
+
+async function clipTabWithRetry(tab, maxAttempts = 2) {
+    let lastMessage = null;
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        const displayMdPromise = new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => {
+                browser.runtime.onMessage.removeListener(messageListener);
+                reject(new Error('Timeout waiting for markdown generation'));
+            }, 45000);
+
+            function messageListener(message) {
+                if (message.type === "display.md") {
+                    clearTimeout(timeout);
+                    browser.runtime.onMessage.removeListener(messageListener);
+
+                    if (tab.customTitle) {
+                        message.article.title = tab.customTitle;
+                    }
+
+                    cm.setValue(message.markdown);
+                    document.getElementById("title").value = message.article.title;
+                    imageList = message.imageList;
+                    mdClipsFolder = message.mdClipsFolder;
+
+                    resolve(message);
+                }
+            }
+
+            browser.runtime.onMessage.addListener(messageListener);
+        });
+
+        await waitForTabContentReady(tab.id, attempt === 1 ? 12000 : 20000, 500);
+        await clipSite(tab.id);
+        lastMessage = await displayMdPromise;
+
+        const markdownLength = (lastMessage?.markdown || '').length;
+        const incomplete = isLikelyIncompleteMarkdown(lastMessage.markdown);
+        console.log(`[Batch] Tab ${tab.id} attempt ${attempt}/${maxAttempts}: markdownLength=${markdownLength}, incomplete=${incomplete}`);
+
+        if (!incomplete) {
+            return lastMessage;
+        }
+
+        if (attempt < maxAttempts) {
+            progressUI.setStatus(`Detected partial content. Retrying ${attempt + 1}/${maxAttempts}...`);
+            await browser.tabs.reload(tab.id);
+            await waitForTabLoadComplete(tab.id, 45000);
+            await browser.scripting.executeScript({
+                target: { tabId: tab.id },
+                files: ["/browser-polyfill.min.js", "/contentScript/contentScript.js"]
+            });
+        }
+    }
+
+    return lastMessage;
+}
+
 async function handleBatchConversion(e) {
     e.preventDefault();
     
@@ -243,113 +427,111 @@ async function handleBatchConversion(e) {
         showError("Please enter valid URLs or markdown links (one per line)", false);
         return;
     }
+    const batchSaveMode = getSelectedBatchSaveMode();
+
+    // Default path: run batch in service worker so popup lifecycle doesn't interrupt processing.
+    // Keep inline mode for e2e tests by setting window.__MARKSNIP_FORCE_INLINE_BATCH__ = true.
+    if (!window.__MARKSNIP_FORCE_INLINE_BATCH__) {
+        document.getElementById("spinner").style.display = 'flex';
+        document.getElementById("convertUrls").style.display = 'none';
+        progressUI.show();
+        progressUI.reset();
+        progressUI.setStatus('Starting background batch...');
+
+        try {
+            const activeTabs = await browser.tabs.query({
+                currentWindow: true,
+                active: true
+            });
+            const originalTabId = activeTabs?.[0]?.id || null;
+
+            browser.runtime.sendMessage({
+                type: 'start-batch-conversion',
+                urlObjects,
+                originalTabId,
+                batchSaveMode
+            }).catch(error => {
+                console.error('Background batch failed to start:', error);
+            });
+
+            progressUI.setStatus('Batch started. Tabs will be visited automatically.');
+            setTimeout(() => window.close(), 350);
+        } catch (error) {
+            console.error('Failed to start background batch:', error);
+            progressUI.setStatus(`Error: ${error.message}`);
+            document.getElementById("spinner").style.display = 'none';
+            document.getElementById("convertUrls").style.display = 'block';
+        }
+        return;
+    }
 
     document.getElementById("spinner").style.display = 'flex';
     document.getElementById("convertUrls").style.display = 'none';
     progressUI.show();
     progressUI.reset();
-    
+
+    let originalTabId = null;
+    const restoreOriginalTab = async () => {
+        if (originalTabId) {
+            await browser.tabs.update(originalTabId, { active: true }).catch(() => {});
+        }
+    };
+
     try {
-        const tabs = [];
+        const currentTabs = await browser.tabs.query({
+            currentWindow: true,
+            active: true
+        });
+        originalTabId = currentTabs?.[0]?.id || null;
+
         const total = urlObjects.length;
         let current = 0;
         
         console.log('Starting batch conversion...');
-        
-        // Create and load all tabs
+
         for (const urlObj of urlObjects) {
-            current++;
-            progressUI.updateProgress(current, total, `Loading: ${urlObj.url}`);
-            
-            console.log(`Creating tab for ${urlObj.url}`);
-            const tab = await browser.tabs.create({ 
-                url: urlObj.url, 
-                active: false 
-            });
-            
-            if (urlObj.title) {
-                tab.customTitle = urlObj.title;
-            }
-            
-            tabs.push(tab);
-            
-            // Wait for tab load
-            await new Promise((resolve, reject) => {
-                const timeout = setTimeout(() => {
-                    reject(new Error(`Timeout loading ${urlObj.url}`));
-                }, 30000);
-                
-                function listener(tabId, info) {
-                    if (tabId === tab.id && info.status === 'complete') {
-                        clearTimeout(timeout);
-                        browser.tabs.onUpdated.removeListener(listener);
-                        console.log(`Tab ${tabId} loaded`);
-                        resolve();
-                    }
-                }
-                browser.tabs.onUpdated.addListener(listener);
-            });
-
-            // Ensure scripts are injected
-            await browser.scripting.executeScript({
-                target: { tabId: tab.id },
-                files: ["/browser-polyfill.min.js", "/contentScript/contentScript.js"]
-            });
-        }
-
-        // Reset progress for processing phase
-        current = 0;
-        progressUI.setStatus('Converting pages to Markdown...');
-        
-        // Process each tab
-        for (const tab of tabs) {
+            let tab = null;
             try {
                 current++;
-                progressUI.updateProgress(current, total, `Converting: ${tab.url}`);
-                console.log(`Processing tab ${tab.id}`);
-                
-                const displayMdPromise = new Promise((resolve, reject) => {
-                    const timeout = setTimeout(() => {
-                        reject(new Error('Timeout waiting for markdown generation'));
-                    }, 30000);
+                progressUI.updateProgress(current, total, `Loading: ${urlObj.url}`);
+                progressUI.setStatus('Loading pages...');
 
-                    function messageListener(message) {
-                        if (message.type === "display.md") {
-                            clearTimeout(timeout);
-                            browser.runtime.onMessage.removeListener(messageListener);
-                            console.log(`Received markdown for tab ${tab.id}`);
-                            
-                            if (tab.customTitle) {
-                                message.article.title = tab.customTitle;
-                            }
-                            
-                            cm.setValue(message.markdown);
-                            document.getElementById("title").value = message.article.title;
-                            imageList = message.imageList;
-                            mdClipsFolder = message.mdClipsFolder;
-                            
-                            resolve();
-                        }
-                    }
-                    
-                    browser.runtime.onMessage.addListener(messageListener);
+                console.log(`Creating tab for ${urlObj.url}`);
+                tab = await browser.tabs.create({
+                    url: urlObj.url,
+                    active: true
                 });
 
-                await clipSite(tab.id);
-                await displayMdPromise;
-                await sendDownloadMessage(cm.getValue());
+                if (urlObj.title) {
+                    tab.customTitle = urlObj.title;
+                }
+
+                await waitForTabLoadComplete(tab.id, 45000);
+
+                await browser.scripting.executeScript({
+                    target: { tabId: tab.id },
+                    files: ["/browser-polyfill.min.js", "/contentScript/contentScript.js"]
+                });
+
+                await activateTabForCapture(tab.id, 1500);
+
+                progressUI.updateProgress(current, total, `Converting: ${urlObj.url}`);
+                progressUI.setStatus('Converting pages to Markdown...');
+                console.log(`Processing tab ${tab.id}`);
+
+                const message = await clipTabWithRetry(tab, 2);
+                await sendDownloadMessage(message?.markdown || cm.getValue());
 
             } catch (error) {
-                console.error(`Error processing tab ${tab.id}:`, error);
+                console.error(`Error processing URL ${urlObj.url}:`, error);
                 progressUI.setStatus(`Error: ${error.message}`);
                 await new Promise(resolve => setTimeout(resolve, 2000)); // Show error briefly
+            } finally {
+                if (tab && tab.id) {
+                    await browser.tabs.remove(tab.id).catch(() => {});
+                }
             }
         }
-
-        // Clean up tabs
-        progressUI.setStatus('Cleaning up...');
-        console.log('Cleaning up tabs...');
-        await Promise.all(tabs.map(tab => browser.tabs.remove(tab.id)));
 
         progressUI.setStatus('Complete!');
         await new Promise(resolve => setTimeout(resolve, 1000)); // Show completion briefly
@@ -357,11 +539,14 @@ async function handleBatchConversion(e) {
         // Clear saved batch URLs after successful completion
         await browser.storage.local.remove('batchUrlList');
 
+        await restoreOriginalTab();
+
         console.log('Batch conversion complete');
         hideBatchProcess(e);
         window.close();
 
     } catch (error) {
+        await restoreOriginalTab();
         console.error('Batch processing error:', error);
         progressUI.setStatus(`Error: ${error.message}`);
         document.getElementById("spinner").style.display = 'none';
@@ -489,8 +674,8 @@ const clipSite = id => {
 browser.storage.sync.get(defaultOptions).then(options => {
     checkInitialSettings(options);
 
-    // Load batch URL list from storage
-    loadBatchUrls();
+    // Load batch settings from storage
+    loadBatchSettings();
 
     // Set up event listeners (unchanged)
     document.getElementById("selected").addEventListener("click", (e) => {
@@ -568,7 +753,7 @@ function handleLinkPickerComplete(links) {
     urlListTextarea.value = allUrls.join('\n');
 
     // Save to storage
-    saveBatchUrls();
+    saveBatchSettings();
 
     // Show success message
     console.log(`Added ${links.length} links to batch processor`);
@@ -811,6 +996,55 @@ function notify(message) {
          // focus the download button
         document.getElementById("download").focus();
         cm.refresh();
+    }
+    else if (message.type === "batch-progress") {
+        progressUI.show();
+
+        const total = message.total || 0;
+        const current = message.current || 0;
+        const url = message.url || '';
+
+        if (total > 0) {
+            progressUI.updateProgress(current, total, url);
+        }
+
+        switch (message.status) {
+            case 'started':
+                progressUI.setStatus(message.batchSaveMode === 'zip' ? 'Batch started (ZIP mode)...' : 'Batch started...');
+                break;
+            case 'loading':
+                progressUI.setStatus('Loading page...');
+                break;
+            case 'converting':
+                progressUI.setStatus('Converting page...');
+                break;
+            case 'retrying':
+                progressUI.setStatus('Retrying page capture...');
+                break;
+            case 'zipping':
+                progressUI.setStatus('Creating ZIP archive...');
+                break;
+            case 'warning':
+                progressUI.setStatus(message.message || 'Warning during conversion');
+                break;
+            case 'item-error':
+                progressUI.setStatus(`Error: ${message.error || 'Failed URL'}`);
+                break;
+            case 'failed':
+                progressUI.setStatus(`Batch failed: ${message.error || 'Unknown error'}`);
+                document.getElementById("spinner").style.display = 'none';
+                document.getElementById("convertUrls").style.display = 'block';
+                break;
+            case 'finished':
+                if (message.failed > 0) {
+                    progressUI.setStatus(`Finished with ${message.failed} error(s)`);
+                } else {
+                    progressUI.setStatus(message.batchSaveMode === 'zip' ? 'ZIP downloaded' : 'Batch complete');
+                }
+                document.getElementById("spinner").style.display = 'none';
+                document.getElementById("convertUrls").style.display = 'block';
+                break;
+        }
     }
 }
 

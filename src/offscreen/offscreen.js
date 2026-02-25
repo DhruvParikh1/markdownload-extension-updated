@@ -84,6 +84,9 @@ async function handleMessages(message, sender) {
         console.log('⚠️ [Offscreen] Could not cleanup blob URL:', err.message);
       }
       break;
+    case 'download-batch-zip':
+      await downloadBatchZip(message);
+      break;
   }
 }
 
@@ -134,11 +137,11 @@ async function processContent(message) {
  * Process context menu actions
  */
 async function processContextMenu(message) {
-  const { action, info, tabId, options } = message;
+  const { action, info, tabId, options, customTitle, collectOnly } = message;
   
   try {
     if (action === 'download') {
-      await handleContextMenuDownload(info, tabId, options);
+      await handleContextMenuDownload(info, tabId, options, customTitle, collectOnly);
     } else if (action === 'copy') {
       await handleContextMenuCopy(info, tabId, options);
     }
@@ -150,7 +153,33 @@ async function processContextMenu(message) {
 /**
  * Handle context menu download action
  */
-async function handleContextMenuDownload(info, tabId, providedOptions = null) {
+function isLikelyIncompleteMarkdown(markdown) {
+  if (!markdown || !markdown.trim()) return true;
+
+  const normalized = markdown.replace(/\r/g, '');
+  const lines = normalized.split('\n').map(line => line.trim()).filter(Boolean);
+  const headingLines = lines.filter(line => /^#{1,6}\s/.test(line)).length;
+  const listLines = lines.filter(line => /^[-*+]\s/.test(line)).length;
+  const nonStructuralLines = lines.filter(line => (
+    !/^#{1,6}\s/.test(line) &&
+    !/^[-*+]\s/.test(line) &&
+    !/^\d+\.\s/.test(line) &&
+    !/^>\s/.test(line) &&
+    !/^!\[/.test(line)
+  ));
+  const nonStructuralChars = nonStructuralLines.join(' ').replace(/`/g, '').trim().length;
+  const hasTocMarker = /\bOn this page\b/i.test(normalized) || /\bTable of contents\b/i.test(normalized);
+
+  return (
+    nonStructuralChars < 320 &&
+    (headingLines + listLines) >= 4
+  ) || (
+    hasTocMarker &&
+    nonStructuralChars < 500
+  );
+}
+
+async function handleContextMenuDownload(info, tabId, providedOptions = null, customTitle = null, collectOnly = false) {
   console.log(`Starting download for tab ${tabId}`);
   try {
     const options = providedOptions || defaultOptions;
@@ -163,19 +192,34 @@ async function handleContextMenuDownload(info, tabId, providedOptions = null) {
       throw new Error(`Failed to get valid article content from tab ${tabId}`);
     }
 
+    if (customTitle && customTitle.trim()) {
+      article.title = customTitle.trim();
+      article.pageTitle = customTitle.trim();
+    }
+
     console.log(`Got article for tab ${tabId}, processing...`);
     const title = await formatTitle(article, options);
     const { markdown, imageList } = await convertArticleToMarkdown(article, null, options);
     const mdClipsFolder = await formatMdClipsFolder(article, options);
-    
-    console.log(`Downloading markdown for tab ${tabId}`);
-    await downloadMarkdown(markdown, title, tabId, imageList, mdClipsFolder, options);
+    let fullFilename = mdClipsFolder;
+    if (fullFilename && !fullFilename.endsWith('/')) fullFilename += '/';
+    fullFilename = (fullFilename || '') + title + '.md';
+    const likelyIncomplete = isLikelyIncompleteMarkdown(markdown);
+
+    if (!collectOnly) {
+      console.log(`Downloading markdown for tab ${tabId}`);
+      await downloadMarkdown(markdown, title, tabId, imageList, mdClipsFolder, options);
+    }
     
     // Signal completion
     await browser.runtime.sendMessage({
       type: 'process-complete',
       tabId: tabId,
-      success: true
+      success: true,
+      likelyIncomplete: likelyIncomplete,
+      markdownLength: markdown.length,
+      markdown: collectOnly ? markdown : undefined,
+      fullFilename: collectOnly ? fullFilename : undefined
     });
   } catch (error) {
     console.error(`Error processing tab ${tabId}:`, error);
@@ -1497,7 +1541,173 @@ function convertToFencedCodeBlock(node, options) {
 * Repeat string
 */
 function repeat(character, count) {
- return Array(count + 1).join(character);
+  return Array(count + 1).join(character);
+}
+
+const CRC32_TABLE = (() => {
+  const table = new Uint32Array(256);
+  for (let i = 0; i < 256; i++) {
+    let c = i;
+    for (let j = 0; j < 8; j++) {
+      c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+    }
+    table[i] = c >>> 0;
+  }
+  return table;
+})();
+
+function crc32(bytes) {
+  let crc = 0xFFFFFFFF;
+  for (let i = 0; i < bytes.length; i++) {
+    crc = CRC32_TABLE[(crc ^ bytes[i]) & 0xFF] ^ (crc >>> 8);
+  }
+  return (crc ^ 0xFFFFFFFF) >>> 0;
+}
+
+function getDosDateTime(date = new Date()) {
+  const year = Math.max(1980, Math.min(2107, date.getFullYear()));
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const seconds = Math.floor(date.getSeconds() / 2);
+
+  const dosTime = (hours << 11) | (minutes << 5) | seconds;
+  const dosDate = ((year - 1980) << 9) | (month << 5) | day;
+  return { dosDate, dosTime };
+}
+
+function createStoredZipBlob(files) {
+  const encoder = new TextEncoder();
+  const localParts = [];
+  const centralParts = [];
+  let offset = 0;
+
+  const { dosDate, dosTime } = getDosDateTime();
+
+  files.forEach(file => {
+    const entryName = (file.filename || 'untitled.md').replace(/\\/g, '/').replace(/^\/+/, '');
+    const nameBytes = encoder.encode(entryName);
+    const dataBytes = encoder.encode(file.content || '');
+    const entryCrc = crc32(dataBytes);
+    const size = dataBytes.length;
+
+    const localHeader = new Uint8Array(30 + nameBytes.length + size);
+    const localView = new DataView(localHeader.buffer);
+    localView.setUint32(0, 0x04034b50, true);
+    localView.setUint16(4, 20, true);
+    localView.setUint16(6, 0, true);
+    localView.setUint16(8, 0, true);
+    localView.setUint16(10, dosTime, true);
+    localView.setUint16(12, dosDate, true);
+    localView.setUint32(14, entryCrc, true);
+    localView.setUint32(18, size, true);
+    localView.setUint32(22, size, true);
+    localView.setUint16(26, nameBytes.length, true);
+    localView.setUint16(28, 0, true);
+    localHeader.set(nameBytes, 30);
+    localHeader.set(dataBytes, 30 + nameBytes.length);
+    localParts.push(localHeader);
+
+    const centralHeader = new Uint8Array(46 + nameBytes.length);
+    const centralView = new DataView(centralHeader.buffer);
+    centralView.setUint32(0, 0x02014b50, true);
+    centralView.setUint16(4, 20, true);
+    centralView.setUint16(6, 20, true);
+    centralView.setUint16(8, 0, true);
+    centralView.setUint16(10, 0, true);
+    centralView.setUint16(12, dosTime, true);
+    centralView.setUint16(14, dosDate, true);
+    centralView.setUint32(16, entryCrc, true);
+    centralView.setUint32(20, size, true);
+    centralView.setUint32(24, size, true);
+    centralView.setUint16(28, nameBytes.length, true);
+    centralView.setUint16(30, 0, true);
+    centralView.setUint16(32, 0, true);
+    centralView.setUint16(34, 0, true);
+    centralView.setUint16(36, 0, true);
+    centralView.setUint32(38, 0, true);
+    centralView.setUint32(42, offset, true);
+    centralHeader.set(nameBytes, 46);
+    centralParts.push(centralHeader);
+
+    offset += localHeader.length;
+  });
+
+  const centralDirectoryOffset = offset;
+  let centralDirectorySize = 0;
+  centralParts.forEach(part => {
+    centralDirectorySize += part.length;
+  });
+
+  const endRecord = new Uint8Array(22);
+  const endView = new DataView(endRecord.buffer);
+  endView.setUint32(0, 0x06054b50, true);
+  endView.setUint16(4, 0, true);
+  endView.setUint16(6, 0, true);
+  endView.setUint16(8, files.length, true);
+  endView.setUint16(10, files.length, true);
+  endView.setUint32(12, centralDirectorySize, true);
+  endView.setUint32(16, centralDirectoryOffset, true);
+  endView.setUint16(20, 0, true);
+
+  return new Blob([...localParts, ...centralParts, endRecord], { type: 'application/zip' });
+}
+
+async function downloadBatchZip(message) {
+  try {
+    const files = Array.isArray(message.files) ? message.files : [];
+    if (!files.length) {
+      console.warn('[Offscreen] download-batch-zip called without files');
+      return;
+    }
+
+    const options = message.options || defaultOptions;
+    const zipFilename = message.zipFilename || `MarkSnip-batch-${Date.now()}.zip`;
+    const zipBlob = createStoredZipBlob(files);
+    console.log(`[Offscreen] ZIP blob created (${zipBlob.size} bytes) for ${files.length} files`);
+
+    const zipUrl = URL.createObjectURL(zipBlob);
+    const downloadsAPI = browser.downloads || (typeof chrome !== 'undefined' ? chrome.downloads : null);
+
+    if (!downloadsAPI) {
+      console.log('[Offscreen] Downloads API unavailable in offscreen, delegating ZIP download to service worker');
+      const fallbackTabId = Number.isInteger(message.fallbackTabId) ? message.fallbackTabId : 0;
+      await browser.runtime.sendMessage({
+        type: 'service-worker-download',
+        blobUrl: zipUrl,
+        filename: zipFilename,
+        tabId: fallbackTabId,
+        imageList: {},
+        mdClipsFolder: '',
+        options: {
+          ...options,
+          downloadImages: false
+        }
+      });
+      return;
+    }
+
+    console.log(`[Offscreen] Creating batch ZIP download: ${zipFilename} (${files.length} files)`);
+
+    await downloadsAPI.download({
+      url: zipUrl,
+      filename: zipFilename,
+      saveAs: !!options.saveAs
+    });
+
+    // Delay cleanup briefly to avoid revoking URL before the download starts.
+    setTimeout(() => {
+      try {
+        URL.revokeObjectURL(zipUrl);
+      } catch (err) {
+        console.warn('[Offscreen] Failed to revoke ZIP blob URL:', err);
+      }
+    }, 15000);
+  } catch (error) {
+    console.error('[Offscreen] ZIP download failed:', error);
+    throw error;
+  }
 }
 
 /**

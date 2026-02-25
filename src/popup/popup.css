@@ -617,6 +617,33 @@ body {
     margin-bottom: var(--space-3);
 }
 
+.batch-save-mode {
+    flex-shrink: 0;
+    margin-bottom: var(--space-3);
+}
+
+.batch-save-mode-options {
+    display: flex;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+}
+
+.batch-save-option {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+.batch-save-option input[type="radio"] {
+    margin: 0;
+}
+
 /* Batch Container */
 .batch-container {
     display: none;
