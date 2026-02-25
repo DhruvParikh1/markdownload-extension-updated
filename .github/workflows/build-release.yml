@@ -3,11 +3,11 @@ name: Build and Release Extension
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version tag (e.g., v4.0.1)'
+        description: "Version tag (e.g., v4.0.1)"
         required: false
 
 jobs:
@@ -21,11 +21,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: Install dependencies
         working-directory: src
-        run: npm install
+        run: npm ci
 
       - name: Run unit tests
         working-directory: src
@@ -49,11 +49,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: Install dependencies
         working-directory: src
-        run: npm install
+        run: npm ci
 
       - name: Get version from manifest
         id: get-version

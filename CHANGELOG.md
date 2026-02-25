@@ -2,7 +2,11 @@
 
 ## 4.0.2
 
-- Version bump and release preparation
+- Redesigned settings panel and popup with improved layout and polished styling
+- Hide "Send to Obsidian" button when Obsidian integration is disabled in settings
+- Converted "Download Images" and "Include Template" options to iOS-style inline toggles to save space
+- Updated batch processing UI: replaced radio buttons with iOS-style switches for "Zip file" and "Individual files" options, and resized the "Pick Links from Page" button
+- Increased popup window height to show more of the markdown preview
 
 ## 4.0.1
 
