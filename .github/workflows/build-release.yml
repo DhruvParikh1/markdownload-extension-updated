@@ -67,37 +67,24 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Extension version: $VERSION"
 
-      - name: Build Firefox extension (.xpi)
+      - name: Generate browser-specific manifests
         working-directory: src
-        run: npm run build
+        run: npm run build:manifests
 
       - name: Create dist directory
         run: mkdir -p dist
 
       - name: Create Chrome package (.zip)
-        working-directory: src
+        working-directory: src/.build/chrome
         run: |
-          zip -r ../dist/marksnip-chrome-${{ steps.get-version.outputs.version }}.zip . \
-            -x "*.git*" \
-            -x "*tests/*" \
-            -x "*node_modules/*" \
-            -x "package*.json" \
-            -x "jest.config.js" \
-            -x "playwright.config.js" \
-            -x "*.DS_Store" \
-            -x "web-ext-artifacts/*"
+          zip -r ../../../dist/marksnip-chrome-${{ steps.get-version.outputs.version }}.zip . \
+            -x "*.DS_Store"
 
-      - name: Rename and move Firefox package
+      - name: Create Firefox package (.xpi)
+        working-directory: src/.build/firefox
         run: |
-          # web-ext creates a file with a generated name in src/web-ext-artifacts/
-          # It may be .xpi or .zip depending on configuration
-          ORIGINAL_FILE=$(ls src/web-ext-artifacts/*.xpi 2>/dev/null || ls src/web-ext-artifacts/*.zip 2>/dev/null || echo "")
-          if [ -n "$ORIGINAL_FILE" ]; then
-            mv "$ORIGINAL_FILE" "dist/marksnip-firefox-${{ steps.get-version.outputs.version }}.xpi"
-          else
-            echo "ERROR: No Firefox package found!"
-            exit 1
-          fi
+          zip -r ../../../dist/marksnip-firefox-${{ steps.get-version.outputs.version }}.xpi . \
+            -x "*.DS_Store"
 
       - name: Upload Chrome artifact
         uses: actions/upload-artifact@v4

@@ -31,6 +31,43 @@ As a developer, documentation is crucial to your workflow. MarkSnip streamlines 
 
 - **Table Handling**: Technical specifications and API parameter tables are converted with clean formatting, making them easy to reference or process programmatically.
 
+## Build Architecture
+
+MarkSnip uses one source manifest at [`src/manifest.json`](src/manifest.json) and generates browser-specific manifests during build:
+
+- Chrome build output: `src/.build/chrome/manifest.json` with `background.service_worker`
+- Firefox build output: `src/.build/firefox/manifest.json` with `background.scripts`
+
+This generation step is handled by [`src/scripts/generate-browser-manifests.js`](src/scripts/generate-browser-manifests.js), which is run by:
+
+- `npm run build:manifests`
+
+The generated `src/.build/` directory is temporary build output and is not committed.
+
+## Release Process
+
+GitHub Actions workflow [`build-release.yml`](.github/workflows/build-release.yml) handles test, package, and release:
+
+1. Runs tests.
+2. Runs `npm run build:manifests`.
+3. Creates:
+   - `marksnip-chrome-<version>.zip` from `src/.build/chrome`
+   - `marksnip-firefox-<version>.xpi` from `src/.build/firefox`
+4. Publishes both artifacts to a GitHub Release.
+
+To release a new version:
+
+1. Update `"version"` in `src/manifest.json` and commit your changes.
+2. Create and push a tag matching the workflow trigger format (`v*`), for example:
+   - `git tag v4.0.3`
+   - `git push origin v4.0.3`
+3. Wait for GitHub Actions to finish. The release will be created automatically with both files attached.
+
+Alternative manual trigger:
+
+- In GitHub Actions, run **Build and Release Extension** via `workflow_dispatch`.
+- Optionally provide `version` (for example `v4.0.3`). If omitted, it defaults to `v<manifest_version>`.
+
 ## Use Cases
 
 ### Developers
