@@ -88,7 +88,7 @@
   ],
   "browser_specific_settings": {
     "gecko": {
-      "id": "{1c5e4c6f-5530-49a3-b216-31ce7d744db0}",
+      "id": "marksnip@dhruvparikh",
       "strict_min_version": "65.0",
       "data_collection_permissions": {
         "required": ["none"]
