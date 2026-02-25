@@ -163,7 +163,14 @@ async function activateLinkPicker(e) {
 const defaultOptions = {
     includeTemplate: false,
     clipSelection: true,
-    downloadImages: false
+    downloadImages: false,
+    obsidianIntegration: false
+}
+
+const updateObsidianButtonVisibility = (options) => {
+    const obsidianButton = document.getElementById("sendToObsidian");
+    if (!obsidianButton) return;
+    obsidianButton.style.display = options.obsidianIntegration ? "inline-flex" : "none";
 }
 
 // Function to parse markdown links
@@ -366,6 +373,7 @@ const checkInitialSettings = options => {
     // Set checkbox states
     document.querySelector("#includeTemplate").checked = options.includeTemplate || false;
     document.querySelector("#downloadImages").checked = options.downloadImages || false;
+    updateObsidianButtonVisibility(options);
 
     // Set segmented control state
     if (options.clipSelection) {
@@ -529,6 +537,11 @@ browser.storage.sync.get(defaultOptions).then(options => {
 
 // listen for notifications from the background page
 browser.runtime.onMessage.addListener(notify);
+
+browser.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName !== "sync" || !changes.obsidianIntegration) return;
+    updateObsidianButtonVisibility({ obsidianIntegration: changes.obsidianIntegration.newValue });
+});
 
 // Listen for link picker results
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
