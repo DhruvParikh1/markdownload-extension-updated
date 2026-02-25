@@ -91,8 +91,7 @@
       "id": "{1c5e4c6f-5530-49a3-b216-31ce7d744db0}",
       "strict_min_version": "65.0",
       "data_collection_permissions": {
-        "required": [],
-        "optional": []
+        "required": ["none"]
       }
     }
   }
