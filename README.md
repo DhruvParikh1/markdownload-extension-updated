@@ -1,195 +1,167 @@
-# MarkSnip - Markdown Web Clipper
+# MarkSnip
 
-## [MarkSnip Chrome Extension Link](https://chromewebstore.google.com/detail/marksnip-markdown-web-cli/kcbaglhfgbkjdnpeokaamjjkddempipm?hl=en)
+Markdown web clipper for Chrome and Firefox. Save pages as clean Markdown, copy content to clipboard, or send notes directly to Obsidian.
 
-MarkSnip is a powerful browser extension that helps you save web content in clean, formatted Markdown. Forked from the excellent [MarkDownload](https://github.com/deathau/markdownload/) extension, MarkSnip has been updated to Manifest V3 to comply with Chrome Extension Store requirements while adding enhanced features like improved table formatting, cleaner code blocks, and better overall readability.
+[Chrome Web Store](https://chromewebstore.google.com/detail/marksnip-markdown-web-cli/kcbaglhfgbkjdnpeokaamjjkddempipm?hl=en) | [User Guide](user-guide.md) | [Changelog](CHANGELOG.md) | [Privacy Policy](PRIVACY.md)
+
+![MarkSnip popup](media/Chrome.Screenshot.1.png)
+
+## Why MarkSnip
+
+MarkSnip is a Manifest V3 fork of [MarkDownload](https://github.com/deathau/markdownload/) focused on reliable markdown conversion, batch workflows, and browser-store compatibility.
+
+Core pipeline:
+
+- Content extraction with Mozilla Readability
+- HTML to Markdown conversion with Turndown
+- Optional template injection, image handling, and formatting controls
 
 ## Features
 
-- Clean article extraction using Mozilla's Readability.js
-- Accurate HTML to Markdown conversion with Turndown
-- Pretty-printed tables with customizable formatting (new)
-- Enhanced code block handling with language detection
-- Image downloading and management
-- Obsidian integration
-- Extensive context menu options
-- Batch URL processing for converting multiple pages at once (new)
-- Customizable front/back matter templates
-- Dark mode support
+- Clip full page or selected text
+- Edit markdown before saving
+- Batch conversion from URL lists or markdown links
+- Save batch output as ZIP or individual files
+- Context menu actions for page, selection, links, images, and tabs
+- Obsidian integration (via Advanced URI + clipboard)
+- Keyboard shortcuts for common actions
+- Rich markdown formatting controls (headings, fences, links, images, tables, templates)
+- Import/export extension settings as JSON
 
-## For Developers
+## Install
 
-As a developer, documentation is crucial to your workflow. MarkSnip streamlines the process of saving technical documentation for use with Large Language Models (LLMs) and other development tools:
+### Chrome (stable)
 
-- **One-Click Documentation Export**: Instead of manually copying sections of API documentation, code examples, and explanations, capture entire documentation pages with a single click - complete with proper code block formatting and syntax highlighting.
+Install from the [Chrome Web Store](https://chromewebstore.google.com/detail/marksnip-markdown-web-cli/kcbaglhfgbkjdnpeokaamjjkddempipm?hl=en).
 
-- **LLM-Ready Format**: The clean Markdown output is perfect for feeding into LLMs for code assistance, making it easier to work with AI tools while coding.
+### Load unpacked (local build)
 
-- **Code Block Preservation**: All code snippets are automatically detected and preserved in fenced code blocks with proper language tags, maintaining syntax highlighting and formatting.
+1. `cd src`
+2. `npm ci`
+3. `npm run build:manifests`
+4. Open `chrome://extensions`
+5. Enable Developer mode
+6. Click **Load unpacked** and select `src/.build/chrome`
 
-- **Batch Processing**: When researching multiple technologies, use the "Download All Tabs" feature to quickly save entire documentation sets as separate Markdown files.
+### Firefox (local build)
 
-- **Table Handling**: Technical specifications and API parameter tables are converted with clean formatting, making them easy to reference or process programmatically.
+1. `cd src`
+2. `npm ci`
+3. `npm run build:manifests`
+4. Load `src/.build/firefox` as a temporary add-on in Firefox, or package with release workflow.
 
-## Build Architecture
+## Usage
 
-MarkSnip uses one source manifest at [`src/manifest.json`](src/manifest.json) and generates browser-specific manifests during build:
+1. Click the extension icon to open the popup.
+2. Choose **Selection** or **Document**.
+3. Review/edit markdown.
+4. Use **Download**, **Copy All**, or **Send to Obsidian**.
 
-- Chrome build output: `src/.build/chrome/manifest.json` with `background.service_worker`
-- Firefox build output: `src/.build/firefox/manifest.json` with `background.scripts`
+Batch mode:
 
-This generation step is handled by [`src/scripts/generate-browser-manifests.js`](src/scripts/generate-browser-manifests.js), which is run by:
-
-- `npm run build:manifests`
-
-The generated `src/.build/` directory is temporary build output and is not committed.
-
-## Release Process
-
-GitHub Actions workflow [`build-release.yml`](.github/workflows/build-release.yml) handles test, package, and release:
-
-1. Runs tests.
-2. Runs `npm run build:manifests`.
-3. Creates:
-   - `marksnip-chrome-<version>.zip` from `src/.build/chrome`
-   - `marksnip-firefox-<version>.xpi` from `src/.build/firefox`
-4. Publishes both artifacts to a GitHub Release.
-
-To release a new version:
-
-1. Update `"version"` in `src/manifest.json` and commit your changes.
-2. Create and push a tag matching the workflow trigger format (`v*`), for example:
-   - `git tag v4.0.3`
-   - `git push origin v4.0.3`
-3. Wait for GitHub Actions to finish. The release will be created automatically with both files attached.
-
-Alternative manual trigger:
-
-- In GitHub Actions, run **Build and Release Extension** via `workflow_dispatch`.
-- Optionally provide `version` (for example `v4.0.3`). If omitted, it defaults to `v<manifest_version>`.
-
-## Use Cases
-
-### Developers
-- Save API documentation for offline reference or LLM assistance
-- Capture code snippets with proper syntax highlighting
-- Build personal knowledge bases of technical solutions
-- Archive GitHub READMEs and documentation
-- Save Stack Overflow solutions with formatting intact
-
-### Researchers
-- Collect academic articles and papers for citation
-- Save methodology sections with tables and figures
-- Archive research data with proper formatting
-- Create literature review collections
-- Export conference proceedings
-
-### Writers & Content Creators
-- Save reference materials with proper attribution
-- Capture style guides and brand documentation
-- Archive published articles for portfolios
-- Save inspiration pieces with images
-- Create content briefs from multiple sources
-
-### Students
-- Save lecture notes and course materials
-- Create study guides from online resources
-- Archive educational articles and papers
-- Save code examples from programming tutorials
-- Collect reference materials for assignments
-
-### Knowledge Workers
-- Build personal knowledge management systems
-- Save meeting notes and documentation
-- Create project wikis from multiple sources
-- Archive important emails and communications
-- Save process documentation and workflows
-
-### Data Analysts
-- Save data documentation and schemas
-- Capture methodology descriptions
-- Archive data visualization explanations
-- Save SQL queries and explanations
-- Create data dictionaries from web sources
-
-### Designers
-- Save design system documentation
-- Archive UI/UX patterns with examples
-- Collect inspiration with images
-- Save accessibility guidelines
-- Create component documentation
-
-## User Guide
-
-1. **Basic Clipping**
-   - Click the MarkSnip icon in your browser toolbar
-   - Choose between clipping the entire page or selected text
-   - Edit the generated Markdown if needed
-   - Click "Download" to save as a .md file
-
-2. **Batch Processing**
-   - Click the Batch Mode icon (📑) in the extension popup
-   - Enter multiple URLs (one per line)
-   - Click "Convert All" to process all URLs
-   - Each page will be converted to Markdown and downloaded
-   - URLs can be from any accessible web pages
-
-3. **Context Menu Options**
-   - Right-click anywhere on a page to:
-     - Download the entire page as Markdown
-     - Copy the page as Markdown
-     - Download/copy selected text as Markdown
-     - Copy links and images as Markdown
-   - Right-click on your browser tabs to:
-     - Download all tabs as Markdown
-     - Copy tab links as a Markdown list
-
-4. **Table Formatting Options**
-   - Strip links from tables
-   - Remove formatting (bold, italic, etc.)
-   - Enable pretty printing for clean alignment
-   - Center text in columns
-
-5. **Image Handling**
-   - Download images alongside Markdown files
-   - Choose between various image reference styles
-   - Organize images in custom folders
-   - Convert images to base64 (optional)
-
-## Obsidian Integration
-
-MarkSnip supports direct integration with Obsidian via the Advanced URI plugin. To use this feature:
-
-1. Install and enable the [Advanced Obsidian URI](https://vinzent03.github.io/obsidian-advanced-uri/) plugin in Obsidian
-2. Configure your vault and folder settings in MarkSnip's options
-3. Right-click on any page you want to save as markdown, then open the "MarkSnip" menu.
-4. Select "Send Tab to Obsidian".
-5. If you have configured your MarkSnip options correctly, it should have created a new note, in the folder you specified, in Obsidian.
-
-The Advanced URI plugin helps bypass URL character limitations by using the clipboard as the source for creating new files.
+1. Open popup and click the batch icon.
+2. Paste URLs (or markdown links), one per line.
+3. Choose **ZIP** or **Individual** output.
+4. Click **Convert All URLs**.
 
 ## Keyboard Shortcuts
 
-- Alt+Shift+M: Open MarkSnip popup
-- Alt+Shift+D: Download current tab as Markdown
-- Alt+Shift+C: Copy current tab as Markdown
-- Alt+Shift+L: Copy current tab URL as Markdown link
+- `Alt+Shift+M`: Open popup
+- `Alt+Shift+D`: Download current tab as markdown
+- `Alt+Shift+C`: Copy current tab as markdown
+- `Alt+Shift+L`: Copy current tab URL as markdown link
 
-## External Libraries
+Additional commands (selection, selected tabs, Obsidian actions) are available in browser shortcut settings.
 
-MarkSnip relies on several open-source libraries:
+## Development
 
-- [Readability.js](https://github.com/mozilla/readability) by Mozilla for content extraction
-- [Turndown](https://github.com/mixmark-io/turndown) for HTML to Markdown conversion
-- [highlight.js](https://highlightjs.org/) for code language auto-detection.
-- [CodeMirror](https://codemirror.net/) for the Markdown editor
+All development commands run from `src/`.
+
+### Prerequisites
+
+- Node.js 20+
+- npm
+
+### Setup
+
+```bash
+cd src
+npm ci
+```
+
+### Common scripts
+
+- `npm test` - Run Jest test suite
+- `npm run test:unit` - Unit tests
+- `npm run test:integration` - Integration tests
+- `npm run test:e2e` - Playwright end-to-end tests
+- `npm run build:manifests` - Generate browser-specific manifests
+- `npm run build` - Firefox package build via `web-ext`
+- `npm run build:chrome` - Chrome ZIP package
+- `npm run build:all` - Build Firefox + Chrome artifacts
+
+## Build Architecture
+
+`src/manifest.json` is the source manifest. `src/scripts/generate-browser-manifests.js` generates:
+
+- `src/.build/chrome/manifest.json` with `background.service_worker`
+- `src/.build/firefox/manifest.json` with `background.scripts`
+
+The `.build/` directory is generated output and should not be committed.
+
+## Release Flow
+
+GitHub Actions workflow [`.github/workflows/build-release.yml`](.github/workflows/build-release.yml):
+
+1. Runs unit and integration tests.
+2. Builds browser manifests.
+3. Packages:
+   - `marksnip-chrome-<version>.zip`
+   - `marksnip-firefox-<version>.xpi`
+4. Publishes a GitHub Release on `v*` tags (or manual `workflow_dispatch`).
+
+To publish:
+
+1. Update version in `src/manifest.json`
+2. Update `CHANGELOG.md`
+3. Tag and push, for example:
+
+```bash
+git tag v4.0.4
+git push origin v4.0.4
+```
+
+## Project Structure
+
+```text
+.
+|- src/
+|  |- background/
+|  |- contentScript/
+|  |- offscreen/
+|  |- options/
+|  |- popup/
+|  |- scripts/
+|  |- shared/
+|  |- tests/
+|  `- manifest.json
+|- CHANGELOG.md
+|- PRIVACY.md
+`- user-guide.md
+```
+
+## Privacy
+
+MarkSnip does not send clipped page content to external servers. See [PRIVACY.md](PRIVACY.md) for details.
 
 ## Credits
 
-- Original [MarkDownload](https://github.com/deathau/markdownload/) extension by deathau
-- [CommonMark](https://github.com/dcurtis/markdown-mark) icon by Dustin Curtis
-- All the amazing open-source libraries and their contributors
+- Original [MarkDownload](https://github.com/deathau/markdownload/) by deathau
+- [Readability.js](https://github.com/mozilla/readability)
+- [Turndown](https://github.com/mixmark-io/turndown)
+- [CodeMirror](https://codemirror.net/)
+- [highlight.js](https://highlightjs.org/)
 
-## Issues
+## License
 
-If you have found an issue or have some feedback, feel free to email me dhruvjparikh28@gmail.com.
+This project is licensed under the [MIT License](LICENSE).
