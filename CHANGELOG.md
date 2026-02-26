@@ -1,5 +1,17 @@
 # Changelog
 
+## 4.0.4
+
+- **UI Modernization**: Updated popup buttons with the Inter font and a new batch processing icon for a more polished look.
+- **Batch Link Picker**: Improved the user experience of the link picker with smooth animations and a consistent sage-green color palette.
+
+## 4.0.3
+
+- **Firefox Compatibility**: Added `data_collection_permissions` and updated the extension ID for better Firefox support.
+- **Reliability**: Improved keyboard shortcut reliability for "Copy as Markdown" and "Save as Markdown" actions.
+- **Bug Fix**: Fixed "Strip Images" option not being honored when images were inside tables.
+- **Build System**: Added support for generating browser-specific manifest files for Chrome and Firefox.
+
 ## 4.0.2
 
 - Redesigned settings panel and popup with improved layout and polished styling
