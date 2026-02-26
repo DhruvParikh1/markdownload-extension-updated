@@ -42,7 +42,7 @@
     --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.12);
     
     /* Typography */
-    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     --font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
     
     --text-xs: 11px;
@@ -554,8 +554,10 @@ body {
     background: var(--bg-tertiary);
     border: 1px solid var(--border-medium);
     border-radius: var(--radius-md);
+    font-family: 'Inter', var(--font-sans);
     font-size: var(--text-sm);
     font-weight: var(--weight-medium);
+    letter-spacing: -0.01em;
     color: var(--text-primary);
     cursor: pointer;
     transition: all var(--transition);
@@ -576,6 +578,8 @@ body {
     background: var(--accent);
     border-color: var(--accent);
     color: var(--text-inverse);
+    font-weight: var(--weight-semibold);
+    letter-spacing: -0.015em;
 }
 
 .btn-primary:hover {
