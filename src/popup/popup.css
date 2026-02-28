@@ -201,7 +201,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: var(--space-4);
+    padding: var(--space-3) var(--space-3);
     background: linear-gradient(135deg, var(--accent-darker) 0%, var(--accent-dark) 100%);
     border-bottom: 1px solid var(--accent-darker);
     animation: slideDown 250ms ease-out;
@@ -222,12 +222,27 @@ body {
     flex: 1;
 }
 
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.header-logo {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    image-rendering: -webkit-optimize-contrast;
+    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.5));
+}
+
 .app-title {
+    font-family: 'Inter', var(--font-sans);
     font-size: var(--text-xl);
     font-weight: var(--weight-semibold);
     color: var(--text-inverse);
-    margin-bottom: var(--space-1);
     letter-spacing: -0.025em;
+    text-shadow: 0 0 12px rgba(255, 255, 255, 0.45), 0 0 4px rgba(255, 255, 255, 0.25);
 }
 
 .app-subtitle {
