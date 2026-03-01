@@ -1012,15 +1012,22 @@ async function getArticleFromDom(domString, options) {
    header.outerHTML = header.outerHTML;
  });
 
- // Simplify the DOM into an article
- const article = new Readability(dom).parse();
+  // Simplify the DOM into an article
+  const article = new Readability(dom).parse();
 
- // Add essential metadata
- article.baseURI = dom.baseURI;
- article.pageTitle = dom.title;
- 
- // Extract URL information
- const url = new URL(dom.baseURI);
+  // Add essential metadata with fallbacks
+  article.baseURI = dom.baseURI;
+  
+  // Ensure pageTitle has a value - fallback chain: dom.title -> article.title -> 'Untitled'
+  article.pageTitle = dom.title || article.title || 'Untitled';
+  
+  // Ensure title has a value - use pageTitle as fallback
+  if (!article.title) {
+    article.title = article.pageTitle;
+  }
+  
+  // Extract URL information
+  const url = new URL(dom.baseURI);
  article.hash = url.hash;
  article.host = url.host;
  article.origin = url.origin;
@@ -1340,6 +1347,12 @@ async function preDownloadImages(imageList, markdown, providedOptions = null) {
 */
 async function downloadMarkdown(markdown, title, tabId, imageList = {}, mdClipsFolder = '', providedOptions = null) {
   const options = providedOptions || defaultOptions;
+  
+  // CRITICAL: Ensure title is never empty to prevent download failures
+  if (!title || title.trim() === '') {
+    console.warn('⚠️ [Offscreen] Empty title detected, using fallback');
+    title = 'Untitled-' + Date.now();
+  }
   
   console.log(`📁 [Offscreen] Downloading markdown: title="${title}", folder="${mdClipsFolder}", saveAs=${options.saveAs}`);
   console.log(`🔧 [Offscreen] Download mode: ${options.downloadMode}, browser.downloads available: ${!!browser.downloads}`);
