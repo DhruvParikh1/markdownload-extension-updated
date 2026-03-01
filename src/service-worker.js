@@ -29,6 +29,7 @@ let batchConversionInProgress = false;
 // Track MarkSnip downloads to handle filename conflicts
 const markSnipDownloads = new Map(); // downloadId -> { filename, imageList }
 const markSnipUrls = new Map(); // url -> { filename, expectedFilename }
+const markSnipBlobUrls = new Set(); // Track blob URLs we've created for positive identification
 
 // Add listener to handle filename conflicts from other extensions
 browser.downloads.onDeterminingFilename.addListener(handleFilenameConflict);
@@ -37,29 +38,39 @@ browser.downloads.onDeterminingFilename.addListener(handleFilenameConflict);
  * Handle filename conflicts from other extensions
  * This fixes the Chrome bug where other extensions' onDeterminingFilename listeners
  * override our filename parameter in chrome.downloads.download()
+ * 
+ * CRITICAL: We only call suggest() for downloads we positively identify as ours.
+ * Calling suggest() for untracked downloads causes conflicts with other extensions.
  */
 function handleFilenameConflict(downloadItem, suggest) {
   console.log(`onDeterminingFilename called for download ${downloadItem.id}`, downloadItem);
   console.log(`Current markSnipDownloads:`, Array.from(markSnipDownloads.keys()));
   console.log(`Current markSnipUrls:`, Array.from(markSnipUrls.keys()));
+  console.log(`Current markSnipBlobUrls:`, Array.from(markSnipBlobUrls));
 
-  // Check all three tracking methods:
-  // 1. Already tracked by download ID
-  // 2. Pre-tracked by URL in markSnipUrls
-  // 3. Is a blob URL (our blob URLs start with blob:chrome-extension://)
+  // Check tracking methods in order of reliability:
+  // 1. Already tracked by download ID (most reliable)
+  // 2. Pre-tracked by URL in markSnipUrls (reliable if set before download)
+  // 3. Is a blob URL we created (tracked in markSnipBlobUrls)
   const trackedById = markSnipDownloads.has(downloadItem.id);
   const trackedByUrl = downloadItem.url && markSnipUrls.has(downloadItem.url);
-  const isBlobUrl = downloadItem.url && downloadItem.url.startsWith('blob:');
+  const isOurBlobUrl = downloadItem.url && markSnipBlobUrls.has(downloadItem.url);
 
-  const isMarkSnipDownload = trackedById || trackedByUrl || isBlobUrl;
-
-  if (isMarkSnipDownload) {
-    // Get filename from whichever tracking method found it
-    let filename;
+  // Only handle downloads we positively identify as ours
+  // We do NOT handle arbitrary blob URLs to avoid conflicts with other extensions
+  if (trackedById || trackedByUrl || isOurBlobUrl) {
+    let filename = null;
+    
     if (trackedById) {
-      filename = markSnipDownloads.get(downloadItem.id).filename;
+      const downloadInfo = markSnipDownloads.get(downloadItem.id);
+      filename = downloadInfo?.filename;
     } else if (trackedByUrl) {
-      filename = markSnipUrls.get(downloadItem.url).filename;
+      const urlInfo = markSnipUrls.get(downloadItem.url);
+      filename = urlInfo?.filename;
+    } else if (isOurBlobUrl && trackedByUrl === false) {
+      // Blob URL we created but not in markSnipUrls - try to get from markSnipUrls as fallback
+      const urlInfo = markSnipUrls.get(downloadItem.url);
+      filename = urlInfo?.filename;
     }
 
     if (filename) {
@@ -68,13 +79,19 @@ function handleFilenameConflict(downloadItem, suggest) {
         filename: filename,
         conflictAction: 'uniquify'
       });
-      return; // Important: return to prevent fallback suggest()
+      return true; // Indicate we handled this asynchronously
     }
+    
+    // We identified it as our download but couldn't get the filename
+    // This shouldn't happen, but if it does, don't interfere
+    console.warn(`⚠️ MarkSnip download ${downloadItem.id} identified but no filename found`);
   }
 
-  // Not our download or couldn't determine filename
-  console.log(`❌ Not a MarkSnip download ${downloadItem.id}, passing through`);
-  suggest();
+  // NOT our download - DO NOT call suggest()
+  // Let Chrome use the original filename from download() call
+  // This prevents conflicts with other extensions
+  console.log(`⏭️ Not a MarkSnip download ${downloadItem.id}, not interfering`);
+  return false; // Indicate we're not handling this
 }
 
 /**
@@ -102,6 +119,11 @@ async function handleMessages(message, sender, sendResponse) {
         isMarkdown: message.isMarkdown || false,
         isImage: message.isImage || false
       });
+      // Also track as our blob URL if it's a blob URL
+      if (message.url && message.url.startsWith('blob:')) {
+        markSnipBlobUrls.add(message.url);
+        console.log(`📝 Added blob URL to tracking set: ${message.url}`);
+      }
       break;
     case "offscreen-ready":
       // The offscreen document is ready - no action needed
@@ -855,6 +877,7 @@ function downloadListener(id, url) {
       }
       activeDownloads.delete(id);
       markSnipDownloads.delete(id); // Clean up filename tracking
+      markSnipBlobUrls.delete(url); // Clean up blob URL tracking
     }
   };
 }
@@ -881,6 +904,7 @@ function handleDownloadChange(delta) {
       
       activeDownloads.delete(delta.id);
       markSnipDownloads.delete(delta.id); // Clean up filename tracking
+      markSnipBlobUrls.delete(url); // Clean up blob URL tracking
 
       // Also clean up markSnipUrls by URL if still present
       if (url && markSnipUrls.has(url)) {
@@ -903,6 +927,7 @@ function handleDownloadChange(delta) {
       
       activeDownloads.delete(delta.id);
       markSnipDownloads.delete(delta.id); // Clean up filename tracking
+      markSnipBlobUrls.delete(url); // Clean up blob URL tracking
 
       // Also clean up markSnipUrls by URL if still present
       if (url && markSnipUrls.has(url)) {
@@ -1785,6 +1810,12 @@ async function getArticleFromContent(tabId, selection = false, options = null) {
 async function handleDownloadWithBlobUrl(blobUrl, filename, tabId, imageList = {}, mdClipsFolder = '', options = null) {
   if (!options) options = await getOptions();
   
+  // CRITICAL: Ensure filename is never empty
+  if (!filename || filename.trim() === '' || filename === '.md') {
+    console.warn('⚠️ [Service Worker] Empty filename detected, using fallback');
+    filename = 'Untitled-' + Date.now() + '.md';
+  }
+  
   console.log(`🚀 [Service Worker] Using Downloads API with blob URL: ${blobUrl} -> ${filename}`);
   
   if (browser.downloads || (typeof chrome !== 'undefined' && chrome.downloads)) {
@@ -1792,10 +1823,13 @@ async function handleDownloadWithBlobUrl(blobUrl, filename, tabId, imageList = {
     
     try {
       // CRITICAL: Set up URL tracking BEFORE calling download API
+      // Track in both Maps for redundancy
       markSnipUrls.set(blobUrl, {
         filename: filename,
         isMarkdown: true
       });
+      markSnipBlobUrls.add(blobUrl);
+      console.log(`📝 [Service Worker] Pre-tracked blob URL: ${blobUrl} -> ${filename}`);
       
       // Start download using pre-made blob URL
       const id = await downloadsAPI.download({
@@ -1859,6 +1893,12 @@ async function handleDownloadWithBlobUrl(blobUrl, filename, tabId, imageList = {
 async function handleDownloadDirectly(markdown, title, tabId, imageList = {}, mdClipsFolder = '', options = null) {
   if (!options) options = await getOptions();
   
+  // CRITICAL: Ensure title is never empty
+  if (!title || title.trim() === '') {
+    console.warn('⚠️ [Service Worker] Empty title detected, using fallback');
+    title = 'Untitled-' + Date.now();
+  }
+  
   console.log(`🚀 [Service Worker] Handling download directly: title="${title}", folder="${mdClipsFolder}"`);
   
   if (options.downloadMode === 'downloadsApi' && (browser.downloads || (typeof chrome !== 'undefined' && chrome.downloads))) {
@@ -1877,10 +1917,13 @@ async function handleDownloadDirectly(markdown, title, tabId, imageList = {}, md
       console.log(`🎯 [Service Worker] Starting Downloads API: URL=${url}, filename="${fullFilename}"`);
       
       // CRITICAL: Set up URL tracking BEFORE calling download API
+      // Track in both Maps for redundancy
       markSnipUrls.set(url, {
         filename: fullFilename,
         isMarkdown: true
       });
+      markSnipBlobUrls.add(url);
+      console.log(`📝 [Service Worker] Pre-tracked blob URL: ${url} -> ${fullFilename}`);
       
       // Start download
       const id = await downloadsAPI.download({
@@ -1961,6 +2004,12 @@ async function handleDownloadDirectly(markdown, title, tabId, imageList = {}, md
 async function downloadMarkdown(markdown, title, tabId, imageList = {}, mdClipsFolder = '') {
   const options = await getOptions();
   
+  // CRITICAL: Ensure title is never empty
+  if (!title || title.trim() === '') {
+    console.warn('⚠️ [Service Worker] Empty title detected, using fallback');
+    title = 'Untitled-' + Date.now();
+  }
+  
   console.log(`📁 [Service Worker] Downloading markdown: title="${title}", folder="${mdClipsFolder}", saveAs=${options.saveAs}`);
   console.log(`🔧 [Service Worker] Download mode: ${options.downloadMode}, browser.downloads: ${!!browser.downloads}, chrome.downloads: ${!!(typeof chrome !== 'undefined' && chrome.downloads)}`);
   
@@ -1995,10 +2044,13 @@ async function downloadMarkdown(markdown, title, tabId, imageList = {}, mdClipsF
       console.log(`🚀 [Service Worker] Starting Downloads API download: URL=${url}, filename="${fullFilename}"`);
       
       // CRITICAL: Set up URL tracking BEFORE calling download API
+      // Track in both Maps for redundancy
       markSnipUrls.set(url, {
         filename: fullFilename,
         isMarkdown: true
       });
+      markSnipBlobUrls.add(url);
+      console.log(`📝 [Service Worker] Pre-tracked blob URL: ${url} -> ${fullFilename}`);
       
       // Start download
       const id = await downloadsAPI.download({
