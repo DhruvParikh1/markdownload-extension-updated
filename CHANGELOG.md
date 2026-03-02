@@ -1,5 +1,19 @@
 # Changelog
 
+## 4.0.6
+
+- **Firefox Support**: Unified offscreen processing across Chrome and Firefox by loading `offscreen/offscreen.html` in Firefox and routing clipping through the same messaging path.
+- **Firefox Build Output**: Updated browser manifest generation so Firefox bundles required background scripts and excludes the Chrome-only `offscreen` permission.
+- **Readability Improvements**: Cherry-picked Safari Reader heuristics into `Readability.js` for better article extraction on difficult pages.
+- **Regression Coverage**: Added end-to-end tests for command routing and download behavior (`command-download-regression.spec.js`).
+
+## 4.0.5
+
+- **Download Reliability**: Fixed filename conflicts with other extensions by only handling downloads positively identified as MarkSnip-owned.
+- **Filename Safety**: Added fallbacks for empty/missing titles to prevent invalid or blank `.md` filenames.
+- **Quality**: Added targeted unit tests for filename conflict handling and empty-title edge cases.
+- **Docs/UI**: Refreshed README and user guide content and made small popup header styling updates.
+
 ## 4.0.4
 
 - **UI Modernization**: Updated popup buttons with the Inter font and a new batch processing icon for a more polished look.
