@@ -142,8 +142,14 @@ Readability.prototype = {
     okMaybeItsACandidate:
       /and|article|body|column|content|main|mathjax|shadow/i,
 
+    // ================================
+    // START SAFARI READABILITY INSPIRED CHANGE #1
+    // Added 'articleBody' to the positive regex to recognise Schema.org articleBody class names.
+    // Original: /article|body|content|entry|hentry|h-entry|main|page|pagination|post|text|blog|story/i
     positive:
-      /article|body|content|entry|hentry|h-entry|main|page|pagination|post|text|blog|story/i,
+      /article|body|content|entry|hentry|h-entry|main|page|pagination|post|text|blog|story|articleBody/i,
+    // END SAFARI READABILITY INSPIRED CHANGE #1
+    // ================================
     negative:
       /-ad-|hidden|^hid$| hid$| hid |^hid |banner|combx|comment|com-|contact|footer|gdpr|masthead|media|meta|outbrain|promo|related|scroll|share|shoutbox|sidebar|skyscraper|sponsor|shopping|tags|widget/i,
     extraneous:
@@ -173,6 +179,13 @@ Readability.prototype = {
       /^(ad(vertising|vertisement)?|pub(licité)?|werb(ung)?|广告|Реклама|Anuncio)$/iu,
     loadingWords:
       /^((loading|正在加载|Загрузка|chargement|cargando)(…|\.\.\.)?)$/iu,
+    // ================================
+    // START SAFARI READABILITY INSPIRED CHANGE #2
+    // Carousel/slideshow regex — these are never article content (Safari Reader).
+    // Used in _cleanConditionally to early-reject carousel/slider containers.
+    carousel: /carousel|slideshow|slider|swiper|slick|gallery-thumbs|owl-carousel/i,
+    // END SAFARI READABILITY INSPIRED CHANGE #2
+    // ================================
   },
 
   UNLIKELY_ROLES: [
@@ -937,6 +950,16 @@ Readability.prototype = {
     }
 
     node.readability.contentScore += this._getClassWeight(node);
+
+    // ================================
+    // START SAFARI READABILITY INSPIRED CHANGE #3
+    // Schema.org itemprop="articleBody" elements get a +10 score bonus.
+    // Safari Reader scores Schema.org article containers more highly.
+    if (node.getAttribute && node.getAttribute("itemprop") === "articleBody") {
+      node.readability.contentScore += 10;
+    }
+    // END SAFARI READABILITY INSPIRED CHANGE #3
+    // ================================
   },
 
   _removeAndGetNext(node) {
@@ -1260,14 +1283,25 @@ Readability.prototype = {
 
         var contentScore = 0;
 
+        // ================================
+        // START SAFARI READABILITY INSPIRED CHANGE #4
+        // CJK language multiplier (Safari: ScoreMultiplierForChineseJapaneseKorean = 3).
+        // CJK characters are information-dense; fewer commas does not mean less content.
+        // Also replaces linear text-length bonus with a power-law curve (Safari: TextNodeLengthPower = 1.25).
+        // Original comma scoring: innerText.split(this.REGEXPS.commas).length  (no multiplier)
+        // Original length bonus:  Math.min(Math.floor(innerText.length / 100), 3)  (linear, capped at 3)
+        var cjkMultiplier = this._textAppearsToBeCJK(innerText) ? 3 : 1;
+
         // Add a point for the paragraph itself as a base.
         contentScore += 1;
 
-        // Add points for any commas within this paragraph.
-        contentScore += innerText.split(this.REGEXPS.commas).length;
+        // Add points for any commas within this paragraph (boosted for CJK).
+        contentScore += innerText.split(this.REGEXPS.commas).length * cjkMultiplier;
 
-        // For every 100 characters in this paragraph, add another point. Up to 3 points.
-        contentScore += Math.min(Math.floor(innerText.length / 100), 3);
+        // Power-law text length bonus: longer paragraphs score disproportionately higher.
+        contentScore += Math.min(Math.pow(innerText.length / 100, 1.25), 3);
+        // END SAFARI READABILITY INSPIRED CHANGE #4
+        // ================================
 
         // Initialize and score ancestors.
         this._forEachNode(ancestors, function (ancestor, level) {
@@ -2133,6 +2167,39 @@ Readability.prototype = {
     }
   },
 
+  // ================================
+  // START SAFARI READABILITY INSPIRED CHANGE #5
+  // New helper method: _textAppearsToBeCJK
+  // Used by Change #4 (CJK multiplier). Samples text to detect Chinese/Japanese/Korean.
+  // Inspired by Safari's calculateLanguageScoreMultiplier.
+  // This entire method is new — does not exist in Mozilla's Readability.js.
+  /**
+   * Check if text content appears to be CJK (Chinese, Japanese, Korean).
+   * Samples the first 200 chars and checks if more than 50% are CJK characters.
+   *
+   * @param string text to check
+   * @return boolean
+   **/
+  _textAppearsToBeCJK(text) {
+    if (!text || text.length < 10) return false;
+    var sample = text.substring(0, 200);
+    var cjkChars = 0;
+    for (var i = 0; i < sample.length; i++) {
+      var code = sample.charCodeAt(i);
+      // Hiragana (3040-309F), Katakana (30A0-30FF), CJK Unified (4E00-9FFF),
+      // Hangul (AC00-D7A3), CJK Compatibility (F900-FAFF)
+      if ((code >= 0x3040 && code <= 0x9FFF) ||
+          (code >= 0xAC00 && code <= 0xD7A3) ||
+          (code >= 0xF900 && code <= 0xFAFF)) {
+        cjkChars++;
+      }
+    }
+    return cjkChars / sample.length > 0.5;
+  },
+  // END SAFARI READABILITY INSPIRED CHANGE #5
+  // ================================
+
+
   /**
    * Get the density of links as a percentage of the content
    * This is the amount of text that is inside a link divided by the total text in the node.
@@ -2394,6 +2461,31 @@ Readability.prototype = {
           }
         }
 
+        // ================================
+        // START SAFARI READABILITY INSPIRED CHANGE #6
+        // Enhanced lazy-loading recovery: checks additional data attributes used by
+        // popular lazy-loading libraries (e.g. data-src, data-original, data-lazy-src).
+        // Inspired by Safari's lazyLoadingImageURLForElement.
+        // Mozilla's original only checks a generic attribute loop for .jpg/.png extensions.
+        if (!elem.src || (elem.src && this.REGEXPS.b64DataUrl.test(elem.src))) {
+          var lazyAttrs = ["data-src", "data-original", "data-lazy-src",
+                           "data-lazy", "data-source", "data-bg"];
+          for (var la = 0; la < lazyAttrs.length; la++) {
+            var lazyVal = elem.getAttribute(lazyAttrs[la]);
+            if (lazyVal && /\.(jpg|jpeg|png|webp|gif|avif|svg)/i.test(lazyVal)) {
+              elem.setAttribute("src", lazyVal);
+              break;
+            }
+          }
+          // Check for data-srcset
+          var lazySrcset = elem.getAttribute("data-srcset");
+          if (lazySrcset && /\.(jpg|jpeg|png|webp|gif|avif)/i.test(lazySrcset)) {
+            elem.setAttribute("srcset", lazySrcset);
+          }
+        }
+        // END SAFARI READABILITY INSPIRED CHANGE #6
+        // ================================
+
         // also check for "null" to work around https://github.com/jsdom/jsdom/issues/2580
         if (
           (elem.src || (elem.srcset && elem.srcset != "null")) &&
@@ -2510,6 +2602,18 @@ Readability.prototype = {
 
       this.log("Cleaning Conditionally", node);
 
+      // ================================
+      // START SAFARI READABILITY INSPIRED CHANGE #7
+      // Carousel/slideshow early rejection in _cleanConditionally.
+      // Any div/element whose class or id matches the carousel regex (Change #2) is
+      // immediately removed — carousels are never article body content.
+      if (this.REGEXPS.carousel.test(node.className || "") ||
+          this.REGEXPS.carousel.test(node.id || "")) {
+        return true;
+      }
+      // END SAFARI READABILITY INSPIRED CHANGE #7
+      // ================================
+
       var contentScore = 0;
 
       if (weight + contentScore < 0) {
@@ -2580,6 +2684,26 @@ Readability.prototype = {
         // apply shadiness checks, then check for exceptions
         const shouldRemoveNode = () => {
           const errs = [];
+
+          // ================================
+          // START SAFARI READABILITY INSPIRED CHANGE #8
+          // HR density disqualification: Safari's shouldDisqualifyDueToHorizontalRuleDensity.
+          // Too many <hr> separators relative to <p> tags signals a listing/index page, not an article.
+          var hrs = node.getElementsByTagName("hr").length;
+          if (hrs > 0 && p > 0 && hrs / p > 0.33) {
+            errs.push(`High HR density suggests listing page (hrs=${hrs}, p=${p})`);
+          }
+
+          // Linked header density disqualification: Safari's shouldDisqualifyDueToHeaderDensity.
+          // When the majority of headers inside a node are links, it is a hub/index page, not an article.
+          var linkedHeaders = node.querySelectorAll("h1 a, h2 a, h3 a, h4 a, h5 a, h6 a").length;
+          var totalHeaders = node.querySelectorAll("h1, h2, h3, h4, h5, h6").length;
+          if (totalHeaders >= 3 && linkedHeaders / totalHeaders > 0.5) {
+            errs.push(`High linked header density suggests hub page (linkedHeaders=${linkedHeaders}, totalHeaders=${totalHeaders})`);
+          }
+          // END SAFARI READABILITY INSPIRED CHANGE #8
+          // ================================
+
           if (!isFigureChild && img > 1 && p / img < 0.5) {
             errs.push(`Bad p to img ratio (img=${img}, p=${p})`);
           }
