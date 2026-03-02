@@ -2,7 +2,7 @@
 
 Markdown web clipper for Chrome and Firefox. Save pages as clean Markdown, copy content to clipboard, or send notes directly to Obsidian.
 
-[Chrome Web Store](https://chromewebstore.google.com/detail/marksnip-markdown-web-cli/kcbaglhfgbkjdnpeokaamjjkddempipm?hl=en) | [User Guide](user-guide.md) | [Changelog](CHANGELOG.md) | [Privacy Policy](PRIVACY.md)
+[Chrome Web Store](https://chromewebstore.google.com/detail/marksnip-markdown-web-cli/kcbaglhfgbkjdnpeokaamjjkddempipm?hl=en) | [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/marksnip-markdown-web-clipper/) | [User Guide](user-guide.md) | [Changelog](CHANGELOG.md) | [Privacy Policy](PRIVACY.md)
 
 ![MarkSnip popup](media/Chrome.Screenshot.1.png)
 
@@ -33,6 +33,11 @@ Core pipeline:
 ### Chrome (stable)
 
 Install from the [Chrome Web Store](https://chromewebstore.google.com/detail/marksnip-markdown-web-cli/kcbaglhfgbkjdnpeokaamjjkddempipm?hl=en).
+
+### Firefox (stable)
+
+Firefox support is available starting in `v4.0.6`.
+Install from [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/marksnip-markdown-web-clipper/).
 
 ### Load unpacked (local build)
 
