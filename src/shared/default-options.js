@@ -6,6 +6,7 @@ const defaultOptions = {
   codeBlockStyle: "fenced",
   fence: "```",
   preserveCodeFormatting: false,
+  autoDetectCodeLanguage: true,
   emDelimiter: "_",
   strongDelimiter: "**",
   linkStyle: "inlined",

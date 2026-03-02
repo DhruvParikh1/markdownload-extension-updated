@@ -22,6 +22,7 @@ const saveOptions = e => {
         obsidianFolder: document.querySelector("[name='obsidianFolder']").value,
 
         preserveCodeFormatting: document.querySelector("[name='preserveCodeFormatting']").checked,
+        autoDetectCodeLanguage: document.querySelector("[name='autoDetectCodeLanguage']").checked,
 
         // Add table formatting options
         tableFormatting: {
@@ -51,25 +52,38 @@ const saveOptions = e => {
 const save = () => {
     const spinner = document.getElementById("spinner");
     spinner.style.display = "block";
+
+    const safeUpdateMenu = (id, update) => {
+        if (!browser.contextMenus || typeof browser.contextMenus.update !== "function") {
+            return Promise.resolve();
+        }
+        return browser.contextMenus.update(id, update).catch((err) => {
+            const message = String(err?.message || err || "");
+            if (!message.includes("Cannot find menu item")) {
+                console.warn(`Failed to update context menu '${id}':`, err);
+            }
+        });
+    };
+
     browser.storage.sync.set(options)
         .then(() => {
-            browser.contextMenus.update("toggle-includeTemplate", {
-                checked: options.includeTemplate
-            });
-            try {
-                browser.contextMenus.update("tabtoggle-includeTemplate", {
+            if (!options.contextMenus) {
+                return Promise.resolve();
+            }
+            return Promise.allSettled([
+                safeUpdateMenu("toggle-includeTemplate", {
                     checked: options.includeTemplate
-                });
-            } catch { }
-            
-            browser.contextMenus.update("toggle-downloadImages", {
-                checked: options.downloadImages
-            });
-            try {
-                browser.contextMenus.update("tabtoggle-downloadImages", {
+                }),
+                safeUpdateMenu("tabtoggle-includeTemplate", {
+                    checked: options.includeTemplate
+                }),
+                safeUpdateMenu("toggle-downloadImages", {
                     checked: options.downloadImages
-                });
-            } catch { }
+                }),
+                safeUpdateMenu("tabtoggle-downloadImages", {
+                    checked: options.downloadImages
+                })
+            ]);
         })
         .then(() => {
             document.querySelectorAll(".status").forEach(statusEl => {
@@ -118,6 +132,7 @@ const setCurrentChoice = result => {
     }
 
     options.preserveCodeFormatting = result.preserveCodeFormatting;
+    options.autoDetectCodeLanguage = result.autoDetectCodeLanguage !== false;
 
     // Initialize tableFormatting with default values if it doesn't exist
     options.tableFormatting = {
@@ -147,6 +162,7 @@ const setCurrentChoice = result => {
 
     // Set preserveCodeFormatting checkbox
     document.querySelector("[name='preserveCodeFormatting']").checked = options.preserveCodeFormatting;
+    document.querySelector("[name='autoDetectCodeLanguage']").checked = options.autoDetectCodeLanguage;
 
     // Set table formatting checkboxes
     document.querySelector("[name='tableFormatting.stripLinks']").checked = Boolean(options.tableFormatting.stripLinks);

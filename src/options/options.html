@@ -242,6 +242,16 @@ const helloWorld = () => {
         </label>
       </div>
 
+    <div class="checkbox-container" id="autoDetectCodeLanguage-container">
+        <input name="autoDetectCodeLanguage" id="autoDetectCodeLanguage" type="checkbox" />
+        <label for="autoDetectCodeLanguage">Auto-detect code block language
+          <p><small>
+            Uses highlight.js to infer fenced code block language when no explicit language is present.
+            Disable this if snippets are frequently labeled with incorrect languages.
+          </small></p>
+        </label>
+    </div>
+
     <div class="radio-container" id="fence">
         <h3>Code Block Fence</h3>
         <input type="radio" name="fence" id="```" value="```" />

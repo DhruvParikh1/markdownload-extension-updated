@@ -377,6 +377,8 @@ async function convertArticleToMarkdown(article, downloadImages = null, provided
 }
 
 function processCodeBlock(node, options) {
+  const shouldAutoDetectLanguage = options.autoDetectCodeLanguage !== false;
+
   // If preserveCodeFormatting is enabled, return original HTML content
   if (options.preserveCodeFormatting) {
     return {
@@ -392,7 +394,12 @@ function processCodeBlock(node, options) {
   let language = getCodeLanguage(node);
   
   // If no language detected and auto-detection is needed
-  if (!language) {
+  if (
+    !language &&
+    shouldAutoDetectLanguage &&
+    typeof hljs !== 'undefined' &&
+    typeof hljs.highlightAuto === 'function'
+  ) {
     try {
       const result = hljs.highlightAuto(code);
       language = result.language || '';
@@ -811,21 +818,91 @@ function turndown(content, options, article) {
   }
 
   function convertToFencedCodeBlock(node, options) {
-    node.innerHTML = node.innerHTML.replaceAll('<br-keep></br-keep>', '<br>');
-    const langMatch = node.id?.match(/code-lang-(.+)/);
-    const language = langMatch?.length > 0 ? langMatch[1] : '';
+    function normalizeCodeBlockSpacing(text, maxBlankLines = 2) {
+      const lines = text.split('\n');
+      const normalizedLines = [];
+      let blankLineCount = 0;
 
-    var code;
+      lines.forEach(line => {
+        if (/^[ \t]*$/.test(line)) {
+          blankLineCount += 1;
+          if (blankLineCount <= maxBlankLines) {
+            normalizedLines.push('');
+          }
+        } else {
+          blankLineCount = 0;
+          normalizedLines.push(line);
+        }
+      });
 
-    if (language) {
-      var div = document.createElement('div');
-      document.body.appendChild(div);
-      div.appendChild(node);
-      code = node.innerText;
-      div.remove();
-    } else {
-      code = node.innerHTML;
+      return normalizedLines.join('\n');
     }
+
+    function detectPreLanguage(node, code) {
+      const shouldAutoDetectLanguage = options.autoDetectCodeLanguage !== false;
+      const idMatch = node.id?.match(/code-lang-(.+)/);
+      if (idMatch?.length > 1) {
+        return idMatch[1];
+      }
+
+      const classTokens = (node.className || '')
+        .toLowerCase()
+        .split(/\s+/)
+        .filter(Boolean);
+      const candidates = new Set();
+
+      classTokens.forEach(token => {
+        candidates.add(token);
+        if (token.startsWith('language-')) candidates.add(token.substring(9));
+        if (token.startsWith('lang-')) candidates.add(token.substring(5));
+        if (token.startsWith('source-')) candidates.add(token.substring(7));
+        if (token.startsWith('highlight-')) candidates.add(token.substring(10));
+      });
+
+      if (typeof hljs !== 'undefined' && typeof hljs.getLanguage === 'function') {
+        for (const candidate of candidates) {
+          if (candidate && hljs.getLanguage(candidate)) {
+            return candidate;
+          }
+        }
+      }
+
+      if (
+        shouldAutoDetectLanguage &&
+        typeof hljs !== 'undefined' &&
+        typeof hljs.highlightAuto === 'function' &&
+        code.trim()
+      ) {
+        try {
+          const detected = hljs.highlightAuto(code);
+          if (
+            detected?.language &&
+            typeof detected.relevance === 'number' &&
+            detected.relevance >= 2
+          ) {
+            return detected.language;
+          }
+        } catch (e) {
+          console.warn('Language detection failed for <pre> block:', e);
+        }
+      }
+
+      return '';
+    }
+
+    let code;
+
+    if (options.preserveCodeFormatting) {
+      code = node.innerHTML.replaceAll('<br-keep></br-keep>', '<br>');
+    } else {
+      const clonedNode = node.cloneNode(true);
+      clonedNode.querySelectorAll('br-keep, br').forEach(br => {
+        br.replaceWith('\n');
+      });
+      code = clonedNode.textContent || '';
+      code = normalizeCodeBlockSpacing(code, 2);
+    }
+    const language = detectPreLanguage(node, code);
 
     var fenceChar = options.fence.charAt(0);
     var fenceSize = 3;
@@ -1521,21 +1598,91 @@ function base64EncodeUnicode(str) {
 * Convert to fenced code block
 */
 function convertToFencedCodeBlock(node, options) {
- node.innerHTML = node.innerHTML.replaceAll('<br-keep></br-keep>', '<br>');
- const langMatch = node.id?.match(/code-lang-(.+)/);
- const language = langMatch?.length > 0 ? langMatch[1] : '';
+ function normalizeCodeBlockSpacing(text, maxBlankLines = 2) {
+   const lines = text.split('\n');
+   const normalizedLines = [];
+   let blankLineCount = 0;
 
- var code;
+   lines.forEach(line => {
+     if (/^[ \t]*$/.test(line)) {
+       blankLineCount += 1;
+       if (blankLineCount <= maxBlankLines) {
+         normalizedLines.push('');
+       }
+     } else {
+       blankLineCount = 0;
+       normalizedLines.push(line);
+     }
+   });
 
- if (language) {
-   var div = document.createElement('div');
-   document.body.appendChild(div);
-   div.appendChild(node);
-   code = node.innerText;
-   div.remove();
- } else {
-   code = node.innerHTML;
+   return normalizedLines.join('\n');
  }
+
+ function detectPreLanguage(node, code) {
+   const shouldAutoDetectLanguage = options.autoDetectCodeLanguage !== false;
+   const idMatch = node.id?.match(/code-lang-(.+)/);
+   if (idMatch?.length > 1) {
+     return idMatch[1];
+   }
+
+   const classTokens = (node.className || '')
+     .toLowerCase()
+     .split(/\s+/)
+     .filter(Boolean);
+   const candidates = new Set();
+
+   classTokens.forEach(token => {
+     candidates.add(token);
+     if (token.startsWith('language-')) candidates.add(token.substring(9));
+     if (token.startsWith('lang-')) candidates.add(token.substring(5));
+     if (token.startsWith('source-')) candidates.add(token.substring(7));
+     if (token.startsWith('highlight-')) candidates.add(token.substring(10));
+   });
+
+   if (typeof hljs !== 'undefined' && typeof hljs.getLanguage === 'function') {
+     for (const candidate of candidates) {
+       if (candidate && hljs.getLanguage(candidate)) {
+         return candidate;
+       }
+     }
+   }
+
+   if (
+     shouldAutoDetectLanguage &&
+     typeof hljs !== 'undefined' &&
+     typeof hljs.highlightAuto === 'function' &&
+     code.trim()
+   ) {
+     try {
+       const detected = hljs.highlightAuto(code);
+       if (
+         detected?.language &&
+         typeof detected.relevance === 'number' &&
+         detected.relevance >= 2
+       ) {
+         return detected.language;
+       }
+     } catch (e) {
+       console.warn('Language detection failed for <pre> block:', e);
+     }
+   }
+
+   return '';
+ }
+
+ let code;
+
+ if (options.preserveCodeFormatting) {
+   code = node.innerHTML.replaceAll('<br-keep></br-keep>', '<br>');
+ } else {
+   const clonedNode = node.cloneNode(true);
+   clonedNode.querySelectorAll('br-keep, br').forEach(br => {
+     br.replaceWith('\n');
+   });
+   code = clonedNode.textContent || '';
+   code = normalizeCodeBlockSpacing(code, 2);
+ }
+ const language = detectPreLanguage(node, code);
 
  var fenceChar = options.fence.charAt(0);
  var fenceSize = 3;
