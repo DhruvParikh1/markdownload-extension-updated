@@ -1,10 +1,14 @@
-importScripts(
-  'browser-polyfill.min.js',
-  'background/moment.min.js',
-  'background/apache-mime-types.js',
-  'shared/default-options.js',
-  'shared/context-menus.js'
-);
+// In Chrome service workers, importScripts is available; in Firefox background
+// scripts, these files are listed in manifest.json background.scripts instead.
+if (typeof importScripts === 'function') {
+  importScripts(
+    'browser-polyfill.min.js',
+    'background/moment.min.js',
+    'background/apache-mime-types.js',
+    'shared/default-options.js',
+    'shared/context-menus.js'
+  );
+}
 
 // Log platform info
 browser.runtime.getPlatformInfo().then(async platformInfo => {
@@ -32,7 +36,10 @@ const markSnipUrls = new Map(); // url -> { filename, expectedFilename }
 const markSnipBlobUrls = new Set(); // Track blob URLs we've created for positive identification
 
 // Add listener to handle filename conflicts from other extensions
-browser.downloads.onDeterminingFilename.addListener(handleFilenameConflict);
+// onDeterminingFilename is Chrome-only
+if (browser.downloads.onDeterminingFilename) {
+  browser.downloads.onDeterminingFilename.addListener(handleFilenameConflict);
+}
 
 /**
  * Handle filename conflicts from other extensions
@@ -704,11 +711,17 @@ async function handleImageDownloadsContentScript(message) {
 }
 
 /**
- * Ensures the offscreen document exists
+ * Track the Firefox offscreen extension page tab
+ */
+let firefoxOffscreenTabId = null;
+
+/**
+ * Ensures the offscreen document exists (Chrome) or an equivalent
+ * extension page is loaded (Firefox).
  */
 async function ensureOffscreenDocumentExists() {
-  // Check if offscreen document exists already
   if (typeof chrome !== 'undefined' && chrome.offscreen) {
+    // Chrome — use native offscreen API
     const offscreenUrl = chrome.runtime.getURL('offscreen/offscreen.html');
     const existingContexts = await chrome.runtime.getContexts({
       contextTypes: ['OFFSCREEN_DOCUMENT'],
@@ -717,72 +730,61 @@ async function ensureOffscreenDocumentExists() {
     
     if (existingContexts.length > 0) return;
     
-    // Create offscreen document
     await chrome.offscreen.createDocument({
       url: 'offscreen/offscreen.html',
       reasons: ['DOM_PARSER', 'CLIPBOARD', 'BLOBS'],
       justification: 'HTML to Markdown conversion'
     });
   } else {
-    // Firefox doesn't support offscreen API, use a different approach
-    // Firefox still allows DOM access in background scripts/service workers
-    importScripts(
-      'background/turndown.js',
-      'background/turndown-plugin-gfm.js',
-      'background/Readability.js'
-    );
+    // Firefox — load offscreen.html as a regular extension page.
+    // Check if we already have a live tab for it.
+    if (firefoxOffscreenTabId != null) {
+      try {
+        await browser.tabs.get(firefoxOffscreenTabId);
+        return; // tab still exists
+      } catch {
+        firefoxOffscreenTabId = null;
+      }
+    }
+
+    // Also check by URL in case the variable was lost
+    const offscreenUrl = browser.runtime.getURL('offscreen/offscreen.html');
+    const existing = await browser.tabs.query({ url: offscreenUrl });
+    if (existing.length > 0) {
+      firefoxOffscreenTabId = existing[0].id;
+      return;
+    }
+
+    // Create a new pinned tab for the offscreen page
+    const tab = await browser.tabs.create({
+      url: 'offscreen/offscreen.html',
+      active: false,
+      pinned: true
+    });
+    firefoxOffscreenTabId = tab.id;
+
+    // Wait briefly for the page to initialise
+    await new Promise(resolve => setTimeout(resolve, 500));
   }
 }
 
 /**
- * Handle clip request - Send to offscreen document or process directly in Firefox
+ * Handle clip request — uses offscreen document on both Chrome and Firefox.
  */
 async function handleClipRequest(message, tabId) {
-  if (typeof chrome !== 'undefined' && chrome.offscreen) {
-    // Chrome - use offscreen document
-    await ensureOffscreenDocumentExists();
-    
-    // Get options to pass to offscreen document
-    const options = await getOptions();
-    
-    // Generate request ID to track this specific request
-    const requestId = generateRequestId();
-    
-    // Send to offscreen for processing with options included
-    await browser.runtime.sendMessage({
-      target: 'offscreen',
-      type: 'process-content',
-      requestId: requestId,
-      data: message,
-      tabId: tabId,
-      options: options  // Pass options directly
-    });
-  } else {
-    // Firefox - process directly (Firefox allows DOM access in service workers)
-    const article = await getArticleFromDom(message.dom);
-    
-    // Handle selection if provided
-    if (message.selection && message.clipSelection) {
-      article.content = message.selection;
-    }
-    
-    // Convert article to markdown
-    const { markdown, imageList } = await convertArticleToMarkdown(article);
-    
-    // Format title and folder
-    article.title = await formatTitle(article);
-    const mdClipsFolder = await formatMdClipsFolder(article);
-    
-    // Send results to popup
-    await browser.runtime.sendMessage({
-      type: "display.md",
-      markdown: markdown,
-      article: article,
-      imageList: imageList,
-      mdClipsFolder: mdClipsFolder,
-      options: await getOptions()
-    });
-  }
+  await ensureOffscreenDocumentExists();
+
+  const options = await getOptions();
+  const requestId = generateRequestId();
+
+  await browser.runtime.sendMessage({
+    target: 'offscreen',
+    type: 'process-content',
+    requestId: requestId,
+    data: message,
+    tabId: tabId,
+    options: options
+  });
 }
 
 /**
@@ -1322,60 +1324,45 @@ async function ensureScripts(tabId) {
  */
 async function downloadMarkdownFromContext(info, tab, customTitle = null, providedOptions = null, collectOnly = false) {
   await ensureScripts(tab.id);
+  await ensureOffscreenDocumentExists();
+  const options = providedOptions || await getOptions();
   
-  if (typeof chrome !== 'undefined' && chrome.offscreen) {
-    await ensureOffscreenDocumentExists();
-    const options = providedOptions || await getOptions();
-    
-    // Create a promise to wait for completion
-    const processComplete = new Promise((resolve, reject) => {
-      const messageListener = (message) => {
-        if (message.type === 'process-complete' && message.tabId === tab.id) {
-          browser.runtime.onMessage.removeListener(messageListener);
-          if (message.error) {
-            reject(new Error(message.error));
-          } else {
-            resolve(message);
-          }
-        }
-      };
-      
-      browser.runtime.onMessage.addListener(messageListener);
-      
-      // Timeout after 30 seconds
-      setTimeout(() => {
+  // Create a promise to wait for completion
+  const processComplete = new Promise((resolve, reject) => {
+    const messageListener = (message) => {
+      if (message.type === 'process-complete' && message.tabId === tab.id) {
         browser.runtime.onMessage.removeListener(messageListener);
-        reject(new Error(`Timeout processing tab ${tab.id}`));
-      }, 30000);
-    });
-    
-    // Send message to offscreen
-    await browser.runtime.sendMessage({
-      target: 'offscreen',
-      type: 'process-context-menu',
-      action: 'download',
-      info: info,
-      tabId: tab.id,
-      options: options,
-      customTitle: customTitle,
-      collectOnly: collectOnly
-    });
-    
-    // Wait for completion
-    return await processComplete;
-  } else {
-    // Firefox - process directly
-    const article = await getArticleFromContent(tab.id, info.menuItemId == "download-markdown-selection");
-    const title = await formatTitle(article);
-    const { markdown, imageList } = await convertArticleToMarkdown(article);
-    const mdClipsFolder = await formatMdClipsFolder(article);
-    await downloadMarkdown(markdown, title, tab.id, imageList, mdClipsFolder);
-    return {
-      success: true,
-      likelyIncomplete: false,
-      markdownLength: markdown.length
+        if (message.error) {
+          reject(new Error(message.error));
+        } else {
+          resolve(message);
+        }
+      }
     };
-  }
+    
+    browser.runtime.onMessage.addListener(messageListener);
+    
+    // Timeout after 30 seconds
+    setTimeout(() => {
+      browser.runtime.onMessage.removeListener(messageListener);
+      reject(new Error(`Timeout processing tab ${tab.id}`));
+    }, 30000);
+  });
+  
+  // Send message to offscreen
+  await browser.runtime.sendMessage({
+    target: 'offscreen',
+    type: 'process-context-menu',
+    action: 'download',
+    info: info,
+    tabId: tab.id,
+    options: options,
+    customTitle: customTitle,
+    collectOnly: collectOnly
+  });
+  
+  // Wait for completion
+  return await processComplete;
 }
 
 /**
@@ -1383,168 +1370,16 @@ async function downloadMarkdownFromContext(info, tab, customTitle = null, provid
  */
 async function copyMarkdownFromContext(info, tab) {
   await ensureScripts(tab.id);
+  await ensureOffscreenDocumentExists();
   
-  if (typeof chrome !== 'undefined' && chrome.offscreen) {
-    // Chrome - use offscreen document
-    await ensureOffscreenDocumentExists();
-    
-    await browser.runtime.sendMessage({
-      target: 'offscreen',
-      type: 'process-context-menu',
-      action: 'copy',
-      info: info,
-      tabId: tab.id,
-      options: await getOptions()
-    });
-  } else {
-    try {
-      // Firefox - handle directly
-      const platformOS = navigator.platform;
-      var folderSeparator = "";
-      if(platformOS.indexOf("Win") === 0){
-        folderSeparator = "\\";
-      } else {
-        folderSeparator = "/";
-      }
-
-      if (info.menuItemId == "copy-markdown-link") {
-        const options = await getOptions();
-        options.frontmatter = options.backmatter = '';
-        const article = await getArticleFromContent(tab.id, false);
-        const { markdown } = turndown(`<a href="${info.linkUrl}">${info.linkText || info.selectionText}</a>`, { ...options, downloadImages: false }, article);
-        await browser.scripting.executeScript({
-          target: { tabId: tab.id },
-          func: (markdownText) => {
-            if (typeof copyToClipboard === 'function') {
-              copyToClipboard(markdownText);
-            } else {
-              // Fallback clipboard implementation
-              const textarea = document.createElement('textarea');
-              textarea.value = markdownText;
-              textarea.style.position = 'fixed';
-              textarea.style.left = '-999999px';
-              document.body.appendChild(textarea);
-              textarea.select();
-              document.execCommand('copy');
-              document.body.removeChild(textarea);
-            }
-          },
-          args: [markdown]
-        });
-      }
-      else if (info.menuItemId == "copy-markdown-image") {
-        await browser.scripting.executeScript({
-          target: { tabId: tab.id },
-          func: (imageUrl) => {
-            if (typeof copyToClipboard === 'function') {
-              copyToClipboard(`![](${imageUrl})`);
-            } else {
-              // Fallback clipboard implementation
-              const textarea = document.createElement('textarea');
-              textarea.value = `![](${imageUrl})`;
-              textarea.style.position = 'fixed';
-              textarea.style.left = '-999999px';
-              document.body.appendChild(textarea);
-              textarea.select();
-              document.execCommand('copy');
-              document.body.removeChild(textarea);
-            }
-          },
-          args: [info.srcUrl]
-        });
-      }
-      else if(info.menuItemId == "copy-markdown-obsidian") {
-        const article = await getArticleFromContent(tab.id, true);
-        const title = article.title;
-        const options = await getOptions();
-        const obsidianVault = options.obsidianVault;
-        const obsidianFolder = await formatObsidianFolder(article);
-        const { markdown } = await convertArticleToMarkdown(article, false);
-        
-        await browser.scripting.executeScript({
-          target: { tabId: tab.id },
-          func: (markdownText) => {
-            if (typeof copyToClipboard === 'function') {
-              copyToClipboard(markdownText);
-            } else {
-              // Fallback clipboard implementation
-              const textarea = document.createElement('textarea');
-              textarea.value = markdownText;
-              textarea.style.position = 'fixed';
-              textarea.style.left = '-999999px';
-              document.body.appendChild(textarea);
-              textarea.select();
-              document.execCommand('copy');
-              document.body.removeChild(textarea);
-            }
-          },
-          args: [markdown]
-        });
-        
-        await browser.tabs.update({
-          url: `obsidian://advanced-uri?vault=${encodeURIComponent(obsidianVault)}&clipboard=true&mode=new&filepath=${encodeURIComponent(obsidianFolder + generateValidFileName(title))}`
-        });
-      }
-      else if(info.menuItemId == "copy-markdown-obsall") {
-        const article = await getArticleFromContent(tab.id, false);
-        const title = article.title;
-        const options = await getOptions();
-        const obsidianVault = options.obsidianVault;
-        const obsidianFolder = await formatObsidianFolder(article);
-        const { markdown } = await convertArticleToMarkdown(article, false);
-        
-        await browser.scripting.executeScript({
-          target: { tabId: tab.id },
-          func: (markdownText) => {
-            if (typeof copyToClipboard === 'function') {
-              copyToClipboard(markdownText);
-            } else {
-              // Fallback clipboard implementation
-              const textarea = document.createElement('textarea');
-              textarea.value = markdownText;
-              textarea.style.position = 'fixed';
-              textarea.style.left = '-999999px';
-              document.body.appendChild(textarea);
-              textarea.select();
-              document.execCommand('copy');
-              document.body.removeChild(textarea);
-            }
-          },
-          args: [markdown]
-        });
-        
-        await browser.tabs.update({
-          url: `obsidian://advanced-uri?vault=${encodeURIComponent(obsidianVault)}&clipboard=true&mode=new&filepath=${encodeURIComponent(obsidianFolder + generateValidFileName(title))}`
-        });
-      }
-      else {
-        const article = await getArticleFromContent(tab.id, info.menuItemId == "copy-markdown-selection");
-        const { markdown } = await convertArticleToMarkdown(article, false);
-        
-        await browser.scripting.executeScript({
-          target: { tabId: tab.id },
-          func: (markdownText) => {
-            if (typeof copyToClipboard === 'function') {
-              copyToClipboard(markdownText);
-            } else {
-              // Fallback clipboard implementation
-              const textarea = document.createElement('textarea');
-              textarea.value = markdownText;
-              textarea.style.position = 'fixed';
-              textarea.style.left = '-999999px';
-              document.body.appendChild(textarea);
-              textarea.select();
-              document.execCommand('copy');
-              document.body.removeChild(textarea);
-            }
-          },
-          args: [markdown]
-        });
-      }
-    } catch (error) {
-      console.error("Failed to copy text:", error);
-    }
-  }
+  await browser.runtime.sendMessage({
+    target: 'offscreen',
+    type: 'process-context-menu',
+    action: 'copy',
+    info: info,
+    tabId: tab.id,
+    options: await getOptions()
+  });
 }
 
 /**
@@ -1553,38 +1388,17 @@ async function copyMarkdownFromContext(info, tab) {
 async function copyTabAsMarkdownLink(tab) {
   try {
     await ensureScripts(tab.id);
-    const options = await getOptions();  // Get options first
+    await ensureOffscreenDocumentExists();
+    const options = await getOptions();
     const article = await getArticleFromContent(tab.id, false, options);
     const title = await formatTitle(article, options);
     
-    if (typeof chrome !== 'undefined' && chrome.offscreen) {
-      await ensureOffscreenDocumentExists();
-      await browser.runtime.sendMessage({
-        target: 'offscreen',
-        type: 'copy-to-clipboard',
-        text: `[${title}](${article.baseURI})`,
-        options: options
-      });
-    } else {
-      await browser.scripting.executeScript({
-        target: { tabId: tab.id },
-        func: (text) => {
-          if (typeof copyToClipboard === 'function') {
-            copyToClipboard(text);
-          } else {
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            textarea.style.position = 'fixed';
-            textarea.style.left = '-999999px';
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
-          }
-        },
-        args: [`[${title}](${article.baseURI})`]
-      });
-    }
+    await browser.runtime.sendMessage({
+      target: 'offscreen',
+      type: 'copy-to-clipboard',
+      text: `[${title}](${article.baseURI})`,
+      options: options
+    });
   } catch (error) {
     console.error("Failed to copy as markdown link:", error);
   }
@@ -1595,6 +1409,7 @@ async function copyTabAsMarkdownLink(tab) {
  */
 async function copyTabAsMarkdownLinkAll(tab) {
   try {
+    await ensureOffscreenDocumentExists();
     const options = await getOptions();
     const tabs = await browser.tabs.query({
       currentWindow: true
@@ -1611,34 +1426,12 @@ async function copyTabAsMarkdownLinkAll(tab) {
     
     const markdown = links.join('\n');
     
-    if (typeof chrome !== 'undefined' && chrome.offscreen) {
-      await ensureOffscreenDocumentExists();
-      await browser.runtime.sendMessage({
-        target: 'offscreen',
-        type: 'copy-to-clipboard',
-        text: markdown,
-        options: options
-      });
-    } else {
-      await browser.scripting.executeScript({
-        target: { tabId: tab.id },
-        func: (text) => {
-          if (typeof copyToClipboard === 'function') {
-            copyToClipboard(text);
-          } else {
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            textarea.style.position = 'fixed';
-            textarea.style.left = '-999999px';
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
-          }
-        },
-        args: [markdown]
-      });
-    }
+    await browser.runtime.sendMessage({
+      target: 'offscreen',
+      type: 'copy-to-clipboard',
+      text: markdown,
+      options: options
+    });
   } catch (error) {
     console.error("Failed to copy all tabs as markdown links:", error);
   }
@@ -1649,6 +1442,7 @@ async function copyTabAsMarkdownLinkAll(tab) {
  */
 async function copySelectedTabAsMarkdownLink(tab) {
   try {
+    await ensureOffscreenDocumentExists();
     const options = await getOptions();
     options.frontmatter = options.backmatter = '';
     
@@ -1668,37 +1462,12 @@ async function copySelectedTabAsMarkdownLink(tab) {
 
     const markdown = links.join(`\n`);
     
-    if (typeof chrome !== 'undefined' && chrome.offscreen) {
-      // Chrome - use offscreen document for clipboard operations
-      await ensureOffscreenDocumentExists();
-      await browser.runtime.sendMessage({
-        target: 'offscreen',
-        type: 'copy-to-clipboard',
-        text: markdown,
-        options: await getOptions()
-      });
-    } else {
-      // Firefox - use content script
-      await browser.scripting.executeScript({
-        target: { tabId: tab.id },
-        func: (markdownText) => {
-          if (typeof copyToClipboard === 'function') {
-            copyToClipboard(markdownText);
-          } else {
-            // Fallback clipboard method
-            const textarea = document.createElement('textarea');
-            textarea.value = markdownText;
-            textarea.style.position = 'fixed';
-            textarea.style.left = '-999999px';
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
-          }
-        },
-        args: [markdown]
-      });
-    }
+    await browser.runtime.sendMessage({
+      target: 'offscreen',
+      type: 'copy-to-clipboard',
+      text: markdown,
+      options: options
+    });
   } catch (error) {
     console.error("Failed to copy selected tabs as markdown links:", error);
   }
@@ -1722,85 +1491,51 @@ async function downloadMarkdownForAllTabs(info) {
  */
 async function getArticleFromContent(tabId, selection = false, options = null) {
   try {
-    // For Chrome: orchestrate through offscreen document
-    if (typeof chrome !== 'undefined' && chrome.offscreen) {
-      await ensureOffscreenDocumentExists();
-      
-      // Get options if not provided
-      if (!options) {
-        options = await getOptions();
-      }
-      
-      // Generate a unique request ID
-      const requestId = generateRequestId();
-      
-      // Create a promise that will be resolved when the result comes back
-      const resultPromise = new Promise((resolve, reject) => {
-        const messageListener = (message) => {
-          if (message.type === 'article-result' && message.requestId === requestId) {
-            browser.runtime.onMessage.removeListener(messageListener);
-            if (message.error) {
-              reject(new Error(message.error));
-            } else {
-              resolve(message.article);
-            }
-          }
-        };
-        
-        // Set timeout
-        setTimeout(() => {
-          browser.runtime.onMessage.removeListener(messageListener);
-          reject(new Error('Timeout getting article content'));
-        }, 30000);
-        
-        browser.runtime.onMessage.addListener(messageListener);
-      });
-      
-      // Request the article from offscreen document
-      await browser.runtime.sendMessage({
-        target: 'offscreen',
-        type: 'get-article-content',
-        tabId: tabId,
-        selection: selection,
-        requestId: requestId,
-        options: options
-      });
-      
-      const article = await resultPromise;
-      if (!article) {
-        throw new Error('Failed to get article content');
-      }
-      return article;
-    } 
-    else {
-      // For Firefox: direct execution
-      await ensureScripts(tabId);
-      
-      const results = await browser.scripting.executeScript({
-        target: { tabId: tabId },
-        func: () => {
-          if (typeof getSelectionAndDom === 'function') {
-            return getSelectionAndDom();
-          }
-          return null;
-        }
-      });
-      
-      if (!results?.[0]?.result) {
-        throw new Error('Failed to get DOM content');
-      }
-      
-      const article = await getArticleFromDom(results[0].result.dom, options);
-      
-      if (selection && results[0].result.selection) {
-        article.content = results[0].result.selection;
-      }
-      
-      return article;
+    await ensureOffscreenDocumentExists();
+    
+    if (!options) {
+      options = await getOptions();
     }
+    
+    const requestId = generateRequestId();
+    
+    const resultPromise = new Promise((resolve, reject) => {
+      const messageListener = (message) => {
+        if (message.type === 'article-result' && message.requestId === requestId) {
+          browser.runtime.onMessage.removeListener(messageListener);
+          if (message.error) {
+            reject(new Error(message.error));
+          } else {
+            resolve(message.article);
+          }
+        }
+      };
+      
+      setTimeout(() => {
+        browser.runtime.onMessage.removeListener(messageListener);
+        reject(new Error('Timeout getting article content'));
+      }, 30000);
+      
+      browser.runtime.onMessage.addListener(messageListener);
+    });
+    
+    await browser.runtime.sendMessage({
+      target: 'offscreen',
+      type: 'get-article-content',
+      tabId: tabId,
+      selection: selection,
+      requestId: requestId,
+      options: options
+    });
+    
+    const article = await resultPromise;
+    if (!article) {
+      throw new Error('Failed to get article content');
+    }
+    return article;
   } catch (error) {
     console.error("Error in getArticleFromContent:", error);
-    throw error; // Re-throw to handle in calling function
+    throw error;
   }
 }
 

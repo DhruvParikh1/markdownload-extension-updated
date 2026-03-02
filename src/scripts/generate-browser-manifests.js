@@ -59,7 +59,19 @@ function main() {
   delete chromeManifest.browser_specific_settings;
 
   const firefoxManifest = JSON.parse(JSON.stringify(sourceManifest));
-  firefoxManifest.background = { scripts: ["service-worker.js"] };
+  firefoxManifest.background = {
+    scripts: [
+      "browser-polyfill.min.js",
+      "background/moment.min.js",
+      "shared/default-options.js",
+      "shared/context-menus.js",
+      "service-worker.js"
+    ]
+  };
+  // Remove Chrome-only permissions
+  firefoxManifest.permissions = firefoxManifest.permissions.filter(
+    p => p !== 'offscreen'
+  );
 
   writeManifest(CHROME_DIR, chromeManifest);
   writeManifest(FIREFOX_DIR, firefoxManifest);
