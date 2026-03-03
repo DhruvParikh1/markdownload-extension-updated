@@ -717,6 +717,20 @@ const helloWorld = () => {
                         <div class="toggle-info">
                             <label class="toggle-label-text" for="table-stripLinks">Strip links from tables</label>
                             <p class="toggle-hint">Removes all links from tables, keeping only the text content. Creates cleaner, more readable tables.</p>
+                            <div class="toggle-example">
+                                <div class="toggle-example-col">
+                                    <label>Off</label>
+                                    <pre>| Name              |
+|-------------------|
+| [Google](http://…) |</pre>
+                                </div>
+                                <div class="toggle-example-col">
+                                    <label>On</label>
+                                    <pre>| Name   |
+|--------|
+| Google |</pre>
+                                </div>
+                            </div>
                         </div>
                         <label class="toggle-switch">
                             <input name="tableFormatting.stripLinks" id="table-stripLinks" type="checkbox" />
@@ -728,6 +742,20 @@ const helloWorld = () => {
                         <div class="toggle-info">
                             <label class="toggle-label-text" for="table-stripFormatting">Strip formatting (bold, italic, etc.)</label>
                             <p class="toggle-hint">Removes formatting like bold and italic from table cells. Results in plain text tables.</p>
+                            <div class="toggle-example">
+                                <div class="toggle-example-col">
+                                    <label>Off</label>
+                                    <pre>| Item       | Note     |
+|------------|----------|
+| **Apple**  | _Fresh_  |</pre>
+                                </div>
+                                <div class="toggle-example-col">
+                                    <label>On</label>
+                                    <pre>| Item   | Note  |
+|--------|-------|
+| Apple  | Fresh |</pre>
+                                </div>
+                            </div>
                         </div>
                         <label class="toggle-switch">
                             <input name="tableFormatting.stripFormatting" id="table-stripFormatting" type="checkbox" />
@@ -739,6 +767,22 @@ const helloWorld = () => {
                         <div class="toggle-info">
                             <label class="toggle-label-text" for="table-prettyPrint">Pretty print tables</label>
                             <p class="toggle-hint">Formats tables with proper spacing and alignment. Makes tables more readable in markdown.</p>
+                            <div class="toggle-example">
+                                <div class="toggle-example-col">
+                                    <label>Off</label>
+                                    <pre>|Name|Price|
+|---|---|
+|Apple|$1.50|
+|Banana|$0.75|</pre>
+                                </div>
+                                <div class="toggle-example-col">
+                                    <label>On</label>
+                                    <pre>| Name   | Price |
+|--------|-------|
+| Apple  | $1.50 |
+| Banana | $0.75 |</pre>
+                                </div>
+                            </div>
                         </div>
                         <label class="toggle-switch">
                             <input name="tableFormatting.prettyPrint" id="table-prettyPrint" type="checkbox" />
@@ -750,6 +794,20 @@ const helloWorld = () => {
                         <div class="toggle-info">
                             <label class="toggle-label-text" for="table-centerText">Center text in columns</label>
                             <p class="toggle-hint">Centers text within table columns. Creates a more polished look.</p>
+                            <div class="toggle-example">
+                                <div class="toggle-example-col">
+                                    <label>Off</label>
+                                    <pre>| Name   | Price |
+|--------|-------|
+| Apple  | $1.50 |</pre>
+                                </div>
+                                <div class="toggle-example-col">
+                                    <label>On</label>
+                                    <pre>| Name   | Price |
+|:------:|:-----:|
+| Apple  | $1.50 |</pre>
+                                </div>
+                            </div>
                         </div>
                         <label class="toggle-switch">
                             <input name="tableFormatting.centerText" id="table-centerText" type="checkbox" />

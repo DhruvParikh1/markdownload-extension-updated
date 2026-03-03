@@ -304,7 +304,12 @@ a:hover {
     grid-template-rows: auto 1fr;
     min-height: 100vh;
     max-width: 1100px;
-    margin: 0 auto;
+    margin: var(--space-6) auto;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    background: var(--bg-secondary);
 }
 
 
@@ -353,21 +358,22 @@ a:hover {
 
 /* ── Sidebar ── */
 .sidebar {
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    padding: var(--space-5) var(--space-3);
     background: var(--bg-primary);
     border-right: 1px solid var(--border-light);
-    overflow-y: auto;
     animation: fadeIn 400ms ease-out 100ms backwards;
+    align-self: stretch;
 }
 
 .sidebar-nav {
+    position: sticky;
+    top: 0;
     display: flex;
     flex-direction: column;
     gap: var(--space-1);
     list-style: none;
+    padding: var(--space-5) var(--space-3);
+    max-height: 100vh;
+    overflow-y: auto;
 }
 
 .sidebar-item {
@@ -730,6 +736,39 @@ a:hover {
     overflow-x: auto;
     border: none;
     box-shadow: none;
+}
+
+/* Toggle example previews (Off / On side-by-side) */
+.toggle-example {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+}
+
+.toggle-example-col label {
+    display: block;
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--space-1);
+}
+
+.toggle-example-col pre {
+    padding: var(--space-2) var(--space-3);
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    overflow-x: auto;
+    border: none;
+    box-shadow: none;
+    white-space: pre;
+    margin: 0;
 }
 
 
