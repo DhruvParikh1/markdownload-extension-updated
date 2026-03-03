@@ -39,11 +39,49 @@ const progressUI = {
 };
 
 const darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+// Char/word/token counter
+const COUNT_MODES = ['chars', 'words', 'tokens'];
+let countMode = 'chars';
+let _lastCounterText = '';
+
+function estimateTokens(text) {
+    if (!text) return 0;
+    const words = text.trim().split(/\s+/).length;
+    const chars = text.length;
+    return Math.ceil((words + chars / 4) / 2);
+}
+
+function updateCharCount(value) {
+    _lastCounterText = value;
+    const charCountEl = document.getElementById('char-count');
+    if (!charCountEl) return;
+    let display;
+    if (countMode === 'chars') {
+        display = value.length.toLocaleString() + ' chars';
+    } else if (countMode === 'words') {
+        const words = value.trim() === '' ? 0 : value.trim().split(/\s+/).length;
+        display = words.toLocaleString() + ' words';
+    } else {
+        display = estimateTokens(value).toLocaleString() + ' tokens';
+    }
+    charCountEl.textContent = display;
+}
+
+document.getElementById('char-count').addEventListener('click', () => {
+    const idx = COUNT_MODES.indexOf(countMode);
+    countMode = COUNT_MODES[(idx + 1) % COUNT_MODES.length];
+    updateCharCount(_lastCounterText);
+});
+
 // set up event handlers
 const cm = CodeMirror.fromTextArea(document.getElementById("md"), {
     theme: darkMode ? "xq-dark" : "xq-light",
     mode: "markdown",
     lineWrapping: true
+});
+cm.on("change", (instance) => {
+    updateCharCount(instance.getValue());
 });
 cm.on("cursorActivity", (cm) => {
     const somethingSelected = cm.somethingSelected();
@@ -53,10 +91,12 @@ cm.on("cursorActivity", (cm) => {
     if (somethingSelected) {
         if(downloadSelectionButton.style.display != "block") downloadSelectionButton.style.display = "block";
         if(copySelectionButton.style.display != "block") copySelectionButton.style.display = "block";
+        updateCharCount(cm.getSelection());
     }
     else {
         if(downloadSelectionButton.style.display != "none") downloadSelectionButton.style.display = "none";
         if(copySelectionButton.style.display != "none") copySelectionButton.style.display = "none";
+        updateCharCount(cm.getValue());
     }
 });
 document.getElementById("download").addEventListener("click", download);
@@ -377,6 +417,7 @@ async function clipTabWithRetry(tab, maxAttempts = 2) {
                     }
 
                     cm.setValue(message.markdown);
+                    updateCharCount(message.markdown);
                     document.getElementById("title").value = message.article.title;
                     imageList = message.imageList;
                     mdClipsFolder = message.mdClipsFolder;
