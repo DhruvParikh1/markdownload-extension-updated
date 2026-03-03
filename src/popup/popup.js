@@ -47,9 +47,67 @@ let _lastCounterText = '';
 
 function estimateTokens(text) {
     if (!text) return 0;
-    const words = text.trim().split(/\s+/).length;
-    const chars = text.length;
-    return Math.ceil((words + chars / 4) / 2);
+
+    let total = 0;
+
+    // 1. Markdown links & images: [text](url) — count URL part at URL rate
+    text = text.replace(/!?\[([^\]]*)\]\((https?:\/\/[^\s\)]+)\)/g, (_, label, url) => {
+        total += Math.ceil(url.length / 2.5);  // URL tokens
+        total += 2;                             // [] () syntax tokens
+        return label;                           // label counted as prose later
+    });
+
+    // 2. Standalone URLs (~2.5 chars/token — paths & domains split into many pieces)
+    text = text.replace(/https?:\/\/[^\s\)>\]]+/g, (url) => {
+        total += Math.ceil(url.length / 2.5);
+        return '';
+    });
+
+    // 3. Fenced code blocks (~3 chars/token — symbols & short identifiers tokenize densely)
+    text = text.replace(/```[\s\S]*?```/g, (block) => {
+        total += Math.ceil(block.length / 3);
+        return '';
+    });
+
+    // 4. Inline code (~3.5 chars/token)
+    text = text.replace(/`[^`\n]+`/g, (code) => {
+        total += Math.ceil(code.length / 3.5);
+        return '';
+    });
+
+    // 5. HTML entities (&amp; &lt; &#123; etc.) — each is typically 1 token
+    text = text.replace(/&(?:#\d+|#x[\da-fA-F]+|[a-zA-Z]+);/g, () => {
+        total += 1;
+        return '';
+    });
+
+    // 6. Non-ASCII / Unicode (CJK, emoji, accented chars — often 1-3 tokens per character)
+    text = text.replace(/[^\x00-\x7F]+/g, (chunk) => {
+        total += Math.ceil(chunk.length * 1.5);
+        return '';
+    });
+
+    // 7. Standalone numbers & dates (each digit group ≈ 1-2 tokens)
+    text = text.replace(/\b\d[\d.,:\-\/]*\b/g, (num) => {
+        total += Math.ceil(num.length / 2);
+        return '';
+    });
+
+    // 8. Markdown heading markers, bold/italic, list bullets, blockquote markers
+    //    (##, **, __, *, -, >) — each marker is ~1 token
+    text = text.replace(/^#{1,6}\s/gm, () => { total += 1; return ''; });
+    text = text.replace(/(\*{1,3}|_{1,3})/g, () => { total += 1; return ''; });
+    text = text.replace(/^[\-\*\+]\s/gm, () => { total += 1; return ''; });
+    text = text.replace(/^\d+\.\s/gm, () => { total += 1; return ''; });
+    text = text.replace(/^>\s?/gm, () => { total += 1; return ''; });
+
+    // 9. Remaining prose (~4 chars/token)
+    const remaining = text.replace(/\s+/g, ' ').trim();
+    if (remaining.length > 0) {
+        total += Math.ceil(remaining.length / 4);
+    }
+
+    return total;
 }
 
 function updateCharCount(value) {
@@ -72,6 +130,14 @@ document.getElementById('char-count').addEventListener('click', () => {
     const idx = COUNT_MODES.indexOf(countMode);
     countMode = COUNT_MODES[(idx + 1) % COUNT_MODES.length];
     updateCharCount(_lastCounterText);
+    browser.storage.local.set({ countMode });
+});
+
+// Restore persisted count mode
+browser.storage.local.get('countMode').then(data => {
+    if (data.countMode && COUNT_MODES.includes(data.countMode)) {
+        countMode = data.countMode;
+    }
 });
 
 // set up event handlers
