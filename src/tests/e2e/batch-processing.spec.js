@@ -3,10 +3,65 @@
  * Validates dynamic pages are fully rendered before markdown capture.
  */
 
+const fs = require('fs');
 const { test, expect, chromium } = require('@playwright/test');
 const path = require('path');
 
 const extensionPath = path.join(__dirname, '../..');
+const fixtureDirectory = path.join(__dirname, '../fixtures/e2e-markdown');
+const batchSnapshotCases = [
+  {
+    name: 'matches snapshot for visualmode.dev array argument page',
+    url: 'https://www.visualmode.dev/ruby-operators/array-argument',
+    fixtureFile: 'visualmode-ruby-operators-array-argument.md',
+  },
+  {
+    name: 'matches snapshot for ruby-doc Data class page',
+    url: 'https://ruby-doc.org/3.3.6/Data.html',
+    fixtureFile: 'ruby-doc-3.3.6-data.md',
+  },
+  {
+    name: 'matches snapshot for runjs equations blog page',
+    url: 'https://runjs.app/blog/equations-that-changed-the-world-rewritten-in-javascript',
+    fixtureFile: 'runjs-17-equations.md',
+  },
+];
+
+function normalizeMarkdown(text) {
+  return String(text ?? '')
+    .replace(/\r\n/g, '\n')
+    .trimEnd();
+}
+
+function readExpectedFixture(fixtureFile) {
+  return fs.readFileSync(path.join(fixtureDirectory, fixtureFile), 'utf8');
+}
+
+async function runSingleUrlBatchCapture(popupPage, url) {
+  await popupPage.bringToFront();
+  await popupPage.goto(popupPage.url());
+  await popupPage.waitForSelector('#batchProcess');
+
+  return popupPage.evaluate(async ({ targetUrl }) => {
+    // Keep the popup tab alive and skip actual downloads during test.
+    window.__MARKSNIP_FORCE_INLINE_BATCH__ = true;
+    window.close = () => {
+      window.__testCloseCalled = true;
+    };
+    window.sendDownloadMessage = async () => {};
+    sendDownloadMessage = window.sendDownloadMessage;
+
+    const cmInstance = document.querySelector('.CodeMirror').CodeMirror;
+    cmInstance.setValue('');
+    document.getElementById('urlList').value = '';
+    document.getElementById('urlList').value = targetUrl;
+    await handleBatchConversion({ preventDefault() {} });
+
+    return cmInstance.getValue();
+  }, {
+    targetUrl: url,
+  });
+}
 
 test.describe('Batch Processing E2E', () => {
   let context;
@@ -74,4 +129,15 @@ test.describe('Batch Processing E2E', () => {
     expect(result.hasPreviewNote).toBeTruthy();
     expect(result.hasTocOnlySignature).toBeFalsy();
   });
+
+  for (const snapshotCase of batchSnapshotCases) {
+    test(snapshotCase.name, async () => {
+      test.setTimeout(240000);
+
+      const actualMarkdown = await runSingleUrlBatchCapture(popupPage, snapshotCase.url);
+      const expectedMarkdown = readExpectedFixture(snapshotCase.fixtureFile);
+
+      expect(normalizeMarkdown(actualMarkdown)).toBe(normalizeMarkdown(expectedMarkdown));
+    });
+  }
 });

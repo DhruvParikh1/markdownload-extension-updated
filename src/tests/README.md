@@ -253,6 +253,15 @@ test('handles page', async ({ page }) => {
 });
 ```
 
+### Refresh E2E Markdown Snapshots
+
+Batch conversion snapshots live in `tests/fixtures/e2e-markdown/`.
+When page content changes, recapture markdown with the extension and replace the matching fixture file, then re-run:
+
+```bash
+cd src && npm run test:e2e -- tests/e2e/batch-processing.spec.js
+```
+
 ## CI/CD Integration
 
 ### Pre-commit Hook
