@@ -4,71 +4,83 @@ function notifyExtension() {
 }
 
 function getHTMLOfDocument() {
+    const clonedDocument = document.implementation.createHTMLDocument('');
+    const clonedHtml = document.documentElement.cloneNode(true);
+    clonedDocument.replaceChild(clonedHtml, clonedDocument.documentElement);
+
     // make sure a title tag exists so that pageTitle is not empty and
-    // a filename can be genarated.
-    if (document.head.getElementsByTagName('title').length == 0) {
-        let titleEl = document.createElement('title');
-        // prepate a good default text (the text displayed in the window title)
+    // a filename can be generated.
+    if (clonedDocument.head.getElementsByTagName('title').length === 0) {
+        const titleEl = clonedDocument.createElement('title');
+        // prepare a good default text (the text displayed in the window title)
         titleEl.innerText = document.title;
-        document.head.append(titleEl);
+        clonedDocument.head.append(titleEl);
     }
 
     // if the document doesn't have a "base" element make one
     // this allows the DOM parser in future steps to fix relative uris
-
-    let baseEls = document.head.getElementsByTagName('base');
+    const baseEls = clonedDocument.head.getElementsByTagName('base');
     let baseEl;
 
     if (baseEls.length > 0) {
         baseEl = baseEls[0];
     } else {
-        baseEl = document.createElement('base');
-        document.head.append(baseEl);
+        baseEl = clonedDocument.createElement('base');
+        clonedDocument.head.append(baseEl);
     }
 
-    // make sure the 'base' element always has a good 'href`
+    // make sure the 'base' element always has a good 'href'
     // attribute so that the DOMParser generates usable
     // baseURI and documentURI properties when used in the
     // background context.
-
-    let href = baseEl.getAttribute('href');
+    const href = baseEl.getAttribute('href');
 
     if (!href || !href.startsWith(window.location.origin)) {
         baseEl.setAttribute('href', window.location.href);
     }
 
-    // remove the hidden content from the page
-    removeHiddenNodes(document.body);
+    // remove hidden content from the cloned page only
+    if (document.body && clonedDocument.body) {
+        removeHiddenNodes(document.body, clonedDocument.body);
+    }
 
-    // get the content of the page as a string
-    return document.documentElement.outerHTML;
+    // get the cloned page content as a string
+    return clonedDocument.documentElement.outerHTML;
 }
 
 // code taken from here: https://www.reddit.com/r/javascript/comments/27bcao/anyone_have_a_method_for_finding_all_the_hidden/
-function removeHiddenNodes(root) {
-    let nodeIterator, node,i = 0;
+function removeHiddenNodes(sourceRoot, clonedRoot) {
+    const sourceChildren = Array.from(sourceRoot.children || []);
+    const clonedChildren = Array.from(clonedRoot.children || []);
 
-    nodeIterator = document.createNodeIterator(root, NodeFilter.SHOW_ELEMENT, function(node) {
-      let nodeName = node.nodeName.toLowerCase();
-      if (nodeName === "script" || nodeName === "style" || nodeName === "noscript" || nodeName === "math") {
-        return NodeFilter.FILTER_REJECT;
-      }
-      if (node.offsetParent === void 0) {
-        return NodeFilter.FILTER_ACCEPT;
-      }
-      let computedStyle = window.getComputedStyle(node, null);
-      if (computedStyle.getPropertyValue("visibility") === "hidden" || computedStyle.getPropertyValue("display") === "none") {
-        return NodeFilter.FILTER_ACCEPT;
-      }
-    });
+    for (let i = sourceChildren.length - 1; i >= 0; i--) {
+        const sourceChild = sourceChildren[i];
+        const clonedChild = clonedChildren[i];
+        if (!sourceChild || !clonedChild) {
+            continue;
+        }
 
-    while ((node = nodeIterator.nextNode()) && ++i) {
-      if (node.parentNode instanceof HTMLElement) {
-        node.parentNode.removeChild(node);
-      }
+        const nodeName = sourceChild.nodeName.toLowerCase();
+        if (nodeName === "script" || nodeName === "style" || nodeName === "noscript" || nodeName === "math") {
+            continue;
+        }
+
+        if (sourceChild.offsetParent === void 0) {
+            clonedChild.remove();
+            continue;
+        }
+
+        const computedStyle = window.getComputedStyle(sourceChild, null);
+        if (computedStyle.getPropertyValue("visibility") === "hidden" || computedStyle.getPropertyValue("display") === "none") {
+            clonedChild.remove();
+            continue;
+        }
+
+        removeHiddenNodes(sourceChild, clonedChild);
     }
-    return root
-  }
+
+    return clonedRoot;
+}
 
 // code taken from here: https://stackoverflow.com/a/5084044/304786
 function getHTMLOfSelection() {
