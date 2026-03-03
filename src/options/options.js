@@ -1,6 +1,22 @@
 let options = defaultOptions;
 let keyupTimeout = null;
 
+// Apply theme mode and accent color to the Options page itself
+function applyThemeSettings() {
+    const root = document.documentElement;
+
+    // Apply theme mode
+    root.classList.remove('theme-light', 'theme-dark', 'theme-system');
+    root.classList.add('theme-' + (options.popupTheme || 'system'));
+
+    // Apply accent color
+    root.classList.remove('accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber');
+    const accent = options.popupAccent || 'sage';
+    if (accent !== 'sage') {
+        root.classList.add('accent-' + accent);
+    }
+}
+
 
 const saveOptions = e => {
     e.preventDefault();
@@ -89,32 +105,28 @@ const save = () => {
             ]);
         })
         .then(() => {
-            document.querySelectorAll(".status").forEach(statusEl => {
-                statusEl.textContent = "Options Saved 💾";
-                statusEl.classList.remove('error');
-                statusEl.classList.add('success');
-                statusEl.style.opacity = 1;
-            });
-            setTimeout(() => {
-                document.querySelectorAll(".status").forEach(statusEl => {
-                    statusEl.style.opacity = 0;
-                });
-            }, 5000)
+            showToast("Options Saved 💾", "success");
             spinner.style.display = "none";
         })
         .catch(err => {
-            document.querySelectorAll(".status").forEach(statusEl => {
-                statusEl.textContent = err;
-                statusEl.classList.remove('success');
-                statusEl.classList.add('error');
-                statusEl.style.opacity = 1;
-            });
+            showToast(String(err), "error");
             spinner.style.display = "none";
         });
 }
 
-function hideStatus() {
-    this.style.opacity = 0;
+// Toast notification system
+function showToast(message, type) {
+    const toast = document.getElementById("status");
+    toast.textContent = message;
+    toast.className = "toast " + type + " visible";
+    clearTimeout(toast._hideTimeout);
+    toast._hideTimeout = setTimeout(() => {
+        toast.classList.remove("visible");
+    }, 3000);
+}
+
+function hideToast() {
+    this.classList.remove("visible");
 }
 
 const setCurrentChoice = result => {
@@ -125,7 +137,7 @@ const setCurrentChoice = result => {
     if (!browser.downloads) {
         options.downloadMode = 'contentLink';
         document.querySelectorAll("[name='downloadMode']").forEach(el => el.disabled = true)
-        document.querySelector('#downloadMode p').innerText = "The Downloads API is unavailable in this browser."
+        document.querySelector('#downloadMode .card-desc').innerText = "The Downloads API is unavailable in this browser."
     }
 
     const downloadImages = options.downloadImages && options.downloadMode == 'downloadsApi';
@@ -147,9 +159,7 @@ const setCurrentChoice = result => {
     };
 
     document.querySelector("[name='frontmatter']").value = options.frontmatter;
-    textareaInput.bind(document.querySelector("[name='frontmatter']"))();
     document.querySelector("[name='backmatter']").value = options.backmatter;
-    textareaInput.bind(document.querySelector("[name='backmatter']"))();
     document.querySelector("[name='title']").value = options.title;
     document.querySelector("[name='disallowedChars']").value = options.disallowedChars;
     document.querySelector("[name='includeTemplate']").checked = options.includeTemplate;
@@ -190,7 +200,8 @@ const setCurrentChoice = result => {
     setCheckedValue(document.querySelectorAll("[name='popupAccent']"), options.popupAccent || 'sage');
     document.querySelector("[name='compactMode']").checked = options.compactMode || false;
 
-    refereshElements();
+    refreshElements();
+    applyThemeSettings();
 }
 
 const restoreOptions = () => {
@@ -203,23 +214,20 @@ const restoreOptions = () => {
     browser.storage.sync.get(defaultOptions).then(setCurrentChoice, onError);
 }
 
-function textareaInput(){
-    this.parentNode.dataset.value = this.value;
+const show = (el, visible) => {
+    if (!el) return;
+    el.style.display = visible ? "" : "none";
+    el.style.opacity = visible ? "1" : "0";
 }
 
-const show = (el, show) => {
-    el.style.height = show ? el.dataset.height + 'px' : "0";
-    el.style.opacity = show ? "1" : "0";
-}
+const refreshElements = () => {
+    // Apply theme/accent to Options page live
+    applyThemeSettings();
 
-const refereshElements = () => {
-    document.getElementById("downloadModeGroup").querySelectorAll('.radio-container,.checkbox-container,.textbox-container').forEach(container => {
+    document.getElementById("downloadModeGroup").querySelectorAll('.setting-card').forEach(container => {
         show(container, options.downloadMode == 'downloadsApi')
     });
 
-    // document.getElementById("obsidianUriGroup").querySelectorAll('.radio-container,.checkbox-container,.textbox-container').forEach(container => {
-    //     show(container, options.downloadMode == 'obsidianUri')
-    // });
     show(document.getElementById("mdClipsFolder"), options.downloadMode == 'downloadsApi');
 
     show(document.getElementById("linkReferenceStyle"), (options.linkStyle == "referenced"));
@@ -253,7 +261,7 @@ const inputChange = e => {
                 browser.contextMenus.removeAll()
                 createMenus()
                 save();            
-                refereshElements();
+                refreshElements();
             };
             fr.readAsText(e.target.files[0])
         }
@@ -275,7 +283,7 @@ const inputChange = e => {
             }
     
             save();
-            refereshElements();
+            refreshElements();
         }
     }
  }
@@ -286,10 +294,10 @@ const inputKeyup = (e) => {
 }
 
 const buttonClick = (e) => {
-    if (e.target.id == "import") {
+    if (e.target.id == "import" || e.target.closest('#import')) {
         document.getElementById("import-file").click();
     }
-    else if (e.target.id == "export") {
+    else if (e.target.id == "export" || e.target.closest('#export')) {
         console.log("export");
         const json = JSON.stringify(options, null, 2);
         var blob = new Blob([json], { type: "text/json" });
@@ -305,13 +313,49 @@ const buttonClick = (e) => {
     }
 }
 
-const loaded = () => {
-    document.querySelectorAll('.radio-container,.checkbox-container,.textbox-container,.button-container').forEach(container => {
-        container.dataset.height = container.clientHeight;
+// ── Sidebar Navigation ──
+function initSidebar() {
+    const sidebarItems = document.querySelectorAll('.sidebar-item');
+    const sections = document.querySelectorAll('.section');
+
+    // Restore last active tab from sessionStorage
+    const lastActive = sessionStorage.getItem('marksnip-options-tab') || 'templates';
+
+    function switchSection(sectionId) {
+        // Update sidebar
+        sidebarItems.forEach(item => item.classList.remove('active'));
+        const activeItem = document.querySelector(`.sidebar-item[data-section="${sectionId}"]`);
+        if (activeItem) activeItem.classList.add('active');
+
+        // Update sections
+        sections.forEach(section => section.classList.remove('active'));
+        const activeSection = document.getElementById(`section-${sectionId}`);
+        if (activeSection) activeSection.classList.add('active');
+
+        // Persist
+        sessionStorage.setItem('marksnip-options-tab', sectionId);
+    }
+
+    // Click handlers
+    sidebarItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const sectionId = item.dataset.section;
+            switchSection(sectionId);
+        });
     });
 
+    // Initialize to last active
+    switchSection(lastActive);
+}
+
+const loaded = () => {
+    // Initialize sidebar navigation
+    initSidebar();
+
+    // Restore saved options
     restoreOptions();
 
+    // Attach event listeners
     document.querySelectorAll('input,textarea,button').forEach(input => {
         if (input.tagName == "TEXTAREA" || input.type == "text") {
             input.addEventListener('keyup', inputKeyup);
@@ -324,9 +368,7 @@ const loaded = () => {
 }
 
 document.addEventListener("DOMContentLoaded", loaded);
-document.querySelectorAll(".save").forEach(el => el.addEventListener("click", saveOptions));
-document.querySelectorAll(".status").forEach(el => el.addEventListener("click", hideStatus));
-document.querySelectorAll(".input-sizer > textarea").forEach(el => el.addEventListener("input", textareaInput));
+document.getElementById("status").addEventListener("click", hideToast);
 
 /// https://www.somacon.com/p143.php
 // return the value of the radio button that is checked

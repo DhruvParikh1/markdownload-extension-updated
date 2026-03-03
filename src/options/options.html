@@ -3,471 +3,809 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MarkSnip Options</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap">
     <link rel="stylesheet" type="text/css" href="options.css" media="screen">
 </head>
 
 <body>
-    <details>
-        <summary>
-            <h2>Custom text ℹ️</h2>
-        </summary>
-        <small class="instructions">For the title, as well as the front- and back-matter custom text, you can use the following text replacement values.
-            Please note that not all websites will provide all values
-            <ul>
-                <li><code>{title}</code> - Article Title</li>
-                <li><code>{pageTitle}</code> - Title of the actual page</li>
-                <li><code>{length}</code> - Length of the article, in characters</li>
-                <li><code>{excerpt}</code> - Article description or short excerpt from the content</li>
-                <li><code>{byline}</code> - Author metadata</li>
-                <li><code>{dir}</code> - Content direction</li>
-                <li><code>{date:FORMAT}</code> - The current date and time. Check the <a href="https://momentjs.com/docs/#/displaying/format/" target="_blank" rel="noopener noreferrer">format reference</a> </li>
-                <li><code>{keywords}</code> - Meta keywords (if present). Comma separated by default.</li>
-                <li><code>{keywords:SEPARATOR}</code> - Meta keywords (if present) separated by SEPARATOR. For example, to separate by space, use <code>{keywords: }</code></li>
+    <div class="options-layout">
+
+        <!-- ═══ Header ═══ -->
+        <header class="options-header">
+            <div class="header-brand">
+                <img src="../icons/favicon-32x32.png" alt="MarkSnip" class="header-logo">
+                <h1 class="header-title">MarkSnip</h1>
+            </div>
+            <span class="header-subtitle">Options</span>
+        </header>
+
+        <!-- ═══ Sidebar ═══ -->
+        <nav class="sidebar">
+            <ul class="sidebar-nav">
+                <li class="sidebar-item active" data-section="templates">
+                    <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                    <span class="sidebar-label">Templates</span>
+                </li>
+                <li class="sidebar-item" data-section="appearance">
+                    <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"/>
+                        <line x1="12" y1="1" x2="12" y2="3"/>
+                        <line x1="12" y1="21" x2="12" y2="23"/>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                        <line x1="1" y1="12" x2="3" y2="12"/>
+                        <line x1="21" y1="12" x2="23" y2="12"/>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                    </svg>
+                    <span class="sidebar-label">Appearance</span>
+                </li>
+                <li class="sidebar-item" data-section="downloads">
+                    <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    <span class="sidebar-label">Downloads</span>
+                </li>
+                <li class="sidebar-item" data-section="markdown">
+                    <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10 9 9 9 8 9"/>
+                    </svg>
+                    <span class="sidebar-label">Markdown</span>
+                </li>
+                <li class="sidebar-item" data-section="tables">
+                    <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="3" y1="9" x2="21" y2="9"/>
+                        <line x1="3" y1="15" x2="21" y2="15"/>
+                        <line x1="9" y1="3" x2="9" y2="21"/>
+                    </svg>
+                    <span class="sidebar-label">Tables</span>
+                </li>
+                <div class="sidebar-divider"></div>
+                <li class="sidebar-item" data-section="import-export">
+                    <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3v12"/>
+                        <path d="M8 11l4 4 4-4"/>
+                        <path d="M8 5H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-4"/>
+                    </svg>
+                    <span class="sidebar-label">Import / Export</span>
+                </li>
             </ul>
-            There is also support for all meta tags not mentioned above, should the page you are clipping support them.
-            For example, try <code>{og:image}</code> or any other widely supported meta tags
-            <p>
-                URL information:
-                <ul>
-                    <li><code>{baseURI}</code> - The url of the article</li>
-                    <li><code>{origin}</code> - The origin of the URL, that is its scheme, its domain and its port.</li>
-                    <li><code>{host}</code> - The domain (that is the <em>hostname</em>) followed by (if a port was specified) a <code>':'</code> and the <em>port</em> of the URL.</li>
-                    <li><code>{hostname}</code> - The domain of the URL.</li>
-                    <li><code>{port}</code> - The port number of the URL.</li>
-                    <li><code>{protocol}</code> - The protocol scheme of the URL, including the final <code>':'</code>.</li>
-                    <li><code>{pathname}</code> - An initial <code>'/'</code> followed by the path of the URL, not including the query string or fragment.</li>
-                    <li><code>{search}</code> - The URL's parameter string; if any parameters are provided, this string includes all of them, beginning with the leading <code>?</code> character.</li>
-                    <li><code>{hash}</code> - A '#' followed by the fragment identifier of the URL.</li>
-                </ul>
-            </p>
-            <p>
-                Additionally, you can 'parameterize' any of the text variables (other than date and keywords) by using the following syntax:
-                <ul>
-                    <li><code>{variable:pascal}</code> - PascalCase: Every word capital</li>
-                    <li><code>{variable:camel}</code> - camelCase: every word capital except the first word</li>
-                    <li><code>{variable:kebab}</code> - kebab-case: hyphens between words, all lowercase</li>
-                    <li><code>{variable:snake}</code> - snake_case: underscores between words, all lowercase</li>
-                </ul>
-            </p>
-        </small>
-    </details>
+        </nav>
 
-    <h3>Title template</h3>
-    <div class="textbox-container">
-        <label for="title">Template for title/filename</label>
-        <input type="text" id="title" name="title" role="textbox" />
-    </div>
+        <!-- ═══ Content Panel ═══ -->
+        <main class="content-panel">
 
-    <br />
 
-    <div class="textbox-container" id="mdClipsFolder">
-        <label for="mdClipsFolder">Folder inside <code>Downloads/</code> to store MarkSnip clips:</label>
-        <input type="text" name="mdClipsFolder" role="textbox" />
-    </div>
+            <!-- ────────────────────────────────────────────
+                 SECTION: Templates
+                 ──────────────────────────────────────────── -->
+            <div class="section active" id="section-templates">
+                <h2 class="section-title">Templates</h2>
+                <p class="section-desc">Configure title, front-matter, and back-matter templates for your clipped markdown files.</p>
 
-    <br />
+                <!-- Help info -->
+                <details class="info-panel">
+                    <summary>Template variable reference</summary>
+                    <div class="info-panel-content">
+                        For the title, as well as the front- and back-matter custom text, you can use the following text replacement values.
+                        Please note that not all websites will provide all values.
+                        <ul>
+                            <li><code>{title}</code> — Article Title</li>
+                            <li><code>{pageTitle}</code> — Title of the actual page</li>
+                            <li><code>{length}</code> — Length of the article, in characters</li>
+                            <li><code>{excerpt}</code> — Article description or short excerpt from the content</li>
+                            <li><code>{byline}</code> — Author metadata</li>
+                            <li><code>{dir}</code> — Content direction</li>
+                            <li><code>{date:FORMAT}</code> — The current date and time. Check the <a href="https://momentjs.com/docs/#/displaying/format/" target="_blank" rel="noopener noreferrer">format reference</a></li>
+                            <li><code>{keywords}</code> — Meta keywords (if present). Comma separated by default.</li>
+                            <li><code>{keywords:SEPARATOR}</code> — Meta keywords separated by SEPARATOR. For example, to separate by space, use <code>{keywords: }</code></li>
+                        </ul>
+                        There is also support for all meta tags not mentioned above, should the page you are clipping support them.
+                        For example, try <code>{og:image}</code> or any other widely supported meta tags.
+                        <p>URL information:</p>
+                        <ul>
+                            <li><code>{baseURI}</code> — The url of the article</li>
+                            <li><code>{origin}</code> — The origin of the URL, that is its scheme, its domain and its port.</li>
+                            <li><code>{host}</code> — The domain (that is the <em>hostname</em>) followed by (if a port was specified) a <code>':'</code> and the <em>port</em> of the URL.</li>
+                            <li><code>{hostname}</code> — The domain of the URL.</li>
+                            <li><code>{port}</code> — The port number of the URL.</li>
+                            <li><code>{protocol}</code> — The protocol scheme of the URL, including the final <code>':'</code>.</li>
+                            <li><code>{pathname}</code> — An initial <code>'/'</code> followed by the path of the URL, not including the query string or fragment.</li>
+                            <li><code>{search}</code> — The URL's parameter string.</li>
+                            <li><code>{hash}</code> — A '#' followed by the fragment identifier of the URL.</li>
+                        </ul>
+                        <p>Additionally, you can 'parameterize' any of the text variables (other than date and keywords) by using the following syntax:</p>
+                        <ul>
+                            <li><code>{variable:pascal}</code> — PascalCase: Every word capital</li>
+                            <li><code>{variable:camel}</code> — camelCase: every word capital except the first word</li>
+                            <li><code>{variable:kebab}</code> — kebab-case: hyphens between words, all lowercase</li>
+                            <li><code>{variable:snake}</code> — snake_case: underscores between words, all lowercase</li>
+                        </ul>
+                    </div>
+                </details>
 
-    <div class="textbox-container">
-        <label for="disallowedChars">Disallowed Characters (to strip out of title/filename —
-            in addition to <code>/</code>, <code>?</code>, <code>&lt;</code>, <code>&gt;</code>, <code>\</code>,
-            <code>:</code>, <code>*</code>, <code>|</code>, <code>"</code>)</label>
-        <input type="text" id="disallowedChars" name="disallowedChars" role="textbox" />
-    </div>
-    
-    <h3>Front-matter template</h3>
-    <div class="textbox-container">
-        <label for="frontmatter">Enter the text here that should appear at the top of the output file.</label> <br />
-        <div class="input-sizer"><textarea name="frontmatter" id="frontmatter" class="textarea" role="textbox"></textarea></div>
-    </div>
+                <!-- Title template -->
+                <div class="setting-card">
+                    <h3 class="card-title">Title template</h3>
+                    <div class="input-group">
+                        <label class="input-label" for="title">Template for title / filename</label>
+                        <input type="text" id="title" name="title" class="text-input" role="textbox" />
+                    </div>
+                </div>
 
-    <h3>Back-matter template</h3>
-    <div class="textbox-container">
-        <label for="backmatter">Enter the text here that should appear at the bottom of the output file.</label> <br />
-        <div class="input-sizer"><textarea name="backmatter" id="backmatter" class="textarea" role="textbox"></textarea></div>
-    </div>
+                <!-- Clips folder -->
+                <div class="setting-card" id="mdClipsFolder">
+                    <h3 class="card-title">Clips folder</h3>
+                    <div class="input-group">
+                        <label class="input-label" for="mdClipsFolder">Folder inside <code>Downloads/</code> to store MarkSnip clips</label>
+                        <input type="text" name="mdClipsFolder" class="text-input" role="textbox" />
+                    </div>
+                </div>
 
-    <div class="checkbox-container">
-        <input name="includeTemplate" id="includeTemplate" type="checkbox" />
-        <label for="includeTemplate">Append front/back template to clipped text</label>
-    </div>
+                <!-- Disallowed chars -->
+                <div class="setting-card">
+                    <h3 class="card-title">Disallowed characters</h3>
+                    <p class="card-desc">Characters to strip from title/filename — in addition to <code>/</code>, <code>?</code>, <code>&lt;</code>, <code>&gt;</code>, <code>\</code>, <code>:</code>, <code>*</code>, <code>|</code>, <code>"</code></p>
+                    <div class="input-group">
+                        <input type="text" id="disallowedChars" name="disallowedChars" class="text-input" role="textbox" />
+                    </div>
+                </div>
 
-    <hr>
+                <!-- Front-matter -->
+                <div class="setting-card">
+                    <h3 class="card-title">Front-matter template</h3>
+                    <div class="input-group">
+                        <label class="input-label" for="frontmatter">Text that appears at the top of the output file</label>
+                        <textarea name="frontmatter" id="frontmatter" class="textarea-input" role="textbox"></textarea>
+                    </div>
+                </div>
 
-    <h2>Popup Appearance</h2>
+                <!-- Back-matter -->
+                <div class="setting-card">
+                    <h3 class="card-title">Back-matter template</h3>
+                    <div class="input-group">
+                        <label class="input-label" for="backmatter">Text that appears at the bottom of the output file</label>
+                        <textarea name="backmatter" id="backmatter" class="textarea-input" role="textbox"></textarea>
+                    </div>
+                </div>
 
-    <div class="radio-container" id="popupThemeGroup">
-        <h3>Color Mode</h3>
-        <input type="radio" name="popupTheme" id="theme-system" value="system" />
-        <label for="theme-system">System Default</label>
-        <input type="radio" name="popupTheme" id="theme-light" value="light" />
-        <label for="theme-light">Light</label>
-        <input type="radio" name="popupTheme" id="theme-dark" value="dark" />
-        <label for="theme-dark">Dark</label>
-    </div>
-
-    <div class="radio-container" id="popupAccentGroup">
-        <h3>Accent Color</h3>
-        <input type="radio" name="popupAccent" id="accent-sage" value="sage" />
-        <label for="accent-sage">Sage Green (Default)</label>
-        <input type="radio" name="popupAccent" id="accent-ocean" value="ocean" />
-        <label for="accent-ocean">Ocean Blue</label>
-        <input type="radio" name="popupAccent" id="accent-slate" value="slate" />
-        <label for="accent-slate">Slate Gray</label>
-        <input type="radio" name="popupAccent" id="accent-rose" value="rose" />
-        <label for="accent-rose">Rose</label>
-        <input type="radio" name="popupAccent" id="accent-amber" value="amber" />
-        <label for="accent-amber">Amber</label>
-    </div>
-
-    <div class="checkbox-container" id="compactMode-container">
-        <input name="compactMode" id="compactMode" type="checkbox" />
-        <label for="compactMode">Compact Mode
-            <p><small>Hides quick settings panel and reduces padding for a minimal popup. The settings icon remains accessible in the header.</small></p>
-        </label>
-    </div>
-
-    <hr>
-
-    <div id="otherOptions">
-        <h2>Other options</h2>
-
-        <div class="checkbox-container" id="contextMenus-container">
-            <input name="contextMenus" id="contextMenus" type="checkbox" />
-            <label for="contextMenus">Enable Context Menus</label>
-        </div>
-
-        <br />
-
-        <div class="checkbox-container" id="obsidian-container">
-            <h3>Obsidian Integration</h3>
-            <p>
-                For integration with obsidian, you need to install and enable community plugins named <code>Advanced Obsidian URI</code>. This plugin help us to bypass character limitation in URL. Because it's using clipboard as the source for creating new file.
-More information:  <a href="https://vinzent03.github.io/obsidian-advanced-uri/">Obsidian Advanced URI</a><br/>
-            </p>
-            <input name="obsidianIntegration" id="obsidianIntegration" type="checkbox" />
-            <label for="obsidianIntegration">Enable Obsidian Integration</label>
-        </div>
-
-        <br />
-
-        <div class="textbox-container" id="obsidianVault">
-            <label for="obsidianVault">Obsidian Vault Name: </label>
-            <input type="text" name="obsidianVault" role="textbox" placeholder="If blank, it will use the main Vault. Please specify it." />
-            <label for="obsidianFolder">Obsidian Folder Name: </label>
-            <input type="text" name="obsidianFolder" role="textbox" placeholder="Enter Folder Name eg. Clippers"/>
-        </div>
-
-        <br />
-
-        <div class="radio-container" id="downloadMode">
-            <h3>Download Mode</h3>
-            <p>
-                Method to use for downloading Markdown files. Set to "Content Link" if you're having trouble with the Downloads API
-                (Sometimes conflicts can occur with other download extensions, leading to randomly generated filenames and other symptoms). <br/>
-            </p>
-            <p><strong>Note:</strong> "Content Link" mode disables some functionality such as downloading images or using subfolders in the filename.</p>
-            <input type="radio" name="downloadMode" id="downloadsApi" value="downloadsApi" />
-            <label for="downloadsApi">Downloads API (recommended)</label>
-            <input type="radio" name="downloadMode" id="contentLink" value="contentLink" />
-            <label for="contentLink">Content Link</label>
-            <!-- <input type="radio" name="downloadMode" id="obsidianUri" value="obsidianUri" />
-            <label for="obsidianUri">Obsidian URI (obsidian://new)</label> -->
-        </div>
-        <!-- <div id="obsidianUriGroup">
-            <div class="textbox-container" id="obsidianVault">
-                <label for="obsidianVault">Obsidian vault name: </label>
-                <input type="text" name="obsidianVault" role="textbox" />
-            </div>
-            <div class="radio-container" id="obsidianPathType">
-                <h3>Obsidian Path Type</h3>
-                <input type="radio" name="obsidianPathType" id="name" value="name" />
-                <label for="name"><span>Relative to default note folder</span>
-                </label>
-                <input type="radio" name="obsidianPathType" id="file" value="file" />
-                <label for="file"><span>Relative to vault root</span>
-                    <small>Requires Obsidian 0.11.1 or higher</small>
-                </label>
-            </div>
-        </div> -->
-        <div id="downloadModeGroup">
-            <div class="checkbox-container" id="saveAs-container">
-                <input name="saveAs" id="saveAs" type="checkbox" />
-                <label for="saveAs">Always show Save As dialog (regardless of browser setting)</label>
+                <!-- Include template toggle -->
+                <div class="setting-card">
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <label class="toggle-label-text" for="includeTemplate">Append front/back template to clipped text</label>
+                        </div>
+                        <label class="toggle-switch">
+                            <input name="includeTemplate" id="includeTemplate" type="checkbox" />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
             </div>
 
-            <br />
 
-            <div class="checkbox-container" id="downloadImages-container">
-                <input name="downloadImages" id="downloadImages" type="checkbox" />
-                <label for="downloadImages">Download images alongside markdown files</label>
+            <!-- ────────────────────────────────────────────
+                 SECTION: Appearance
+                 ──────────────────────────────────────────── -->
+            <div class="section" id="section-appearance">
+                <h2 class="section-title">Appearance</h2>
+                <p class="section-desc">Customize the look of the MarkSnip popup.</p>
+
+                <!-- Color Mode -->
+                <div class="setting-card" id="popupThemeGroup">
+                    <h3 class="card-title">Color Mode</h3>
+                    <div class="radio-group">
+                        <div class="radio-pill">
+                            <input type="radio" name="popupTheme" id="theme-system" value="system" />
+                            <label for="theme-system">System Default</label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="popupTheme" id="theme-light" value="light" />
+                            <label for="theme-light">Light</label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="popupTheme" id="theme-dark" value="dark" />
+                            <label for="theme-dark">Dark</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Accent Color -->
+                <div class="setting-card" id="popupAccentGroup">
+                    <h3 class="card-title">Accent Color</h3>
+                    <div class="radio-group">
+                        <div class="radio-pill">
+                            <input type="radio" name="popupAccent" id="accent-sage" value="sage" />
+                            <label for="accent-sage">🌿 Sage Green</label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="popupAccent" id="accent-ocean" value="ocean" />
+                            <label for="accent-ocean">🌊 Ocean Blue</label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="popupAccent" id="accent-slate" value="slate" />
+                            <label for="accent-slate">🪨 Slate Gray</label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="popupAccent" id="accent-rose" value="rose" />
+                            <label for="accent-rose">🌹 Rose</label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="popupAccent" id="accent-amber" value="amber" />
+                            <label for="accent-amber">🍯 Amber</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Compact Mode -->
+                <div class="setting-card" id="compactMode-container">
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <label class="toggle-label-text" for="compactMode">Compact Mode</label>
+                            <p class="toggle-hint">Hides quick settings panel and reduces padding for a minimal popup. The settings icon remains accessible in the header.</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input name="compactMode" id="compactMode" type="checkbox" />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
             </div>
 
-            <div class="textbox-container" id="imagePrefix">
-                <label for="imagePrefix">Image filename prefix template: </label>
-                <input type="text" name="imagePrefix" role="textbox" />
+
+            <!-- ────────────────────────────────────────────
+                 SECTION: Downloads
+                 ──────────────────────────────────────────── -->
+            <div class="section" id="section-downloads">
+                <h2 class="section-title">Downloads</h2>
+                <p class="section-desc">Configure how files are downloaded and integrate with Obsidian.</p>
+
+                <!-- Context Menus -->
+                <div class="setting-card" id="contextMenus-container">
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <label class="toggle-label-text" for="contextMenus">Enable Context Menus</label>
+                        </div>
+                        <label class="toggle-switch">
+                            <input name="contextMenus" id="contextMenus" type="checkbox" />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Download Mode -->
+                <div class="setting-card" id="downloadMode">
+                    <h3 class="card-title">Download Mode</h3>
+                    <p class="card-desc">Method to use for downloading Markdown files. Set to "Content Link" if you're having trouble with the Downloads API
+                        (Sometimes conflicts can occur with other download extensions, leading to randomly generated filenames and other symptoms).</p>
+                    <p class="option-note"><strong>Note:</strong> "Content Link" mode disables some functionality such as downloading images or using subfolders in the filename.</p>
+                    <div class="radio-group">
+                        <div class="radio-pill">
+                            <input type="radio" name="downloadMode" id="downloadsApi" value="downloadsApi" />
+                            <label for="downloadsApi">Downloads API (recommended)</label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="downloadMode" id="contentLink" value="contentLink" />
+                            <label for="contentLink">Content Link</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Downloads API sub-options -->
+                <div id="downloadModeGroup">
+                    <div class="setting-card" id="saveAs-container">
+                        <div class="toggle-row">
+                            <div class="toggle-info">
+                                <label class="toggle-label-text" for="saveAs">Always show Save As dialog</label>
+                                <p class="toggle-hint">Regardless of browser setting</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input name="saveAs" id="saveAs" type="checkbox" />
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="setting-card" id="downloadImages-container">
+                        <div class="toggle-row">
+                            <div class="toggle-info">
+                                <label class="toggle-label-text" for="downloadImages">Download images alongside markdown files</label>
+                            </div>
+                            <label class="toggle-switch">
+                                <input name="downloadImages" id="downloadImages" type="checkbox" />
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="setting-card" id="imagePrefix">
+                        <div class="input-group">
+                            <label class="input-label" for="imagePrefix">Image filename prefix template</label>
+                            <input type="text" name="imagePrefix" class="text-input" role="textbox" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Obsidian Integration -->
+                <div class="setting-card" id="obsidian-container">
+                    <h3 class="card-title">Obsidian Integration</h3>
+                    <p class="card-desc">
+                        For integration with Obsidian, you need to install and enable the community plugin <code>Advanced Obsidian URI</code>. This plugin helps bypass character limitations in URLs by using the clipboard as the source for creating new files.
+                        <a href="https://vinzent03.github.io/obsidian-advanced-uri/" target="_blank" rel="noopener noreferrer">More information →</a>
+                    </p>
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <label class="toggle-label-text" for="obsidianIntegration">Enable Obsidian Integration</label>
+                        </div>
+                        <label class="toggle-switch">
+                            <input name="obsidianIntegration" id="obsidianIntegration" type="checkbox" />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="setting-card" id="obsidianVault">
+                    <div class="input-group">
+                        <label class="input-label">Obsidian Vault Name</label>
+                        <input type="text" name="obsidianVault" class="text-input" role="textbox" placeholder="If blank, it will use the main Vault. Please specify it." />
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">Obsidian Folder Name</label>
+                        <input type="text" name="obsidianFolder" class="text-input" role="textbox" placeholder="Enter Folder Name eg. Clippers" />
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
 
-    <hr>
 
-    <h2>Markdown conversion options</h2>
+            <!-- ────────────────────────────────────────────
+                 SECTION: Markdown
+                 ──────────────────────────────────────────── -->
+            <div class="section" id="section-markdown">
+                <h2 class="section-title">Markdown</h2>
+                <p class="section-desc">Configure how HTML is converted to Markdown syntax.</p>
 
-    <div class="radio-container" id="headingStyle">
-        <h3>Heading Style</h3>
-        <input type="radio" name="headingStyle" id="setext" value="setext" />
-        <label for="setext"><span>Setext-Style Headers</span>
-            <pre>All About Dogs
+                <!-- Heading Style -->
+                <div class="setting-card" id="headingStyle">
+                    <h3 class="card-title">Heading Style</h3>
+                    <div class="radio-card-group">
+                        <div class="radio-card">
+                            <input type="radio" name="headingStyle" id="setext" value="setext" />
+                            <label for="setext">
+                                <div class="radio-card-title">Setext-Style</div>
+                                <pre>All About Dogs
 ==============</pre>
-        </label>
-        <input type="radio" name="headingStyle" id="atx" value="atx" />
-        <label for="atx"><span>Atx-Style Headers</span>
-            <pre># All About Dogs</pre>
-        </label>
-    </div>
+                            </label>
+                        </div>
+                        <div class="radio-card">
+                            <input type="radio" name="headingStyle" id="atx" value="atx" />
+                            <label for="atx">
+                                <div class="radio-card-title">Atx-Style</div>
+                                <pre># All About Dogs</pre>
+                            </label>
+                        </div>
+                    </div>
+                </div>
 
-    <div class="radio-container" id="hr">
-        <h3>Horizontal Rule style</h3>
-        <input type="radio" name="hr" id="***" value="***" />
-        <label for="***"><code>***</code></label>
-        <input type="radio" name="hr" id="---" value="---" />
-        <label for="---"><code>---</code></label>
-        <input type="radio" name="hr" id="___" value="___" />
-        <label for="___"><code>___</code></label>
-    </div>
+                <!-- Horizontal Rule -->
+                <div class="setting-card" id="hr">
+                    <h3 class="card-title">Horizontal Rule</h3>
+                    <div class="radio-group">
+                        <div class="radio-pill">
+                            <input type="radio" name="hr" id="***" value="***" />
+                            <label for="***"><code>***</code></label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="hr" id="---" value="---" />
+                            <label for="---"><code>---</code></label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="hr" id="___" value="___" />
+                            <label for="___"><code>___</code></label>
+                        </div>
+                    </div>
+                </div>
 
-    <div class="radio-container" id="bulletListMarker">
-        <h3>Bullet List Marker</h3>
-        <input type="radio" name="bulletListMarker" id="*" value="*" />
-        <label for="*"><code>*</code></label>
-        <input type="radio" name="bulletListMarker" id="-" value="-" />
-        <label for="-"><code>-</code></label>
-        <input type="radio" name="bulletListMarker" id="+" value="+" />
-        <label for="+"><code>+</code></label>
-    </div>
+                <!-- Bullet List Marker -->
+                <div class="setting-card" id="bulletListMarker">
+                    <h3 class="card-title">Bullet List Marker</h3>
+                    <div class="radio-group">
+                        <div class="radio-pill">
+                            <input type="radio" name="bulletListMarker" id="*" value="*" />
+                            <label for="*"><code>*</code></label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="bulletListMarker" id="-" value="-" />
+                            <label for="-"><code>-</code></label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="bulletListMarker" id="+" value="+" />
+                            <label for="+"><code>+</code></label>
+                        </div>
+                    </div>
+                </div>
 
-    <div class="radio-container" id="codeBlockStyle">
-        <h3>Code Block Style</h3>
-        <input type="radio" name="codeBlockStyle" id="indented" value="indented" />
-        <label for="indented">Indented
-            <pre>····const helloWorld = () => {
+                <!-- Code Block Style -->
+                <div class="setting-card" id="codeBlockStyle">
+                    <h3 class="card-title">Code Block Style</h3>
+                    <div class="radio-card-group">
+                        <div class="radio-card">
+                            <input type="radio" name="codeBlockStyle" id="indented" value="indented" />
+                            <label for="indented">
+                                <div class="radio-card-title">Indented</div>
+                                <pre>····const helloWorld = () => {
 ········console.log("Hello World");
 ····}</pre>
-        </label>
-        <input type="radio" name="codeBlockStyle" id="fenced" value="fenced" />
-        <label for="fenced">Fenced
-            <pre>```
+                            </label>
+                        </div>
+                        <div class="radio-card">
+                            <input type="radio" name="codeBlockStyle" id="fenced" value="fenced" />
+                            <label for="fenced">
+                                <div class="radio-card-title">Fenced</div>
+                                <pre>```
 const helloWorld = () => {
 ····console.log("Hello World");
 }
 ```</pre>
-        </label>
-    </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
 
-    <div class="checkbox-container" id="preserveCodeFormatting-container">
-        <input name="preserveCodeFormatting" id="preserveCodeFormatting" type="checkbox" />
-        <label for="preserveCodeFormatting">Preserve Code Block HTML Formatting
-          <p><small>
-            When enabled, preserves original HTML formatting within code blocks.
-            This can be useful for maintaining exact visual formatting, but may make
-            the Markdown harder to read and use in other tools.
-            When disabled (default), produces clean code blocks.
-          </small></p>
-        </label>
-      </div>
+                <!-- Code formatting toggles -->
+                <div class="setting-card" id="preserveCodeFormatting-container">
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <label class="toggle-label-text" for="preserveCodeFormatting">Preserve Code Block HTML Formatting</label>
+                            <p class="toggle-hint">When enabled, preserves original HTML formatting within code blocks. This can be useful for maintaining exact visual formatting, but may make the Markdown harder to read and use in other tools. When disabled (default), produces clean code blocks.</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input name="preserveCodeFormatting" id="preserveCodeFormatting" type="checkbox" />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
 
-    <div class="checkbox-container" id="autoDetectCodeLanguage-container">
-        <input name="autoDetectCodeLanguage" id="autoDetectCodeLanguage" type="checkbox" />
-        <label for="autoDetectCodeLanguage">Auto-detect code block language
-          <p><small>
-            Uses highlight.js to infer fenced code block language when no explicit language is present.
-            Disable this if snippets are frequently labeled with incorrect languages.
-          </small></p>
-        </label>
-    </div>
+                <div class="setting-card" id="autoDetectCodeLanguage-container">
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <label class="toggle-label-text" for="autoDetectCodeLanguage">Auto-detect code block language</label>
+                            <p class="toggle-hint">Uses highlight.js to infer fenced code block language when no explicit language is present. Disable this if snippets are frequently labeled with incorrect languages.</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input name="autoDetectCodeLanguage" id="autoDetectCodeLanguage" type="checkbox" />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
 
-    <div class="radio-container" id="fence">
-        <h3>Code Block Fence</h3>
-        <input type="radio" name="fence" id="```" value="```" />
-        <label for="```"><code>```</code></label>
-        <input type="radio" name="fence" id="~~~" value="~~~" />
-        <label for="~~~"><code>~~~</code></label>
-    </div>
+                <!-- Code Block Fence -->
+                <div class="setting-card" id="fence">
+                    <h3 class="card-title">Code Block Fence</h3>
+                    <div class="radio-group">
+                        <div class="radio-pill">
+                            <input type="radio" name="fence" id="```" value="```" />
+                            <label for="```"><code>```</code></label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="fence" id="~~~" value="~~~" />
+                            <label for="~~~"><code>~~~</code></label>
+                        </div>
+                    </div>
+                </div>
 
-    <div class="radio-container" id="emDelimiter">
-        <h3>Emphasis (italics) Delimiter</h3>
-        <input type="radio" name="emDelimiter" id="em_" value="_" />
-        <label for="em_"><code>_italics_</code></label>
-        <input type="radio" name="emDelimiter" id="em*" value="*" />
-        <label for="em*"><code>*italics*</code></label>
-        <input type="radio" name="emDelimiter" id="em__" value="__" />
-        <label for="em__"><code>__italics__</code> <strong>(Non-standard. Roam specific.)</strong></label>
-    </div>
+                <!-- Emphasis Delimiter -->
+                <div class="setting-card" id="emDelimiter">
+                    <h3 class="card-title">Emphasis (italics) Delimiter</h3>
+                    <div class="radio-group">
+                        <div class="radio-pill">
+                            <input type="radio" name="emDelimiter" id="em_" value="_" />
+                            <label for="em_"><code>_italics_</code></label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="emDelimiter" id="em*" value="*" />
+                            <label for="em*"><code>*italics*</code></label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="emDelimiter" id="em__" value="__" />
+                            <label for="em__"><code>__italics__</code> <span class="option-note" style="display:inline;margin:0"><strong>(Non-standard. Roam specific.)</strong></span></label>
+                        </div>
+                    </div>
+                </div>
 
-    <div class="radio-container" id="strongDelimiter">
-        <h3>Strong (bold) Delimiter</h3>
-        <input type="radio" name="strongDelimiter" id="**" value="**" />
-        <label for="**"><code>**bold**</code></label>
-        <input type="radio" name="strongDelimiter" id="__" value="__" />
-        <label for="__"><code>__bold__</code></label>
-    </div>
+                <!-- Strong (bold) Delimiter -->
+                <div class="setting-card" id="strongDelimiter">
+                    <h3 class="card-title">Strong (bold) Delimiter</h3>
+                    <div class="radio-group">
+                        <div class="radio-pill">
+                            <input type="radio" name="strongDelimiter" id="**" value="**" />
+                            <label for="**"><code>**bold**</code></label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="strongDelimiter" id="__" value="__" />
+                            <label for="__"><code>__bold__</code></label>
+                        </div>
+                    </div>
+                </div>
 
-    <div class="radio-container" id="linkStyle">
-        <h3>Link Style</h3>
-        <input type="radio" name="linkStyle" id="inlined" value="inlined" />
-        <label for="inlined">Inlined
-            <pre>[Google](http://google.com)</pre>
-        </label>
-        <input type="radio" name="linkStyle" id="referenced" value="referenced" />
-        <label for="referenced">Referenced
-            <pre>[Google]
+                <!-- Link Style -->
+                <div class="setting-card" id="linkStyle">
+                    <h3 class="card-title">Link Style</h3>
+                    <div class="radio-card-group">
+                        <div class="radio-card">
+                            <input type="radio" name="linkStyle" id="inlined" value="inlined" />
+                            <label for="inlined">
+                                <div class="radio-card-title">Inlined</div>
+                                <pre>[Google](http://google.com)</pre>
+                            </label>
+                        </div>
+                        <div class="radio-card">
+                            <input type="radio" name="linkStyle" id="referenced" value="referenced" />
+                            <label for="referenced">
+                                <div class="radio-card-title">Referenced</div>
+                                <pre>[Google]
 
 [Google]: http://google.com</pre>
-        </label>
-        <input type="radio" name="linkStyle" id="stripLinks" value="stripLinks" />
-        <label for="stripLinks">Strip Links
-            <pre>Google</pre>
-        </label>
-    </div>
+                            </label>
+                        </div>
+                        <div class="radio-card">
+                            <input type="radio" name="linkStyle" id="stripLinks" value="stripLinks" />
+                            <label for="stripLinks">
+                                <div class="radio-card-title">Strip Links</div>
+                                <pre>Google</pre>
+                            </label>
+                        </div>
+                    </div>
+                </div>
 
-    <div class="radio-container" id="linkReferenceStyle">
-        <h3>Link Reference Style</h3>
-        <input type="radio" name="linkReferenceStyle" id="full" value="full"  />
-        <label for="full">Full
-            <pre>[Google][1]
+                <!-- Link Reference Style -->
+                <div class="setting-card" id="linkReferenceStyle">
+                    <h3 class="card-title">Link Reference Style</h3>
+                    <div class="radio-card-group">
+                        <div class="radio-card">
+                            <input type="radio" name="linkReferenceStyle" id="full" value="full" />
+                            <label for="full">
+                                <div class="radio-card-title">Full</div>
+                                <pre>[Google][1]
 
 [1]: http://google.com</pre>
-        </label>
-        <input type="radio" name="linkReferenceStyle" id="collapsed" value="collapsed" />
-        <label for="collapsed">Collapsed
-            <pre>[Google][]
+                            </label>
+                        </div>
+                        <div class="radio-card">
+                            <input type="radio" name="linkReferenceStyle" id="collapsed" value="collapsed" />
+                            <label for="collapsed">
+                                <div class="radio-card-title">Collapsed</div>
+                                <pre>[Google][]
 
 [Google]: http://google.com</pre>
-        </label>
-        <input type="radio" name="linkReferenceStyle" id="shortcut" value="shortcut" />
-        <label for="shortcut">Shortcut
-            <pre>[Google]
+                            </label>
+                        </div>
+                        <div class="radio-card">
+                            <input type="radio" name="linkReferenceStyle" id="shortcut" value="shortcut" />
+                            <label for="shortcut">
+                                <div class="radio-card-title">Shortcut</div>
+                                <pre>[Google]
 
 [Google]: http://google.com</pre>
-        </label>
-    </div>
-    
-    <div class="radio-container" id="imageOptions">
-        <h3>Image Style</h3>
-        <input type="radio" name="imageStyle" id="originalSource" value="originalSource" />
-        <label for="originalSource">Original Source
-            <pre>![](http://example.com/img/image.jpg)</pre>
-        </label>
-        <input type="radio" name="imageStyle" id="noImage" value="noImage" />
-        <label for="noImage">Strip Images
-            <pre> &nbsp; &nbsp; &nbsp; </pre>
-        </label>
-        <p><strong>Note:</strong> The following only apply if Download Images is on.</p>
-        <input type="radio" name="imageStyle" id="markdown" value="markdown" />
-        <label for="markdown">Pure Markdown
-            <pre>![](folder/image.jpg)</pre>
-        </label>
-        <input type="radio" name="imageStyle" id="base64" value="base64" />
-        <label for="base64">Base64 encoded
-            <pre>![](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==)</pre>
-        </label>
-        <input type="radio" name="imageStyle" id="obsidian" value="obsidian" />
-        <label for="obsidian">Obsidian internal embed
-            <pre>![[folder/image.jpg]]</pre>
-        </label>
-        <input type="radio" name="imageStyle" id="obsidian-nofolder" value="obsidian-nofolder" />
-        <label for="obsidian-nofolder">Obsidian internal embed (no folder prefix)
-            <pre>![[image.jpg]]</pre>
-        </label>
-    </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
 
-    <div class="radio-container" id="imageRefOptions">
-        <h3>Image Reference Style</h3>
-        <p><strong>Note:</strong> The following only apply if Image Style is markdown (not Obsidian-styled).</p>
-        <input type="radio" name="imageRefStyle" id="img-inlined" value="inlined" />
-        <label for="img-inlined">Inlined
-            <pre>![](address/of/image.jpg)</pre>
-        </label>
-        <input type="radio" name="imageRefStyle" id="img-referenced" value="referenced" />
-        <label for="img-referenced">Referenced
-            <pre> ![][fig1]
+                <!-- Image Style -->
+                <div class="setting-card" id="imageOptions">
+                    <h3 class="card-title">Image Style</h3>
+                    <div class="radio-card-group">
+                        <div class="radio-card">
+                            <input type="radio" name="imageStyle" id="originalSource" value="originalSource" />
+                            <label for="originalSource">
+                                <div class="radio-card-title">Original Source</div>
+                                <pre>![](http://example.com/img/image.jpg)</pre>
+                            </label>
+                        </div>
+                        <div class="radio-card">
+                            <input type="radio" name="imageStyle" id="noImage" value="noImage" />
+                            <label for="noImage">
+                                <div class="radio-card-title">Strip Images</div>
+                                <pre> </pre>
+                            </label>
+                        </div>
+                    </div>
+                    <p class="option-note" style="margin-top: var(--space-3)"><strong>Note:</strong> The following only apply if Download Images is on.</p>
+                    <div class="radio-card-group" style="margin-top: var(--space-3)">
+                        <div class="radio-card">
+                            <input type="radio" name="imageStyle" id="markdown" value="markdown" />
+                            <label for="markdown">
+                                <div class="radio-card-title">Pure Markdown</div>
+                                <pre>![](folder/image.jpg)</pre>
+                            </label>
+                        </div>
+                        <div class="radio-card">
+                            <input type="radio" name="imageStyle" id="base64" value="base64" />
+                            <label for="base64">
+                                <div class="radio-card-title">Base64 Encoded</div>
+                                <pre>![](data:image/png;base64,iVBO...)</pre>
+                            </label>
+                        </div>
+                        <div class="radio-card">
+                            <input type="radio" name="imageStyle" id="obsidian" value="obsidian" />
+                            <label for="obsidian">
+                                <div class="radio-card-title">Obsidian Internal Embed</div>
+                                <pre>![[folder/image.jpg]]</pre>
+                            </label>
+                        </div>
+                        <div class="radio-card">
+                            <input type="radio" name="imageStyle" id="obsidian-nofolder" value="obsidian-nofolder" />
+                            <label for="obsidian-nofolder">
+                                <div class="radio-card-title">Obsidian Embed (no folder)</div>
+                                <pre>![[image.jpg]]</pre>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Image Reference Style -->
+                <div class="setting-card" id="imageRefOptions">
+                    <h3 class="card-title">Image Reference Style</h3>
+                    <p class="card-desc"><strong>Note:</strong> The following only apply if Image Style is markdown (not Obsidian-styled).</p>
+                    <div class="radio-card-group">
+                        <div class="radio-card">
+                            <input type="radio" name="imageRefStyle" id="img-inlined" value="inlined" />
+                            <label for="img-inlined">
+                                <div class="radio-card-title">Inlined</div>
+                                <pre>![](address/of/image.jpg)</pre>
+                            </label>
+                        </div>
+                        <div class="radio-card">
+                            <input type="radio" name="imageRefStyle" id="img-referenced" value="referenced" />
+                            <label for="img-referenced">
+                                <div class="radio-card-title">Referenced</div>
+                                <pre> ![][fig1]
 
 [fig1]: address/of/image.jpg</pre>
-        </label>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Escape Markdown -->
+                <div class="setting-card" id="turndownEscape-container">
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <label class="toggle-label-text" for="turndownEscape">Escape Markdown Characters</label>
+                            <p class="toggle-hint">
+                                By default, backslashes (<code>\</code>) are used to escape
+                                Markdown characters in the HTML input. This ensures that these
+                                characters are not interpreted as Markdown. For example, the
+                                contents of <code>&lt;h1&gt;1. Hello world&lt;/h1&gt;</code>
+                                needs to be escaped to <code>1\. Hello world</code>, otherwise
+                                it will be interpreted as a list item rather than a heading.
+                                Disabling this option disables this escaping.
+                            </p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input name="turndownEscape" id="turndownEscape" type="checkbox" />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- ────────────────────────────────────────────
+                 SECTION: Tables
+                 ──────────────────────────────────────────── -->
+            <div class="section" id="section-tables">
+                <h2 class="section-title">Tables</h2>
+                <p class="section-desc">Configure how HTML tables are converted to Markdown tables.</p>
+
+                <div class="setting-card" id="table-options">
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <label class="toggle-label-text" for="table-stripLinks">Strip links from tables</label>
+                            <p class="toggle-hint">Removes all links from tables, keeping only the text content. Creates cleaner, more readable tables.</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input name="tableFormatting.stripLinks" id="table-stripLinks" type="checkbox" />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <label class="toggle-label-text" for="table-stripFormatting">Strip formatting (bold, italic, etc.)</label>
+                            <p class="toggle-hint">Removes formatting like bold and italic from table cells. Results in plain text tables.</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input name="tableFormatting.stripFormatting" id="table-stripFormatting" type="checkbox" />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <label class="toggle-label-text" for="table-prettyPrint">Pretty print tables</label>
+                            <p class="toggle-hint">Formats tables with proper spacing and alignment. Makes tables more readable in markdown.</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input name="tableFormatting.prettyPrint" id="table-prettyPrint" type="checkbox" />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <label class="toggle-label-text" for="table-centerText">Center text in columns</label>
+                            <p class="toggle-hint">Centers text within table columns. Creates a more polished look.</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input name="tableFormatting.centerText" id="table-centerText" type="checkbox" />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- ────────────────────────────────────────────
+                 SECTION: Import / Export
+                 ──────────────────────────────────────────── -->
+            <div class="section" id="section-import-export">
+                <h2 class="section-title">Import / Export</h2>
+                <p class="section-desc">Back up your settings or restore from a previous backup.</p>
+
+                <div class="setting-card">
+                    <h3 class="card-title">Import</h3>
+                    <p class="card-desc">Restore options from a previously exported backup file.</p>
+                    <div class="btn-group">
+                        <button name="import" id="import" class="btn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="17 8 12 3 7 8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                            Choose file...
+                            <input type="file" name="import-file" id="import-file" />
+                        </button>
+                    </div>
+                </div>
+
+                <div class="setting-card">
+                    <h3 class="card-title">Export</h3>
+                    <p class="card-desc">Download your current options as a JSON file.</p>
+                    <div class="btn-group">
+                        <button name="export" id="export" class="btn btn-primary">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+
+        </main>
     </div>
 
-    <div class="checkbox-container" id="turndownEscape-container">
-        <input name="turndownEscape" id="turndownEscape" type="checkbox" />
-        <label for="turndownEscape">Escape Markdown Characters
-            <p><small>
-                By default, backslashes (<code>\</code>) are used to escape 
-                Markdown characters in the HTML input. This ensures that these
-                characters are not interpreted as Markdown. For example, the
-                contents of <code>&lt;h1&gt;1. Hello world&lt;/h1&gt;</code>
-                needs to be escaped to <code>1\. Hello world</code>, otherwise
-                it will be interpreted as a list item rather than a heading.
-                <br />Disabling this option disables this escaping.
-            </small></p>
-        </label>
-    </div>
-
-    <hr>
-
-    <h2>Table Formatting Options</h2>
-
-    <div class="checkbox-container" id="table-options">
-        <h3>Table Formatting</h3>
-        
-        <input name="tableFormatting.stripLinks" id="table-stripLinks" type="checkbox" />
-        <label for="table-stripLinks">
-            Strip links from tables
-            <p><small>
-                Removes all links from tables, keeping only the text content.
-                Creates cleaner, more readable tables.
-            </small></p>
-        </label>
-        
-        <input name="tableFormatting.stripFormatting" id="table-stripFormatting" type="checkbox" />
-        <label for="table-stripFormatting">
-            Strip formatting (bold, italic, etc.)
-            <p><small>
-                Removes formatting like bold and italic from table cells.
-                Results in plain text tables.
-            </small></p>
-        </label>
-        
-        <input name="tableFormatting.prettyPrint" id="table-prettyPrint" type="checkbox" checked />
-        <label for="table-prettyPrint">
-            Pretty print tables
-            <p><small>
-                Formats tables with proper spacing and alignment.
-                Makes tables more readable in markdown.
-            </small></p>
-        </label>
-        
-        <input name="tableFormatting.centerText" id="table-centerText" type="checkbox" checked />
-        <label for="table-centerText">
-            Center text in columns
-            <p><small>
-                Centers text within table columns.
-                Creates a more polished look.
-            </small></p>
-        </label>
-    </div>
-    
-    <h2>Import / Export</h2>
-
-    <div class="button-container">
-        <label for="import">Import from a previous backup</label> <br />
-        <div class="input-sizer"><button name="import" id="import"> Choose file...<input type="file" name="import-file" id="import-file" /></button> </div>
-
-        <label for="export">Export current options</label> <br />
-        <div class="input-sizer"><button name="export" id="export">Export</button></div>
-    </div>
-
+    <!-- Toast notification -->
+    <div id="status" class="toast"></div>
     <div id="spinner" style="display: none;"></div>
-    <div id="status" class="status"></div>
 
     <script src="../browser-polyfill.min.js"></script>
     <script src="../shared/default-options.js"></script>
