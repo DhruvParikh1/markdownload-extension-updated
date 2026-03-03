@@ -1009,6 +1009,28 @@ async function getArticleFromDom(domString, options) {
    math[randomId] = mathInfo;
  };
 
+ const extractKaTeXTex = (kaTeXNode) => {
+   const annotationNode = kaTeXNode.querySelector('annotation');
+   if (annotationNode?.textContent?.trim()) {
+     return annotationNode.textContent.trim();
+   }
+
+   const mathNode = kaTeXNode.querySelector('math');
+   const altText = mathNode?.getAttribute('alttext') || mathNode?.getAttribute('aria-label');
+   if (altText?.trim()) {
+     return altText.trim();
+   }
+
+   const fallbackText = kaTeXNode.textContent?.trim();
+   if (!fallbackText) {
+     return null;
+   }
+
+   // Some KaTeX variants append the original TeX as the final non-empty line.
+   const lines = fallbackText.split('\n').map(line => line.trim()).filter(Boolean);
+   return lines.length ? lines[lines.length - 1] : fallbackText;
+ };
+
  // Process MathJax elements (same as original)
  dom.body.querySelectorAll('script[id^=MathJax-Element-]')?.forEach(mathSource => {
    const type = mathSource.attributes.type.value
@@ -1038,8 +1060,13 @@ async function getArticleFromDom(domString, options) {
 
  // Process KaTeX elements
  dom.body.querySelectorAll('.katex-mathml')?.forEach(kaTeXNode => {
+   const tex = extractKaTeXTex(kaTeXNode);
+   if (!tex) {
+     return;
+   }
+
    storeMathInfo(kaTeXNode, {
-     tex: kaTeXNode.querySelector('annotation').textContent,
+     tex: tex,
      inline: true
    });
  });
