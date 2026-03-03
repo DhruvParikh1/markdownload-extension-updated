@@ -34,6 +34,9 @@ const defaultOptions = {
   obsidianIntegration: false,
   obsidianVault: "",
   obsidianFolder: "",
+  popupTheme: 'system',
+  popupAccent: 'sage',
+  compactMode: false,
 }
 
 // function to get the options from storage and substitute default options if it fails

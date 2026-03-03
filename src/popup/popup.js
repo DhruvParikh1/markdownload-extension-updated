@@ -38,7 +38,34 @@ const progressUI = {
     }
 };
 
-const darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+let darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+// Theme application
+function applyThemeSettings(options) {
+    const root = document.documentElement;
+
+    // Apply theme mode
+    root.classList.remove('theme-light', 'theme-dark', 'theme-system');
+    root.classList.add('theme-' + (options.popupTheme || 'system'));
+
+    // Apply accent color
+    root.classList.remove('accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber');
+    const accent = options.popupAccent || 'sage';
+    if (accent !== 'sage') {
+        root.classList.add('accent-' + accent);
+    }
+
+    // Compact mode
+    document.body.classList.toggle('compact-mode', !!options.compactMode);
+
+    // Update CodeMirror theme based on resolved dark mode
+    const isDark = options.popupTheme === 'dark' ||
+        (options.popupTheme !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    darkMode = isDark;
+    if (typeof cm !== 'undefined' && cm) {
+        cm.setOption('theme', isDark ? 'xq-dark' : 'xq-light');
+    }
+}
 
 // Char/word/token counter
 const COUNT_MODES = ['chars', 'words', 'tokens'];
@@ -286,7 +313,10 @@ const defaultOptions = {
     includeTemplate: false,
     clipSelection: true,
     downloadImages: false,
-    obsidianIntegration: false
+    obsidianIntegration: false,
+    popupTheme: 'system',
+    popupAccent: 'sage',
+    compactMode: false,
 }
 
 const updateObsidianButtonVisibility = (options) => {
@@ -659,6 +689,9 @@ async function handleBatchConversion(e) {
 }
 
 const checkInitialSettings = options => {
+    // Apply theme settings
+    applyThemeSettings(options);
+
     // Set checkbox states
     document.querySelector("#includeTemplate").checked = options.includeTemplate || false;
     document.querySelector("#downloadImages").checked = options.downloadImages || false;

@@ -73,9 +73,43 @@
     --transition: 150ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Dark Theme */
+/* ========================================
+   Theme System: Dark Mode Overrides
+   ======================================== */
+
+/* Forced dark theme */
+:root.theme-dark {
+    --bg-primary: var(--stone-900);
+    --bg-secondary: var(--stone-800);
+    --bg-tertiary: var(--stone-700);
+    --bg-hover: var(--stone-600);
+    
+    --text-primary: var(--stone-50);
+    --text-secondary: var(--stone-400);
+    --text-tertiary: var(--stone-500);
+    
+    --border-light: var(--stone-700);
+    --border-medium: var(--stone-600);
+    --border-dark: var(--stone-500);
+    
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.4);
+    
+    --accent-light: rgba(var(--accent-rgb, 107, 142, 111), 0.15);
+}
+
+:root.theme-dark .toggle-slider {
+    background: var(--stone-600);
+}
+
+:root.theme-dark .cm-s-xq-dark.CodeMirror {
+    background-color: var(--bg-secondary);
+}
+
+/* System theme: follow OS preference (default behavior) */
 @media (prefers-color-scheme: dark) {
-    :root {
+    :root.theme-system {
         --bg-primary: var(--stone-900);
         --bg-secondary: var(--stone-800);
         --bg-tertiary: var(--stone-700);
@@ -93,16 +127,62 @@
         --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.3);
         --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.4);
         
-        --accent-light: rgba(107, 142, 111, 0.15);
+        --accent-light: rgba(var(--accent-rgb, 107, 142, 111), 0.15);
     }
 
-    .toggle-slider {
+    :root.theme-system .toggle-slider {
         background: var(--stone-600);
     }
     
-    .cm-s-xq-dark.CodeMirror {
+    :root.theme-system .cm-s-xq-dark.CodeMirror {
         background-color: var(--bg-secondary);
     }
+}
+
+/* ========================================
+   Accent Color Presets
+   ======================================== */
+
+/* Sage (default) — no overrides needed, uses :root values */
+
+/* Ocean Blue */
+:root.accent-ocean {
+    --accent-rgb: 91, 143, 168;
+    --accent-light: #E4EEF3;
+    --accent: #5B8FA8;
+    --accent-dark: #4A7A92;
+    --accent-darker: #385D6F;
+    --success: #5B8FA8;
+}
+
+/* Slate Gray */
+:root.accent-slate {
+    --accent-rgb: 107, 123, 142;
+    --accent-light: #E7EAED;
+    --accent: #6B7B8E;
+    --accent-dark: #56657A;
+    --accent-darker: #414D5C;
+    --success: #6B7B8E;
+}
+
+/* Rose */
+:root.accent-rose {
+    --accent-rgb: 176, 112, 112;
+    --accent-light: #F3E4E4;
+    --accent: #B07070;
+    --accent-dark: #965C5C;
+    --accent-darker: #7A4A4A;
+    --success: #B07070;
+}
+
+/* Amber */
+:root.accent-amber {
+    --accent-rgb: 176, 142, 80;
+    --accent-light: #F3EDE0;
+    --accent: #B08E50;
+    --accent-dark: #967840;
+    --accent-darker: #7A6030;
+    --success: #B08E50;
 }
 
 /* Base Styles */
@@ -830,4 +910,31 @@ body {
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
     }
+}
+
+/* ========================================
+   Compact Mode
+   ======================================== */
+body.compact-mode .settings-panel {
+    display: none;
+}
+
+body.compact-mode .title-section {
+    padding: var(--space-2) var(--space-4) var(--space-1);
+}
+
+body.compact-mode .title-section .input-label {
+    display: none;
+}
+
+body.compact-mode .header {
+    padding: var(--space-2) var(--space-3);
+}
+
+body.compact-mode .action-section {
+    padding: var(--space-2) var(--space-4);
+}
+
+body.compact-mode .editor-section {
+    margin-top: var(--space-2);
 }

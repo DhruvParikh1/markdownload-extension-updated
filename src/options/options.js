@@ -44,6 +44,9 @@ const saveOptions = e => {
         imageStyle: getCheckedValue(document.querySelectorAll("input[name='imageStyle']")),
         imageRefStyle: getCheckedValue(document.querySelectorAll("input[name='imageRefStyle']")),
         downloadMode: getCheckedValue(document.querySelectorAll("input[name='downloadMode']")),
+        popupTheme: getCheckedValue(document.querySelectorAll("input[name='popupTheme']")),
+        popupAccent: getCheckedValue(document.querySelectorAll("input[name='popupAccent']")),
+        compactMode: document.querySelector("[name='compactMode']").checked,
     }
 
     save();
@@ -182,6 +185,10 @@ const setCurrentChoice = result => {
     setCheckedValue(document.querySelectorAll("[name='imageStyle']"), options.imageStyle);
     setCheckedValue(document.querySelectorAll("[name='imageRefStyle']"), options.imageRefStyle);
     setCheckedValue(document.querySelectorAll("[name='downloadMode']"), options.downloadMode);
+
+    setCheckedValue(document.querySelectorAll("[name='popupTheme']"), options.popupTheme || 'system');
+    setCheckedValue(document.querySelectorAll("[name='popupAccent']"), options.popupAccent || 'sage');
+    document.querySelector("[name='compactMode']").checked = options.compactMode || false;
 
     refereshElements();
 }
