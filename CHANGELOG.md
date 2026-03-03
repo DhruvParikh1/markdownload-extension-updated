@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.0.7
+
+- **Token Estimation**: Improved accuracy with per-content-type segmentation that better handles URLs, code blocks, markdown syntax, and non-ASCII characters.
+- **Editor Stats**: Added a cycling character/word/token counter badge to the editor header in the popup.
+- **Code Blocks**: Cleaned up `<pre>` code block conversion and added a controllable language-detection toggle in settings.
+- **Clipping Reliability**: Fixed a bug where the content script could mutate the live DOM during clipping; now operates on a cloned document.
+- **Docs**: Added Firefox installation instructions and linked them from the README.
+
 ## 4.0.6
 
 - **Firefox Support**: Unified offscreen processing across Chrome and Firefox by loading `offscreen/offscreen.html` in Firefox and routing clipping through the same messaging path.
