@@ -30,6 +30,7 @@ const defaultOptions = {
   disallowedChars: '[]#^',
   downloadMode: 'downloadsApi',
   turndownEscape: true,
+  hashtagHandling: 'keep',
   contextMenus: true,
   obsidianIntegration: false,
   obsidianVault: "",

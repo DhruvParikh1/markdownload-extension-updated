@@ -430,6 +430,61 @@ function getCodeLanguage(node) {
   return '';
 }
 
+const hashtagEscapeSentinel = '\uE000';
+
+function normalizeHashtagHandlingMode(mode) {
+  if (mode === 'remove' || mode === 'escape' || mode === 'keep') {
+    return mode;
+  }
+  return 'keep';
+}
+
+function replaceHashtagTokensInText(text, mode) {
+  if (!text) return text;
+
+  // Matches hashtag-like tokens in prose while skipping markdown escapes and URL fragments.
+  const hashtagTokenRegex = /(^|[^\p{L}\p{N}_\\/])#([\p{L}\p{N}_][\p{L}\p{N}_-]*)/gu;
+  return text.replace(hashtagTokenRegex, (match, prefix, tag) => {
+    if (mode === 'remove') {
+      return `${prefix}${tag}`;
+    }
+    if (mode === 'escape') {
+      return `${prefix}${hashtagEscapeSentinel}${tag}`;
+    }
+    return match;
+  });
+}
+
+function applyHashtagHandlingToHtml(content, mode) {
+  const normalizedMode = normalizeHashtagHandlingMode(mode);
+  if (normalizedMode === 'keep' || !content) {
+    return content;
+  }
+
+  const container = document.createElement('div');
+  container.innerHTML = content;
+  const excludedParents = new Set(['CODE', 'PRE', 'SCRIPT', 'STYLE', 'NOSCRIPT', 'TEXTAREA']);
+  const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
+
+  let node = walker.nextNode();
+  while (node) {
+    const parentTag = node.parentElement?.tagName;
+    if (!excludedParents.has(parentTag)) {
+      node.nodeValue = replaceHashtagTokensInText(node.nodeValue, normalizedMode);
+    }
+    node = walker.nextNode();
+  }
+
+  return container.innerHTML;
+}
+
+function applyHashtagHandlingToMarkdown(markdown, mode) {
+  if (!markdown) return markdown;
+  const normalizedMode = normalizeHashtagHandlingMode(mode);
+  if (normalizedMode !== 'escape') return markdown;
+  return markdown.replaceAll(hashtagEscapeSentinel, '\\#');
+}
+
 /**
  * Turndown HTML to Markdown conversion
  */
@@ -962,8 +1017,12 @@ function turndown(content, options, article) {
     }
   });
 
-  let markdown = options.frontmatter + turndownService.turndown(content)
-      + options.backmatter;
+  const hashtagMode = normalizeHashtagHandlingMode(options.hashtagHandling);
+  const normalizedContent = applyHashtagHandlingToHtml(content, hashtagMode);
+  let bodyMarkdown = turndownService.turndown(normalizedContent);
+  bodyMarkdown = applyHashtagHandlingToMarkdown(bodyMarkdown, hashtagMode);
+
+  let markdown = options.frontmatter + bodyMarkdown + options.backmatter;
 
   // strip out non-printing special characters which CodeMirror displays as a red dot
   // see: https://codemirror.net/doc/manual.html#option_specialChars

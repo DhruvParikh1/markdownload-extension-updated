@@ -32,6 +32,7 @@ const saveOptions = e => {
         imagePrefix: document.querySelector("[name='imagePrefix']").value,
         mdClipsFolder: document.querySelector("[name='mdClipsFolder']").value,
         turndownEscape: document.querySelector("[name='turndownEscape']").checked,
+        hashtagHandling: getCheckedValue(document.querySelectorAll("input[name='hashtagHandling']")),
         contextMenus: document.querySelector("[name='contextMenus']").checked,
         obsidianIntegration: document.querySelector("[name='obsidianIntegration']").checked,
         obsidianVault: document.querySelector("[name='obsidianVault']").value,
@@ -195,6 +196,7 @@ const setCurrentChoice = result => {
     setCheckedValue(document.querySelectorAll("[name='linkReferenceStyle']"), options.linkReferenceStyle);
     setCheckedValue(document.querySelectorAll("[name='imageStyle']"), options.imageStyle);
     setCheckedValue(document.querySelectorAll("[name='imageRefStyle']"), options.imageRefStyle);
+    setCheckedValue(document.querySelectorAll("[name='hashtagHandling']"), options.hashtagHandling || 'keep');
     setCheckedValue(document.querySelectorAll("[name='downloadMode']"), options.downloadMode);
 
     setCheckedValue(document.querySelectorAll("[name='popupTheme']"), options.popupTheme || 'system');

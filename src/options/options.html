@@ -768,6 +768,33 @@ const helloWorld = () => {
                         </label>
                     </div>
                 </div>
+
+                <!-- Hashtag Handling -->
+                <div class="setting-card" id="hashtagHandling-container">
+                    <h3 class="card-title">Hashtag Handling</h3>
+                    <p class="card-desc">
+                        Control how hashtag-like words (for example <code>#AI</code>) are written in clipped text.
+                        Useful for tools like Obsidian that treat hashtags as tags.
+                    </p>
+                    <div class="radio-group">
+                        <div class="radio-pill">
+                            <input type="radio" name="hashtagHandling" id="hashtag-keep" value="keep" />
+                            <label for="hashtag-keep">Keep</label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="hashtagHandling" id="hashtag-remove" value="remove" />
+                            <label for="hashtag-remove">Remove #</label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="hashtagHandling" id="hashtag-escape" value="escape" />
+                            <label for="hashtag-escape">Escape #</label>
+                        </div>
+                    </div>
+                    <p class="toggle-hint" style="margin-top: var(--space-3);">
+                        Example: <code>#research</code> becomes <code>research</code> in <strong>Remove #</strong>,
+                        or <code>\#research</code> in <strong>Escape #</strong>.
+                    </p>
+                </div>
             </div>
 
 

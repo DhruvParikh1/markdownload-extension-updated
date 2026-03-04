@@ -321,6 +321,16 @@ Backslash-escapes special Markdown characters in the HTML source to prevent misi
 
 **Default:** On
 
+### Hashtag Handling
+
+Controls how hashtag-like words are written in clipped text. Useful for tools like Obsidian that treat `#tag` as a note tag.
+
+- **Keep** _(default)_: keeps hashtags unchanged, e.g. `#research`
+- **Remove #**: removes only the leading `#`, e.g. `#research` → `research`
+- **Escape #**: writes hashtags as escaped markdown, e.g. `#research` → `\#research`
+
+This only affects article text. Markdown syntax markers, code blocks, and inline code are preserved.
+
 ---
 
 ## Table Formatting Options
