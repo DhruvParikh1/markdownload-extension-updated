@@ -1,5 +1,14 @@
 # Changelog
 
+## 4.1.0
+
+- **Markdown Controls**: Added configurable hashtag handling modes (`keep`, `remove`, `escape`) with safer conversion behavior and dedicated tests.
+- **Math Extraction Reliability**: Improved LaTeX capture flow before DOM snapshotting and fixed KaTeX handling in offscreen processing when annotation fallback is missing.
+- **Popup Appearance Settings**: Added popup customization controls for color mode, accent colors, and compact mode.
+- **Options Page Refresh**: Redesigned the options page to align with the popup design system and improved sidebar behavior.
+- **Options UX Improvements**: Added visual examples for table settings, a CodeMirror editor theme selector, helper hints for key toggles, and a donation button in the sidebar.
+- **Test Coverage**: Added end-to-end URL snapshot batch coverage with fixtures for real-world pages.
+
 ## 4.0.7
 
 - **Token Estimation**: Improved accuracy with per-content-type segmentation that better handles URLs, code blocks, markdown syntax, and non-ASCII characters.
