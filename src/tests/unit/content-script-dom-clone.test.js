@@ -51,4 +51,23 @@ describe('Content Script DOM Capture', () => {
     expect(document.getElementById('hidden-div')).toBeTruthy();
     expect(document.head.querySelector('base')).toBeNull();
   });
+
+  test('marksnipPrepareForCapture should request MathJax sync for rendered nodes', async () => {
+    const mathNode = document.createElement('mjx-container');
+    document.getElementById('visible-div').appendChild(mathNode);
+
+    window.marksnipCaptureState.pageContextScriptLoaded = true;
+    window.marksnipCaptureState.pageContextLoadPromise = Promise.resolve(true);
+
+    window.addEventListener(window.marksnipCaptureState.mathJaxSyncRequestEventName, () => {
+      mathNode.setAttribute('marksnip-latex', 'E=mc^2');
+      window.dispatchEvent(new CustomEvent(window.marksnipCaptureState.mathJaxSyncEventName, {
+        detail: { taggedCount: 1 }
+      }));
+    }, { once: true });
+
+    await marksnipPrepareForCapture();
+
+    expect(mathNode.getAttribute('marksnip-latex')).toBe('E=mc^2');
+  });
 });

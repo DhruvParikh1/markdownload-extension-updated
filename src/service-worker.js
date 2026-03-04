@@ -508,7 +508,10 @@ async function getTabContentForOffscreen(tabId, selection, requestId) {
     
     const results = await browser.scripting.executeScript({
       target: { tabId: tabId },
-      func: () => {
+      func: async () => {
+        if (typeof marksnipPrepareForCapture === 'function') {
+          await marksnipPrepareForCapture();
+        }
         if (typeof getSelectionAndDom === 'function') {
           return getSelectionAndDom();
         }
@@ -555,7 +558,10 @@ async function forwardGetArticleContent(tabId, selection, originalRequestId) {
     
     const results = await browser.scripting.executeScript({
       target: { tabId: tabId },
-      func: () => {
+      func: async () => {
+        if (typeof marksnipPrepareForCapture === 'function') {
+          await marksnipPrepareForCapture();
+        }
         if (typeof getSelectionAndDom === 'function') {
           return getSelectionAndDom();
         }

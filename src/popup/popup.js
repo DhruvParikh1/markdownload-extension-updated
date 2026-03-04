@@ -788,7 +788,10 @@ const clipSite = id => {
     // Rest of the function remains the same
     return browser.scripting.executeScript({
         target: { tabId: id },
-        func: () => {
+        func: async () => {
+            if (typeof marksnipPrepareForCapture === 'function') {
+                await marksnipPrepareForCapture();
+            }
             if (typeof getSelectionAndDom === 'function') {
                 return getSelectionAndDom();
             }

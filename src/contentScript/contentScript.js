@@ -105,6 +105,181 @@ function getHTMLOfSelection() {
         }
     } else {
         return '';
+	}
+}
+
+if (typeof window.marksnipCaptureState === 'undefined') {
+    window.marksnipCaptureState = {
+        pageContextLoadPromise: null,
+        pageContextScriptLoaded: false,
+        pageContextScriptFailed: false,
+        lastPageContextFailureAt: 0,
+        pageContextRetryCooldownMs: 5000,
+        latexAttrName: 'marksnip-latex',
+        mathJaxSyncEventName: 'marksnip:mathjax-sync',
+        mathJaxSyncRequestEventName: 'marksnip:mathjax-sync-request'
+    };
+}
+
+function hasRenderedMathJaxNodes() {
+    return !!document.querySelector('mjx-container, .MathJax, script[id^="MathJax-Element-"]');
+}
+
+function hasLatexTaggedMath() {
+    return !!document.querySelector(`[${window.marksnipCaptureState.latexAttrName}]`);
+}
+
+function requestMathJaxSyncFromPageContext() {
+    try {
+        window.dispatchEvent(new CustomEvent(window.marksnipCaptureState.mathJaxSyncRequestEventName));
+    } catch (error) {
+        // Ignore event dispatch failures across contexts.
+    }
+}
+
+function loadPageContextScript() {
+    if (window.marksnipCaptureState.pageContextScriptLoaded) {
+        return Promise.resolve(true);
+    }
+
+    if (window.marksnipCaptureState.pageContextScriptFailed) {
+        const elapsedSinceFailure = Date.now() - window.marksnipCaptureState.lastPageContextFailureAt;
+        if (elapsedSinceFailure < window.marksnipCaptureState.pageContextRetryCooldownMs) {
+            return Promise.resolve(false);
+        }
+        window.marksnipCaptureState.pageContextScriptFailed = false;
+    }
+
+    if (window.marksnipCaptureState.pageContextLoadPromise) {
+        return window.marksnipCaptureState.pageContextLoadPromise;
+    }
+
+    if (typeof browser === 'undefined' || !browser.runtime?.getURL) {
+        return Promise.resolve(false);
+    }
+
+    window.marksnipCaptureState.pageContextLoadPromise = new Promise((resolve) => {
+        let settled = false;
+        const settle = (value) => {
+            if (settled) {
+                return;
+            }
+            settled = true;
+            if (!value) {
+                // Allow retries on later captures.
+                window.marksnipCaptureState.pageContextLoadPromise = null;
+            }
+            resolve(value);
+        };
+
+        const existingScript = document.querySelector('script[data-marksnip-page-context="true"]');
+        if (existingScript) {
+            if (existingScript.getAttribute('data-marksnip-page-context-loaded') === 'true') {
+                window.marksnipCaptureState.pageContextScriptLoaded = true;
+                settle(true);
+                return;
+            }
+
+            if (existingScript.getAttribute('data-marksnip-page-context-failed') === 'true') {
+                settle(false);
+                return;
+            }
+
+            existingScript.addEventListener('load', () => {
+                window.marksnipCaptureState.pageContextScriptLoaded = true;
+                settle(true);
+            }, { once: true });
+            existingScript.addEventListener('error', () => {
+                window.marksnipCaptureState.pageContextScriptFailed = true;
+                window.marksnipCaptureState.lastPageContextFailureAt = Date.now();
+                settle(false);
+            }, { once: true });
+
+            setTimeout(() => settle(false), 1000);
+            return;
+        }
+
+        var script = document.createElement('script');
+        script.src = browser.runtime.getURL('contentScript/pageContext.js');
+        script.setAttribute('data-marksnip-page-context', 'true');
+        script.onload = () => {
+            window.marksnipCaptureState.pageContextScriptLoaded = true;
+            window.marksnipCaptureState.pageContextScriptFailed = false;
+            script.setAttribute('data-marksnip-page-context-loaded', 'true');
+            settle(true);
+        };
+        script.onerror = () => {
+            window.marksnipCaptureState.pageContextScriptFailed = true;
+            window.marksnipCaptureState.lastPageContextFailureAt = Date.now();
+            script.setAttribute('data-marksnip-page-context-failed', 'true');
+            settle(false);
+        };
+
+        setTimeout(() => {
+            if (!window.marksnipCaptureState.pageContextScriptLoaded) {
+                settle(false);
+            }
+        }, 1000);
+
+        (document.head || document.documentElement).appendChild(script);
+    });
+
+    return window.marksnipCaptureState.pageContextLoadPromise;
+}
+
+function delay(milliseconds) {
+    return new Promise(resolve => setTimeout(resolve, milliseconds));
+}
+
+async function waitForMathJaxLatexTagging(timeoutMs = 1400, pollIntervalMs = 70) {
+    if (hasLatexTaggedMath()) {
+        return true;
+    }
+
+    if (!hasRenderedMathJaxNodes()) {
+        return false;
+    }
+
+    let syncedAtLeastOnce = false;
+    const syncListener = () => {
+        syncedAtLeastOnce = true;
+    };
+
+    window.addEventListener(window.marksnipCaptureState.mathJaxSyncEventName, syncListener);
+
+    try {
+        const startedAt = Date.now();
+        while (Date.now() - startedAt < timeoutMs) {
+            requestMathJaxSyncFromPageContext();
+            await delay(pollIntervalMs);
+
+            if (hasLatexTaggedMath()) {
+                return true;
+            }
+
+            // If we got a sync event and there are still no rendered MathJax nodes,
+            // there is nothing to wait on for this capture pass.
+            if (syncedAtLeastOnce && !hasRenderedMathJaxNodes()) {
+                break;
+            }
+        }
+    } finally {
+        window.removeEventListener(window.marksnipCaptureState.mathJaxSyncEventName, syncListener);
+    }
+
+    return hasLatexTaggedMath();
+}
+
+async function marksnipPrepareForCapture() {
+    try {
+        if (!hasRenderedMathJaxNodes() && !hasLatexTaggedMath()) {
+            return;
+        }
+
+        await loadPageContextScript();
+        await waitForMathJaxLatexTagging();
+    } catch (error) {
+        console.debug('marksnipPrepareForCapture failed:', error);
     }
 }
 
@@ -200,11 +375,7 @@ function downloadImage(filename, url) {
     */
 }
 
-(function loadPageContextScript(){
-    var s = document.createElement('script');
-    s.src = browser.runtime.getURL('contentScript/pageContext.js');
-    (document.head||document.documentElement).appendChild(s);
-})()
+loadPageContextScript();
 
 // ===== Link Picker Feature =====
 
