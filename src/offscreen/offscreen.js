@@ -17,6 +17,29 @@ function initOffscreen() {
   TurndownService.prototype.defaultEscape = TurndownService.prototype.escape;
 }
 
+function buildDomWithSelection(domString, selectionHtml, shouldUseSelection = true) {
+  if (!shouldUseSelection || typeof selectionHtml !== 'string' || !selectionHtml.trim()) {
+    return domString;
+  }
+
+  try {
+    const parser = new DOMParser();
+    const dom = parser.parseFromString(domString, 'text/html');
+    if (dom.documentElement.nodeName === 'parsererror') {
+      return domString;
+    }
+
+    if (dom.body) {
+      dom.body.innerHTML = selectionHtml;
+      return dom.documentElement.outerHTML;
+    }
+  } catch (error) {
+    console.warn('Failed to build selection DOM, falling back to original DOM:', error);
+  }
+
+  return domString;
+}
+
 /**
  * Handle messages from service worker
  */
@@ -25,13 +48,8 @@ async function handleMessages(message, sender) {
   if (!message.target || message.target !== 'offscreen') {
     if (message.type === 'article-dom-data') {
       try {
-        // Process the DOM into an article
-        const article = await getArticleFromDom(message.dom, defaultOptions);
-        
-        // If selection was provided, replace content
-        if (message.selection) {
-          article.content = message.selection;
-        }
+        const domForArticle = buildDomWithSelection(message.dom, message.selection, true);
+        const article = await getArticleFromDom(domForArticle, defaultOptions);
         
         // Send the article back to service worker
         await browser.runtime.sendMessage({
@@ -97,13 +115,8 @@ async function processContent(message) {
   try {
     const { data, requestId, tabId, options } = message;
     
-    // Pass options to getArticleFromDom
-    const article = await getArticleFromDom(data.dom, options);
-    
-    // Handle selection if provided
-    if (data.selection && data.clipSelection) {
-      article.content = data.selection;
-    }
+    const domForArticle = buildDomWithSelection(data.dom, data.selection, !!data.clipSelection);
+    const article = await getArticleFromDom(domForArticle, options);
     
     // Convert to markdown using passed options
     const { markdown, imageList } = await convertArticleToMarkdown(article, null, options);
@@ -1256,13 +1269,14 @@ async function getArticleFromContent(tabId, selection = false, options = null) {
       requestId: requestId
     });
     
-    const article = await resultPromise;
-    if (!article?.dom) {
+    const articlePayload = await resultPromise;
+    if (!articlePayload?.dom) {
       throw new Error(`Missing DOM content for tab ${tabId}`);
     }
     
     console.log(`Processing DOM content for tab ${tabId}`);
-    return await getArticleFromDom(article.dom, options);  // Pass options here
+    const domForArticle = buildDomWithSelection(articlePayload.dom, articlePayload.selection, selection);
+    return await getArticleFromDom(domForArticle, options);
   } catch (error) {
     console.error(`Error getting content from tab ${tabId}:`, error);
     return null;
