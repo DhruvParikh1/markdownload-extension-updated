@@ -41,6 +41,21 @@ const progressUI = {
 let darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
 // Theme application
+const EDITOR_THEME_MAP = {
+    default:   { dark: 'xq-dark',        light: 'xq-light' },
+    dracula:   { dark: 'dracula',         light: 'dracula' },
+    material:  { dark: 'material-darker', light: 'material' },
+    monokai:   { dark: 'monokai',         light: 'xq-light' },
+    nord:      { dark: 'nord',            light: 'xq-light' },
+    solarized: { dark: 'solarized dark',  light: 'solarized light' },
+    twilight:  { dark: 'twilight',         light: 'xq-light' },
+};
+
+function resolveEditorTheme(editorTheme, isDark) {
+    const entry = EDITOR_THEME_MAP[editorTheme] || EDITOR_THEME_MAP.default;
+    return isDark ? entry.dark : entry.light;
+}
+
 function applyThemeSettings(options) {
     const root = document.documentElement;
 
@@ -58,12 +73,12 @@ function applyThemeSettings(options) {
     // Compact mode
     document.body.classList.toggle('compact-mode', !!options.compactMode);
 
-    // Update CodeMirror theme based on resolved dark mode
+    // Update CodeMirror theme based on resolved dark mode + editor theme
     const isDark = options.popupTheme === 'dark' ||
         (options.popupTheme !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
     darkMode = isDark;
     if (typeof cm !== 'undefined' && cm) {
-        cm.setOption('theme', isDark ? 'xq-dark' : 'xq-light');
+        cm.setOption('theme', resolveEditorTheme(options.editorTheme || 'default', isDark));
     }
 }
 
@@ -169,7 +184,7 @@ browser.storage.local.get('countMode').then(data => {
 
 // set up event handlers
 const cm = CodeMirror.fromTextArea(document.getElementById("md"), {
-    theme: darkMode ? "xq-dark" : "xq-light",
+    theme: resolveEditorTheme('default', darkMode),
     mode: "markdown",
     lineWrapping: true
 });
@@ -317,6 +332,7 @@ const defaultOptions = {
     popupTheme: 'system',
     popupAccent: 'sage',
     compactMode: false,
+    editorTheme: 'default',
 }
 
 const updateObsidianButtonVisibility = (options) => {

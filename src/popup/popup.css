@@ -103,7 +103,7 @@
     background: var(--stone-600);
 }
 
-:root.theme-dark .cm-s-xq-dark.CodeMirror {
+:root.theme-dark .CodeMirror {
     background-color: var(--bg-secondary);
 }
 
@@ -134,7 +134,7 @@
         background: var(--stone-600);
     }
     
-    :root.theme-system .cm-s-xq-dark.CodeMirror {
+    :root.theme-system .CodeMirror {
         background-color: var(--bg-secondary);
     }
 }
