@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.1.1
+
+- **Selection Capture Fix**: Preserved selected HTML context during conversion to prevent broken markdown output from partial selections.
+- **Math Output Normalization**: Normalized math rendering paths for cleaner markdown output when clipping selected content.
+- **Regression Coverage**: Added unit tests for selection capture behavior to lock in the fix.
+
 ## 4.1.0
 
 - **Markdown Controls**: Added configurable hashtag handling modes (`keep`, `remove`, `escape`) with safer conversion behavior and dedicated tests.
