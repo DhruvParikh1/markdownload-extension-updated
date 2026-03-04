@@ -474,6 +474,16 @@ a:hover {
     stroke: #1a1200;
 }
 
+.review-btn {
+    margin-top: 0;
+    background: #f2ecd7;
+}
+
+.review-btn:hover {
+    background: #f8e9a7;
+    box-shadow: 0 2px 8px rgba(245, 189, 46, 0.35);
+}
+
 
 /* ── Content Panel ── */
 .content-panel {

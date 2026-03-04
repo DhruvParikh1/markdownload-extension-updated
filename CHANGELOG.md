@@ -5,6 +5,7 @@
 - **Selection Capture Fix**: Preserved selected HTML context during conversion to prevent broken markdown output from partial selections.
 - **Math Output Normalization**: Normalized math rendering paths for cleaner markdown output when clipping selected content.
 - **Regression Coverage**: Added unit tests for selection capture behavior to lock in the fix.
+- **Options Sidebar**: Added a new **Leave Review** button under **Buy Me a Coffee** that automatically links to Chrome Web Store or Firefox Add-ons reviews based on the current browser.
 
 ## 4.1.0
 

@@ -17,6 +17,18 @@ function applyThemeSettings() {
     }
 }
 
+function configureReviewLink() {
+    const reviewLink = document.getElementById("leave-review-link");
+    if (!reviewLink || !browser?.runtime?.getURL) return;
+
+    const chromeUrl = reviewLink.dataset.chromeUrl;
+    const firefoxUrl = reviewLink.dataset.firefoxUrl;
+    const extensionUrl = browser.runtime.getURL("/");
+    const isFirefox = extensionUrl.startsWith("moz-extension://");
+
+    reviewLink.href = isFirefox ? firefoxUrl : chromeUrl;
+}
+
 
 const saveOptions = e => {
     e.preventDefault();
@@ -355,6 +367,7 @@ function initSidebar() {
 const loaded = () => {
     // Initialize sidebar navigation
     initSidebar();
+    configureReviewLink();
 
     // Restore saved options
     restoreOptions();
