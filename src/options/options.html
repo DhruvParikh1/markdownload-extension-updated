@@ -142,16 +142,38 @@
                         <p>URL information:</p>
                         <ul>
                             <li><code>{baseURI}</code> - Parsed document/base URI (legacy behavior).</li>
-                            <li><code>{pageURL}</code> / <code>{tabURL}</code> - Actual address-bar URL of the tab.</li>
-                            <li><code>{origin}</code> - Origin from <code>{baseURI}</code>.</li>
-                            <li><code>{host}</code> - Host from <code>{baseURI}</code>.</li>
-                            <li><code>{hostname}</code> - Hostname from <code>{baseURI}</code>.</li>
-                            <li><code>{port}</code> - Port from <code>{baseURI}</code>.</li>
-                            <li><code>{protocol}</code> - Protocol from <code>{baseURI}</code>.</li>
-                            <li><code>{pathname}</code> - Path from <code>{baseURI}</code>.</li>
-                            <li><code>{search}</code> - Query string from <code>{baseURI}</code>.</li>
-                            <li><code>{hash}</code> - Fragment from <code>{baseURI}</code>.</li>
-                            <li><code>{pageOrigin}</code>, <code>{pageHost}</code>, <code>{pageHostname}</code>, <code>{pagePort}</code>, <code>{pageProtocol}</code>, <code>{pagePathname}</code>, <code>{pageSearch}</code>, <code>{pageHash}</code> - URL components from <code>{pageURL}</code>.</li>
+                            <li><code>{pageURL}</code> / <code>{tabURL}</code> - Current address-bar URL of the tab.</li>
+                            <li><code>{origin}</code> - The origin from <code>{baseURI}</code> (scheme + domain + port).</li>
+                            <li><code>{host}</code> - The host from <code>{baseURI}</code> (hostname, and port if present).</li>
+                            <li><code>{hostname}</code> - The hostname from <code>{baseURI}</code>.</li>
+                            <li><code>{port}</code> - The port number from <code>{baseURI}</code>.</li>
+                            <li><code>{protocol}</code> - The protocol scheme from <code>{baseURI}</code>, including the trailing <code>:</code>.</li>
+                            <li><code>{pathname}</code> - The path from <code>{baseURI}</code>, not including query string or fragment.</li>
+                            <li><code>{search}</code> - The query string from <code>{baseURI}</code>, including <code>?</code>.</li>
+                            <li><code>{hash}</code> - The fragment identifier from <code>{baseURI}</code>, including <code>#</code>.</li>
+                            <li><code>{pageOrigin}</code>, <code>{pageHost}</code>, <code>{pageHostname}</code>, <code>{pagePort}</code>, <code>{pageProtocol}</code>, <code>{pagePathname}</code>, <code>{pageSearch}</code>, <code>{pageHash}</code> - Same URL components as above, but from <code>{pageURL}</code>.</li>
+                        </ul>
+                        <p>Examples:</p>
+                        <ul>
+                            <li>SPA route example (Gemini style):</li>
+                            <li>Address bar URL: <code>https://gemini.google.com/app/19a994212aad751c?hl=en#chat</code></li>
+                            <li>Parsed/base URI: <code>https://gemini.google.com/</code></li>
+                            <li><code>{baseURI}</code> -> <code>https://gemini.google.com/</code></li>
+                            <li><code>{pageURL}</code> -> <code>https://gemini.google.com/app/19a994212aad751c?hl=en#chat</code></li>
+                            <li><code>{pathname}</code> -> <code>/</code>, <code>{pagePathname}</code> -> <code>/app/19a994212aad751c</code></li>
+                            <li><code>{search}</code> -> (empty), <code>{pageSearch}</code> -> <code>?hl=en</code></li>
+                            <li><code>{hash}</code> -> (empty), <code>{pageHash}</code> -> <code>#chat</code></li>
+                        </ul>
+                        <ul>
+                            <li>Standard page example (no special base behavior):</li>
+                            <li>Address bar URL: <code>https://example.com/blog/post?ref=md#top</code></li>
+                            <li><code>{baseURI}</code> and <code>{pageURL}</code> are usually the same.</li>
+                        </ul>
+                        <p>Template snippets:</p>
+                        <ul>
+                            <li><code>source: {pageURL}</code> (recommended for current tab URL)</li>
+                            <li><code>source_base: {baseURI}</code> (document/base URI)</li>
+                            <li><code>source_parts: {pageOrigin}{pagePathname}{pageSearch}{pageHash}</code></li>
                         </ul>
                         <p>Additionally, you can 'parameterize' any of the text variables (other than date and keywords) by using the following syntax:</p>
                         <ul>
