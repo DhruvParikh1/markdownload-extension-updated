@@ -19,7 +19,7 @@ const defaultOptions = {
     prettyPrint: true,
     centerText: true
   },
-  frontmatter: "---\ncreated: {date:YYYY-MM-DDTHH:mm:ss} (UTC {date:Z})\ntags: [{keywords}]\nsource: {baseURI}\nauthor: {byline}\n---\n\n# {pageTitle}\n\n> ## Excerpt\n> {excerpt}\n\n---",
+  frontmatter: "---\ncreated: {date:YYYY-MM-DDTHH:mm:ss} (UTC {date:Z})\ntags: [{keywords}]\nsource: {pageURL}\nauthor: {byline}\n---\n\n# {pageTitle}\n\n> ## Excerpt\n> {excerpt}\n\n---",
   backmatter: "",
   title: "{pageTitle}",
   includeTemplate: false,
@@ -41,6 +41,8 @@ const defaultOptions = {
   editorTheme: 'default',
 }
 
+const LEGACY_DEFAULT_FRONTMATTER = "---\ncreated: {date:YYYY-MM-DDTHH:mm:ss} (UTC {date:Z})\ntags: [{keywords}]\nsource: {baseURI}\nauthor: {byline}\n---\n\n# {pageTitle}\n\n> ## Excerpt\n> {excerpt}\n\n---";
+
 // function to get the options from storage and substitute default options if it fails
 async function getOptions() {
   let options = defaultOptions;
@@ -48,6 +50,9 @@ async function getOptions() {
     options = await browser.storage.sync.get(defaultOptions);
   } catch (err) {
     console.error(err);
+  }
+  if (options.frontmatter === LEGACY_DEFAULT_FRONTMATTER) {
+    options.frontmatter = defaultOptions.frontmatter;
   }
   if (!browser.downloads) options.downloadMode = 'contentLink';
   return options;

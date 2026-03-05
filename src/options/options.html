@@ -141,15 +141,17 @@
                         For example, try <code>{og:image}</code> or any other widely supported meta tags.
                         <p>URL information:</p>
                         <ul>
-                            <li><code>{baseURI}</code> — The url of the article</li>
-                            <li><code>{origin}</code> — The origin of the URL, that is its scheme, its domain and its port.</li>
-                            <li><code>{host}</code> — The domain (that is the <em>hostname</em>) followed by (if a port was specified) a <code>':'</code> and the <em>port</em> of the URL.</li>
-                            <li><code>{hostname}</code> — The domain of the URL.</li>
-                            <li><code>{port}</code> — The port number of the URL.</li>
-                            <li><code>{protocol}</code> — The protocol scheme of the URL, including the final <code>':'</code>.</li>
-                            <li><code>{pathname}</code> — An initial <code>'/'</code> followed by the path of the URL, not including the query string or fragment.</li>
-                            <li><code>{search}</code> — The URL's parameter string.</li>
-                            <li><code>{hash}</code> — A '#' followed by the fragment identifier of the URL.</li>
+                            <li><code>{baseURI}</code> - Parsed document/base URI (legacy behavior).</li>
+                            <li><code>{pageURL}</code> / <code>{tabURL}</code> - Actual address-bar URL of the tab.</li>
+                            <li><code>{origin}</code> - Origin from <code>{baseURI}</code>.</li>
+                            <li><code>{host}</code> - Host from <code>{baseURI}</code>.</li>
+                            <li><code>{hostname}</code> - Hostname from <code>{baseURI}</code>.</li>
+                            <li><code>{port}</code> - Port from <code>{baseURI}</code>.</li>
+                            <li><code>{protocol}</code> - Protocol from <code>{baseURI}</code>.</li>
+                            <li><code>{pathname}</code> - Path from <code>{baseURI}</code>.</li>
+                            <li><code>{search}</code> - Query string from <code>{baseURI}</code>.</li>
+                            <li><code>{hash}</code> - Fragment from <code>{baseURI}</code>.</li>
+                            <li><code>{pageOrigin}</code>, <code>{pageHost}</code>, <code>{pageHostname}</code>, <code>{pagePort}</code>, <code>{pageProtocol}</code>, <code>{pagePathname}</code>, <code>{pageSearch}</code>, <code>{pageHash}</code> - URL components from <code>{pageURL}</code>.</li>
                         </ul>
                         <p>Additionally, you can 'parameterize' any of the text variables (other than date and keywords) by using the following syntax:</p>
                         <ul>
@@ -976,3 +978,4 @@ const helloWorld = () => {
 </body>
 
 </html>
+

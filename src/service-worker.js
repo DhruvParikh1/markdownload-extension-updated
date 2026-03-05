@@ -505,6 +505,8 @@ async function getTabContentForOffscreen(tabId, selection, requestId) {
   try {
     console.log(`Getting tab content for ${tabId}`);
     await ensureScripts(tabId);
+    const tabInfo = await browser.tabs.get(tabId).catch(() => null);
+    const fallbackPageUrl = tabInfo?.url || null;
     
     const results = await browser.scripting.executeScript({
       target: { tabId: tabId },
@@ -529,7 +531,8 @@ async function getTabContentForOffscreen(tabId, selection, requestId) {
         requestId: requestId,
         article: {
           dom: results[0].result.dom,
-          selection: selection ? results[0].result.selection : null
+          selection: selection ? results[0].result.selection : null,
+          pageUrl: results[0].result.pageUrl || fallbackPageUrl
         }
       });
     } else {
@@ -555,6 +558,8 @@ async function getTabContentForOffscreen(tabId, selection, requestId) {
 async function forwardGetArticleContent(tabId, selection, originalRequestId) {
   try {
     await ensureScripts(tabId);
+    const tabInfo = await browser.tabs.get(tabId).catch(() => null);
+    const fallbackPageUrl = tabInfo?.url || null;
     
     const results = await browser.scripting.executeScript({
       target: { tabId: tabId },
@@ -575,7 +580,8 @@ async function forwardGetArticleContent(tabId, selection, originalRequestId) {
         type: 'article-dom-data',
         requestId: originalRequestId,
         dom: results[0].result.dom,
-        selection: selection ? results[0].result.selection : null
+        selection: selection ? results[0].result.selection : null,
+        pageUrl: results[0].result.pageUrl || fallbackPageUrl
       });
     } else {
       throw new Error('Failed to get content from tab');
@@ -782,12 +788,20 @@ async function handleClipRequest(message, tabId) {
 
   const options = await getOptions();
   const requestId = generateRequestId();
+  let pageUrl = message?.pageUrl || null;
+  if (!pageUrl && Number.isInteger(tabId)) {
+    const tabInfo = await browser.tabs.get(tabId).catch(() => null);
+    pageUrl = tabInfo?.url || null;
+  }
 
   await browser.runtime.sendMessage({
     target: 'offscreen',
     type: 'process-content',
     requestId: requestId,
-    data: message,
+    data: {
+      ...message,
+      pageUrl
+    },
     tabId: tabId,
     options: options
   });
@@ -1280,6 +1294,26 @@ async function formatTitle(article, providedOptions = null) {
   return title;
 }
 
+function getArticlePageUrl(article, tab = null) {
+  const candidates = [
+    article?.pageURL,
+    article?.tabURL,
+    tab?.url,
+    article?.baseURI
+  ];
+
+  for (const candidate of candidates) {
+    if (!candidate) continue;
+    try {
+      return new URL(candidate).href;
+    } catch {
+      // Try next candidate.
+    }
+  }
+
+  return article?.baseURI || tab?.url || '';
+}
+
 /**
  * Ensure content script is loaded
  */
@@ -1398,11 +1432,12 @@ async function copyTabAsMarkdownLink(tab) {
     const options = await getOptions();
     const article = await getArticleFromContent(tab.id, false, options);
     const title = await formatTitle(article, options);
+    const pageUrl = getArticlePageUrl(article, tab);
     
     await browser.runtime.sendMessage({
       target: 'offscreen',
       type: 'copy-to-clipboard',
-      text: `[${title}](${article.baseURI})`,
+      text: `[${title}](${pageUrl})`,
       options: options
     });
   } catch (error) {
@@ -1426,7 +1461,8 @@ async function copyTabAsMarkdownLinkAll(tab) {
       await ensureScripts(currentTab.id);
       const article = await getArticleFromContent(currentTab.id, false, options);
       const title = await formatTitle(article, options);
-      const link = `${options.bulletListMarker} [${title}](${article.baseURI})`;
+      const pageUrl = getArticlePageUrl(article, currentTab);
+      const link = `${options.bulletListMarker} [${title}](${pageUrl})`;
       links.push(link);
     }
     
@@ -1460,9 +1496,10 @@ async function copySelectedTabAsMarkdownLink(tab) {
     const links = [];
     for (const selectedTab of tabs) {
       await ensureScripts(selectedTab.id);
-      const article = await getArticleFromContent(selectedTab.id);
-      const title = await formatTitle(article);
-      const link = `${options.bulletListMarker} [${title}](${article.baseURI})`;
+      const article = await getArticleFromContent(selectedTab.id, false, options);
+      const title = await formatTitle(article, options);
+      const pageUrl = getArticlePageUrl(article, selectedTab);
+      const link = `${options.bulletListMarker} [${title}](${pageUrl})`;
       links.push(link);
     }
 

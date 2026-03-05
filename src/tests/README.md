@@ -87,7 +87,7 @@ This means tests use **the exact same code that runs in production**.
 
 #### Template Processing (31 tests)
 **Tests actual functions from offscreen.js:**
-- ✅ Variable substitution (`{title}`, `{author}`, `{baseURI}`)
+- ✅ Variable substitution (`{title}`, `{author}`, `{baseURI}`, `{pageURL}`)
 - ✅ Case transforms (kebab-case, snake_case, camelCase, PascalCase)
 - ✅ Date formatting
 - ✅ Keywords handling
@@ -352,4 +352,5 @@ test('should convert heading', () => {
 - [Playwright](https://playwright.dev/)
 - [Turndown](https://github.com/mixmark-io/turndown)
 - [Readability](https://github.com/mozilla/readability)
+
 

@@ -295,7 +295,8 @@ function getSelectionAndDom() {
       
       return {
         selection: selection,
-        dom: dom
+        dom: dom,
+        pageUrl: window.location.href
       };
     } catch (error) {
       console.error('Error in getSelectionAndDom:', error);

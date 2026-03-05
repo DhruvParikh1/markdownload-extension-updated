@@ -167,7 +167,7 @@ Text prepended or appended to every clipped Markdown file. Useful for YAML front
 ---
 created: {date:YYYY-MM-DDTHH:mm:ss} (UTC {date:Z})
 tags: [{keywords}]
-source: {baseURI}
+source: {pageURL}
 author: {byline}
 ---
 
@@ -367,7 +367,8 @@ The [Title Template](#title-template), [Downloads Subfolder](#downloads-subfolde
 | `{excerpt}`            | Article description or short excerpt                                   |
 | `{byline}`             | Author metadata                                                        |
 | `{dir}`                | Content direction (e.g. `ltr`)                                         |
-| `{baseURI}`            | Full URL of the article                                                |
+| `{baseURI}`            | Parsed document/base URI (legacy behavior)                             |
+| `{pageURL}` / `{tabURL}` | Actual address-bar URL of the tab                                   |
 | `{keywords}`           | Meta keywords, comma-separated                                         |
 | `{keywords:SEPARATOR}` | Meta keywords with a custom separator (e.g. `{keywords: }` for spaces) |
 
@@ -383,6 +384,7 @@ The [Title Template](#title-template), [Downloads Subfolder](#downloads-subfolde
 | `{pathname}` | URL path (e.g. `/blog/post`)                        |
 | `{search}`   | Query string including `?`                          |
 | `{hash}`     | Fragment identifier including `#`                   |
+| `{pageOrigin}` / `{pageHost}` / `{pageHostname}` / `{pagePort}` / `{pageProtocol}` / `{pagePathname}` / `{pageSearch}` / `{pageHash}` | URL components from `{pageURL}` |
 
 ### Date/Time
 

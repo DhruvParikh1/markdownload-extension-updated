@@ -12,6 +12,9 @@ describe('Template Processing', () => {
     description: 'A test article description',
     keywords: ['testing', 'markdown', 'clipper'],
     baseURI: 'https://example.com/article',
+    pageURL: 'https://example.com/app/123',
+    tabURL: 'https://example.com/app/123',
+    pagePathname: '/app/123',
     siteName: 'Example Site'
   };
 
@@ -112,6 +115,13 @@ describe('Template Processing', () => {
       const result = textReplace(template, mockArticle);
 
       expect(result).toBe('Source: https://example.com/article');
+    });
+
+    test('should replace {pageURL} and page URL component variables', () => {
+      const template = 'Page: {pageURL} Path: {pagePathname}';
+      const result = textReplace(template, mockArticle);
+
+      expect(result).toBe('Page: https://example.com/app/123 Path: /app/123');
     });
 
     test('should replace multiple variables in one template', () => {

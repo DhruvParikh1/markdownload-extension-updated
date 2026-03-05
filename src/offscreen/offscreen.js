@@ -49,7 +49,7 @@ async function handleMessages(message, sender) {
     if (message.type === 'article-dom-data') {
       try {
         const domForArticle = buildDomWithSelection(message.dom, message.selection, true);
-        const article = await getArticleFromDom(domForArticle, defaultOptions);
+        const article = await getArticleFromDom(domForArticle, defaultOptions, message.pageUrl);
         
         // Send the article back to service worker
         await browser.runtime.sendMessage({
@@ -116,7 +116,7 @@ async function processContent(message) {
     const { data, requestId, tabId, options } = message;
     
     const domForArticle = buildDomWithSelection(data.dom, data.selection, !!data.clipSelection);
-    const article = await getArticleFromDom(domForArticle, options);
+    const article = await getArticleFromDom(domForArticle, options, data.pageUrl);
     
     // Convert to markdown using passed options
     const { markdown, imageList } = await convertArticleToMarkdown(article, null, options);
@@ -503,6 +503,7 @@ function applyHashtagHandlingToMarkdown(markdown, mode) {
  */
 function turndown(content, options, article) {
   console.log("Starting turndown with options:", options.tableFormatting); // Debug log
+  const uriBase = article.uriBase || article.baseURI;
 
   if (options.turndownEscape) TurndownService.prototype.escape = TurndownService.prototype.defaultEscape;
   else TurndownService.prototype.escape = s => s;
@@ -756,7 +757,7 @@ function turndown(content, options, article) {
         // get the original src
         let src = node.getAttribute('src')
         // set the new src
-        node.setAttribute('src', validateUri(src, article.baseURI));
+        node.setAttribute('src', validateUri(src, uriBase));
         
         // if we're downloading images, there's more to do.
         if (options.downloadImages) {
@@ -847,7 +848,7 @@ function turndown(content, options, article) {
     },
     replacement: (content, node, tdopts) => {
       // get the href
-      const href = validateUri(node.getAttribute('href'), article.baseURI);
+      const href = validateUri(node.getAttribute('href'), uriBase);
       
       // If we're in a table AND strip links is enabled, OR if linkStyle is set to stripLinks
       // just return the text content without the link
@@ -1047,7 +1048,24 @@ function turndown(content, options, article) {
 /**
 * Get article from DOM string
 */
-async function getArticleFromDom(domString, options) {
+function safeParseUrl(urlString) {
+  try {
+    return new URL(urlString);
+  } catch {
+    return null;
+  }
+}
+
+function resolveArticleUrl(domBaseUri, pageUrl) {
+  const normalizedPageUrl = typeof pageUrl === 'string' ? pageUrl.trim() : '';
+  const preferredUrl = normalizedPageUrl ? safeParseUrl(normalizedPageUrl) : null;
+  if (preferredUrl) {
+    return preferredUrl;
+  }
+  return safeParseUrl(domBaseUri);
+}
+
+async function getArticleFromDom(domString, options, pageUrl = null) {
   if (!domString) {
     throw new Error('Invalid DOM string provided');
   }
@@ -1191,8 +1209,17 @@ async function getArticleFromDom(domString, options) {
   // Simplify the DOM into an article
   const article = new Readability(dom).parse();
 
-  // Add essential metadata with fallbacks
-  article.baseURI = dom.baseURI;
+  // Add essential metadata with fallbacks.
+  // Keep baseURI semantics tied to the parsed document/base tag, and expose pageURL/tabURL separately.
+  const baseUrl = safeParseUrl(dom.baseURI);
+  const resolvedUrl = resolveArticleUrl(dom.baseURI, pageUrl);
+  const baseURI = baseUrl?.href || dom.baseURI || resolvedUrl?.href || '';
+  const pageURL = resolvedUrl?.href || baseURI;
+
+  article.uriBase = baseURI;
+  article.baseURI = baseURI;
+  article.pageURL = pageURL;
+  article.tabURL = pageURL;
   
   // Ensure pageTitle has a value - fallback chain: dom.title -> article.title -> 'Untitled'
   article.pageTitle = dom.title || article.title || 'Untitled';
@@ -1202,16 +1229,25 @@ async function getArticleFromDom(domString, options) {
     article.title = article.pageTitle;
   }
   
-  // Extract URL information
-  const url = new URL(dom.baseURI);
- article.hash = url.hash;
- article.host = url.host;
- article.origin = url.origin;
- article.hostname = url.hostname;
- article.pathname = url.pathname;
- article.port = url.port;
- article.protocol = url.protocol;
- article.search = url.search;
+  // Legacy URL components (baseURI-based).
+  article.hash = baseUrl?.hash || '';
+  article.host = baseUrl?.host || '';
+  article.origin = baseUrl?.origin || '';
+  article.hostname = baseUrl?.hostname || '';
+  article.pathname = baseUrl?.pathname || '';
+  article.port = baseUrl?.port || '';
+  article.protocol = baseUrl?.protocol || '';
+  article.search = baseUrl?.search || '';
+
+  // SPA-safe page URL components (actual tab/location URL when available).
+  article.pageHash = resolvedUrl?.hash || article.hash;
+  article.pageHost = resolvedUrl?.host || article.host;
+  article.pageOrigin = resolvedUrl?.origin || article.origin;
+  article.pageHostname = resolvedUrl?.hostname || article.hostname;
+  article.pagePathname = resolvedUrl?.pathname || article.pathname;
+  article.pagePort = resolvedUrl?.port || article.port;
+  article.pageProtocol = resolvedUrl?.protocol || article.protocol;
+  article.pageSearch = resolvedUrl?.search || article.search;
 
  // Extract meta tags if head exists
  if (dom.head) {
@@ -1276,7 +1312,7 @@ async function getArticleFromContent(tabId, selection = false, options = null) {
     
     console.log(`Processing DOM content for tab ${tabId}`);
     const domForArticle = buildDomWithSelection(articlePayload.dom, articlePayload.selection, selection);
-    return await getArticleFromDom(domForArticle, options);
+    return await getArticleFromDom(domForArticle, options, articlePayload.pageUrl);
   } catch (error) {
     console.error(`Error getting content from tab ${tabId}:`, error);
     return null;

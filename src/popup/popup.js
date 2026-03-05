@@ -804,7 +804,8 @@ const clipSite = id => {
             let message = {
                 type: "clip",
                 dom: result[0].result.dom,
-                selection: result[0].result.selection
+                selection: result[0].result.selection,
+                pageUrl: result[0].result.pageUrl || null
             }
             return browser.storage.sync.get(defaultOptions).then(options => {
                 browser.runtime.sendMessage({

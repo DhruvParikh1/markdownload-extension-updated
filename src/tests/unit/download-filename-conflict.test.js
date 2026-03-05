@@ -291,10 +291,15 @@ describe('Empty Filename Handling', () => {
 });
 
 describe('Article PageTitle Fallback', () => {
-  const createArticleWithFallbacks = (dom, readabilityResult) => {
+  const createArticleWithFallbacks = (dom, readabilityResult, pageUrl = null) => {
     const article = readabilityResult || { title: null };
     
-    article.baseURI = dom.baseURI || 'https://example.com';
+    const baseUri = dom.baseURI || pageUrl || 'https://example.com';
+    const resolvedUrl = pageUrl || baseUri;
+    article.uriBase = baseUri;
+    article.baseURI = baseUri;
+    article.pageURL = resolvedUrl;
+    article.tabURL = resolvedUrl;
     
     article.pageTitle = dom.title || article.title || 'Untitled';
     
@@ -363,6 +368,18 @@ describe('Article PageTitle Fallback', () => {
     
     expect(article.pageTitle).toBe('Untitled');
     expect(article.title).toBe('Untitled');
+  });
+
+  test('should prefer explicit page URL over baseURI for SPA routes', () => {
+    const dom = { baseURI: 'https://gemini.google.com/', title: 'Google Gemini' };
+    const readability = { title: 'Google Gemini' };
+    const pageUrl = 'https://gemini.google.com/app/19a994212aad751c';
+
+    const article = createArticleWithFallbacks(dom, readability, pageUrl);
+
+    expect(article.baseURI).toBe(dom.baseURI);
+    expect(article.pageURL).toBe(pageUrl);
+    expect(article.uriBase).toBe(dom.baseURI);
   });
 });
 
