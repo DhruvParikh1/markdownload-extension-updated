@@ -169,4 +169,4 @@ MarkSnip does not send clipped page content to external servers. See [PRIVACY.md
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the [PolyForm Noncommercial License](LICENSE).
