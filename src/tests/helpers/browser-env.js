@@ -34,12 +34,17 @@ function createBrowserEnvironment() {
   const readabilityPath = path.join(__dirname, '../../background/Readability.js');
   const readabilityCode = fs.readFileSync(readabilityPath, 'utf8');
 
+  // Load shared readability recovery helpers
+  const readabilityRecoveryPath = path.join(__dirname, '../../shared/readability-recovery.js');
+  const readabilityRecoveryCode = fs.readFileSync(readabilityRecoveryPath, 'utf8');
+
   // Execute in JSDOM context
   const script = dom.window.document.createElement('script');
   script.textContent = `
     ${turndownCode}
     ${gfmCode}
     ${readabilityCode}
+    ${readabilityRecoveryCode}
   `;
   dom.window.document.head.appendChild(script);
 
@@ -48,7 +53,8 @@ function createBrowserEnvironment() {
     document,
     TurndownService: dom.window.TurndownService,
     turndownPluginGfm: dom.window.turndownPluginGfm,
-    Readability: dom.window.Readability
+    Readability: dom.window.Readability,
+    ReadabilityRecovery: dom.window.MarkSnipReadabilityRecovery
   };
 }
 
@@ -172,13 +178,59 @@ function createTurndownService(options = {}) {
 /**
  * Parse HTML using Readability
  */
-function parseArticle(html, url = 'https://example.com') {
-  const env = createBrowserEnvironment();
+function normalizeMeaningfulText(text) {
+  return String(text || '').replace(/\s+/g, ' ').trim();
+}
 
-  // Parse HTML in JSDOM
-  const dom = new JSDOM(html, { url });
-  const { document } = dom.window;
+function parseArticleHtmlFragment(window, articleHtml) {
+  const parser = new window.DOMParser();
+  return parser.parseFromString(`<!DOCTYPE html><html><body>${articleHtml || ''}</body></html>`, 'text/html');
+}
 
+function meaningfulTextLengthFromArticleHtml(window, articleHtml) {
+  const documentFragment = parseArticleHtmlFragment(window, articleHtml);
+  return normalizeMeaningfulText(documentFragment.body.textContent).length;
+}
+
+function linkDensityFromArticleHtml(window, articleHtml) {
+  const documentFragment = parseArticleHtmlFragment(window, articleHtml);
+  const textLength = meaningfulTextLengthFromArticleHtml(window, articleHtml);
+  if (!textLength) {
+    return 0;
+  }
+
+  let linkTextLength = 0;
+  documentFragment.body.querySelectorAll('a').forEach(anchor => {
+    linkTextLength += normalizeMeaningfulText(anchor.textContent).length;
+  });
+  return linkTextLength / textLength;
+}
+
+function articleHtmlContainsAnyWitness(window, articleHtml, witnessIds, anchorAttribute) {
+  if (!witnessIds?.length) {
+    return false;
+  }
+
+  const documentFragment = parseArticleHtmlFragment(window, articleHtml);
+  return witnessIds.some(witnessId => (
+    !!documentFragment.body.querySelector(`[${anchorAttribute}="${witnessId}"]`)
+  ));
+}
+
+function buildRecoveredArticle(window, firstPassArticle, recoveredHtml) {
+  const documentFragment = parseArticleHtmlFragment(window, recoveredHtml);
+  const textContent = normalizeMeaningfulText(documentFragment.body.textContent);
+
+  return {
+    ...firstPassArticle,
+    content: recoveredHtml,
+    textContent,
+    length: textContent.length,
+    excerpt: textContent.substring(0, 200)
+  };
+}
+
+function prepareDocumentForReadability(document, recoveryApi) {
   // Unwrap headers from anchor tags to prevent Readability from filtering them
   // (matching production code behavior)
   document.querySelectorAll('a')?.forEach(anchor => {
@@ -199,9 +251,67 @@ function parseArticle(html, url = 'https://example.com') {
     header.outerHTML = header.outerHTML;
   });
 
-  // Use Readability to extract article
-  const reader = new env.Readability(document);
-  const article = reader.parse();
+  recoveryApi.annotateStructuralAnchors(document);
+}
+
+function parseArticle(html, url = 'https://example.com') {
+  const env = createBrowserEnvironment();
+  const recoveryApi = env.ReadabilityRecovery;
+
+  // Parse HTML in JSDOM
+  const dom = new JSDOM(html, { url });
+  prepareDocumentForReadability(dom.window.document, recoveryApi);
+
+  const firstPassDom = new JSDOM(dom.serialize(), { url });
+  const firstPassReader = new env.Readability(firstPassDom.window.document);
+  const firstPassArticle = firstPassReader.parse();
+
+  let article = firstPassArticle;
+
+  if (firstPassArticle?.content) {
+    const recoveryPlan = recoveryApi.analyzeNarrowExtraction(dom.window.document, firstPassArticle.content);
+    if (recoveryPlan) {
+      const secondPassDom = new JSDOM(html, { url });
+      prepareDocumentForReadability(secondPassDom.window.document, recoveryApi);
+
+      const recoveryResult = recoveryApi.applyRepeatedSectionPromotion(secondPassDom.window.document, recoveryPlan);
+      if (recoveryResult.changed) {
+        const recoveryFragment = recoveryApi.buildRepeatedSectionFragment
+          ? recoveryApi.buildRepeatedSectionFragment(secondPassDom.window.document, recoveryPlan)
+          : null;
+        const secondPassArticle = recoveryFragment?.html
+          ? buildRecoveredArticle(secondPassDom.window, firstPassArticle, recoveryFragment.html)
+          : null;
+
+        if (secondPassArticle?.content) {
+          const secondPassTextLength = meaningfulTextLengthFromArticleHtml(secondPassDom.window, secondPassArticle.content);
+          const firstPassTextLength = recoveryPlan.extractedTextLength || meaningfulTextLengthFromArticleHtml(dom.window, firstPassArticle.content);
+          const recoveredGrowth = secondPassTextLength - firstPassTextLength;
+          const recoveredMissingContent = articleHtmlContainsAnyWitness(
+            secondPassDom.window,
+            secondPassArticle.content,
+            recoveryPlan.missingWitnessIds,
+            recoveryApi.anchorAttribute
+          );
+          const recoveredLinkDensity = linkDensityFromArticleHtml(secondPassDom.window, secondPassArticle.content);
+          const keepsComparableLength = secondPassTextLength >= firstPassTextLength * 0.9;
+
+          if (
+            recoveredGrowth >= Math.max(400, firstPassTextLength * 0.2) &&
+            recoveredMissingContent &&
+            recoveredLinkDensity <= 0.4 &&
+            keepsComparableLength
+          ) {
+            article = secondPassArticle;
+          }
+        }
+      }
+    }
+  }
+
+  if (article?.content) {
+    article.content = recoveryApi.stripStructuralAnchorsFromHtml(article.content);
+  }
 
   return { article, env };
 }

@@ -826,6 +826,7 @@ async function handleMarkdownResult(message) {
     markdown: result.markdown,
     article: result.article,
     imageList: result.imageList,
+    sourceImageMap: result.sourceImageMap,
     mdClipsFolder: result.mdClipsFolder,
     options: await getOptions()
   });

@@ -483,6 +483,15 @@ a:hover {
     background: #f8e9a7;
     box-shadow: 0 2px 8px rgba(245, 189, 46, 0.35);
 }
+.issue-btn {
+    margin-top: 0;
+    background: #ffd9d2;
+}
+
+.issue-btn:hover {
+    background: #ffc2b5;
+    box-shadow: 0 2px 8px rgba(227, 108, 70, 0.35);
+}
 
 
 /* ── Content Panel ── */

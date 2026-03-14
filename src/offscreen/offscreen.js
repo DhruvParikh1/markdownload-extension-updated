@@ -119,7 +119,7 @@ async function processContent(message) {
     const article = await getArticleFromDom(domForArticle, options, data.pageUrl);
     
     // Convert to markdown using passed options
-    const { markdown, imageList } = await convertArticleToMarkdown(article, null, options);
+    const { markdown, imageList, sourceImageMap } = await convertArticleToMarkdown(article, null, options);
     
     // Format title and folder using passed options
     article.title = await formatTitle(article, options);
@@ -133,6 +133,7 @@ async function processContent(message) {
         markdown,
         article,
         imageList,
+        sourceImageMap,
         mdClipsFolder
       }
     });
@@ -274,7 +275,8 @@ async function handleContextMenuCopy(info, tabId, providedOptions = null) {
     // Don't call getOptions()
     const obsidianVault = options.obsidianVault;
     const obsidianFolder = await formatObsidianFolder(article, options);
-    const { markdown } = await convertArticleToMarkdown(article, false, options);
+    const obsidianOptions = markSnipObsidian.getObsidianTransportOptions(options);
+    const { markdown } = await convertArticleToMarkdown(article, null, obsidianOptions);
 
     console.log('[Offscreen] Sending markdown to service worker for Obsidian integration...');
     // Offscreen document can't access clipboard, send to service worker to handle
@@ -293,7 +295,8 @@ async function handleContextMenuCopy(info, tabId, providedOptions = null) {
     // Don't call getOptions()
     const obsidianVault = options.obsidianVault;
     const obsidianFolder = await formatObsidianFolder(article, options);
-    const { markdown } = await convertArticleToMarkdown(article, false, options);
+    const obsidianOptions = markSnipObsidian.getObsidianTransportOptions(options);
+    const { markdown } = await convertArticleToMarkdown(article, null, obsidianOptions);
 
     console.log('[Offscreen] Sending markdown to service worker for Obsidian integration...');
     // Offscreen document can't access clipboard, send to service worker to handle
@@ -382,11 +385,16 @@ async function convertArticleToMarkdown(article, downloadImages = null, provided
     .split('/').map(s => generateValidFileName(s, options.disallowedChars)).join('/');
 
   let result = turndown(article.content, options, article);
+  let sourceImageMap = markSnipObsidian.createObsidianSourceImageMap(result.imageList);
   if (options.downloadImages && options.downloadMode === 'downloadsApi') {
     // Pre-download the images
-    result = await preDownloadImages(result.imageList, result.markdown);
+    result = await preDownloadImages(result.imageList, result.markdown, options);
+    sourceImageMap = result.sourceImageMap;
   }
-  return result;
+  return {
+    ...result,
+    sourceImageMap
+  };
 }
 
 function processCodeBlock(node, options) {
@@ -756,14 +764,15 @@ function turndown(content, options, article) {
         
         // get the original src
         let src = node.getAttribute('src')
+        const resolvedSrc = validateUri(src, uriBase);
         // set the new src
-        node.setAttribute('src', validateUri(src, uriBase));
+        node.setAttribute('src', resolvedSrc);
         
         // if we're downloading images, there's more to do.
         if (options.downloadImages) {
           // generate a file name for the image
-          let imageFilename = getImageFilename(src, options, false);
-          if (!imageList[src] || imageList[src] != imageFilename) {
+          let imageFilename = getImageFilename(resolvedSrc, options, false);
+          if (!imageList[resolvedSrc] || imageList[resolvedSrc] != imageFilename) {
             // if the imageList already contains this file, add a number to differentiate
             let i = 1;
             while (Object.values(imageList).includes(imageFilename)) {
@@ -773,7 +782,7 @@ function turndown(content, options, article) {
               imageFilename = parts.join('.');
             }
             // add it to the list of images to download later
-            imageList[src] = imageFilename;
+            imageList[resolvedSrc] = imageFilename;
           }
           // check if we're doing an obsidian style link
           const obsidianLink = options.imageStyle.startsWith("obsidian");
@@ -1065,14 +1074,70 @@ function resolveArticleUrl(domBaseUri, pageUrl) {
   return safeParseUrl(domBaseUri);
 }
 
-async function getArticleFromDom(domString, options, pageUrl = null) {
-  if (!domString) {
-    throw new Error('Invalid DOM string provided');
-  }
-  
+function getReadabilityRecoveryApi() {
+  return globalThis.MarkSnipReadabilityRecovery || {
+    anchorAttribute: 'data-marksnip-node-id',
+    annotateStructuralAnchors: () => 0,
+    analyzeNarrowExtraction: () => null,
+    applyRepeatedSectionPromotion: () => ({ changed: false, promotedIds: [] }),
+    buildRepeatedSectionFragment: () => null,
+    stripStructuralAnchorsFromHtml: html => html
+  };
+}
+
+function normalizeMeaningfulText(text) {
+  return String(text || '').replace(/\s+/g, ' ').trim();
+}
+
+function parseArticleHtmlFragment(articleHtml) {
   const parser = new DOMParser();
-  const dom = parser.parseFromString(domString, "text/html");
-  
+  return parser.parseFromString(`<!DOCTYPE html><html><body>${articleHtml || ''}</body></html>`, 'text/html');
+}
+
+function meaningfulTextLengthFromArticleHtml(articleHtml) {
+  const documentFragment = parseArticleHtmlFragment(articleHtml);
+  return normalizeMeaningfulText(documentFragment.body.textContent).length;
+}
+
+function linkDensityFromArticleHtml(articleHtml) {
+  const documentFragment = parseArticleHtmlFragment(articleHtml);
+  const textLength = meaningfulTextLengthFromArticleHtml(articleHtml);
+  if (!textLength) {
+    return 0;
+  }
+
+  let linkTextLength = 0;
+  documentFragment.body.querySelectorAll('a').forEach(anchor => {
+    linkTextLength += normalizeMeaningfulText(anchor.textContent).length;
+  });
+  return linkTextLength / textLength;
+}
+
+function articleHtmlContainsAnyWitness(articleHtml, witnessIds, anchorAttribute) {
+  if (!witnessIds?.length) {
+    return false;
+  }
+
+  const documentFragment = parseArticleHtmlFragment(articleHtml);
+  return witnessIds.some(witnessId => (
+    !!documentFragment.body.querySelector(`[${anchorAttribute}="${witnessId}"]`)
+  ));
+}
+
+function buildRecoveredArticle(firstPassArticle, recoveredHtml) {
+  const textContent = normalizeMeaningfulText(parseArticleHtmlFragment(recoveredHtml).body.textContent);
+  const excerpt = textContent.substring(0, 200);
+
+  return {
+    ...firstPassArticle,
+    content: recoveredHtml,
+    textContent,
+    length: textContent.length,
+    excerpt
+  };
+}
+
+function prepareDomForReadability(dom, options, recoveryApi) {
   // Now options is defined
   if (!options.preserveCodeFormatting) {
     dom.querySelectorAll('pre code').forEach(codeBlock => {
@@ -1086,128 +1151,137 @@ async function getArticleFromDom(domString, options, pageUrl = null) {
     });
   }
 
- if (dom.documentElement.nodeName == "parsererror") {
-   console.error("Error while parsing DOM");
- }
+  if (dom.documentElement.nodeName == "parsererror") {
+    console.error("Error while parsing DOM");
+  }
 
- const math = {};
+  const math = {};
 
- const storeMathInfo = (el, mathInfo) => {
-   let randomId = URL.createObjectURL(new Blob([]));
-   randomId = randomId.substring(randomId.length - 36);
-   el.id = randomId;
-   math[randomId] = mathInfo;
- };
+  const storeMathInfo = (el, mathInfo) => {
+    let randomId = URL.createObjectURL(new Blob([]));
+    randomId = randomId.substring(randomId.length - 36);
+    el.id = randomId;
+    math[randomId] = mathInfo;
+  };
 
- const extractKaTeXTex = (kaTeXNode) => {
-   const annotationNode = kaTeXNode.querySelector('annotation');
-   if (annotationNode?.textContent?.trim()) {
-     return annotationNode.textContent.trim();
-   }
+  const extractKaTeXTex = (kaTeXNode) => {
+    const annotationNode = kaTeXNode.querySelector('annotation');
+    if (annotationNode?.textContent?.trim()) {
+      return annotationNode.textContent.trim();
+    }
 
-   const mathNode = kaTeXNode.querySelector('math');
-   const altText = mathNode?.getAttribute('alttext') || mathNode?.getAttribute('aria-label');
-   if (altText?.trim()) {
-     return altText.trim();
-   }
+    const mathNode = kaTeXNode.querySelector('math');
+    const altText = mathNode?.getAttribute('alttext') || mathNode?.getAttribute('aria-label');
+    if (altText?.trim()) {
+      return altText.trim();
+    }
 
-   const fallbackText = kaTeXNode.textContent?.trim();
-   if (!fallbackText) {
-     return null;
-   }
+    const fallbackText = kaTeXNode.textContent?.trim();
+    if (!fallbackText) {
+      return null;
+    }
 
-   // Some KaTeX variants append the original TeX as the final non-empty line.
-   const lines = fallbackText.split('\n').map(line => line.trim()).filter(Boolean);
-   return lines.length ? lines[lines.length - 1] : fallbackText;
- };
+    // Some KaTeX variants append the original TeX as the final non-empty line.
+    const lines = fallbackText.split('\n').map(line => line.trim()).filter(Boolean);
+    return lines.length ? lines[lines.length - 1] : fallbackText;
+  };
 
- // Process MathJax elements (same as original)
- dom.body.querySelectorAll('script[id^=MathJax-Element-]')?.forEach(mathSource => {
-   const type = mathSource.attributes.type.value
-   storeMathInfo(mathSource, {
-     tex: mathSource.innerText,
-     inline: type ? !type.includes('mode=display') : false
-   });
- });
+  // Process MathJax elements (same as original)
+  dom.body.querySelectorAll('script[id^=MathJax-Element-]')?.forEach(mathSource => {
+    const type = mathSource.attributes.type.value;
+    storeMathInfo(mathSource, {
+      tex: mathSource.innerText,
+      inline: type ? !type.includes('mode=display') : false
+    });
+  });
 
- // Process MathJax 3 elements
- dom.body.querySelectorAll('[marksnip-latex]')?.forEach(mathJax3Node => {
-   // Same implementation as original
-   const tex = mathJax3Node.getAttribute('marksnip-latex');
-   const display = mathJax3Node.getAttribute('display');
-   const inline = !(display && display === 'true');
+  // Process MathJax 3 elements
+  dom.body.querySelectorAll('[marksnip-latex]')?.forEach(mathJax3Node => {
+    // Same implementation as original
+    const tex = mathJax3Node.getAttribute('marksnip-latex');
+    const display = mathJax3Node.getAttribute('display');
+    const inline = !(display && display === 'true');
 
-   const mathNode = document.createElement(inline ? "i" : "p");
-   mathNode.textContent = tex;
-   mathJax3Node.parentNode.insertBefore(mathNode, mathJax3Node.nextSibling);
-   mathJax3Node.parentNode.removeChild(mathJax3Node);
+    const mathNode = dom.createElement(inline ? "i" : "p");
+    mathNode.textContent = tex;
+    mathJax3Node.parentNode.insertBefore(mathNode, mathJax3Node.nextSibling);
+    mathJax3Node.parentNode.removeChild(mathJax3Node);
 
-   storeMathInfo(mathNode, {
-     tex: tex,
-     inline: inline
-   });
- });
+    storeMathInfo(mathNode, {
+      tex: tex,
+      inline: inline
+    });
+  });
 
- // Process KaTeX elements
- dom.body.querySelectorAll('.katex-mathml')?.forEach(kaTeXNode => {
-   const tex = extractKaTeXTex(kaTeXNode);
-   if (!tex) {
-     return;
-   }
+  // Process KaTeX elements
+  dom.body.querySelectorAll('.katex-mathml')?.forEach(kaTeXNode => {
+    const tex = extractKaTeXTex(kaTeXNode);
+    if (!tex) {
+      return;
+    }
 
-   storeMathInfo(kaTeXNode, {
-     tex: tex,
-     inline: true
-   });
- });
+    storeMathInfo(kaTeXNode, {
+      tex: tex,
+      inline: true
+    });
+  });
 
- // Process code highlight elements
- dom.body.querySelectorAll('[class*=highlight-text],[class*=highlight-source]')?.forEach(codeSource => {
-   const language = codeSource.className.match(/highlight-(?:text|source)-([a-z0-9]+)/)?.[1];
-   if (codeSource.firstChild && codeSource.firstChild.nodeName == "PRE") {
-     codeSource.firstChild.id = `code-lang-${language}`;
-   }
- });
+  // Process code highlight elements
+  dom.body.querySelectorAll('[class*=highlight-text],[class*=highlight-source]')?.forEach(codeSource => {
+    const language = codeSource.className.match(/highlight-(?:text|source)-([a-z0-9]+)/)?.[1];
+    if (codeSource.firstChild && codeSource.firstChild.nodeName == "PRE") {
+      codeSource.firstChild.id = `code-lang-${language}`;
+    }
+  });
 
- // Process language-specific code elements
- dom.body.querySelectorAll('[class*=language-]')?.forEach(codeSource => {
-   const language = codeSource.className.match(/language-([a-z0-9]+)/)?.[1];
-   codeSource.id = `code-lang-${language}`;
- });
+  // Process language-specific code elements
+  dom.body.querySelectorAll('[class*=language-]')?.forEach(codeSource => {
+    const language = codeSource.className.match(/language-([a-z0-9]+)/)?.[1];
+    codeSource.id = `code-lang-${language}`;
+  });
 
- // Process BR tags in PRE elements
- dom.body.querySelectorAll('pre br')?.forEach(br => {
-   // We need to keep <br> tags because they are removed by Readability.js
-   br.outerHTML = '<br-keep></br-keep>';
- });
+  // Process BR tags in PRE elements
+  dom.body.querySelectorAll('pre br')?.forEach(br => {
+    // We need to keep <br> tags because they are removed by Readability.js
+    br.outerHTML = '<br-keep></br-keep>';
+  });
 
- // Process code highlight elements with no language
- dom.body.querySelectorAll('.codehilite > pre')?.forEach(codeSource => {
-   if (codeSource.firstChild && codeSource.firstChild.nodeName !== 'CODE' && !codeSource.className.includes('language')) {
-     codeSource.id = `code-lang-text`;
-   }
- });
+  // Process code highlight elements with no language
+  dom.body.querySelectorAll('.codehilite > pre')?.forEach(codeSource => {
+    if (codeSource.firstChild && codeSource.firstChild.nodeName !== 'CODE' && !codeSource.className.includes('language')) {
+      codeSource.id = `code-lang-text`;
+    }
+  });
 
- // Unwrap headers from anchor tags to prevent Readability from filtering them
- dom.body.querySelectorAll('a')?.forEach(anchor => {
-   const heading = Array.from(anchor.children).find(child =>
-     /^H[1-6]$/.test(child.nodeName)
-   );
-   if (heading && anchor.children.length === 1) {
-     // If the anchor only contains a heading, unwrap it
-     anchor.parentNode.insertBefore(heading, anchor);
-     anchor.parentNode.removeChild(anchor);
-   }
- });
+  // Unwrap headers from anchor tags to prevent Readability from filtering them
+  dom.body.querySelectorAll('a')?.forEach(anchor => {
+    const heading = Array.from(anchor.children).find(child =>
+      /^H[1-6]$/.test(child.nodeName)
+    );
+    if (heading && anchor.children.length === 1) {
+      // If the anchor only contains a heading, unwrap it
+      anchor.parentNode.insertBefore(heading, anchor);
+      anchor.parentNode.removeChild(anchor);
+    }
+  });
 
- // Process headers to avoid Readability.js stripping them
- dom.body.querySelectorAll('h1, h2, h3, h4, h5, h6')?.forEach(header => {
-   header.className = '';
-   header.outerHTML = header.outerHTML;
- });
+  // Process headers to avoid Readability.js stripping them
+  dom.body.querySelectorAll('h1, h2, h3, h4, h5, h6')?.forEach(header => {
+    header.className = '';
+    header.outerHTML = header.outerHTML;
+  });
 
-  // Simplify the DOM into an article
-  const article = new Readability(dom).parse();
+  recoveryApi.annotateStructuralAnchors(dom);
+
+  return { dom, math };
+}
+
+function finalizeArticleMetadata(article, dom, pageUrl, math, recoveryApi) {
+  if (!article) {
+    throw new Error('Readability failed to extract article');
+  }
+
+  article.content = recoveryApi.stripStructuralAnchorsFromHtml(article.content);
 
   // Add essential metadata with fallbacks.
   // Keep baseURI semantics tied to the parsed document/base tag, and expose pageURL/tabURL separately.
@@ -1249,24 +1323,122 @@ async function getArticleFromDom(domString, options, pageUrl = null) {
   article.pageProtocol = resolvedUrl?.protocol || article.protocol;
   article.pageSearch = resolvedUrl?.search || article.search;
 
- // Extract meta tags if head exists
- if (dom.head) {
-   // Extract keywords
-   article.keywords = dom.head.querySelector('meta[name="keywords"]')?.content?.split(',')?.map(s => s.trim());
+  // Extract meta tags if head exists
+  if (dom.head) {
+    // Extract keywords
+    article.keywords = dom.head.querySelector('meta[name="keywords"]')?.content?.split(',')?.map(s => s.trim());
 
-   // Add all meta tags for template variables
-   dom.head.querySelectorAll('meta[name][content], meta[property][content]')?.forEach(meta => {
-     const key = (meta.getAttribute('name') || meta.getAttribute('property'));
-     const val = meta.getAttribute('content');
-     if (key && val && !article[key]) {
-       article[key] = val;
-     }
-   });
- }
+    // Add all meta tags for template variables
+    dom.head.querySelectorAll('meta[name][content], meta[property][content]')?.forEach(meta => {
+      const key = (meta.getAttribute('name') || meta.getAttribute('property'));
+      const val = meta.getAttribute('content');
+      if (key && val && !article[key]) {
+        article[key] = val;
+      }
+    });
+  }
 
- article.math = math;
+  article.math = math;
 
- return article;
+  return article;
+}
+
+function extractArticleWithRecovery(domString, options) {
+  const recoveryApi = getReadabilityRecoveryApi();
+
+  const firstPassParser = new DOMParser();
+  const firstPassDom = firstPassParser.parseFromString(domString, "text/html");
+  const firstPassPrepared = prepareDomForReadability(firstPassDom, options, recoveryApi);
+  const firstPassReadabilityDom = firstPassPrepared.dom.cloneNode(true);
+  const firstPassArticle = new Readability(firstPassReadabilityDom).parse();
+
+  if (!firstPassArticle?.content) {
+    return null;
+  }
+
+  const recoveryPlan = recoveryApi.analyzeNarrowExtraction(firstPassPrepared.dom, firstPassArticle.content);
+  if (!recoveryPlan) {
+    return {
+      article: firstPassArticle,
+      dom: firstPassPrepared.dom,
+      math: firstPassPrepared.math
+    };
+  }
+
+  const secondPassParser = new DOMParser();
+  const secondPassDom = secondPassParser.parseFromString(domString, "text/html");
+  const secondPassPrepared = prepareDomForReadability(secondPassDom, options, recoveryApi);
+  const recoveryResult = recoveryApi.applyRepeatedSectionPromotion(secondPassPrepared.dom, recoveryPlan);
+  if (!recoveryResult.changed) {
+    return {
+      article: firstPassArticle,
+      dom: firstPassPrepared.dom,
+      math: firstPassPrepared.math
+    };
+  }
+
+  const recoveryFragment = recoveryApi.buildRepeatedSectionFragment
+    ? recoveryApi.buildRepeatedSectionFragment(secondPassPrepared.dom, recoveryPlan)
+    : null;
+  if (!recoveryFragment?.html) {
+    return {
+      article: firstPassArticle,
+      dom: firstPassPrepared.dom,
+      math: firstPassPrepared.math
+    };
+  }
+
+  const secondPassArticle = buildRecoveredArticle(firstPassArticle, recoveryFragment.html);
+
+  const secondPassTextLength = meaningfulTextLengthFromArticleHtml(secondPassArticle.content);
+  const firstPassTextLength = recoveryPlan.extractedTextLength || meaningfulTextLengthFromArticleHtml(firstPassArticle.content);
+  const recoveredGrowth = secondPassTextLength - firstPassTextLength;
+  const growthThreshold = Math.max(400, firstPassTextLength * 0.2);
+  const recoveredLinkDensity = linkDensityFromArticleHtml(secondPassArticle.content);
+  const recoveredMissingContent = articleHtmlContainsAnyWitness(
+    secondPassArticle.content,
+    recoveryPlan.missingWitnessIds,
+    recoveryApi.anchorAttribute
+  );
+  const keepsComparableLength = secondPassTextLength >= firstPassTextLength * 0.9;
+
+  if (
+    recoveredGrowth < growthThreshold ||
+    !recoveredMissingContent ||
+    recoveredLinkDensity > 0.4 ||
+    !keepsComparableLength
+  ) {
+    return {
+      article: firstPassArticle,
+      dom: firstPassPrepared.dom,
+      math: firstPassPrepared.math
+    };
+  }
+
+  return {
+    article: secondPassArticle,
+    dom: secondPassPrepared.dom,
+    math: secondPassPrepared.math
+  };
+}
+
+async function getArticleFromDom(domString, options, pageUrl = null) {
+  if (!domString) {
+    throw new Error('Invalid DOM string provided');
+  }
+
+  const extracted = extractArticleWithRecovery(domString, options);
+  if (!extracted) {
+    throw new Error('Readability failed to extract article');
+  }
+
+  return finalizeArticleMetadata(
+    extracted.article,
+    extracted.dom,
+    pageUrl,
+    extracted.math,
+    getReadabilityRecoveryApi()
+  );
 }
 
 /**
@@ -1505,12 +1677,16 @@ function getImageFilename(src, options, prependFilePath = true) {
 async function preDownloadImages(imageList, markdown, providedOptions = null) {
   const options = providedOptions || defaultOptions;
   let newImageList = {};
+  let sourceImageMap = {};
 
  // Process all images in parallel
- await Promise.all(Object.entries(imageList).map(([src, filename]) => new Promise(async (resolve, reject) => {
+ await Promise.all(Object.entries(imageList).map(([src, filename]) => new Promise(async (resolve) => {
    try {
      // Fetch the image using fetch instead of XMLHttpRequest
      const response = await fetch(src);
+     if (!response.ok) {
+       throw new Error(`HTTP ${response.status}`);
+     }
      const blob = await response.blob();
 
      if (options.imageStyle == 'base64') {
@@ -1544,15 +1720,18 @@ async function preDownloadImages(imageList, markdown, providedOptions = null) {
        // Create object URL for the blob
        const blobUrl = URL.createObjectURL(blob);
        newImageList[blobUrl] = newFilename;
+       Object.assign(sourceImageMap, markSnipObsidian.createObsidianSourceImageMap({
+         [src]: newFilename
+       }));
        resolve();
      }
    } catch (error) {
      console.error('Error pre-downloading image:', error);
-     reject(`A network error occurred attempting to download ${src}`);
+     resolve();
    }
  })));
 
- return { imageList: newImageList, markdown: markdown };
+ return { imageList: newImageList, markdown: markdown, sourceImageMap: sourceImageMap };
 }
 
 /**

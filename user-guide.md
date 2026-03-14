@@ -39,7 +39,7 @@ At the bottom of the popup:
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Download**           | Downloads the Markdown as a `.md` file.                                                                                                                                   |
 | **Download Selection** | Appears when text is selected inside the editor; downloads only the selection.                                                                                            |
-| **Send to Obsidian**   | Copies the Markdown to the clipboard and opens Obsidian via the Advanced URI plugin to create a new note (only visible when Obsidian integration is enabled in settings). |
+| **Send to Obsidian**   | Copies the Markdown to the clipboard and opens Obsidian via the Advanced URI plugin to create a new note (only visible when Obsidian integration is enabled in settings). Images remain remote links; attachment files are not copied into the vault. |
 
 ---
 
@@ -195,6 +195,8 @@ Enable this to show the **Send to Obsidian** button in the popup and the Obsidia
 
 - **Vault Name** — the name of your Obsidian vault (leave blank for the default vault).
 - **Folder Name** — the folder inside the vault where notes are created (supports [Custom Text Substitutions](#custom-text-substitutions), e.g. `{date:YYYY-MM-DD}/`).
+
+- Images sent with this action stay as remote links. The browser extension does not place attachment files inside the vault.
 
 **Default:** Disabled
 

@@ -2,6 +2,7 @@
 // default variables
 var selectedText = null;
 var imageList = null;
+var sourceImageMap = null;
 var mdClipsFolder = '';
 
 const progressUI = {
@@ -532,6 +533,7 @@ async function clipTabWithRetry(tab, maxAttempts = 2) {
                     updateCharCount(message.markdown);
                     document.getElementById("title").value = message.article.title;
                     imageList = message.imageList;
+                    sourceImageMap = message.sourceImageMap;
                     mdClipsFolder = message.mdClipsFolder;
 
                     resolve(message);
@@ -1085,7 +1087,10 @@ async function sendToObsidian(e) {
         }
 
         // Get markdown content
-        const markdown = cm.getValue();
+        const markdown = markSnipObsidian.prepareMarkdownForObsidian(
+            cm.getValue(),
+            sourceImageMap || {}
+        );
         const title = document.getElementById("title").value || 'Untitled';
 
         // Get current tab
@@ -1145,6 +1150,7 @@ function notify(message) {
         cm.setValue(message.markdown);
         document.getElementById("title").value = message.article.title;
         imageList = message.imageList;
+        sourceImageMap = message.sourceImageMap;
         mdClipsFolder = message.mdClipsFolder;
         
         // show the hidden elements

@@ -130,6 +130,57 @@ test.describe('Batch Processing E2E', () => {
     expect(result.hasTocOnlySignature).toBeFalsy();
   });
 
+  test('captures later repeated sections for the Sebastian Higgins article', async () => {
+    test.setTimeout(240000);
+
+    const previousOptions = await popupPage.evaluate(async () => (
+      await browser.storage.sync.get(['downloadImages', 'downloadMode'])
+    ));
+
+    await popupPage.evaluate(async () => {
+      await browser.storage.sync.set({
+        downloadImages: true,
+        downloadMode: 'downloadsApi'
+      });
+    });
+
+    let actualMarkdown;
+    try {
+      actualMarkdown = await runSingleUrlBatchCapture(
+        popupPage,
+        'https://sebastian.graphics/blog/16-bit-tiny-model-standalone-c-with-open-watcom.html'
+      );
+    } finally {
+      await popupPage.evaluate(async (options) => {
+        const toSet = {};
+        const toRemove = [];
+
+        ['downloadImages', 'downloadMode'].forEach((key) => {
+          if (Object.prototype.hasOwnProperty.call(options, key)) {
+            toSet[key] = options[key];
+          } else {
+            toRemove.push(key);
+          }
+        });
+
+        if (Object.keys(toSet).length) {
+          await browser.storage.sync.set(toSet);
+        }
+        if (toRemove.length) {
+          await browser.storage.sync.remove(toRemove);
+        }
+      }, previousOptions);
+    }
+
+    const normalizedMarkdown = normalizeMarkdown(actualMarkdown);
+
+    expect(normalizedMarkdown).toContain("A few days ago I've heard that Open Watcom is able to generate");
+    expect(normalizedMarkdown).toContain('## Replacing the wrapper');
+    expect(normalizedMarkdown).toContain('## Full code');
+    expect(normalizedMarkdown).toContain('wrapper.asm');
+    expect(normalizedMarkdown).toContain('main.lnk');
+  });
+
   for (const snapshotCase of batchSnapshotCases) {
     test(snapshotCase.name, async () => {
       test.setTimeout(240000);
