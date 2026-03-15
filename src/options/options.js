@@ -398,6 +398,122 @@ function initSearch() {
     const contentPanel = document.querySelector('.content-panel');
     const noResults = document.getElementById('search-no-results');
     const noResultsQuery = document.getElementById('search-no-results-query');
+    const searchApi = globalThis.markSnipOptionsSearch;
+
+    if (!searchInput || !contentPanel || !noResults || !noResultsQuery || !searchApi) {
+        return;
+    }
+
+    const sections = document.querySelectorAll('.section');
+    const searchIndex = searchApi.buildSearchIndex(document);
+    let searchTimeout = null;
+
+    function restoreDefaultView() {
+        contentPanel.classList.remove('search-active');
+        noResults.classList.remove('visible');
+
+        searchIndex.forEach(({ card }) => {
+            card.classList.remove('search-hidden', 'search-match');
+            card.style.removeProperty('display');
+            card.style.removeProperty('opacity');
+        });
+
+        document.querySelectorAll('[data-search-force-shown]').forEach(el => {
+            el.style.removeProperty('display');
+            el.style.removeProperty('opacity');
+            el.removeAttribute('data-search-force-shown');
+        });
+
+        sections.forEach(section => section.classList.remove('search-section-empty'));
+
+        const activeTab = sessionStorage.getItem('marksnip-options-tab') || 'templates';
+        const sidebarItems = document.querySelectorAll('.sidebar-item');
+        const allSections = document.querySelectorAll('.section');
+
+        sidebarItems.forEach(item => item.classList.remove('active'));
+        const activeItem = document.querySelector(`.sidebar-item[data-section="${activeTab}"]`);
+        if (activeItem) activeItem.classList.add('active');
+
+        allSections.forEach(section => section.classList.remove('active'));
+        const activeSection = document.getElementById(`section-${activeTab}`);
+        if (activeSection) activeSection.classList.add('active');
+
+        refreshElements();
+    }
+
+    function performSearch(query) {
+        const normalizedQuery = searchApi.normalizeSearchText(query);
+
+        if (!normalizedQuery) {
+            restoreDefaultView();
+            return;
+        }
+
+        contentPanel.classList.add('search-active');
+
+        const searchResults = searchApi.searchSettings(searchIndex, normalizedQuery);
+        let totalMatches = 0;
+
+        searchResults.results.forEach(({ card, matches }) => {
+            card.classList.toggle('search-hidden', !matches);
+            card.classList.toggle('search-match', matches);
+
+            if (matches) {
+                totalMatches++;
+                card.style.display = '';
+                card.style.opacity = '1';
+
+                let parent = card.parentElement;
+                while (parent && parent !== contentPanel) {
+                    if (parent.style.display === 'none') {
+                        parent.style.display = '';
+                        parent.style.opacity = '1';
+                        parent.setAttribute('data-search-force-shown', '');
+                    }
+                    parent = parent.parentElement;
+                }
+            }
+        });
+
+        sections.forEach(section => {
+            const hasVisible = section.querySelector('.setting-card.search-match');
+            section.classList.toggle('search-section-empty', !hasVisible);
+        });
+
+        if (totalMatches === 0) {
+            noResultsQuery.textContent = normalizedQuery;
+            noResults.classList.add('visible');
+        } else {
+            noResults.classList.remove('visible');
+        }
+    }
+
+    searchInput.addEventListener('input', () => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => performSearch(searchInput.value), 150);
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+            const tag = document.activeElement?.tagName;
+            if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+            e.preventDefault();
+            searchInput.focus();
+        }
+
+        if (e.key === 'Escape' && document.activeElement === searchInput) {
+            searchInput.value = '';
+            performSearch('');
+            searchInput.blur();
+        }
+    });
+}
+
+function initSearchLegacy() {
+    const searchInput = document.getElementById('settings-search');
+    const contentPanel = document.querySelector('.content-panel');
+    const noResults = document.getElementById('search-no-results');
+    const noResultsQuery = document.getElementById('search-no-results-query');
     const shortcutHint = document.getElementById('search-shortcut-hint');
 
     // Build search index: collect all setting-cards with their searchable text

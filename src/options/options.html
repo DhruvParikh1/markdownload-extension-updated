@@ -204,7 +204,8 @@
                 </details>
 
                 <!-- Title template -->
-                <div class="setting-card">
+                <div class="setting-card" id="includeTemplate-container"
+                    data-search-keywords="append template,template toggle,frontmatter,front matter,backmatter,back matter">
                     <h3 class="card-title">Title template</h3>
                     <div class="input-group">
                         <label class="input-label" for="title">Template for title / filename</label>
@@ -406,7 +407,8 @@
                 </div>
 
                 <!-- Download Mode -->
-                <div class="setting-card" id="downloadMode">
+                <div class="setting-card" id="downloadMode"
+                    data-search-keywords="download,dwnld,downloads api,content link">
                     <h3 class="card-title">Download Mode</h3>
                     <p class="card-desc">Method to use for downloading Markdown files. Set to "Content Link" if you're having trouble with the Downloads API
                         (Sometimes conflicts can occur with other download extensions, leading to randomly generated filenames and other symptoms).</p>
@@ -438,7 +440,8 @@
                         </div>
                     </div>
 
-                    <div class="setting-card" id="downloadImages-container">
+                    <div class="setting-card" id="downloadImages-container"
+                        data-search-keywords="download images,dwnld,image download,image downloads">
                         <div class="toggle-row">
                             <div class="toggle-info">
                                 <label class="toggle-label-text" for="downloadImages">Download images alongside markdown files</label>
@@ -460,7 +463,8 @@
                 </div>
 
                 <!-- Obsidian Integration -->
-                <div class="setting-card" id="obsidian-container">
+                <div class="setting-card" id="obsidian-container"
+                    data-search-keywords="obsidian,obsdn,advanced uri,obsidian uri">
                     <h3 class="card-title">Obsidian Integration</h3>
                     <p class="card-desc">
                         For integration with Obsidian, you need to install and enable the community plugin <code>Advanced Obsidian URI</code>. This plugin helps bypass character limitations in URLs by using the clipboard as the source for creating new files. Images sent this way stay as remote links; attachment files are not copied into your vault.
@@ -477,7 +481,8 @@
                     </div>
                 </div>
 
-                <div class="setting-card" id="obsidianVault">
+                <div class="setting-card" id="obsidianVault"
+                    data-search-keywords="obsidian,obsdn,vault,folder,vault name,folder name">
                     <div class="input-group">
                         <label class="input-label">Obsidian Vault Name</label>
                         <input type="text" name="obsidianVault" class="text-input" role="textbox" placeholder="If blank, it will use the main Vault. Please specify it." />
@@ -725,7 +730,8 @@ const helloWorld = () => {
                 </div>
 
                 <!-- Image Style -->
-                <div class="setting-card" id="imageOptions">
+                <div class="setting-card" id="imageOptions"
+                    data-search-keywords="image,img,imgstyle,base64,embed,obsidian embed,obsdn">
                     <h3 class="card-title">Image Style</h3>
                     <div class="radio-card-group">
                         <div class="radio-card">
@@ -777,7 +783,8 @@ const helloWorld = () => {
                 </div>
 
                 <!-- Image Reference Style -->
-                <div class="setting-card" id="imageRefOptions">
+                <div class="setting-card" id="imageRefOptions"
+                    data-search-keywords="image,img,imgref,image ref,image reference">
                     <h3 class="card-title">Image Reference Style</h3>
                     <p class="card-desc"><strong>Note:</strong> The following only apply if Image Style is markdown (not Obsidian-styled).</p>
                     <div class="radio-card-group">
@@ -1024,6 +1031,7 @@ const helloWorld = () => {
     <script src="../browser-polyfill.min.js"></script>
     <script src="../shared/default-options.js"></script>
     <script src="../shared/context-menus.js"></script>
+    <script src="options-search.js"></script>
     <script src="options.js"></script>
 </body>
 
