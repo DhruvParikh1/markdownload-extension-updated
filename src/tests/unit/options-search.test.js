@@ -12,6 +12,14 @@ const optionsSearchSource = fs.readFileSync(
   path.join(__dirname, '../../options/options-search.js'),
   'utf8'
 );
+const exportUtilsSource = fs.readFileSync(
+  path.join(__dirname, '../../shared/export-utils.js'),
+  'utf8'
+);
+const notionUtilsSource = fs.readFileSync(
+  path.join(__dirname, '../../shared/notion-utils.js'),
+  'utf8'
+);
 const optionsSource = fs.readFileSync(
   path.join(__dirname, '../../options/options.js'),
   'utf8'
@@ -113,9 +121,16 @@ function createOptionsPageDom(optionOverrides = {}) {
   const storedOptions = mergeOptions(optionOverrides);
   const browser = {
     storage: {
+      local: {
+        get: jest.fn(() => Promise.resolve({ notion: dom.window.markSnipNotion?.DEFAULT_NOTION_STATE || null })),
+        set: jest.fn(() => Promise.resolve())
+      },
       sync: {
         get: jest.fn(() => Promise.resolve(storedOptions)),
         set: jest.fn(() => Promise.resolve())
+      },
+      onChanged: {
+        addListener: jest.fn()
       }
     },
     runtime: {
@@ -133,6 +148,8 @@ function createOptionsPageDom(optionOverrides = {}) {
   dom.window.createMenus = jest.fn();
   dom.window.eval(`var defaultOptions = ${JSON.stringify(storedOptions)};`);
   dom.window.eval(optionsSearchSource);
+  dom.window.eval(exportUtilsSource);
+  dom.window.eval(notionUtilsSource);
   dom.window.eval(optionsSource);
 
   return { dom, browser, storedOptions };
@@ -183,7 +200,8 @@ describe('Options search helper', () => {
     expect(search.stage).toBe('fallback');
     expect(search.matches.map(result => result.card.id)).toEqual([
       'downloadMode',
-      'downloadImages-container'
+      'downloadImages-container',
+      'notionMappingsCard'
     ]);
     expect(search.matches.map(result => result.card.id)).not.toContain('mdClipsFolder');
   });

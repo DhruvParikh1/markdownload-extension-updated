@@ -40,6 +40,7 @@ At the bottom of the popup:
 | **Download**           | Downloads the Markdown as a `.md` file.                                                                                                                                   |
 | **Download Selection** | Appears when text is selected inside the editor; downloads only the selection.                                                                                            |
 | **Send to Obsidian**   | Copies the Markdown to the clipboard and opens Obsidian via the Advanced URI plugin to create a new note (only visible when Obsidian integration is enabled in settings). Images remain remote links; attachment files are not copied into the vault. |
+| **Save to Notion**     | Creates a new Notion page in your configured default destination (only visible when Notion integration is connected). If enabled in settings, MarkSnip can also download the same clip as a local `.md` file after the Notion save succeeds. |
 
 ---
 
@@ -199,6 +200,25 @@ Enable this to show the **Send to Obsidian** button in the popup and the Obsidia
 - Images sent with this action stay as remote links. The browser extension does not place attachment files inside the vault.
 
 **Default:** Disabled
+
+---
+
+### Notion Integration
+
+Use this to connect a Notion workspace through OAuth and send clips directly to a default page or database.
+
+- **Connect / Reconnect / Disconnect** — manages the active Notion workspace connection for this browser profile.
+- **Default Destination** — choose either a Notion page or a database. Popup saves stay disabled until a destination is selected.
+- **Database Property Mapping** — when the destination is a database, MarkSnip can map `title`, `sourceUrl`, `clippedAt`, and `tags` into compatible Notion properties.
+- **Also download as `.md`** — after a successful Notion save, MarkSnip can also run the normal local markdown download flow.
+
+Notes:
+
+- Unlike the local download/copy flows, Notion saves send the current clip's markdown and selected metadata to the configured MarkSnip backend and then to Notion.
+- Notion integration currently adds a popup action only. There are no Notion context-menu items or keyboard shortcuts in v1.
+- If you change the Notion integration's capabilities or redirect URIs in the Notion developer dashboard, reconnect the workspace from MarkSnip settings.
+
+**Default:** Disconnected
 
 ---
 

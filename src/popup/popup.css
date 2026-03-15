@@ -686,6 +686,20 @@ body {
     transform: translateY(0);
 }
 
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.btn:disabled:hover {
+    background: inherit;
+    border-color: inherit;
+    transform: none;
+    box-shadow: none;
+}
+
 .btn-primary {
     background: var(--accent);
     border-color: var(--accent);

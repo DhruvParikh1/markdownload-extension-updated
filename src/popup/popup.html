@@ -142,6 +142,12 @@
         </svg>
         Send to Obsidian
       </button>
+      <button id="saveToNotion" class="btn btn-secondary" style="display: none;">
+        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+          <path d="M6.1 4.5 16.8 3 20 5.6v13.7l-10.7 1.7L4 17.2V6.3l2.1-1.8Zm2.6 2.3v11.4l7.9-1.2V7.3L8.7 6.8Zm-2.2.6v8.7l1.1.7V8.1l-1.1-.7Zm11.2-.1v9.4l1-.5V6.7l-1 .6Z"/>
+        </svg>
+        Save to Notion
+      </button>
       <button id="download" class="btn btn-primary">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -220,6 +226,8 @@
   <script type="application/javascript" src="../browser-polyfill.min.js"></script>
   <script type="application/javascript" src="lib/codemirror.js"></script>
   <script type="application/javascript" src="lib/modes/markdown/markdown.js"></script>
+  <script type="application/javascript" src="../shared/export-utils.js"></script>
+  <script type="application/javascript" src="../shared/notion-utils.js"></script>
   <script type="application/javascript" src="../shared/obsidian-utils.js"></script>
   <script type="application/javascript" src="popup.js"></script>
 </body>

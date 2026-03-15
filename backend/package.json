@@ -1,0 +1,14 @@
+{
+  "name": "marksnip-notion-backend",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Companion backend for MarkSnip Notion integration",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test tests/*.test.js"
+  }
+}

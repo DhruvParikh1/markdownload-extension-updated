@@ -119,11 +119,20 @@ async function processContent(message) {
     const article = await getArticleFromDom(domForArticle, options, data.pageUrl);
     
     // Convert to markdown using passed options
+    const previewOptions = createEffectiveMarkdownOptions(article, options);
     const { markdown, imageList, sourceImageMap } = await convertArticleToMarkdown(article, null, options);
+    const notionTransportOptions = markSnipNotion.getNotionTransportOptions(options);
+    const { markdown: notionMarkdown } = await convertArticleToMarkdown(article, null, notionTransportOptions);
     
     // Format title and folder using passed options
     article.title = await formatTitle(article, options);
     const mdClipsFolder = await formatMdClipsFolder(article, options);
+    const notionTransport = {
+      markdown: notionMarkdown,
+      renderedFrontmatter: previewOptions.frontmatter || '',
+      renderedBackmatter: previewOptions.backmatter || '',
+      clipMeta: markSnipNotion.buildNotionClipMetadata(article)
+    };
     
     // Send results back to service worker
     await browser.runtime.sendMessage({
@@ -134,7 +143,8 @@ async function processContent(message) {
         article,
         imageList,
         sourceImageMap,
-        mdClipsFolder
+        mdClipsFolder,
+        notionTransport
       }
     });
   } catch (error) {

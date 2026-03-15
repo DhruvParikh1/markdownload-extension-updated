@@ -4,6 +4,15 @@ var selectedText = null;
 var imageList = null;
 var sourceImageMap = null;
 var mdClipsFolder = '';
+var currentArticle = null;
+var renderedMarkdown = '';
+var notionTransport = {
+    markdown: '',
+    renderedFrontmatter: '',
+    renderedBackmatter: '',
+    clipMeta: null
+};
+let notionLocalState = markSnipNotion.normalizeNotionState(markSnipNotion.DEFAULT_NOTION_STATE);
 
 const progressUI = {
     container: document.getElementById('progressContainer'),
@@ -215,6 +224,7 @@ document.getElementById("copy").addEventListener("click", copyToClipboard);
 document.getElementById("copySelection").addEventListener("click", copySelectionToClipboard);
 
 document.getElementById("sendToObsidian").addEventListener("click", sendToObsidian);
+document.getElementById("saveToNotion").addEventListener("click", sendToNotion);
 
 document.getElementById("batchProcess").addEventListener("click", showBatchProcess);
 document.getElementById("convertUrls").addEventListener("click", handleBatchConversion);
@@ -340,6 +350,57 @@ const updateObsidianButtonVisibility = (options) => {
     const obsidianButton = document.getElementById("sendToObsidian");
     if (!obsidianButton) return;
     obsidianButton.style.display = options.obsidianIntegration ? "inline-flex" : "none";
+}
+
+function getNotionButtonMarkup(label) {
+    return `
+        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+            <path d="M6.1 4.5 16.8 3 20 5.6v13.7l-10.7 1.7L4 17.2V6.3l2.1-1.8Zm2.6 2.3v11.4l7.9-1.2V7.3L8.7 6.8Zm-2.2.6v8.7l1.1.7V8.1l-1.1-.7Zm11.2-.1v9.4l1-.5V6.7l-1 .6Z"/>
+        </svg>
+        ${label}
+    `;
+}
+
+function updateNotionButtonState(state = notionLocalState) {
+    const notionButton = document.getElementById("saveToNotion");
+    if (!notionButton) return;
+
+    notionLocalState = markSnipNotion.normalizeNotionState(state);
+
+    if (!markSnipNotion.hasConnection(notionLocalState)) {
+        notionButton.style.display = "none";
+        notionButton.disabled = true;
+        notionButton.innerHTML = getNotionButtonMarkup("Save to Notion");
+        notionButton.classList.remove("error", "success");
+        notionButton.removeAttribute("title");
+        return;
+    }
+
+    notionButton.style.display = "inline-flex";
+    notionButton.classList.remove("error", "success");
+
+    if (!markSnipNotion.hasDefaultDestination(notionLocalState)) {
+        notionButton.disabled = true;
+        notionButton.innerHTML = getNotionButtonMarkup("Select Notion destination in Settings");
+        notionButton.title = "Choose a default Notion page or database in Settings first.";
+        return;
+    }
+
+    notionButton.disabled = false;
+    notionButton.innerHTML = getNotionButtonMarkup("Save to Notion");
+    notionButton.title = "";
+}
+
+async function loadNotionState() {
+    try {
+        const result = await browser.storage.local.get({
+            notion: markSnipNotion.DEFAULT_NOTION_STATE
+        });
+        notionLocalState = markSnipNotion.normalizeNotionState(result.notion);
+        updateNotionButtonState(notionLocalState);
+    } catch (error) {
+        console.error("Error loading Notion state:", error);
+    }
 }
 
 // Function to parse markdown links
@@ -520,25 +581,23 @@ async function clipTabWithRetry(tab, maxAttempts = 2) {
                 reject(new Error('Timeout waiting for markdown generation'));
             }, 45000);
 
-            function messageListener(message) {
-                if (message.type === "display.md") {
-                    clearTimeout(timeout);
-                    browser.runtime.onMessage.removeListener(messageListener);
+	            function messageListener(message) {
+	                if (message.type === "display.md") {
+	                    clearTimeout(timeout);
+	                    browser.runtime.onMessage.removeListener(messageListener);
 
-                    if (tab.customTitle) {
-                        message.article.title = tab.customTitle;
-                    }
+	                    if (tab.customTitle) {
+	                        message.article.title = tab.customTitle;
+	                    }
 
-                    cm.setValue(message.markdown);
-                    updateCharCount(message.markdown);
-                    document.getElementById("title").value = message.article.title;
-                    imageList = message.imageList;
-                    sourceImageMap = message.sourceImageMap;
-                    mdClipsFolder = message.mdClipsFolder;
+	                    applyMarkdownMessageToPopup(message, {
+                            hideSpinner: false,
+                            focusDownload: false
+                        });
 
-                    resolve(message);
-                }
-            }
+	                    resolve(message);
+	                }
+	            }
 
             browser.runtime.onMessage.addListener(messageListener);
         });
@@ -772,6 +831,34 @@ const showOrHideClipOption = selection => {
     }
 }
 
+function applyMarkdownMessageToPopup(message, { hideSpinner = true, focusDownload = false } = {}) {
+    if (!message) return;
+
+    cm.setValue(message.markdown || '');
+    updateCharCount(message.markdown || '');
+    document.getElementById("title").value = message.article?.title || 'Untitled';
+    imageList = message.imageList || null;
+    sourceImageMap = message.sourceImageMap || null;
+    mdClipsFolder = message.mdClipsFolder || '';
+    currentArticle = message.article || null;
+    renderedMarkdown = message.markdown || '';
+    notionTransport = message.notionTransport || {
+        markdown: markSnipExportUtils.prepareMarkdownForRemoteImages(message.markdown || '', message.sourceImageMap || {}),
+        renderedFrontmatter: '',
+        renderedBackmatter: '',
+        clipMeta: markSnipNotion.buildNotionClipMetadata(message.article || {})
+    };
+
+    document.getElementById("container").style.display = 'flex';
+    if (hideSpinner) {
+        document.getElementById("spinner").style.display = 'none';
+    }
+    if (focusDownload) {
+        document.getElementById("download").focus();
+    }
+    cm.refresh();
+}
+
 // Updated clipSite function to use scripting API
 const clipSite = id => {
     // If no id is provided, get the active tab's id first
@@ -832,6 +919,7 @@ const clipSite = id => {
 // Inject the necessary scripts - updated for Manifest V3
 browser.storage.sync.get(defaultOptions).then(options => {
     checkInitialSettings(options);
+    loadNotionState();
 
     // Load batch settings from storage
     loadBatchSettings();
@@ -883,8 +971,14 @@ browser.storage.sync.get(defaultOptions).then(options => {
 browser.runtime.onMessage.addListener(notify);
 
 browser.storage.onChanged.addListener((changes, areaName) => {
-    if (areaName !== "sync" || !changes.obsidianIntegration) return;
-    updateObsidianButtonVisibility({ obsidianIntegration: changes.obsidianIntegration.newValue });
+    if (areaName === "sync" && changes.obsidianIntegration) {
+        updateObsidianButtonVisibility({ obsidianIntegration: changes.obsidianIntegration.newValue });
+    }
+
+    if (areaName === "local" && changes.notion) {
+        notionLocalState = markSnipNotion.normalizeNotionState(changes.notion.newValue);
+        updateNotionButtonState(notionLocalState);
+    }
 });
 
 // Listen for link picker results
@@ -1140,25 +1234,106 @@ async function sendToObsidian(e) {
     }
 }
 
+async function sendToNotion(e) {
+    e.preventDefault();
+    const notionButton = document.getElementById("saveToNotion");
+    if (!notionButton || notionButton.disabled) return;
+
+    const restoreButton = () => updateNotionButtonState(notionLocalState);
+
+    try {
+        const result = await browser.storage.local.get({
+            notion: markSnipNotion.DEFAULT_NOTION_STATE
+        });
+        notionLocalState = markSnipNotion.normalizeNotionState(result.notion);
+        updateNotionButtonState(notionLocalState);
+
+        if (!markSnipNotion.hasConnection(notionLocalState)) {
+            return;
+        }
+
+        if (!markSnipNotion.hasDefaultDestination(notionLocalState)) {
+            notionButton.classList.add("error");
+            notionButton.innerHTML = getNotionButtonMarkup("Select destination in Settings");
+            setTimeout(restoreButton, 2500);
+            return;
+        }
+
+        notionButton.disabled = true;
+        notionButton.classList.remove("success", "error");
+        notionButton.innerHTML = getNotionButtonMarkup("Saving...");
+
+        const currentMarkdown = cm.getValue();
+        const title = document.getElementById("title").value || 'Untitled';
+        const normalizedEditorMarkdown = markSnipExportUtils.prepareMarkdownForRemoteImages(
+            currentMarkdown,
+            sourceImageMap || {}
+        );
+        const notionMarkdown = currentMarkdown === renderedMarkdown && notionTransport?.markdown
+            ? notionTransport.markdown
+            : markSnipNotion.stripRenderedTemplate(
+                normalizedEditorMarkdown,
+                notionTransport?.renderedFrontmatter || '',
+                notionTransport?.renderedBackmatter || ''
+            );
+        const clipMeta = {
+            ...(notionTransport?.clipMeta || markSnipNotion.buildNotionClipMetadata(currentArticle || {})),
+            title
+        };
+        const mappedProperties = markSnipNotion.buildMappedPropertyPayload({
+            destination: notionLocalState.defaultDestination,
+            propertyMappings: notionLocalState.propertyMappings,
+            clipMeta,
+            titleOverride: title
+        });
+        const tabs = await browser.tabs.query({ currentWindow: true, active: true });
+        const currentTab = tabs[0];
+        const response = await browser.runtime.sendMessage({
+            type: 'notion-save',
+            title,
+            markdown: notionMarkdown,
+            downloadMarkdown: currentMarkdown,
+            imageList,
+            mdClipsFolder,
+            tab: currentTab,
+            mappedProperties
+        });
+
+        if (!response?.ok) {
+            notionButton.innerHTML = getNotionButtonMarkup(response?.error?.message || 'Failed');
+            notionButton.classList.add("error");
+            setTimeout(restoreButton, 3000);
+            return;
+        }
+
+        if (response.download?.status === 'failed') {
+            notionButton.innerHTML = getNotionButtonMarkup("Saved, download failed");
+            notionButton.classList.add("error");
+            setTimeout(restoreButton, 3500);
+            return;
+        }
+
+        notionButton.innerHTML = getNotionButtonMarkup("Saved to Notion!");
+        notionButton.classList.add("success");
+        setTimeout(() => {
+            window.close();
+        }, 1500);
+    } catch (error) {
+        console.error('Error saving to Notion:', error);
+        notionButton.classList.add("error");
+        notionButton.innerHTML = getNotionButtonMarkup("Failed");
+        setTimeout(restoreButton, 3000);
+    }
+}
+
 //function that handles messages from the injected script into the site
 function notify(message) {
     // message for displaying markdown
     if (message.type == "display.md") {
-
-        // set the values from the message
-        //document.getElementById("md").value = message.markdown;
-        cm.setValue(message.markdown);
-        document.getElementById("title").value = message.article.title;
-        imageList = message.imageList;
-        sourceImageMap = message.sourceImageMap;
-        mdClipsFolder = message.mdClipsFolder;
-        
-        // show the hidden elements
-        document.getElementById("container").style.display = 'flex';
-        document.getElementById("spinner").style.display = 'none';
-         // focus the download button
-        document.getElementById("download").focus();
-        cm.refresh();
+        applyMarkdownMessageToPopup(message, {
+            hideSpinner: true,
+            focusDownload: true
+        });
     }
     else if (message.type === "batch-progress") {
         progressUI.show();

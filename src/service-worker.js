@@ -5,6 +5,8 @@ if (typeof importScripts === 'function') {
     'browser-polyfill.min.js',
     'background/moment.min.js',
     'background/apache-mime-types.js',
+    'shared/export-utils.js',
+    'shared/notion-utils.js',
     'shared/default-options.js',
     'shared/context-menus.js'
   );
@@ -29,6 +31,7 @@ createMenus();
 // Track active downloads
 const activeDownloads = new Map();
 let batchConversionInProgress = false;
+const pendingNotionAuthStates = new Set();
 
 // Track MarkSnip downloads to handle filename conflicts
 const markSnipDownloads = new Map(); // downloadId -> { filename, imageList }
@@ -185,10 +188,326 @@ async function handleMessages(message, sender, sendResponse) {
     case "obsidian-integration":
       await handleObsidianIntegration(message);
       break;
+    case "notion-auth-start":
+      return await handleNotionAuthStart();
+    case "notion-search-destinations":
+      return await handleNotionSearchDestinations(message);
+    case "notion-get-data-source":
+      return await handleNotionGetDataSource(message);
+    case "notion-save":
+      return await handleNotionSave(message);
+    case "notion-disconnect":
+      return await handleNotionDisconnect();
     case "start-batch-conversion":
       await handleBatchConversionInServiceWorker(message);
       break;
   }
+}
+
+function createNotionError(code, message, status = 500) {
+  const error = new Error(message || code);
+  error.code = code;
+  error.status = status;
+  return error;
+}
+
+async function getNotionState() {
+  const result = await browser.storage.local.get({
+    notion: markSnipNotion.DEFAULT_NOTION_STATE
+  });
+
+  return markSnipNotion.normalizeNotionState(result.notion);
+}
+
+async function setNotionState(nextState) {
+  const normalized = markSnipNotion.normalizeNotionState(nextState);
+  await browser.storage.local.set({ notion: normalized });
+  return normalized;
+}
+
+async function clearNotionState(overrides = {}) {
+  return setNotionState({
+    ...markSnipNotion.DEFAULT_NOTION_STATE,
+    backendBaseUrl: overrides.backendBaseUrl || markSnipNotion.DEFAULT_NOTION_BACKEND_URL,
+    alsoDownloadMd: Boolean(overrides.alsoDownloadMd)
+  });
+}
+
+function notionResponseOk(data = {}) {
+  return { ok: true, ...data };
+}
+
+function notionResponseError(error, fallbackCode = 'backend_unavailable') {
+  return {
+    ok: false,
+    error: {
+      code: error?.code || fallbackCode,
+      message: error?.message || 'Unknown Notion integration error',
+      status: error?.status || 500
+    }
+  };
+}
+
+async function notionBackendRequest(path, {
+  method = 'GET',
+  body = null,
+  connectionToken = '',
+  backendBaseUrl = markSnipNotion.DEFAULT_NOTION_BACKEND_URL
+} = {}) {
+  const requestHeaders = {
+    Accept: 'application/json'
+  };
+
+  if (body != null) {
+    requestHeaders['Content-Type'] = 'application/json';
+  }
+
+  if (connectionToken) {
+    requestHeaders.Authorization = `Bearer ${connectionToken}`;
+  }
+
+  let response;
+  try {
+    response = await fetch(`${backendBaseUrl}${path}`, {
+      method,
+      headers: requestHeaders,
+      body: body != null ? JSON.stringify(body) : undefined
+    });
+  } catch (error) {
+    throw createNotionError('backend_unavailable', `Could not reach Notion backend at ${backendBaseUrl}`, 503);
+  }
+
+  const contentType = response.headers.get('content-type') || '';
+  const payload = contentType.includes('application/json')
+    ? await response.json()
+    : { message: await response.text() };
+
+  if (!response.ok) {
+    throw createNotionError(
+      payload?.error?.code || payload?.code || 'backend_unavailable',
+      payload?.error?.message || payload?.message || `Request failed with status ${response.status}`,
+      response.status
+    );
+  }
+
+  return payload;
+}
+
+function buildNotionAuthState() {
+  const state = globalThis.crypto?.randomUUID?.()
+    || `${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`;
+  pendingNotionAuthStates.add(state);
+  return state;
+}
+
+function consumeNotionAuthState(state) {
+  if (!state || !pendingNotionAuthStates.has(state)) {
+    return false;
+  }
+
+  pendingNotionAuthStates.delete(state);
+  return true;
+}
+
+async function handleNotionAuthStart() {
+  try {
+    const notionState = await getNotionState();
+    if (!browser.identity?.launchWebAuthFlow || !browser.identity?.getRedirectURL) {
+      throw createNotionError('backend_unavailable', 'Browser identity API is unavailable for Notion OAuth.', 400);
+    }
+
+    const backendConfig = await notionBackendRequest('/notion/config', {
+      backendBaseUrl: notionState.backendBaseUrl
+    });
+    const redirectUri = browser.identity.getRedirectURL('notion');
+    const authState = buildNotionAuthState();
+    const authUrl = new URL(backendConfig.authorizationUrl || 'https://api.notion.com/v1/oauth/authorize');
+    authUrl.searchParams.set('owner', 'user');
+    authUrl.searchParams.set('client_id', backendConfig.clientId);
+    authUrl.searchParams.set('redirect_uri', redirectUri);
+    authUrl.searchParams.set('response_type', 'code');
+    authUrl.searchParams.set('state', authState);
+
+    const callbackUrl = await browser.identity.launchWebAuthFlow({
+      interactive: true,
+      url: authUrl.toString()
+    });
+    const callback = new URL(callbackUrl);
+    const errorCode = callback.searchParams.get('error');
+    if (errorCode) {
+      throw createNotionError('validation_error', callback.searchParams.get('error_description') || errorCode, 400);
+    }
+
+    const returnedState = callback.searchParams.get('state');
+    if (!consumeNotionAuthState(returnedState)) {
+      throw createNotionError('validation_error', 'Notion OAuth state validation failed.', 400);
+    }
+
+    const code = callback.searchParams.get('code');
+    if (!code) {
+      throw createNotionError('validation_error', 'Notion OAuth callback did not include an authorization code.', 400);
+    }
+
+    const exchange = await notionBackendRequest('/notion/oauth/exchange', {
+      method: 'POST',
+      backendBaseUrl: notionState.backendBaseUrl,
+      body: {
+        code,
+        redirectUri,
+        existingConnectionToken: notionState.connectionToken || undefined
+      }
+    });
+
+    const nextState = await setNotionState({
+      ...markSnipNotion.DEFAULT_NOTION_STATE,
+      connected: true,
+      connectionToken: exchange.connectionToken,
+      workspace: exchange.workspace,
+      backendBaseUrl: notionState.backendBaseUrl,
+      alsoDownloadMd: notionState.alsoDownloadMd
+    });
+
+    return notionResponseOk({ notion: nextState });
+  } catch (error) {
+    return notionResponseError(error);
+  }
+}
+
+async function handleNotionSearchDestinations(message) {
+  try {
+    const notionState = await getNotionState();
+    if (!markSnipNotion.hasConnection(notionState)) {
+      throw createNotionError('not_connected', 'Connect a Notion workspace before searching destinations.', 401);
+    }
+
+    const response = await notionBackendRequest('/notion/search', {
+      method: 'POST',
+      backendBaseUrl: notionState.backendBaseUrl,
+      connectionToken: notionState.connectionToken,
+      body: {
+        query: message.query || '',
+        kind: message.kind || 'page',
+        startCursor: message.startCursor || null
+      }
+    });
+
+    return notionResponseOk(response);
+  } catch (error) {
+    if (error?.code === 'not_connected') {
+      const notionState = await getNotionState();
+      await clearNotionState({
+        backendBaseUrl: notionState.backendBaseUrl,
+        alsoDownloadMd: notionState.alsoDownloadMd
+      });
+    }
+    return notionResponseError(error);
+  }
+}
+
+async function handleNotionGetDataSource(message) {
+  try {
+    const notionState = await getNotionState();
+    if (!markSnipNotion.hasConnection(notionState)) {
+      throw createNotionError('not_connected', 'Connect a Notion workspace before selecting a database.', 401);
+    }
+
+    const dataSource = await notionBackendRequest(`/notion/data-sources/${encodeURIComponent(message.id)}`, {
+      backendBaseUrl: notionState.backendBaseUrl,
+      connectionToken: notionState.connectionToken
+    });
+
+    return notionResponseOk({ dataSource });
+  } catch (error) {
+    return notionResponseError(error);
+  }
+}
+
+async function handleNotionSave(message) {
+  const notionState = await getNotionState();
+
+  try {
+    if (!markSnipNotion.hasConnection(notionState)) {
+      throw createNotionError('not_connected', 'Connect a Notion workspace before saving.', 401);
+    }
+
+    if (!markSnipNotion.hasDefaultDestination(notionState)) {
+      throw createNotionError('validation_error', 'Select a default Notion destination in Settings before saving.', 400);
+    }
+
+    const saveResponse = await notionBackendRequest('/notion/pages', {
+      method: 'POST',
+      backendBaseUrl: notionState.backendBaseUrl,
+      connectionToken: notionState.connectionToken,
+      body: {
+        destination: notionState.defaultDestination,
+        title: message.title,
+        markdown: message.markdown,
+        mappedProperties: message.mappedProperties || []
+      }
+    });
+
+    if (!notionState.alsoDownloadMd) {
+      return notionResponseOk({
+        page: saveResponse.page,
+        download: { status: 'skipped' }
+      });
+    }
+
+    try {
+      await handleDownloadRequest({
+        markdown: message.downloadMarkdown,
+        title: message.title,
+        tab: message.tab,
+        imageList: message.imageList,
+        mdClipsFolder: message.mdClipsFolder
+      });
+
+      return notionResponseOk({
+        page: saveResponse.page,
+        download: { status: 'success' }
+      });
+    } catch (downloadError) {
+      return notionResponseOk({
+        page: saveResponse.page,
+        download: {
+          status: 'failed',
+          message: downloadError?.message || 'Saved to Notion, but local markdown download failed.'
+        }
+      });
+    }
+  } catch (error) {
+    if (error?.code === 'not_connected') {
+      await clearNotionState({
+        backendBaseUrl: notionState.backendBaseUrl,
+        alsoDownloadMd: notionState.alsoDownloadMd
+      });
+    }
+    return notionResponseError(error);
+  }
+}
+
+async function handleNotionDisconnect() {
+  const notionState = await getNotionState();
+
+  try {
+    if (markSnipNotion.hasConnection(notionState)) {
+      await notionBackendRequest('/notion/disconnect', {
+        method: 'POST',
+        backendBaseUrl: notionState.backendBaseUrl,
+        connectionToken: notionState.connectionToken
+      });
+    }
+  } catch (error) {
+    if (error?.code !== 'not_connected') {
+      return notionResponseError(error);
+    }
+  }
+
+  const cleared = await clearNotionState({
+    backendBaseUrl: notionState.backendBaseUrl,
+    alsoDownloadMd: notionState.alsoDownloadMd
+  });
+  return notionResponseOk({ notion: cleared });
 }
 
 async function sendBatchProgressUpdate(update) {
@@ -828,6 +1147,7 @@ async function handleMarkdownResult(message) {
     imageList: result.imageList,
     sourceImageMap: result.sourceImageMap,
     mdClipsFolder: result.mdClipsFolder,
+    notionTransport: result.notionTransport,
     options: await getOptions()
   });
 }

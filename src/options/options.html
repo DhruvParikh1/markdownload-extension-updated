@@ -492,6 +492,103 @@
                         <input type="text" name="obsidianFolder" class="text-input" role="textbox" placeholder="Enter Folder Name eg. Clippers" />
                     </div>
                 </div>
+
+                <div class="setting-card" id="notion-container"
+                    data-search-keywords="notion,database,page,oauth,workspace,save to notion,remote export">
+                    <h3 class="card-title">Notion Integration</h3>
+                    <p class="card-desc">
+                        Connect a Notion workspace to send clipped pages directly to a page or database. When you use this feature,
+                        current-page markdown and selected metadata are sent to the configured MarkSnip backend and then to Notion.
+                    </p>
+
+                    <div class="notion-connection-summary">
+                        <div class="notion-workspace-pill">
+                            <span id="notionWorkspaceIcon" class="notion-workspace-icon" aria-hidden="true">N</span>
+                            <div>
+                                <div id="notionWorkspaceName" class="notion-workspace-name">Not connected</div>
+                                <div id="notionWorkspaceStatus" class="notion-workspace-status">Connect once, then choose a default destination.</div>
+                            </div>
+                        </div>
+                        <span id="notionConnectionBadge" class="status-badge">Disconnected</span>
+                    </div>
+
+                    <div class="btn-group">
+                        <button id="notionConnect" type="button" class="btn btn-primary" data-local-only="true">Connect</button>
+                        <button id="notionReconnect" type="button" class="btn" data-local-only="true">Reconnect</button>
+                        <button id="notionDisconnect" type="button" class="btn" data-local-only="true">Disconnect</button>
+                    </div>
+                </div>
+
+                <div class="setting-card" id="notionDestinationCard"
+                    data-search-keywords="notion destination,page,database,data source,default destination">
+                    <h3 class="card-title">Default Notion Destination</h3>
+                    <p class="card-desc">Choose where one-click saves from the popup should create pages.</p>
+
+                    <div class="radio-group notion-kind-group">
+                        <div class="radio-pill">
+                            <input type="radio" id="notionDestinationKindPage" value="page" checked data-local-only="true" />
+                            <label for="notionDestinationKindPage">Page</label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" id="notionDestinationKindDataSource" value="data_source" data-local-only="true" />
+                            <label for="notionDestinationKindDataSource">Database</label>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label" for="notionDestinationSearch">Search destination</label>
+                        <input id="notionDestinationSearch" type="text" class="text-input" placeholder="Search pages or databases..." data-local-only="true" />
+                    </div>
+
+                    <div id="notionSelectedDestination" class="notion-selected-destination">
+                        <div class="notion-selected-label">Selected destination</div>
+                        <div id="notionSelectedDestinationName" class="notion-selected-name">None selected</div>
+                        <div id="notionSelectedDestinationMeta" class="notion-selected-meta">Choose a default destination to enable popup saves.</div>
+                    </div>
+
+                    <div id="notionSearchResults" class="notion-search-results"></div>
+                    <p id="notionSearchEmpty" class="notion-search-empty">Search results will appear here.</p>
+
+                    <div class="btn-group">
+                        <button id="notionSearchLoadMore" type="button" class="btn" data-local-only="true">Load More</button>
+                    </div>
+                </div>
+
+                <div class="setting-card" id="notionMappingsCard"
+                    data-search-keywords="notion mapping,title,url,date,tags,properties">
+                    <h3 class="card-title">Database Property Mapping</h3>
+                    <p class="card-desc">These fields are used only when the default destination is a Notion database.</p>
+
+                    <div class="notion-mapping-grid">
+                        <div class="input-group">
+                            <label class="input-label" for="notionMappingTitle">Title</label>
+                            <select id="notionMappingTitle" class="text-input" data-local-only="true"></select>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label" for="notionMappingSourceUrl">Source URL</label>
+                            <select id="notionMappingSourceUrl" class="text-input" data-local-only="true"></select>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label" for="notionMappingClippedAt">Clipped At</label>
+                            <select id="notionMappingClippedAt" class="text-input" data-local-only="true"></select>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label" for="notionMappingTags">Tags</label>
+                            <select id="notionMappingTags" class="text-input" data-local-only="true"></select>
+                        </div>
+                    </div>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <label class="toggle-label-text" for="notionAlsoDownloadMd">Also save a local <code>.md</code> file after successful Notion save</label>
+                            <p class="toggle-hint">Keeps the direct Notion workflow and the local file workflow together.</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input id="notionAlsoDownloadMd" type="checkbox" data-local-only="true" />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
             </div>
 
 
@@ -1028,11 +1125,13 @@ const helloWorld = () => {
     <div id="status" class="toast"></div>
     <div id="spinner" style="display: none;"></div>
 
-    <script src="../browser-polyfill.min.js"></script>
-    <script src="../shared/default-options.js"></script>
-    <script src="../shared/context-menus.js"></script>
-    <script src="options-search.js"></script>
-    <script src="options.js"></script>
+	    <script src="../browser-polyfill.min.js"></script>
+	    <script src="../shared/export-utils.js"></script>
+	    <script src="../shared/notion-utils.js"></script>
+	    <script src="../shared/default-options.js"></script>
+	    <script src="../shared/context-menus.js"></script>
+	    <script src="options-search.js"></script>
+	    <script src="options.js"></script>
 </body>
 
 </html>

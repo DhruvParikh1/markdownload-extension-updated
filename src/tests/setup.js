@@ -30,6 +30,8 @@ if (typeof DOMParser === 'undefined' && typeof window !== 'undefined') {
 
 // Set up fetch mock if needed
 global.fetch = jest.fn();
+global.markSnipExportUtils = require('../shared/export-utils');
+global.markSnipNotion = require('../shared/notion-utils');
 
 // Clean up after each test
 afterEach(() => {

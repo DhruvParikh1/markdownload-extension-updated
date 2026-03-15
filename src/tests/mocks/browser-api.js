@@ -3,6 +3,12 @@
  * Provides mock objects for chrome.* and browser.* APIs used in the extension
  */
 
+const storageListeners = new Set();
+
+function emitStorageChange(areaName, changes) {
+  storageListeners.forEach(listener => listener(changes, areaName));
+}
+
 // Storage mock
 const storageMock = {
   local: {
@@ -28,25 +34,53 @@ const storageMock = {
       return Promise.resolve(result);
     }),
     set: jest.fn((items, callback) => {
+      const changes = {};
+      Object.keys(items || {}).forEach(key => {
+        changes[key] = {
+          oldValue: storageMock.local._data[key],
+          newValue: items[key]
+        };
+      });
       Object.assign(storageMock.local._data, items);
+      emitStorageChange('local', changes);
       if (callback) {
         callback();
       }
       return Promise.resolve();
     }),
     remove: jest.fn((keys, callback) => {
+      const changes = {};
       if (typeof keys === 'string') {
+        changes[keys] = {
+          oldValue: storageMock.local._data[keys],
+          newValue: undefined
+        };
         delete storageMock.local._data[keys];
       } else if (Array.isArray(keys)) {
-        keys.forEach(key => delete storageMock.local._data[key]);
+        keys.forEach(key => {
+          changes[key] = {
+            oldValue: storageMock.local._data[key],
+            newValue: undefined
+          };
+          delete storageMock.local._data[key];
+        });
       }
+      emitStorageChange('local', changes);
       if (callback) {
         callback();
       }
       return Promise.resolve();
     }),
     clear: jest.fn((callback) => {
+      const changes = {};
+      Object.keys(storageMock.local._data).forEach(key => {
+        changes[key] = {
+          oldValue: storageMock.local._data[key],
+          newValue: undefined
+        };
+      });
       storageMock.local._data = {};
+      emitStorageChange('local', changes);
       if (callback) {
         callback();
       }
@@ -79,7 +113,38 @@ const storageMock = {
       return Promise.resolve(result);
     }),
     set: jest.fn((items, callback) => {
+      const changes = {};
+      Object.keys(items || {}).forEach(key => {
+        changes[key] = {
+          oldValue: storageMock.sync._data[key],
+          newValue: items[key]
+        };
+      });
       Object.assign(storageMock.sync._data, items);
+      emitStorageChange('sync', changes);
+      if (callback) {
+        callback();
+      }
+      return Promise.resolve();
+    }),
+    remove: jest.fn((keys, callback) => {
+      const changes = {};
+      if (typeof keys === 'string') {
+        changes[keys] = {
+          oldValue: storageMock.sync._data[keys],
+          newValue: undefined
+        };
+        delete storageMock.sync._data[keys];
+      } else if (Array.isArray(keys)) {
+        keys.forEach(key => {
+          changes[key] = {
+            oldValue: storageMock.sync._data[key],
+            newValue: undefined
+          };
+          delete storageMock.sync._data[key];
+        });
+      }
+      emitStorageChange('sync', changes);
       if (callback) {
         callback();
       }
@@ -88,6 +153,14 @@ const storageMock = {
     _reset: () => {
       storageMock.sync._data = {};
     }
+  },
+  onChanged: {
+    addListener: jest.fn(listener => {
+      storageListeners.add(listener);
+    }),
+    removeListener: jest.fn(listener => {
+      storageListeners.delete(listener);
+    })
   }
 };
 
@@ -113,7 +186,8 @@ const runtimeMock = {
     name: 'MarkSnip - Markdown Web Clipper',
     version: '4.0.0',
     manifest_version: 3
-  }))
+  })),
+  getPlatformInfo: jest.fn(() => Promise.resolve({ os: 'win', arch: 'x86-64' }))
 };
 
 // Tabs mock
@@ -154,6 +228,31 @@ const tabsMock = {
     }
     return Promise.resolve(newTab);
   }),
+  update: jest.fn((tabId, updateProperties, callback) => {
+    const tab = tabsMock._tabs.find(t => t.id === tabId) || tabsMock._tabs[0];
+    if (tab) Object.assign(tab, updateProperties);
+    if (callback) {
+      callback(tab);
+    }
+    return Promise.resolve(tab);
+  }),
+  remove: jest.fn((tabId, callback) => {
+    tabsMock._tabs = tabsMock._tabs.filter(tab => tab.id !== tabId);
+    if (callback) {
+      callback();
+    }
+    return Promise.resolve();
+  }),
+  reload: jest.fn((tabId, callback) => {
+    if (callback) {
+      callback();
+    }
+    return Promise.resolve();
+  }),
+  onUpdated: {
+    addListener: jest.fn(),
+    removeListener: jest.fn()
+  },
   sendMessage: jest.fn((tabId, message, callback) => {
     if (callback) {
       callback({ success: true });
@@ -193,6 +292,10 @@ const downloadsMock = {
     }
     return Promise.resolve(downloadId);
   }),
+  onChanged: {
+    addListener: jest.fn(),
+    removeListener: jest.fn()
+  },
   _reset: () => {
     downloadsMock._downloads = [];
   }
@@ -285,6 +388,11 @@ const offscreenMock = {
   })
 };
 
+const identityMock = {
+  getRedirectURL: jest.fn((path = '') => `https://example.chromiumapp.org/${path}`),
+  launchWebAuthFlow: jest.fn(() => Promise.resolve('https://example.chromiumapp.org/notion?code=test-code&state=test-state'))
+};
+
 // Main browser API object
 const browserAPI = {
   storage: storageMock,
@@ -296,6 +404,7 @@ const browserAPI = {
   clipboard: clipboardMock,
   commands: commandsMock,
   offscreen: offscreenMock,
+  identity: identityMock,
 
   // Helper to reset all mocks
   _resetAll: () => {
@@ -305,6 +414,7 @@ const browserAPI = {
     downloadsMock._reset();
     contextMenusMock._reset();
     clipboardMock._reset();
+    storageListeners.clear();
     jest.clearAllMocks();
   }
 };

@@ -63,6 +63,8 @@ function main() {
     scripts: [
       "browser-polyfill.min.js",
       "background/moment.min.js",
+      "shared/export-utils.js",
+      "shared/notion-utils.js",
       "shared/default-options.js",
       "shared/context-menus.js",
       "service-worker.js"

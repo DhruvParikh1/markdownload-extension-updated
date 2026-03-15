@@ -1,5 +1,14 @@
 let options = defaultOptions;
 let keyupTimeout = null;
+let notionState = markSnipNotion.normalizeNotionState(markSnipNotion.DEFAULT_NOTION_STATE);
+let notionSearchTimeout = null;
+const notionSearchState = {
+    query: '',
+    kind: 'page',
+    results: [],
+    nextCursor: null,
+    loading: false
+};
 
 // Apply theme mode and accent color to the Options page itself
 function applyThemeSettings() {
@@ -143,6 +152,399 @@ function hideToast() {
     this.classList.remove("visible");
 }
 
+function getNotionElements() {
+    return {
+        badge: document.getElementById('notionConnectionBadge'),
+        workspaceIcon: document.getElementById('notionWorkspaceIcon'),
+        workspaceName: document.getElementById('notionWorkspaceName'),
+        workspaceStatus: document.getElementById('notionWorkspaceStatus'),
+        connect: document.getElementById('notionConnect'),
+        reconnect: document.getElementById('notionReconnect'),
+        disconnect: document.getElementById('notionDisconnect'),
+        destinationCard: document.getElementById('notionDestinationCard'),
+        mappingsCard: document.getElementById('notionMappingsCard'),
+        searchInput: document.getElementById('notionDestinationSearch'),
+        searchResults: document.getElementById('notionSearchResults'),
+        searchEmpty: document.getElementById('notionSearchEmpty'),
+        loadMore: document.getElementById('notionSearchLoadMore'),
+        kindPage: document.getElementById('notionDestinationKindPage'),
+        kindDataSource: document.getElementById('notionDestinationKindDataSource'),
+        selectedName: document.getElementById('notionSelectedDestinationName'),
+        selectedMeta: document.getElementById('notionSelectedDestinationMeta'),
+        mappingTitle: document.getElementById('notionMappingTitle'),
+        mappingSourceUrl: document.getElementById('notionMappingSourceUrl'),
+        mappingClippedAt: document.getElementById('notionMappingClippedAt'),
+        mappingTags: document.getElementById('notionMappingTags'),
+        alsoDownloadMd: document.getElementById('notionAlsoDownloadMd')
+    };
+}
+
+function setNotionButtonsLoading(isLoading, connectLabel = 'Connect') {
+    const elements = getNotionElements();
+    if (!elements.connect || !elements.reconnect || !elements.disconnect) return;
+
+    elements.connect.disabled = isLoading;
+    elements.reconnect.disabled = isLoading;
+    elements.disconnect.disabled = isLoading;
+    elements.connect.textContent = isLoading ? connectLabel : 'Connect';
+    elements.reconnect.textContent = isLoading ? 'Working...' : 'Reconnect';
+}
+
+async function restoreNotionState() {
+    const result = await browser.storage.local.get({
+        notion: markSnipNotion.DEFAULT_NOTION_STATE
+    });
+
+    notionState = markSnipNotion.normalizeNotionState(result.notion);
+    renderNotionState();
+}
+
+async function persistNotionState(message = null) {
+    notionState = markSnipNotion.normalizeNotionState(notionState);
+    await browser.storage.local.set({ notion: notionState });
+    renderNotionState();
+    if (message) {
+        showToast(message, 'success');
+    }
+}
+
+function clearNotionSearchResults() {
+    notionSearchState.results = [];
+    notionSearchState.nextCursor = null;
+    notionSearchState.loading = false;
+    renderNotionSearchResults();
+}
+
+function renderNotionSearchResults() {
+    const elements = getNotionElements();
+    if (!elements.searchResults || !elements.searchEmpty || !elements.loadMore) return;
+
+    elements.searchResults.innerHTML = '';
+
+    if (!markSnipNotion.hasConnection(notionState)) {
+        elements.searchEmpty.textContent = 'Connect a Notion workspace to search for destinations.';
+        elements.loadMore.style.display = 'none';
+        return;
+    }
+
+    if (notionSearchState.loading) {
+        elements.searchEmpty.textContent = 'Searching Notion...';
+        elements.loadMore.style.display = 'none';
+        return;
+    }
+
+    if (!notionSearchState.results.length) {
+        elements.searchEmpty.textContent = notionSearchState.query
+            ? 'No matching destinations found.'
+            : 'Search results will appear here.';
+        elements.loadMore.style.display = 'none';
+        return;
+    }
+
+    elements.searchEmpty.textContent = '';
+    notionSearchState.results.forEach(result => {
+        const row = document.createElement('div');
+        row.className = 'notion-search-result';
+
+        const info = document.createElement('div');
+        info.className = 'notion-search-result-info';
+
+        const title = document.createElement('div');
+        title.className = 'notion-search-result-title';
+        title.textContent = result.name || 'Untitled';
+
+        const meta = document.createElement('div');
+        meta.className = 'notion-search-result-meta';
+        meta.textContent = result.kind === 'data_source' ? 'Database' : 'Page';
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'btn';
+        button.textContent = 'Select';
+        button.addEventListener('click', () => {
+            selectNotionDestination(result);
+        });
+
+        info.appendChild(title);
+        info.appendChild(meta);
+        row.appendChild(info);
+        row.appendChild(button);
+        elements.searchResults.appendChild(row);
+    });
+
+    elements.loadMore.style.display = notionSearchState.nextCursor ? 'inline-flex' : 'none';
+}
+
+function buildMappingOptions(selectEl, mappingKey) {
+    if (!selectEl) return;
+
+    const schemaProperties = notionState.defaultDestination?.schema?.properties || [];
+    const eligibleProperties = markSnipNotion.filterEligibleProperties(schemaProperties, mappingKey);
+    selectEl.innerHTML = '';
+
+    const emptyOption = document.createElement('option');
+    emptyOption.value = '';
+    emptyOption.textContent = eligibleProperties.length ? 'Do not map' : 'No compatible properties';
+    selectEl.appendChild(emptyOption);
+
+    eligibleProperties.forEach(property => {
+        const option = document.createElement('option');
+        option.value = property.id;
+        option.textContent = `${property.name} (${property.type})`;
+        selectEl.appendChild(option);
+    });
+
+    selectEl.value = notionState.propertyMappings[mappingKey] || '';
+    selectEl.disabled = !eligibleProperties.length || notionState.defaultDestination?.kind !== 'data_source';
+  }
+
+function renderNotionMappings() {
+    const elements = getNotionElements();
+    const isDataSource = notionState.defaultDestination?.kind === 'data_source';
+    show(elements.mappingsCard, markSnipNotion.hasConnection(notionState));
+
+    buildMappingOptions(elements.mappingTitle, 'title');
+    buildMappingOptions(elements.mappingSourceUrl, 'sourceUrl');
+    buildMappingOptions(elements.mappingClippedAt, 'clippedAt');
+    buildMappingOptions(elements.mappingTags, 'tags');
+
+    if (!isDataSource) {
+        [elements.mappingTitle, elements.mappingSourceUrl, elements.mappingClippedAt, elements.mappingTags].forEach(select => {
+            if (!select) return;
+            select.value = '';
+            select.disabled = true;
+        });
+    }
+
+    if (elements.alsoDownloadMd) {
+        elements.alsoDownloadMd.checked = Boolean(notionState.alsoDownloadMd);
+    }
+}
+
+function renderNotionState() {
+    const elements = getNotionElements();
+    if (!elements.badge) return;
+
+    const connected = markSnipNotion.hasConnection(notionState);
+    const workspaceName = notionState.workspace?.name || 'Not connected';
+    const workspaceIcon = notionState.workspace?.icon;
+
+    elements.badge.textContent = connected ? 'Connected' : 'Disconnected';
+    elements.badge.classList.toggle('connected', connected);
+    elements.workspaceName.textContent = workspaceName;
+    elements.workspaceStatus.textContent = connected
+        ? 'Choose a default destination to enable one-click popup saves.'
+        : 'Connect once, then choose a default destination.';
+    elements.workspaceIcon.textContent = workspaceIcon && workspaceIcon.length <= 2
+        ? workspaceIcon
+        : (workspaceName[0] || 'N').toUpperCase();
+
+    elements.connect.style.display = connected ? 'none' : 'inline-flex';
+    elements.reconnect.style.display = connected ? 'inline-flex' : 'none';
+    elements.disconnect.style.display = connected ? 'inline-flex' : 'none';
+
+    show(elements.destinationCard, connected);
+    show(elements.mappingsCard, connected);
+
+    if (elements.kindPage && elements.kindDataSource) {
+        elements.kindPage.checked = notionSearchState.kind !== 'data_source';
+        elements.kindDataSource.checked = notionSearchState.kind === 'data_source';
+    }
+
+    if (elements.selectedName && elements.selectedMeta) {
+        if (markSnipNotion.hasDefaultDestination(notionState)) {
+            elements.selectedName.textContent = notionState.defaultDestination.name || 'Untitled';
+            elements.selectedMeta.textContent = notionState.defaultDestination.kind === 'data_source'
+                ? 'Database selected for popup saves'
+                : 'Page selected for popup saves';
+        } else {
+            elements.selectedName.textContent = 'None selected';
+            elements.selectedMeta.textContent = 'Choose a default destination to enable popup saves.';
+        }
+    }
+
+    renderNotionSearchResults();
+    renderNotionMappings();
+}
+
+async function searchNotionDestinations(append = false) {
+    if (!markSnipNotion.hasConnection(notionState)) {
+        clearNotionSearchResults();
+        return;
+    }
+
+    notionSearchState.loading = true;
+    renderNotionSearchResults();
+
+    const response = await browser.runtime.sendMessage({
+        type: 'notion-search-destinations',
+        query: notionSearchState.query,
+        kind: notionSearchState.kind,
+        startCursor: append ? notionSearchState.nextCursor : null
+    });
+
+    notionSearchState.loading = false;
+
+    if (!response?.ok) {
+        clearNotionSearchResults();
+        showToast(response?.error?.message || 'Failed to search Notion destinations.', 'error');
+        return;
+    }
+
+    notionSearchState.results = append
+        ? notionSearchState.results.concat(response.results || [])
+        : (response.results || []);
+    notionSearchState.nextCursor = response.nextCursor || null;
+    renderNotionSearchResults();
+}
+
+async function selectNotionDestination(result) {
+    const shouldResetMappings = notionState.defaultDestination?.id !== result.id;
+    let destination = {
+        id: result.id,
+        name: result.name,
+        kind: result.kind,
+        schema: null
+    };
+
+    if (result.kind === 'data_source') {
+        const response = await browser.runtime.sendMessage({
+            type: 'notion-get-data-source',
+            id: result.id
+        });
+
+        if (!response?.ok) {
+            showToast(response?.error?.message || 'Failed to load database schema.', 'error');
+            return;
+        }
+
+        destination = {
+            ...destination,
+            schema: response.dataSource
+        };
+    }
+
+    notionState.defaultDestination = destination;
+    if (shouldResetMappings) {
+        notionState.propertyMappings = {
+            title: '',
+            sourceUrl: '',
+            clippedAt: '',
+            tags: ''
+        };
+    }
+    await persistNotionState('Notion destination saved');
+}
+
+async function handleNotionAuth() {
+    setNotionButtonsLoading(true, 'Connecting...');
+
+    try {
+        const response = await browser.runtime.sendMessage({ type: 'notion-auth-start' });
+        if (!response?.ok) {
+            showToast(response?.error?.message || 'Failed to connect Notion.', 'error');
+            return;
+        }
+
+        notionState = markSnipNotion.normalizeNotionState(response.notion);
+        clearNotionSearchResults();
+        renderNotionState();
+        showToast('Notion workspace connected', 'success');
+    } finally {
+        setNotionButtonsLoading(false);
+    }
+}
+
+async function handleNotionDisconnect() {
+    setNotionButtonsLoading(true, 'Disconnecting...');
+
+    try {
+        const response = await browser.runtime.sendMessage({ type: 'notion-disconnect' });
+        if (!response?.ok) {
+            showToast(response?.error?.message || 'Failed to disconnect Notion.', 'error');
+            return;
+        }
+
+        notionState = markSnipNotion.normalizeNotionState(response.notion);
+        notionSearchState.query = '';
+        const elements = getNotionElements();
+        if (elements.searchInput) {
+            elements.searchInput.value = '';
+        }
+        clearNotionSearchResults();
+        renderNotionState();
+        showToast('Notion workspace disconnected', 'success');
+    } finally {
+        setNotionButtonsLoading(false);
+    }
+}
+
+function initNotionIntegration() {
+    const elements = getNotionElements();
+    if (!elements.connect) return;
+
+    elements.connect.addEventListener('click', handleNotionAuth);
+    elements.reconnect.addEventListener('click', handleNotionAuth);
+    elements.disconnect.addEventListener('click', handleNotionDisconnect);
+    elements.loadMore.addEventListener('click', () => {
+        searchNotionDestinations(true);
+    });
+
+    [elements.kindPage, elements.kindDataSource].forEach(input => {
+        if (!input) return;
+        input.addEventListener('change', () => {
+            notionSearchState.kind = input.value;
+            clearNotionSearchResults();
+            if (notionSearchState.query.trim()) {
+                searchNotionDestinations(false);
+            }
+        });
+    });
+
+    if (elements.searchInput) {
+        elements.searchInput.addEventListener('input', (event) => {
+            notionSearchState.query = event.target.value.trim();
+            clearTimeout(notionSearchTimeout);
+            notionSearchTimeout = setTimeout(() => {
+                searchNotionDestinations(false);
+            }, 250);
+        });
+    }
+
+    const mappingInputs = [
+        ['title', elements.mappingTitle],
+        ['sourceUrl', elements.mappingSourceUrl],
+        ['clippedAt', elements.mappingClippedAt],
+        ['tags', elements.mappingTags]
+    ];
+
+    mappingInputs.forEach(([mappingKey, select]) => {
+        if (!select) return;
+        select.addEventListener('change', async (event) => {
+            notionState.propertyMappings[mappingKey] = event.target.value;
+            await persistNotionState('Notion property mapping updated');
+        });
+    });
+
+    if (elements.alsoDownloadMd) {
+        elements.alsoDownloadMd.addEventListener('change', async (event) => {
+            notionState.alsoDownloadMd = event.target.checked;
+            await persistNotionState('Notion download preference updated');
+        });
+    }
+
+    browser.storage.onChanged.addListener((changes, areaName) => {
+        if (areaName !== 'local' || !changes.notion) return;
+        notionState = markSnipNotion.normalizeNotionState(changes.notion.newValue);
+        renderNotionState();
+    });
+
+    restoreNotionState().catch(error => {
+        console.error('Failed to restore Notion state:', error);
+        showToast('Failed to load Notion integration settings', 'error');
+    });
+}
+
 const setCurrentChoice = result => {
     options = result;
 
@@ -265,10 +667,16 @@ const refreshElements = () => {
 }
 
 const inputChange = e => {
-    if (e) {
-        let key = e.target.name;
-        let value = e.target.value;
-        if (key == "import-file") {
+	    if (e) {
+            if (e.target?.dataset?.localOnly === 'true') {
+                return;
+            }
+	        let key = e.target.name;
+            if (!key) {
+                return;
+            }
+	        let value = e.target.value;
+	        if (key == "import-file") {
             fr = new FileReader();
             fr.onload = (ev) => {
                 let lines = ev.target.result;
@@ -371,20 +779,21 @@ function initSidebar() {
 }
 
 const loaded = () => {
-    // Initialize sidebar navigation
-    initSidebar();
-    initSearch();
-    configureReviewLink();
+	    // Initialize sidebar navigation
+	    initSidebar();
+	    initSearch();
+	    configureReviewLink();
+        initNotionIntegration();
 
-    // Restore saved options
-    restoreOptions();
+	    // Restore saved options
+	    restoreOptions();
 
-    // Attach event listeners (skip the search input)
-    document.querySelectorAll('input,textarea,button').forEach(input => {
-        if (input.id === 'settings-search') return;
-        if (input.tagName == "TEXTAREA" || input.type == "text") {
-            input.addEventListener('keyup', inputKeyup);
-        }
+	    // Attach event listeners (skip the search input)
+	    document.querySelectorAll('input,textarea,button').forEach(input => {
+	        if (input.id === 'settings-search' || input.dataset.localOnly === 'true') return;
+	        if (input.tagName == "TEXTAREA" || input.type == "text") {
+	            input.addEventListener('keyup', inputKeyup);
+	        }
         else if (input.tagName == "BUTTON") {
             input.addEventListener('click', buttonClick);
         }

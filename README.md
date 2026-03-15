@@ -1,6 +1,6 @@
 # MarkSnip
 
-Markdown web clipper for Chrome and Firefox. Save pages as clean Markdown, copy content to clipboard, or send notes directly to Obsidian.
+Markdown web clipper for Chrome and Firefox. Save pages as clean Markdown, copy content to clipboard, or send notes directly to Obsidian and Notion.
 
 [Chrome Web Store](https://chromewebstore.google.com/detail/marksnip-markdown-web-cli/kcbaglhfgbkjdnpeokaamjjkddempipm?hl=en) | [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/marksnip-markdown-web-clipper/) | [User Guide](user-guide.md) | [Changelog](CHANGELOG.md) | [Privacy Policy](PRIVACY.md)
 
@@ -24,6 +24,7 @@ Core pipeline:
 - Save batch output as ZIP or individual files
 - Context menu actions for page, selection, links, images, and tabs
 - Obsidian integration (via Advanced URI + clipboard)
+- Notion integration (via OAuth + companion backend)
 - Keyboard shortcuts for common actions
 - Rich markdown formatting controls (headings, fences, links, images, tables, templates)
 - Import/export extension settings as JSON
@@ -60,7 +61,7 @@ Install from [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/ma
 1. Click the extension icon to open the popup.
 2. Choose **Selection** or **Document**.
 3. Review/edit markdown.
-4. Use **Download**, **Copy All**, or **Send to Obsidian**.
+4. Use **Download**, **Copy All**, **Send to Obsidian**, or **Save to Notion**.
 
 Batch mode:
 
@@ -104,6 +105,10 @@ npm ci
 - `npm run build` - Firefox package build via `web-ext`
 - `npm run build:chrome` - Chrome ZIP package
 - `npm run build:all` - Build Firefox + Chrome artifacts
+
+### Notion backend
+
+The public Notion integration requires the companion backend in [backend/README.md](backend/README.md) for secure OAuth token exchange and refresh handling.
 
 ## Build Architecture
 
@@ -157,7 +162,7 @@ git push origin v4.0.4
 
 ## Privacy
 
-MarkSnip does not send clipped page content to external servers. See [PRIVACY.md](PRIVACY.md) for details.
+MarkSnip keeps clipping local by default. When a user explicitly uses Notion integration, the current page's markdown and selected metadata are sent to the configured MarkSnip backend and then to Notion. See [PRIVACY.md](PRIVACY.md) for details.
 
 ## Credits
 

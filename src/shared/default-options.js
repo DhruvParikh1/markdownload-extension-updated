@@ -41,6 +41,12 @@ const defaultOptions = {
   editorTheme: 'default',
 }
 
+if (typeof globalThis !== 'undefined' && !globalThis.defaultNotionState) {
+  globalThis.defaultNotionState = typeof markSnipNotion !== 'undefined'
+    ? markSnipNotion.normalizeNotionState(markSnipNotion.DEFAULT_NOTION_STATE)
+    : null;
+}
+
 const LEGACY_DEFAULT_FRONTMATTER = "---\ncreated: {date:YYYY-MM-DDTHH:mm:ss} (UTC {date:Z})\ntags: [{keywords}]\nsource: {baseURI}\nauthor: {byline}\n---\n\n# {pageTitle}\n\n> ## Excerpt\n> {excerpt}\n\n---";
 
 // function to get the options from storage and substitute default options if it fails
