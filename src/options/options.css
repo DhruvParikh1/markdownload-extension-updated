@@ -678,6 +678,17 @@ a:hover {
     box-shadow: var(--shadow-md);
 }
 
+.card-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-4);
+}
+
+.card-title-row .card-title {
+    margin-bottom: 0;
+}
+
 .card-title {
     font-family: var(--font-display);
     font-size: var(--text-base);
@@ -694,6 +705,36 @@ a:hover {
     color: var(--text-tertiary);
     margin-bottom: var(--space-4);
     line-height: 1.6;
+}
+
+.reset-setting-link {
+    font-size: var(--text-xs);
+    color: var(--text-tertiary);
+    cursor: pointer;
+    border: none;
+    background: none;
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    transition: color 0.15s, background 0.15s;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.reset-setting-link:hover {
+    color: var(--accent);
+    background: var(--bg-secondary);
+}
+
+/* For toggle-only cards without a card-title, position the reset link */
+.setting-card > .reset-setting-link {
+    position: absolute;
+    top: var(--space-4);
+    right: var(--space-4);
+}
+
+.setting-card:has(> .reset-setting-link) {
+    position: relative;
 }
 
 
@@ -1250,6 +1291,18 @@ code {
 .btn-primary:hover {
     background: var(--accent-dark);
     border-color: var(--accent-dark);
+}
+
+.btn-danger {
+    background: #dc3545;
+    border-color: #dc3545;
+    color: #fff;
+    font-weight: var(--weight-semibold);
+}
+
+.btn-danger:hover {
+    background: #bb2d3b;
+    border-color: #bb2d3b;
 }
 
 .btn-group {

@@ -370,6 +370,65 @@ function initSidebar() {
     switchSection(lastActive);
 }
 
+// ── Per-card and global reset ──
+
+function injectResetLinks() {
+    document.querySelectorAll('.setting-card[data-setting-key]').forEach(card => {
+        // Skip if already injected
+        if (card.querySelector('.reset-setting-link')) return;
+
+        const resetBtn = document.createElement('button');
+        resetBtn.type = 'button';
+        resetBtn.className = 'reset-setting-link';
+        resetBtn.textContent = 'Reset';
+        resetBtn.title = 'Reset to default';
+
+        // If card has a card-title, wrap title + reset in a row
+        const titleEl = card.querySelector(':scope > .card-title');
+        if (titleEl) {
+            const row = document.createElement('div');
+            row.className = 'card-title-row';
+            titleEl.before(row);
+            row.appendChild(titleEl);
+            row.appendChild(resetBtn);
+        } else {
+            // For toggle-only cards, insert as first child (positioned absolutely via CSS)
+            card.insertBefore(resetBtn, card.firstChild);
+        }
+
+        resetBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            resetSettingByCard(card);
+        });
+    });
+}
+
+function resetSettingByCard(card) {
+    const keys = card.dataset.settingKey.split(',');
+    keys.forEach(key => {
+        key = key.trim();
+        if (key === 'tableFormatting') {
+            options.tableFormatting = JSON.parse(JSON.stringify(defaultOptions.tableFormatting));
+        } else {
+            options[key] = typeof defaultOptions[key] === 'object'
+                ? JSON.parse(JSON.stringify(defaultOptions[key]))
+                : defaultOptions[key];
+        }
+    });
+    setCurrentChoice(options);
+    save();
+    showToast("Setting reset to default", "success");
+}
+
+function resetAllSettings() {
+    if (!confirm('Reset all settings to defaults? This cannot be undone.')) return;
+    options = JSON.parse(JSON.stringify(defaultOptions));
+    setCurrentChoice(options);
+    save();
+    showToast("All settings reset to defaults", "success");
+}
+
 const loaded = () => {
     // Initialize sidebar navigation
     initSidebar();
@@ -378,6 +437,15 @@ const loaded = () => {
 
     // Restore saved options
     restoreOptions();
+
+    // Inject per-card reset links
+    injectResetLinks();
+
+    // Reset All button
+    const resetAllBtn = document.getElementById('reset-all');
+    if (resetAllBtn) {
+        resetAllBtn.addEventListener('click', resetAllSettings);
+    }
 
     // Attach event listeners (skip the search input)
     document.querySelectorAll('input,textarea,button').forEach(input => {
