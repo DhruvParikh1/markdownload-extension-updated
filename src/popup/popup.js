@@ -655,11 +655,11 @@ async function handleBatchConversion(e) {
     // Default path: run batch in service worker so popup lifecycle doesn't interrupt processing.
     // Keep inline mode for e2e tests by setting window.__MARKSNIP_FORCE_INLINE_BATCH__ = true.
     if (!window.__MARKSNIP_FORCE_INLINE_BATCH__) {
-        document.getElementById("spinner").style.display = 'flex';
         document.getElementById("convertUrls").style.display = 'none';
         progressUI.show();
         progressUI.reset();
         progressUI.setStatus('Starting background batch...');
+        progressUI.showCancelButton();
 
         try {
             const activeTabs = await browser.tabs.query({
@@ -677,12 +677,11 @@ async function handleBatchConversion(e) {
                 console.error('Background batch failed to start:', error);
             });
 
-            progressUI.setStatus('Batch started. Tabs will be visited automatically.');
-            setTimeout(() => window.close(), 350);
+            progressUI.setStatus('Batch started. You can close this popup or cancel.');
         } catch (error) {
             console.error('Failed to start background batch:', error);
             progressUI.setStatus(`Error: ${error.message}`);
-            document.getElementById("spinner").style.display = 'none';
+            progressUI.hideCancelButton();
             document.getElementById("convertUrls").style.display = 'block';
         }
         return;
