@@ -1614,14 +1614,14 @@ async function handleDownloadWithBlobUrl(blobUrl, filename, tabId, imageList = {
       const id = await downloadsAPI.download({
         url: blobUrl,
         filename: filename,
-        saveAs: false  // EXPLICITLY set to false to avoid save dialog
+        saveAs: !!options.saveAs
       });
       
-      console.log(`✅ [Service Worker] Download started with ID: ${id} for file: ${filename} (saveAs: false)`);
+      console.log(`✅ [Service Worker] Download started with ID: ${id} for file: ${filename} (saveAs: ${!!options.saveAs})`);
       console.log(`🔧 [Service Worker] Download options used:`, { 
         url: blobUrl.substring(0, 50) + '...', 
         filename: filename, 
-        saveAs: false 
+        saveAs: !!options.saveAs 
       });
       
       // Move from URL tracking to ID tracking

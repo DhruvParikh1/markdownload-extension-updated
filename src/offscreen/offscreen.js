@@ -361,28 +361,38 @@ async function copyToClipboard(text) {
   }
 }
 
-/**
- * Convert article to markdown with options provided
- */
-async function convertArticleToMarkdown(article, downloadImages = null, providedOptions = null) {
-  // Use provided options or fallback to default options
-  const options = providedOptions || defaultOptions;
-  
+function createEffectiveMarkdownOptions(article, providedOptions = null, downloadImages = null) {
+  const baseOptions = providedOptions || defaultOptions;
+  const options = {
+    ...baseOptions,
+    tableFormatting: baseOptions.tableFormatting
+      ? { ...baseOptions.tableFormatting }
+      : baseOptions.tableFormatting
+  };
+
   if (downloadImages != null) {
     options.downloadImages = downloadImages;
   }
 
-  // Substitute front and backmatter templates if necessary
   if (options.includeTemplate) {
     options.frontmatter = textReplace(options.frontmatter, article) + '\n';
     options.backmatter = '\n' + textReplace(options.backmatter, article);
-  }
-  else {
-    options.frontmatter = options.backmatter = '';
+  } else {
+    options.frontmatter = '';
+    options.backmatter = '';
   }
 
   options.imagePrefix = textReplace(options.imagePrefix, article, options.disallowedChars)
     .split('/').map(s => generateValidFileName(s, options.disallowedChars)).join('/');
+
+  return options;
+}
+
+/**
+ * Convert article to markdown with options provided
+ */
+async function convertArticleToMarkdown(article, downloadImages = null, providedOptions = null) {
+  const options = createEffectiveMarkdownOptions(article, providedOptions, downloadImages);
 
   let result = turndown(article.content, options, article);
   let sourceImageMap = markSnipObsidian.createObsidianSourceImageMap(result.imageList);

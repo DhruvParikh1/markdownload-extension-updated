@@ -290,6 +290,84 @@ describe('Empty Filename Handling', () => {
   });
 });
 
+describe('Blob Download Fallback Options', () => {
+  test('should preserve saveAs=true when offscreen delegates blob download to the service worker', async () => {
+    const markSnipDownloads = new Map();
+    const markSnipUrls = new Map();
+    const markSnipBlobUrls = new Set();
+    const downloadsAPI = {
+      download: jest.fn().mockResolvedValue(321)
+    };
+
+    const handleDownloadWithBlobUrl = async (blobUrl, filename, options = null) => {
+      if (!options) options = { saveAs: false };
+
+      markSnipUrls.set(blobUrl, {
+        filename,
+        isMarkdown: true
+      });
+      markSnipBlobUrls.add(blobUrl);
+
+      const id = await downloadsAPI.download({
+        url: blobUrl,
+        filename,
+        saveAs: !!options.saveAs
+      });
+
+      if (markSnipUrls.has(blobUrl)) {
+        const urlInfo = markSnipUrls.get(blobUrl);
+        markSnipDownloads.set(id, {
+          ...urlInfo,
+          url: blobUrl
+        });
+        markSnipUrls.delete(blobUrl);
+      }
+
+      return id;
+    };
+
+    const blobUrl = 'blob:chrome-extension://test/blob-save-as';
+    const filename = 'batch/archive.zip';
+    const downloadId = await handleDownloadWithBlobUrl(blobUrl, filename, { saveAs: true });
+
+    expect(downloadId).toBe(321);
+    expect(downloadsAPI.download).toHaveBeenCalledWith({
+      url: blobUrl,
+      filename,
+      saveAs: true
+    });
+    expect(markSnipDownloads.get(321)).toMatchObject({
+      filename,
+      isMarkdown: true,
+      url: blobUrl
+    });
+  });
+
+  test('should default saveAs to false when no option is provided', async () => {
+    const downloadsAPI = {
+      download: jest.fn().mockResolvedValue(654)
+    };
+
+    const handleDownloadWithBlobUrl = async (blobUrl, filename, options = null) => {
+      if (!options) options = { saveAs: false };
+
+      return downloadsAPI.download({
+        url: blobUrl,
+        filename,
+        saveAs: !!options.saveAs
+      });
+    };
+
+    await handleDownloadWithBlobUrl('blob:chrome-extension://test/blob-default', 'article.md');
+
+    expect(downloadsAPI.download).toHaveBeenCalledWith({
+      url: 'blob:chrome-extension://test/blob-default',
+      filename: 'article.md',
+      saveAs: false
+    });
+  });
+});
+
 describe('Article PageTitle Fallback', () => {
   const createArticleWithFallbacks = (dom, readabilityResult, pageUrl = null) => {
     const article = readabilityResult || { title: null };
