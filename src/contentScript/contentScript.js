@@ -404,7 +404,15 @@ if (!window.linkPickerMessageListenerAdded) {
     window.linkPickerMessageListenerAdded = true;
 }
 
-function initLinkPickerMode() {
+const ACCENT_COLORS = {
+    sage:  { dark: '#56735A', darker: '#3F5441', base: '#6B8E6F' },
+    ocean: { dark: '#4A7A92', darker: '#385D6F', base: '#5B8FA8' },
+    slate: { dark: '#56657A', darker: '#414D5C', base: '#6B7B8E' },
+    rose:  { dark: '#965C5C', darker: '#7A4A4A', base: '#B07070' },
+    amber: { dark: '#967840', darker: '#7A6030', base: '#B08E50' }
+};
+
+async function initLinkPickerMode() {
     if (window.linkPickerState.active) {
         console.log("Link picker already active");
         return;
@@ -413,12 +421,23 @@ function initLinkPickerMode() {
     window.linkPickerState.active = true;
     window.linkPickerState.selectedLinks = new Set();
     window.linkPickerState.selectedElements = new Set();
+    window.linkPickerState.lastSelectedElement = null;
+
+    // Read accent color from storage
+    let accentColors = ACCENT_COLORS.sage;
+    try {
+        const data = await browser.storage.sync.get('popupAccent');
+        const accent = data.popupAccent || 'sage';
+        accentColors = ACCENT_COLORS[accent] || ACCENT_COLORS.sage;
+    } catch (e) { /* use default */ }
+
+    window.linkPickerState.accentColors = accentColors;
 
     // Inject CSS styles
-    injectLinkPickerStyles();
+    injectLinkPickerStyles(accentColors);
 
     // Create control panel
-    createControlPanel();
+    createControlPanel(accentColors);
 
     // Add event listeners
     setupLinkPickerEventListeners();
@@ -426,7 +445,20 @@ function initLinkPickerMode() {
     console.log("Link picker mode activated");
 }
 
-function injectLinkPickerStyles() {
+function injectLinkPickerStyles(colors) {
+    const base = colors.base;
+    const dark = colors.dark;
+    const darker = colors.darker;
+    // Extract RGB from hex for rgba usage
+    const hexToRgb = (hex) => {
+        const r = parseInt(hex.slice(1,3), 16);
+        const g = parseInt(hex.slice(3,5), 16);
+        const b = parseInt(hex.slice(5,7), 16);
+        return `${r}, ${g}, ${b}`;
+    };
+    const baseRgb = hexToRgb(base);
+    const darkRgb = hexToRgb(dark);
+
     const styles = `
         /* Link Picker Overlay */
         .marksnip-link-picker-overlay {
@@ -440,21 +472,21 @@ function injectLinkPickerStyles() {
             pointer-events: none;
         }
 
-        /* Highlighted element — sage green accent */
+        /* Highlighted element */
         .marksnip-link-picker-highlight {
-            outline: 2px solid #6B8E6F !important;
+            outline: 2px solid ${base} !important;
             outline-offset: 3px !important;
             cursor: pointer !important;
             position: relative !important;
-            box-shadow: 0 0 0 5px rgba(107, 142, 111, 0.18) !important;
+            box-shadow: 0 0 0 5px rgba(${baseRgb}, 0.18) !important;
             transition: outline 100ms ease, box-shadow 100ms ease !important;
         }
 
-        /* Selected element — darker sage green */
+        /* Selected element */
         .marksnip-link-picker-selected {
-            outline: 2px solid #56735A !important;
+            outline: 2px solid ${dark} !important;
             outline-offset: 3px !important;
-            box-shadow: 0 0 0 5px rgba(86, 115, 90, 0.18) !important;
+            box-shadow: 0 0 0 5px rgba(${darkRgb}, 0.18) !important;
         }
 
         .marksnip-link-picker-selected::after {
@@ -464,7 +496,7 @@ function injectLinkPickerStyles() {
             right: -10px;
             width: 20px;
             height: 20px;
-            background: #56735A;
+            background: ${dark};
             color: white;
             border-radius: 50%;
             display: flex;
@@ -497,7 +529,7 @@ function injectLinkPickerStyles() {
             position: fixed;
             bottom: 24px;
             right: 24px;
-            background: linear-gradient(150deg, #3F5441 0%, #56735A 100%);
+            background: linear-gradient(150deg, ${darker} 0%, ${dark} 100%);
             border-radius: 12px;
             padding: 18px 20px 16px;
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.15);
@@ -560,21 +592,21 @@ function injectLinkPickerStyles() {
             transition: background 140ms ease, box-shadow 140ms ease, opacity 140ms ease;
         }
 
-        /* Done — white pill on green: clean contrast */
+        /* Done — white pill on accent: clean contrast */
         .marksnip-link-picker-btn-done {
             background: rgba(255, 255, 255, 0.95);
-            color: #3F5441;
+            color: ${darker};
             border: 1px solid rgba(255, 255, 255, 0.4);
         }
 
         .marksnip-link-picker-btn-done:hover {
-            background: #6B8E6F;
+            background: ${base};
             color: white;
             box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
         }
 
         .marksnip-link-picker-btn-done:active {
-            background: #56735A;
+            background: ${dark};
             color: white;
             box-shadow: none;
         }
@@ -659,7 +691,7 @@ function injectLinkPickerStyles() {
     document.body.appendChild(overlay);
 }
 
-function createControlPanel() {
+function createControlPanel(colors) {
     const panel = document.createElement('div');
     panel.className = 'marksnip-link-picker-panel';
     panel.id = 'marksnip-link-picker-panel';
@@ -675,6 +707,14 @@ function createControlPanel() {
                 Done
             </button>
         </div>
+        <div class="marksnip-link-picker-panel-buttons" style="margin-top: 8px;">
+            <button class="marksnip-link-picker-btn marksnip-link-picker-btn-cancel" id="marksnip-link-picker-undo" title="Undo last selection">
+                Undo
+            </button>
+            <button class="marksnip-link-picker-btn marksnip-link-picker-btn-cancel" id="marksnip-link-picker-clear" title="Deselect all elements">
+                Clear All
+            </button>
+        </div>
         <div class="marksnip-link-picker-instructions">
             Click elements to select links<br>
             Press ESC to cancel
@@ -686,6 +726,8 @@ function createControlPanel() {
     // Add button event listeners
     document.getElementById('marksnip-link-picker-done').addEventListener('click', finishLinkPicker);
     document.getElementById('marksnip-link-picker-cancel').addEventListener('click', cancelLinkPicker);
+    document.getElementById('marksnip-link-picker-undo').addEventListener('click', undoLastSelection);
+    document.getElementById('marksnip-link-picker-clear').addEventListener('click', clearAllSelections);
 }
 
 function setupLinkPickerEventListeners() {
@@ -820,11 +862,14 @@ function selectElement(element, clientX = 0, clientY = 0) {
 
     // Mark element as selected
     window.linkPickerState.selectedElements.add(element);
+    window.linkPickerState.lastSelectedElement = element;
     element.classList.remove('marksnip-link-picker-highlight');
     element.classList.add('marksnip-link-picker-selected');
 
-    // Green ripple at cursor
-    spawnClickRipple(clientX, clientY, 'rgba(107, 142, 111, 0.4)');
+    // Accent-colored ripple at cursor
+    const ac = window.linkPickerState.accentColors || ACCENT_COLORS.sage;
+    const hexToRgbInline = (hex) => `${parseInt(hex.slice(1,3),16)}, ${parseInt(hex.slice(3,5),16)}, ${parseInt(hex.slice(5,7),16)}`;
+    spawnClickRipple(clientX, clientY, `rgba(${hexToRgbInline(ac.base)}, 0.4)`);
 
     updateLinkCount();
 }
@@ -843,6 +888,22 @@ function deselectElement(element, clientX = 0, clientY = 0) {
     spawnClickRipple(clientX, clientY, 'rgba(168, 162, 158, 0.45)');
 
     updateLinkCount();
+}
+
+function undoLastSelection() {
+    const last = window.linkPickerState.lastSelectedElement;
+    if (last && window.linkPickerState.selectedElements.has(last)) {
+        deselectElement(last);
+        window.linkPickerState.lastSelectedElement = null;
+    }
+}
+
+function clearAllSelections() {
+    const elements = Array.from(window.linkPickerState.selectedElements);
+    for (const el of elements) {
+        deselectElement(el);
+    }
+    window.linkPickerState.lastSelectedElement = null;
 }
 
 function extractLinksFromElement(element) {
@@ -937,13 +998,14 @@ function finishLinkPicker() {
 }
 
 function showSuccessNotification(linkCount) {
+    const ac = window.linkPickerState.accentColors || ACCENT_COLORS.sage;
     const notification = document.createElement('div');
     notification.style.cssText = `
         position: fixed;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        background: linear-gradient(150deg, #3F5441 0%, #56735A 100%);
+        background: linear-gradient(150deg, ${ac.darker} 0%, ${ac.dark} 100%);
         padding: 32px 48px;
         border-radius: 16px;
         box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4);
@@ -1031,7 +1093,9 @@ function cleanupLinkPicker() {
         hoveredElement: null,
         controlPanel: null,
         styleElement: null,
-        handlers: {}
+        handlers: {},
+        lastSelectedElement: null,
+        accentColors: null
     };
 
     console.log("Link picker mode deactivated");

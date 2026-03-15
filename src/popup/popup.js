@@ -27,11 +27,23 @@ const progressUI = {
         this.currentUrl.textContent = '';
     },
     
-    updateProgress(current, total, url) {
+    cancelBtn: document.getElementById('cancelBatchProgress'),
+
+    updateProgress(current, total, url, title) {
         const percentage = (current / total) * 100;
         this.bar.style.width = `${percentage}%`;
         this.count.textContent = `${current}/${total}`;
-        this.currentUrl.textContent = url;
+        this.currentUrl.textContent = title || url;
+    },
+
+    showCancelButton() {
+        this.cancelBtn.style.display = 'block';
+        this.cancelBtn.disabled = false;
+        this.cancelBtn.textContent = 'Cancel';
+    },
+
+    hideCancelButton() {
+        this.cancelBtn.style.display = 'none';
     },
     
     setStatus(status) {
@@ -221,6 +233,11 @@ document.getElementById("convertUrls").addEventListener("click", handleBatchConv
 document.getElementById("cancelBatch").addEventListener("click", hideBatchProcess);
 document.getElementById("pickLinks").addEventListener("click", activateLinkPicker);
 document.getElementById("batchSaveModeToggle").addEventListener("change", saveBatchSettings);
+document.getElementById("cancelBatchProgress").addEventListener("click", () => {
+    browser.runtime.sendMessage({ type: 'cancel-batch' }).catch(() => {});
+    document.getElementById("cancelBatchProgress").disabled = true;
+    document.getElementById("cancelBatchProgress").textContent = 'Cancelling...';
+});
 
 function getSelectedBatchSaveMode() {
     const toggle = document.getElementById("batchSaveModeToggle");
@@ -252,13 +269,17 @@ async function loadBatchSettings() {
             document.getElementById("urlList").value = data.batchUrlList;
         }
         setSelectedBatchSaveMode(data.batchSaveMode || 'zip');
+        validateAndPreviewUrls();
     } catch (err) {
         console.error("Error loading batch settings:", err);
     }
 }
 
-// Save batch URL list as user types
-document.getElementById("urlList").addEventListener("input", saveBatchSettings);
+// Save batch URL list as user types and validate
+document.getElementById("urlList").addEventListener("input", () => {
+    saveBatchSettings();
+    debouncedValidateUrls();
+});
 
 async function showBatchProcess(e) {
     e.preventDefault();
@@ -400,6 +421,56 @@ function processUrlInput(text) {
     }
 
     return urlObjects;
+}
+
+// URL validation preview
+let _urlValidationTimer = null;
+
+function validateAndPreviewUrls() {
+    const urlValidation = document.getElementById('urlValidation');
+    const convertBtn = document.getElementById('convertUrls');
+    const text = document.getElementById('urlList').value;
+    const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+
+    if (lines.length === 0) {
+        urlValidation.style.display = 'none';
+        convertBtn.disabled = false;
+        return;
+    }
+
+    let validCount = 0;
+    let invalidCount = 0;
+
+    for (const line of lines) {
+        const mdLink = parseMarkdownLink(line);
+        const url = mdLink ? normalizeUrl(mdLink.url) : normalizeUrl(line);
+        if (url) {
+            validCount++;
+        } else {
+            invalidCount++;
+        }
+    }
+
+    urlValidation.style.display = 'block';
+    urlValidation.classList.remove('has-invalid', 'all-invalid');
+
+    if (validCount === 0) {
+        urlValidation.textContent = `${invalidCount} invalid line${invalidCount !== 1 ? 's' : ''} — no valid URLs`;
+        urlValidation.classList.add('all-invalid');
+        convertBtn.disabled = true;
+    } else if (invalidCount > 0) {
+        urlValidation.textContent = `${validCount} valid URL${validCount !== 1 ? 's' : ''}, ${invalidCount} invalid line${invalidCount !== 1 ? 's' : ''}`;
+        urlValidation.classList.add('has-invalid');
+        convertBtn.disabled = false;
+    } else {
+        urlValidation.textContent = `${validCount} valid URL${validCount !== 1 ? 's' : ''}`;
+        convertBtn.disabled = false;
+    }
+}
+
+function debouncedValidateUrls() {
+    clearTimeout(_urlValidationTimer);
+    _urlValidationTimer = setTimeout(validateAndPreviewUrls, 300);
 }
 
 // Wait for dynamically-rendered pages to populate meaningful content before clipping.
@@ -836,6 +907,25 @@ browser.storage.sync.get(defaultOptions).then(options => {
     // Load batch settings from storage
     loadBatchSettings();
 
+    // Check for in-progress batch and auto-switch to batch view
+    browser.runtime.sendMessage({ type: 'get-batch-state' }).then(state => {
+        if (state && ['started', 'loading', 'converting', 'retrying'].includes(state.status)) {
+            document.getElementById("container").style.display = 'none';
+            document.getElementById("batchContainer").style.display = 'flex';
+            document.getElementById("spinner").style.display = 'none';
+            progressUI.show();
+            progressUI.showCancelButton();
+            const current = state.current || 0;
+            const total = state.total || 0;
+            if (total > 0) {
+                progressUI.updateProgress(current, total, state.url || '', state.pageTitle || null);
+            }
+            progressUI.setStatus(state.status === 'loading' ? 'Loading page...' :
+                                 state.status === 'converting' ? 'Converting page...' :
+                                 state.status === 'retrying' ? 'Retrying page capture...' : 'Processing...');
+        }
+    }).catch(() => {});
+
     // Set up event listeners (unchanged)
     document.getElementById("selected").addEventListener("click", (e) => {
         e.preventDefault();
@@ -913,6 +1003,7 @@ function handleLinkPickerComplete(links) {
 
     // Save to storage
     saveBatchSettings();
+    validateAndPreviewUrls();
 
     // Show success message
     console.log(`Added ${links.length} links to batch processor`);
@@ -1166,14 +1257,16 @@ function notify(message) {
         const total = message.total || 0;
         const current = message.current || 0;
         const url = message.url || '';
+        const pageTitle = message.pageTitle || null;
 
         if (total > 0) {
-            progressUI.updateProgress(current, total, url);
+            progressUI.updateProgress(current, total, url, pageTitle);
         }
 
         switch (message.status) {
             case 'started':
                 progressUI.setStatus(message.batchSaveMode === 'zip' ? 'Batch started (ZIP mode)...' : 'Batch started...');
+                progressUI.showCancelButton();
                 break;
             case 'loading':
                 progressUI.setStatus('Loading page...');
@@ -1193,8 +1286,15 @@ function notify(message) {
             case 'item-error':
                 progressUI.setStatus(`Error: ${message.error || 'Failed URL'}`);
                 break;
+            case 'cancelled':
+                progressUI.setStatus('Batch cancelled');
+                progressUI.hideCancelButton();
+                document.getElementById("spinner").style.display = 'none';
+                document.getElementById("convertUrls").style.display = 'block';
+                break;
             case 'failed':
                 progressUI.setStatus(`Batch failed: ${message.error || 'Unknown error'}`);
+                progressUI.hideCancelButton();
                 document.getElementById("spinner").style.display = 'none';
                 document.getElementById("convertUrls").style.display = 'block';
                 break;
@@ -1204,6 +1304,7 @@ function notify(message) {
                 } else {
                     progressUI.setStatus(message.batchSaveMode === 'zip' ? 'ZIP downloaded' : 'Batch complete');
                 }
+                progressUI.hideCancelButton();
                 document.getElementById("spinner").style.display = 'none';
                 document.getElementById("convertUrls").style.display = 'block';
                 break;

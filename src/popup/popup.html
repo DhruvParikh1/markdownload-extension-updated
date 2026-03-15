@@ -169,6 +169,8 @@
       <label for="urlList" class="input-label">URLs (one per line)</label>
       <textarea id="urlList" class="url-textarea" placeholder="https://example.com/page1&#10;https://example.com/page2&#10;&#10;Or use markdown links:&#10;[Page Title](https://example.com)"></textarea>
 
+      <div id="urlValidation" class="url-validation" style="display: none;"></div>
+
       <div class="batch-toolbar">
         <button id="pickLinks" class="btn btn-secondary btn-sm">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -201,6 +203,7 @@
           <div id="progressBar" class="progress-bar"></div>
         </div>
         <p id="currentUrl" class="current-url"></p>
+        <button id="cancelBatchProgress" class="btn btn-sm btn-cancel-batch" style="display: none;">Cancel</button>
       </div>
 
       <section class="action-section" style="padding-top: 0;">
