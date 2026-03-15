@@ -21,6 +21,14 @@
                 <h1 class="header-title">MarkSnip</h1>
             </div>
             <span class="header-subtitle">Options</span>
+            <div class="header-search">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" id="settings-search" class="search-input" placeholder="Search settings..." autocomplete="off" />
+                <kbd class="search-shortcut" id="search-shortcut-hint">/</kbd>
+            </div>
         </header>
 
         <!-- ═══ Sidebar ═══ -->
@@ -126,7 +134,7 @@
             <!-- ────────────────────────────────────────────
                  SECTION: Templates
                  ──────────────────────────────────────────── -->
-            <div class="section active" id="section-templates">
+            <div class="section active" id="section-templates" data-section-label="Templates">
                 <h2 class="section-title">Templates</h2>
                 <p class="section-desc">Configure title, front-matter, and back-matter templates for your clipped markdown files.</p>
 
@@ -259,7 +267,7 @@
             <!-- ────────────────────────────────────────────
                  SECTION: Appearance
                  ──────────────────────────────────────────── -->
-            <div class="section" id="section-appearance">
+            <div class="section" id="section-appearance" data-section-label="Appearance">
                 <h2 class="section-title">Appearance</h2>
                 <p class="section-desc">Customize the look of the MarkSnip popup.</p>
 
@@ -379,7 +387,7 @@
             <!-- ────────────────────────────────────────────
                  SECTION: Downloads
                  ──────────────────────────────────────────── -->
-            <div class="section" id="section-downloads">
+            <div class="section" id="section-downloads" data-section-label="Downloads">
                 <h2 class="section-title">Downloads</h2>
                 <p class="section-desc">Configure how files are downloaded and integrate with Obsidian.</p>
 
@@ -485,7 +493,7 @@
             <!-- ────────────────────────────────────────────
                  SECTION: Markdown
                  ──────────────────────────────────────────── -->
-            <div class="section" id="section-markdown">
+            <div class="section" id="section-markdown" data-section-label="Markdown">
                 <h2 class="section-title">Markdown</h2>
                 <p class="section-desc">Configure how HTML is converted to Markdown syntax.</p>
 
@@ -846,7 +854,7 @@ const helloWorld = () => {
             <!-- ────────────────────────────────────────────
                  SECTION: Tables
                  ──────────────────────────────────────────── -->
-            <div class="section" id="section-tables">
+            <div class="section" id="section-tables" data-section-label="Tables">
                 <h2 class="section-title">Tables</h2>
                 <p class="section-desc">Configure how HTML tables are converted to Markdown tables.</p>
 
@@ -959,7 +967,7 @@ const helloWorld = () => {
             <!-- ────────────────────────────────────────────
                  SECTION: Import / Export
                  ──────────────────────────────────────────── -->
-            <div class="section" id="section-import-export">
+            <div class="section" id="section-import-export" data-section-label="Import / Export">
                 <h2 class="section-title">Import / Export</h2>
                 <p class="section-desc">Back up your settings or restore from a previous backup.</p>
 
@@ -995,6 +1003,16 @@ const helloWorld = () => {
                 </div>
             </div>
 
+
+            <div class="search-no-results" id="search-no-results">
+                <svg class="no-results-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    <line x1="8" y1="8" x2="14" y2="14"/>
+                    <line x1="14" y1="8" x2="8" y2="14"/>
+                </svg>
+                <p>No settings match "<span id="search-no-results-query"></span>"</p>
+            </div>
 
         </main>
     </div>

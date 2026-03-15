@@ -355,6 +355,12 @@ function initSidebar() {
     // Click handlers
     sidebarItems.forEach(item => {
         item.addEventListener('click', () => {
+            // Clear search when navigating via sidebar
+            const searchInput = document.getElementById('settings-search');
+            if (searchInput && searchInput.value) {
+                searchInput.value = '';
+                searchInput.dispatchEvent(new Event('input'));
+            }
             const sectionId = item.dataset.section;
             switchSection(sectionId);
         });
@@ -367,13 +373,15 @@ function initSidebar() {
 const loaded = () => {
     // Initialize sidebar navigation
     initSidebar();
+    initSearch();
     configureReviewLink();
 
     // Restore saved options
     restoreOptions();
 
-    // Attach event listeners
+    // Attach event listeners (skip the search input)
     document.querySelectorAll('input,textarea,button').forEach(input => {
+        if (input.id === 'settings-search') return;
         if (input.tagName == "TEXTAREA" || input.type == "text") {
             input.addEventListener('keyup', inputKeyup);
         }
@@ -382,6 +390,127 @@ const loaded = () => {
         }
         else input.addEventListener('change', inputChange);
     })
+}
+
+// ── Settings Search ──
+function initSearch() {
+    const searchInput = document.getElementById('settings-search');
+    const contentPanel = document.querySelector('.content-panel');
+    const noResults = document.getElementById('search-no-results');
+    const noResultsQuery = document.getElementById('search-no-results-query');
+    const shortcutHint = document.getElementById('search-shortcut-hint');
+
+    // Build search index: collect all setting-cards with their searchable text
+    // Also include the downloadModeGroup's inner cards as individual entries
+    const sections = document.querySelectorAll('.section');
+    const searchIndex = [];
+
+    sections.forEach(section => {
+        // Get direct setting-cards and also cards inside #downloadModeGroup
+        const cards = section.querySelectorAll('.setting-card');
+        cards.forEach(card => {
+            const text = card.textContent.toLowerCase();
+            searchIndex.push({ card, section, text });
+        });
+    });
+
+    let searchTimeout = null;
+
+    function performSearch(query) {
+        query = query.trim().toLowerCase();
+
+        if (!query) {
+            // Exit search mode — restore normal sidebar navigation
+            contentPanel.classList.remove('search-active');
+            noResults.classList.remove('visible');
+            searchIndex.forEach(({ card }) => {
+                card.classList.remove('search-hidden', 'search-match');
+                card.style.removeProperty('display');
+                card.style.removeProperty('opacity');
+            });
+            // Also restore parent wrappers that may have been force-shown
+            document.querySelectorAll('[data-search-force-shown]').forEach(el => {
+                el.removeAttribute('data-search-force-shown');
+            });
+            sections.forEach(s => s.classList.remove('search-section-empty'));
+            // Re-trigger sidebar to show correct section
+            const activeTab = sessionStorage.getItem('marksnip-options-tab') || 'templates';
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            const allSections = document.querySelectorAll('.section');
+            sidebarItems.forEach(item => item.classList.remove('active'));
+            const activeItem = document.querySelector(`.sidebar-item[data-section="${activeTab}"]`);
+            if (activeItem) activeItem.classList.add('active');
+            allSections.forEach(s => s.classList.remove('active'));
+            const activeSection = document.getElementById(`section-${activeTab}`);
+            if (activeSection) activeSection.classList.add('active');
+            // Restore conditional visibility
+            refreshElements();
+            return;
+        }
+
+        // Enter search mode
+        contentPanel.classList.add('search-active');
+
+        const terms = query.split(/\s+/).filter(Boolean);
+        let totalMatches = 0;
+
+        searchIndex.forEach(({ card, text }) => {
+            const matches = terms.every(term => text.includes(term));
+            card.classList.toggle('search-hidden', !matches);
+            card.classList.toggle('search-match', matches);
+            if (matches) {
+                totalMatches++;
+                // Override any inline display:none from show() / refreshElements()
+                card.style.display = '';
+                card.style.opacity = '1';
+                // Also ensure parent wrappers (like #downloadModeGroup) are visible
+                let parent = card.parentElement;
+                while (parent && parent !== contentPanel) {
+                    if (parent.style.display === 'none') {
+                        parent.style.display = '';
+                        parent.style.opacity = '1';
+                        parent.setAttribute('data-search-force-shown', '');
+                    }
+                    parent = parent.parentElement;
+                }
+            }
+        });
+
+        // Mark sections that have zero visible cards
+        sections.forEach(section => {
+            const hasVisible = section.querySelector('.setting-card.search-match');
+            section.classList.toggle('search-section-empty', !hasVisible);
+        });
+
+        // Show/hide no-results message
+        if (totalMatches === 0) {
+            noResultsQuery.textContent = query;
+            noResults.classList.add('visible');
+        } else {
+            noResults.classList.remove('visible');
+        }
+    }
+
+    searchInput.addEventListener('input', () => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => performSearch(searchInput.value), 150);
+    });
+
+    // "/" keyboard shortcut to focus search
+    document.addEventListener('keydown', (e) => {
+        if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+            const tag = document.activeElement?.tagName;
+            if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+            e.preventDefault();
+            searchInput.focus();
+        }
+        // Escape to clear search
+        if (e.key === 'Escape' && document.activeElement === searchInput) {
+            searchInput.value = '';
+            performSearch('');
+            searchInput.blur();
+        }
+    });
 }
 
 document.addEventListener("DOMContentLoaded", loaded);
