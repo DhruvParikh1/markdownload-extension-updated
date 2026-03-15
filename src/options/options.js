@@ -417,6 +417,11 @@ function resetSettingByCard(card) {
         }
     });
     setCurrentChoice(options);
+    // Handle context menu toggle specially
+    if (keys.some(k => k.trim() === 'contextMenus')) {
+        if (options.contextMenus) { createMenus(); }
+        else { browser.contextMenus.removeAll(); }
+    }
     save();
     showToast("Setting reset to default", "success");
 }
@@ -425,6 +430,8 @@ function resetAllSettings() {
     if (!confirm('Reset all settings to defaults? This cannot be undone.')) return;
     options = JSON.parse(JSON.stringify(defaultOptions));
     setCurrentChoice(options);
+    browser.contextMenus.removeAll();
+    if (options.contextMenus) { createMenus(); }
     save();
     showToast("All settings reset to defaults", "success");
 }
