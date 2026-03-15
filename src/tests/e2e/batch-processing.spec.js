@@ -37,36 +37,88 @@ function readExpectedFixture(fixtureFile) {
   return fs.readFileSync(path.join(fixtureDirectory, fixtureFile), 'utf8');
 }
 
-async function runSingleUrlBatchCapture(popupPage, url) {
-  await popupPage.bringToFront();
-  await popupPage.goto(popupPage.url());
+async function installBatchHarness(serviceWorker) {
+  await serviceWorker.evaluate(() => {
+    if (!self.__markSnipBatchHarnessInstalled) {
+      self.__markSnipBatchHarnessInstalled = true;
+      self.__markSnipBatchHarnessOriginals = {
+        sendBatchProgressUpdate: self.sendBatchProgressUpdate,
+        triggerBatchZipDownload: self.triggerBatchZipDownload
+      };
+
+      self.sendBatchProgressUpdate = async (update) => {
+        const snapshot = JSON.parse(JSON.stringify(update ?? null));
+        self.__markSnipBatchHarnessState.progress.push(snapshot);
+        return self.__markSnipBatchHarnessOriginals.sendBatchProgressUpdate(update);
+      };
+
+      self.triggerBatchZipDownload = async (files, options, fallbackTabId = null) => {
+        self.__markSnipBatchHarnessState.zipCalls.push({
+          files: JSON.parse(JSON.stringify(files || [])),
+          options: JSON.parse(JSON.stringify(options || {})),
+          fallbackTabId
+        });
+      };
+    }
+
+    self.__markSnipBatchHarnessState = {
+      progress: [],
+      zipCalls: []
+    };
+  });
+}
+
+async function waitForBatchHarnessCompletion(serviceWorker) {
+  await expect.poll(async () => (
+    await serviceWorker.evaluate(() => {
+      const progress = self.__markSnipBatchHarnessState?.progress || [];
+      return progress.length ? progress[progress.length - 1].status : null;
+    })
+  ), { timeout: 240000 }).toBe('finished');
+}
+
+async function runBatchCapture(context, extensionId, serviceWorker, urls) {
+  await installBatchHarness(serviceWorker);
+
+  const popupPage = await context.newPage();
+  await popupPage.goto(`chrome-extension://${extensionId}/popup/popup.html`);
   await popupPage.waitForSelector('#batchProcess');
 
-  return popupPage.evaluate(async ({ targetUrl }) => {
-    // Keep the popup tab alive and skip actual downloads during test.
-    window.__MARKSNIP_FORCE_INLINE_BATCH__ = true;
-    window.close = () => {
-      window.__testCloseCalled = true;
-    };
-    window.sendDownloadMessage = async () => {};
-    sendDownloadMessage = window.sendDownloadMessage;
+  try {
+    await popupPage.evaluate(async ({ targetUrls }) => {
+      document.getElementById('urlList').value = targetUrls.join('\n');
+      const batchSaveModeToggle = document.getElementById('batchSaveModeToggle');
+      if (batchSaveModeToggle) batchSaveModeToggle.checked = false;
+      await handleBatchConversion({ preventDefault() {} });
+    }, {
+      targetUrls: urls,
+    });
 
-    const cmInstance = document.querySelector('.CodeMirror').CodeMirror;
-    cmInstance.setValue('');
-    document.getElementById('urlList').value = '';
-    document.getElementById('urlList').value = targetUrl;
-    await handleBatchConversion({ preventDefault() {} });
+    await waitForBatchHarnessCompletion(serviceWorker);
 
-    return cmInstance.getValue();
-  }, {
-    targetUrl: url,
-  });
+    return serviceWorker.evaluate(() => (
+      JSON.parse(JSON.stringify(self.__markSnipBatchHarnessState || { progress: [], zipCalls: [] }))
+    ));
+  } finally {
+    if (!popupPage.isClosed()) {
+      await popupPage.close().catch(() => {});
+    }
+  }
+}
+
+async function runSingleUrlBatchCapture(context, extensionId, serviceWorker, url) {
+  const state = await runBatchCapture(context, extensionId, serviceWorker, [url]);
+  const lastZipCall = state.zipCalls[state.zipCalls.length - 1];
+  if (!lastZipCall?.files?.length) {
+    throw new Error(`No batch ZIP payload captured for ${url}`);
+  }
+  return lastZipCall.files[0].content;
 }
 
 test.describe('Batch Processing E2E', () => {
   let context;
-  let popupPage;
   let extensionId;
+  let serviceWorker;
 
   test.beforeAll(async () => {
     context = await chromium.launchPersistentContext('', {
@@ -77,15 +129,11 @@ test.describe('Batch Processing E2E', () => {
       ],
     });
 
-    let [serviceWorker] = context.serviceWorkers();
+    [serviceWorker] = context.serviceWorkers();
     if (!serviceWorker) {
       serviceWorker = await context.waitForEvent('serviceworker', { timeout: 15000 });
     }
     extensionId = new URL(serviceWorker.url()).host;
-
-    popupPage = await context.newPage();
-    await popupPage.goto(`chrome-extension://${extensionId}/popup/popup.html`);
-    await popupPage.waitForSelector('#batchProcess');
   });
 
   test.afterAll(async () => {
@@ -95,59 +143,45 @@ test.describe('Batch Processing E2E', () => {
   test('captures full content for Obsidian links page in batch flow', async () => {
     test.setTimeout(240000);
 
-    const result = await popupPage.evaluate(async ({ urls }) => {
-      // Keep the popup tab alive and skip actual downloads during test.
-      window.__MARKSNIP_FORCE_INLINE_BATCH__ = true;
-      window.close = () => {
-        window.__testCloseCalled = true;
-      };
-      window.sendDownloadMessage = async () => {};
-      sendDownloadMessage = window.sendDownloadMessage;
+    const state = await runBatchCapture(context, extensionId, serviceWorker, [
+      'https://example.com/',
+      'https://www.wikipedia.org/',
+      'https://help.obsidian.md/links',
+    ]);
+    const capturedFiles = state.zipCalls[state.zipCalls.length - 1]?.files || [];
+    const obsidianMarkdown = capturedFiles
+      .map(file => file.content)
+      .find(markdown => markdown.includes('Learn how to link to notes, attachments, and other files from your notes'));
 
-      document.getElementById('urlList').value = urls.join('\n');
-      await handleBatchConversion({ preventDefault() {} });
-
-      const markdown = document.querySelector('.CodeMirror').CodeMirror.getValue();
-      return {
-        markdownLength: markdown.length,
-        hasLeadSentence: markdown.includes('Learn how to link to notes, attachments, and other files from your notes'),
-        hasBlockDescription: markdown.includes('A block is a unit of text in your note'),
-        hasPreviewNote: markdown.includes('To preview linked files, you first need to enable'),
-        hasTocOnlySignature: markdown.includes('Interactive graph') && markdown.includes('On this page'),
-        preview: markdown.slice(0, 500),
-      };
-    }, {
-      urls: [
-        'https://example.com/',
-        'https://www.wikipedia.org/',
-        'https://help.obsidian.md/links',
-      ],
-    });
-
-    expect(result.hasLeadSentence).toBeTruthy();
-    expect(result.hasBlockDescription).toBeTruthy();
-    expect(result.hasPreviewNote).toBeTruthy();
-    expect(result.hasTocOnlySignature).toBeFalsy();
+    expect(capturedFiles).toHaveLength(3);
+    expect(obsidianMarkdown).toBeTruthy();
+    expect(obsidianMarkdown).toContain('A block is a unit of text in your note');
+    expect(obsidianMarkdown).toContain('To preview linked files, you first need to enable');
+    expect(obsidianMarkdown.includes('Interactive graph') && obsidianMarkdown.includes('On this page')).toBeFalsy();
   });
 
   test('captures later repeated sections for the Sebastian Higgins article', async () => {
     test.setTimeout(240000);
 
+    const popupPage = await context.newPage();
+    await popupPage.goto(`chrome-extension://${extensionId}/popup/popup.html`);
     const previousOptions = await popupPage.evaluate(async () => (
       await browser.storage.sync.get(['downloadImages', 'downloadMode'])
     ));
 
-    await popupPage.evaluate(async () => {
-      await browser.storage.sync.set({
-        downloadImages: true,
-        downloadMode: 'downloadsApi'
-      });
-    });
-
     let actualMarkdown;
     try {
+      await popupPage.evaluate(async () => {
+        await browser.storage.sync.set({
+          downloadImages: true,
+          downloadMode: 'downloadsApi'
+        });
+      });
+
       actualMarkdown = await runSingleUrlBatchCapture(
-        popupPage,
+        context,
+        extensionId,
+        serviceWorker,
         'https://sebastian.graphics/blog/16-bit-tiny-model-standalone-c-with-open-watcom.html'
       );
     } finally {
@@ -170,6 +204,9 @@ test.describe('Batch Processing E2E', () => {
           await browser.storage.sync.remove(toRemove);
         }
       }, previousOptions);
+      if (!popupPage.isClosed()) {
+        await popupPage.close().catch(() => {});
+      }
     }
 
     const normalizedMarkdown = normalizeMarkdown(actualMarkdown);
@@ -185,7 +222,12 @@ test.describe('Batch Processing E2E', () => {
     test(snapshotCase.name, async () => {
       test.setTimeout(240000);
 
-      const actualMarkdown = await runSingleUrlBatchCapture(popupPage, snapshotCase.url);
+      const actualMarkdown = await runSingleUrlBatchCapture(
+        context,
+        extensionId,
+        serviceWorker,
+        snapshotCase.url
+      );
       const expectedMarkdown = readExpectedFixture(snapshotCase.fixtureFile);
 
       expect(normalizeMarkdown(actualMarkdown)).toBe(normalizeMarkdown(expectedMarkdown));
