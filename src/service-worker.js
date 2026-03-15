@@ -359,7 +359,151 @@ async function triggerBatchZipDownload(files, options, fallbackTabId = null) {
   }
 }
 
-async function processBatchTab(urlObj, index, total, options, batchSaveMode = 'zip', signal = null) {
+// ===== In-page batch progress overlay =====
+// Injected into each batch tab so the user can see progress & cancel
+// even though the popup closes when a new tab takes focus.
+
+async function injectBatchProgressOverlay(tabId, current, total, url, pageTitle, accentColors) {
+  try {
+    await browser.scripting.executeScript({
+      target: { tabId },
+      func: (current, total, url, pageTitle, colors) => {
+        // Remove any previous overlay
+        const existing = document.getElementById('marksnip-batch-overlay');
+        if (existing) existing.remove();
+        const existingStyle = document.getElementById('marksnip-batch-overlay-style');
+        if (existingStyle) existingStyle.remove();
+
+        const darker = colors.darker;
+        const dark = colors.dark;
+        const base = colors.base;
+
+        const style = document.createElement('style');
+        style.id = 'marksnip-batch-overlay-style';
+        style.textContent = `
+          #marksnip-batch-overlay {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: linear-gradient(150deg, ${darker} 0%, ${dark} 100%);
+            border-radius: 12px;
+            padding: 16px 20px 14px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.15);
+            z-index: 2147483647;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            min-width: 260px;
+            max-width: 340px;
+            border: 1px solid rgba(255,255,255,0.1);
+            transform: translateZ(0);
+            will-change: transform, opacity;
+            animation: marksnip-bo-slideUp 240ms ease-out both;
+          }
+          #marksnip-batch-overlay * { box-sizing: border-box; margin: 0; padding: 0; }
+          .marksnip-bo-title {
+            font-size: 11px; font-weight: 600;
+            color: rgba(255,255,255,0.7);
+            text-transform: uppercase; letter-spacing: 0.08em;
+            margin-bottom: 10px; text-align: center;
+          }
+          .marksnip-bo-count {
+            font-size: 22px; font-weight: 700; color: #fff;
+            text-align: center; margin-bottom: 6px;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+          }
+          .marksnip-bo-url {
+            font-size: 11px; color: rgba(255,255,255,0.55);
+            text-align: center; margin-bottom: 10px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+          }
+          .marksnip-bo-bar-bg {
+            height: 5px; background: rgba(255,255,255,0.15);
+            border-radius: 3px; overflow: hidden; margin-bottom: 12px;
+          }
+          .marksnip-bo-bar {
+            height: 100%; background: rgba(255,255,255,0.85);
+            border-radius: 3px; transition: width 300ms ease;
+          }
+          .marksnip-bo-cancel {
+            width: 100%; padding: 8px 14px; border-radius: 8px;
+            font-size: 12px; font-weight: 600; cursor: pointer;
+            font-family: inherit; border: 1px solid rgba(255,255,255,0.18);
+            background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.8);
+            transition: background 140ms ease, color 140ms ease;
+          }
+          .marksnip-bo-cancel:hover {
+            background: rgba(255,255,255,0.25); color: #fff;
+          }
+          @keyframes marksnip-bo-slideUp {
+            from { opacity: 0; transform: translateZ(0) translateY(16px); }
+            to   { opacity: 1; transform: translateZ(0) translateY(0); }
+          }
+        `;
+        document.head.appendChild(style);
+
+        const pct = total > 0 ? Math.round((current / total) * 100) : 0;
+        const displayText = pageTitle || url;
+
+        const panel = document.createElement('div');
+        panel.id = 'marksnip-batch-overlay';
+        panel.innerHTML = `
+          <div class="marksnip-bo-title">MarkSnip — Batch Processing</div>
+          <div class="marksnip-bo-count">${current} / ${total}</div>
+          <div class="marksnip-bo-url" title="${url}">${displayText}</div>
+          <div class="marksnip-bo-bar-bg"><div class="marksnip-bo-bar" style="width:${pct}%"></div></div>
+          <button class="marksnip-bo-cancel" id="marksnip-bo-cancel-btn">Cancel Batch</button>
+        `;
+        document.body.appendChild(panel);
+
+        document.getElementById('marksnip-bo-cancel-btn').addEventListener('click', () => {
+          const btn = document.getElementById('marksnip-bo-cancel-btn');
+          if (btn) { btn.textContent = 'Cancelling...'; btn.disabled = true; }
+          browser.runtime.sendMessage({ type: 'cancel-batch' }).catch(() => {});
+        });
+      },
+      args: [current, total, url, pageTitle, accentColors]
+    });
+  } catch (e) {
+    console.debug('[Batch] Could not inject progress overlay:', e);
+  }
+}
+
+async function updateBatchProgressOverlay(tabId, current, total, url, pageTitle, statusText) {
+  try {
+    await browser.scripting.executeScript({
+      target: { tabId },
+      func: (current, total, url, pageTitle, statusText) => {
+        const panel = document.getElementById('marksnip-batch-overlay');
+        if (!panel) return;
+        const pct = total > 0 ? Math.round((current / total) * 100) : 0;
+        const countEl = panel.querySelector('.marksnip-bo-count');
+        const urlEl = panel.querySelector('.marksnip-bo-url');
+        const barEl = panel.querySelector('.marksnip-bo-bar');
+        const titleEl = panel.querySelector('.marksnip-bo-title');
+        if (countEl) countEl.textContent = `${current} / ${total}`;
+        if (urlEl) { urlEl.textContent = pageTitle || url; urlEl.title = url; }
+        if (barEl) barEl.style.width = `${pct}%`;
+        if (titleEl && statusText) titleEl.textContent = `MarkSnip — ${statusText}`;
+      },
+      args: [current, total, url, pageTitle, statusText]
+    });
+  } catch (e) {
+    // Tab may have navigated or closed
+  }
+}
+
+async function removeBatchProgressOverlay(tabId) {
+  try {
+    await browser.scripting.executeScript({
+      target: { tabId },
+      func: () => {
+        document.getElementById('marksnip-batch-overlay')?.remove();
+        document.getElementById('marksnip-batch-overlay-style')?.remove();
+      }
+    });
+  } catch (e) { /* ignore */ }
+}
+
+async function processBatchTab(urlObj, index, total, options, batchSaveMode = 'zip', signal = null, accentColors = null) {
   const collectOnly = batchSaveMode === 'zip';
   const effectiveOptions = collectOnly
     ? { ...options, downloadImages: false }
@@ -398,6 +542,11 @@ async function processBatchTab(urlObj, index, total, options, batchSaveMode = 'z
     });
 
     await ensureScripts(tab.id);
+
+    // Inject the in-page progress overlay with cancel button
+    const overlayColors = accentColors || { darker: '#3F5441', dark: '#56735A', base: '#6B8E6F' };
+    await injectBatchProgressOverlay(tab.id, index, total, urlObj.url, pageTitle, overlayColors);
+
     await activateTabForBatch(tab.id, 1500);
 
     for (let attempt = 1; attempt <= 2; attempt++) {
@@ -412,6 +561,8 @@ async function processBatchTab(urlObj, index, total, options, batchSaveMode = 'z
         pageTitle,
         attempt
       });
+
+      await updateBatchProgressOverlay(tab.id, index, total, urlObj.url, pageTitle, 'Converting...');
 
       const info = { menuItemId: 'download-markdown-all' };
       const result = await downloadMarkdownFromContext(
@@ -454,6 +605,8 @@ async function processBatchTab(urlObj, index, total, options, batchSaveMode = 'z
       await browser.tabs.reload(tab.id);
       await waitForTabLoadCompleteBatch(tab.id, 45000, signal);
       await ensureScripts(tab.id);
+      // Re-inject overlay after reload (previous DOM is gone)
+      await injectBatchProgressOverlay(tab.id, index, total, urlObj.url, pageTitle, overlayColors);
       await activateTabForBatch(tab.id, 1500);
     }
     return {
@@ -483,6 +636,16 @@ async function handleBatchConversionInServiceWorker(message) {
   const startedAt = Date.now();
   const options = await getOptions();
 
+  // Resolve accent colors for the in-page overlay
+  const BATCH_ACCENT_COLORS = {
+    sage:  { darker: '#3F5441', dark: '#56735A', base: '#6B8E6F' },
+    ocean: { darker: '#385D6F', dark: '#4A7A92', base: '#5B8FA8' },
+    slate: { darker: '#414D5C', dark: '#56657A', base: '#6B7B8E' },
+    rose:  { darker: '#7A4A4A', dark: '#965C5C', base: '#B07070' },
+    amber: { darker: '#7A6030', dark: '#967840', base: '#B08E50' }
+  };
+  const accentColors = BATCH_ACCENT_COLORS[options.popupAccent] || BATCH_ACCENT_COLORS.sage;
+
   let originalTabId = message.originalTabId || null;
   if (!originalTabId) {
     const activeTabs = await browser.tabs.query({ currentWindow: true, active: true });
@@ -505,7 +668,7 @@ async function handleBatchConversionInServiceWorker(message) {
       const urlObj = urlObjects[i];
       const current = i + 1;
       try {
-        const { result } = await processBatchTab(urlObj, current, urlObjects.length, options, batchSaveMode, signal);
+        const { result } = await processBatchTab(urlObj, current, urlObjects.length, options, batchSaveMode, signal, accentColors);
 
         if (batchSaveMode === 'zip' && result?.markdown && result?.fullFilename) {
           const uniquePath = ensureUniqueBatchEntryPath(result.fullFilename, usedPaths);
