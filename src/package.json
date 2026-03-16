@@ -1,7 +1,8 @@
 {
   "scripts": {
     "npminstall": "npm install",
-    "build:manifests": "node scripts/generate-browser-manifests.js",
+    "generate:release-highlights": "node scripts/generate-release-highlights.js",
+    "build:manifests": "npm run generate:release-highlights && node scripts/generate-browser-manifests.js",
     "build": "npm run build:manifests && web-ext build -s .build/firefox",
     "build:chrome": "npm run build:manifests && cd .build/chrome && zip -r ../../../dist/marksnip-chrome-$(node -p \"require('../../manifest.json').version\").zip . -x '*.DS_Store'",
     "build:all": "npm run build && npm run build:chrome",

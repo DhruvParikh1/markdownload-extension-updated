@@ -1,0 +1,171 @@
+{
+  "generatedAt": "2026-03-16T05:05:22.737Z",
+  "source": "CHANGELOG.md",
+  "versions": {
+    "4.1.1": [
+      "Selection Capture Fix: Preserved selected HTML context during conversion to prevent broken markdown output from partial selections.",
+      "Math Output Normalization: Normalized math rendering paths for cleaner markdown output when clipping selected content.",
+      "Regression Coverage: Added unit tests for selection capture behavior to lock in the fix.",
+      "Options Sidebar: Added a new Leave Review button under Buy Me a Coffee that automatically links to Chrome Web Store or Firefox Add-ons reviews based on the current browser."
+    ],
+    "4.1.0": [
+      "Markdown Controls: Added configurable hashtag handling modes (keep, remove, escape) with safer conversion behavior and dedicated tests.",
+      "Math Extraction Reliability: Improved LaTeX capture flow before DOM snapshotting and fixed KaTeX handling in offscreen processing when annotation fallback is missing.",
+      "Popup Appearance Settings: Added popup customization controls for color mode, accent colors, and compact mode.",
+      "Options Page Refresh: Redesigned the options page to align with the popup design system and improved sidebar behavior.",
+      "Options UX Improvements: Added visual examples for table settings, a CodeMirror editor theme selector, helper hints for key toggles, and a donation button in the sidebar."
+    ],
+    "4.0.7": [
+      "Token Estimation: Improved accuracy with per-content-type segmentation that better handles URLs, code blocks, markdown syntax, and non-ASCII characters.",
+      "Editor Stats: Added a cycling character/word/token counter badge to the editor header in the popup.",
+      "Code Blocks: Cleaned up <pre> code block conversion and added a controllable language-detection toggle in settings.",
+      "Clipping Reliability: Fixed a bug where the content script could mutate the live DOM during clipping; now operates on a cloned document.",
+      "Docs: Added Firefox installation instructions and linked them from the README."
+    ],
+    "4.0.6": [
+      "Firefox Support: Unified offscreen processing across Chrome and Firefox by loading offscreen/offscreen.html in Firefox and routing clipping through the same messaging path.",
+      "Firefox Build Output: Updated browser manifest generation so Firefox bundles required background scripts and excludes the Chrome-only offscreen permission.",
+      "Readability Improvements: Cherry-picked Safari Reader heuristics into Readability.js for better article extraction on difficult pages.",
+      "Regression Coverage: Added end-to-end tests for command routing and download behavior (command-download-regression.spec.js)."
+    ],
+    "4.0.5": [
+      "Download Reliability: Fixed filename conflicts with other extensions by only handling downloads positively identified as MarkSnip-owned.",
+      "Filename Safety: Added fallbacks for empty/missing titles to prevent invalid or blank .md filenames.",
+      "Quality: Added targeted unit tests for filename conflict handling and empty-title edge cases.",
+      "Docs/UI: Refreshed README and user guide content and made small popup header styling updates."
+    ],
+    "4.0.4": [
+      "UI Modernization: Updated popup buttons with the Inter font and a new batch processing icon for a more polished look.",
+      "Batch Link Picker: Improved the user experience of the link picker with smooth animations and a consistent sage-green color palette."
+    ],
+    "4.0.3": [
+      "Firefox Compatibility: Added data_collection_permissions and updated the extension ID for better Firefox support.",
+      "Reliability: Improved keyboard shortcut reliability for \"Copy as Markdown\" and \"Save as Markdown\" actions.",
+      "Bug Fix: Fixed \"Strip Images\" option not being honored when images were inside tables.",
+      "Build System: Added support for generating browser-specific manifest files for Chrome and Firefox."
+    ],
+    "4.0.2": [
+      "Redesigned settings panel and popup with improved layout and polished styling",
+      "Hide \"Send to Obsidian\" button when Obsidian integration is disabled in settings",
+      "Converted \"Download Images\" and \"Include Template\" options to iOS-style inline toggles to save space",
+      "Updated batch processing UI: replaced radio buttons with iOS-style switches for \"Zip file\" and \"Individual files\" options, and resized the \"Pick Links from Page\" button",
+      "Increased popup window height to show more of the markdown preview"
+    ],
+    "4.0.1": [
+      "Fixed download filename being overridden by other extensions",
+      "Fixed keyboard shortcuts not working after Manifest V3 migration",
+      "Added visual link picker feature for selecting links on a page during batch processing",
+      "Fixed link picker data passing when popup closes",
+      "Fixed script re-injection errors in link picker"
+    ],
+    "4.0.0": [
+      "Complete popup UI overhaul with a modern, redesigned interface",
+      "Added Send to Obsidian button with the official Obsidian logo",
+      "Fixed Obsidian integration: resolved CSP violations, corrected URI scheme, added .md extension to filenames, and improved clipboard reliability",
+      "Added batch URL processing with progress indicator and markdown link output support",
+      "Persisted batch processing URLs across popup sessions so they don't disappear on close"
+    ],
+    "3.9.0": [
+      "Fixed referenced link styles not working properly",
+      "Added suggested keyboard shortcuts for copy-tab and copy-selection actions in the manifest"
+    ],
+    "3.8.0": [
+      "Fixed subfolder downloads that were broken after the Manifest V3 migration"
+    ],
+    "3.7.0": [
+      "Fixed image downloads broken after Manifest V3 migration"
+    ],
+    "3.6.0": [
+      "Fixed \"Strip Links\" option not removing links from clipped content",
+      "Fixed table handling for complex cell content such as lists",
+      "Fixed links in tables being dropped when the strip links option was disabled",
+      "Added \"Copy\" buttons to batch processing UI and improved batch UI layout"
+    ],
+    "3.5.0": [
+      "Rebranded extension from MarkDownload to MarkSnip with updated name, icons, and options",
+      "Migrated extension to Manifest V3 (service worker, offscreen document, updated permissions)",
+      "Fixed multiple issues introduced by the MV2 → MV3 migration (context menus, scripting API, clipboard)",
+      "Refactored script execution and content retrieval to use service worker messaging",
+      "Added option to preserve or clean code block formatting (indentation/whitespace)"
+    ],
+    "3.4.0": [
+      "Fixed extra spaces in titles which could cause issues (thanks @rickdoesdev !)",
+      "Fixed an issue with image paths in some circumstances (thanks @rickdoesdev !)",
+      "Added parametersizations for \"mixed-kebab\" and \"mixed_snake\" which retain original casing but replace spaces (thanks @NSHenry !)",
+      "Also added a special \"obsidian-cal\" parameterization which is the same as \"mixed-kebab\" with duplicate - removed for additional compatibility with the Obsidian Consistent Attachment Location plugin (thanks @NSHenry !)",
+      "Added lowecase and uppercase options to parameterizations (thanks @redxtech !)"
+    ],
+    "3.3.0": [
+      "Remove hidden content before exporting (thanks @nhaouari !). This allows you to use a different extension (e.g. Adblock) to hide elements that would otherwise clutter up your export",
+      "Fixes for Obsidian integration in Safari (thanks @aancw !)",
+      "Keep a few more HTML tags that have no markdown equivalent (u, ins, del, small, big) (thanks @mnaoumov !)",
+      "Add support for KaTeX formulas parsing (thanks @mnaoumov !)",
+      "Fixed saving for options when imported from file (and show a little 'saved' indicator)"
+    ],
+    "3.2.1": [
+      "Bugfixes for the Obsidian integration (thanks @aancw !)"
+    ],
+    "3.2.0": [
+      "Added a basic Obsidian integration using the Obsidian Advanced URI plugin and clipboard (thanks @aancw !)",
+      "Keep sub/sup tags so that superscript and subscript text is retained (thanks @mnaoumov !)",
+      "Added a keyboard shortcut for copy selection as markdown (nothing by default, needs to be user-configured)",
+      "Added a new context menu item to copy all tabs as a list of markdown links",
+      "Updated dependencies"
+    ],
+    "3.1.0": [
+      "Firefox for Android (nightly) support",
+      "Updated Readability and Turndown",
+      "Added GitHub-flavoured Markdown (GFM) plugin to Turndown (adds some mardown table support)",
+      "Added support for MathJax -> LaTeX (thanks @LeLocTai)",
+      "Disallow slashes in title text replacements"
+    ],
+    "3.0.0": [
+      "Theme revamp",
+      "Utilizing CodeMirror for the Markdown Editor",
+      "Strip Disallowed characters on title and image filenames during text replacement",
+      "Add \"Download Type\" option, to attempt to resolve conflicts with other Download extensions (and to help support Safari!)",
+      "Add options for stripping images and links"
+    ],
+    "2.4.1": [
+      "Add option for Obsidian-style image links (when downloading images with the markdown file)",
+      "Downloaded images should download relative to the markdown file in the case where you specify a subfolder in your title template",
+      "Front- and back-matter template will no longer put in extra lines on Opera",
+      "Adjusted the way text is copied to the clipboard"
+    ],
+    "2.4.0": [
+      "Fixed typo on options page (thanks Dean Cook)",
+      "Added option to download images alongside the markdown file",
+      "Also added the ability to add a prefix to the images you download, so you can, for example, save them in a subfolder",
+      "If your browser has the option to always show a save as dialog enabled, you might get a dialog for every image. Sorry about that 😬",
+      "Updated turndown to 7.0.1 and allowed iframes to be kept in the markdown"
+    ],
+    "2.3.1": [
+      "Added template toggle to Firefox's tab context menu"
+    ],
+    "2.3.0": [
+      "Added contexy menus for copying markdown",
+      "Added options to clip selected text",
+      "Include front-matter/back-matter templates in popup",
+      "Add title templating",
+      "Added keyboard shortcut to show the popup"
+    ],
+    "2.2.0": [
+      "Added extension options",
+      "Turndown (markdown generation) options",
+      "Front-matter/back-matter templates with replacement variables from page metadata (and date)"
+    ],
+    "2.1.6": [
+      "Replace non-breaking spaces in filenames"
+    ],
+    "2.1.5": [
+      "Fixed an issue with sites with invalid <base> tags"
+    ],
+    "2.1.4": [
+      "Fixed issue with relative links #1"
+    ],
+    "2.1.3": [
+      "Fist change, forked from enrico-kaack/markdown-clipper",
+      "Added URL to markdown output (#5)"
+    ]
+  }
+}

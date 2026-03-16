@@ -5,6 +5,7 @@ if (typeof importScripts === 'function') {
     'browser-polyfill.min.js',
     'background/moment.min.js',
     'background/apache-mime-types.js',
+    'shared/notifications.js',
     'shared/default-options.js',
     'shared/context-menus.js'
   );
@@ -18,6 +19,11 @@ browser.runtime.getPlatformInfo().then(async platformInfo => {
 
 // Initialize listeners synchronously
 browser.runtime.onMessage.addListener(handleMessages);
+browser.runtime.onInstalled.addListener((details) => {
+  handleInstalled(details).catch((error) => {
+    console.error('[Notifications] Failed to handle install event:', error);
+  });
+});
 browser.contextMenus.onClicked.addListener(handleContextMenuClick);
 browser.commands.onCommand.addListener(handleCommands);
 browser.downloads.onChanged.addListener(handleDownloadChange);
@@ -31,6 +37,220 @@ const activeDownloads = new Map();
 let batchConversionInProgress = false;
 let activeBatchSignal = null;
 let batchState = null;
+const notificationHelpers = globalThis.markSnipNotifications;
+const SINGLE_DOWNLOAD_NOTIFICATION_DELTA = Object.freeze({ downloads: 1, exports: 1 });
+const BATCH_DOWNLOAD_NOTIFICATION_DELTA = Object.freeze({ downloads: 1, exports: 0 });
+const NO_EXPORT_DOWNLOAD_NOTIFICATION_DELTA = Object.freeze({ downloads: 0, exports: 0 });
+let releaseHighlightsCachePromise = null;
+let notificationStateTaskChain = Promise.resolve();
+const pendingNotificationDisplayLocks = new Set();
+
+function runNotificationStateTask(task) {
+  const run = notificationStateTaskChain.then(() => task(), () => task());
+  notificationStateTaskChain = run.catch((error) => {
+    console.error('[Notifications] Notification state task failed:', error);
+  });
+  return run;
+}
+
+async function loadNotificationState() {
+  const stored = await browser.storage.local.get(notificationHelpers.STORAGE_KEYS);
+  return notificationHelpers.ensureNotificationState(stored);
+}
+
+async function saveNotificationState(state) {
+  const normalizedState = notificationHelpers.ensureNotificationState(state);
+  await browser.storage.local.set(normalizedState);
+  return normalizedState;
+}
+
+async function loadReleaseHighlightsAsset() {
+  if (!releaseHighlightsCachePromise) {
+    releaseHighlightsCachePromise = fetch(browser.runtime.getURL('shared/release-highlights.json'))
+      .then(async (response) => {
+        if (!response.ok) {
+          throw new Error(`Unexpected status ${response.status}`);
+        }
+
+        return await response.json();
+      })
+      .catch((error) => {
+        console.warn('[Notifications] Failed to load release highlights:', error);
+        return { versions: {} };
+      });
+  }
+
+  return releaseHighlightsCachePromise;
+}
+
+async function getReleaseHighlights(version) {
+  const asset = await loadReleaseHighlightsAsset();
+  const highlights = asset?.versions?.[version];
+  if (!Array.isArray(highlights)) {
+    return [];
+  }
+
+  return highlights
+    .filter((entry) => typeof entry === 'string' && entry.trim().length > 0)
+    .slice(0, 5);
+}
+
+function createDownloadNotificationDelta(config = {}) {
+  return {
+    downloads: config.countsTowardDownloads === false ? 0 : 1,
+    exports: config.countsTowardExports === false ? 0 : 1
+  };
+}
+
+function getCopyNotificationDelta(menuItemId) {
+  switch (menuItemId) {
+    case 'copy-markdown-all':
+    case 'copy-markdown-selection':
+      return { copies: 1, exports: 1 };
+    case 'copy-markdown-obsidian':
+    case 'copy-markdown-obsall':
+      return null;
+    default:
+      return { copies: 1, exports: 0 };
+  }
+}
+
+function shouldAutoDisplayNotification(notification) {
+  return Boolean(notification?.id) && notification.showCount === 0;
+}
+
+async function showPendingNotificationInTab(tabId, notification = null) {
+  if (!Number.isInteger(tabId)) {
+    return false;
+  }
+
+  const nextNotification = notification || await getPendingNotification();
+  if (!shouldAutoDisplayNotification(nextNotification)) {
+    return false;
+  }
+
+  if (pendingNotificationDisplayLocks.has(nextNotification.id)) {
+    return false;
+  }
+
+  const tab = await browser.tabs.get(tabId).catch(() => null);
+  if (!tab?.id || isRestrictedTabUrl(tab.url || '')) {
+    return false;
+  }
+
+  pendingNotificationDisplayLocks.add(nextNotification.id);
+
+  try {
+    await browser.scripting.executeScript({
+      target: { tabId: tab.id },
+      files: ['/notifications/notification-host.js']
+    });
+    return true;
+  } catch (error) {
+    console.debug('[Notifications] Could not display notification in tab:', error);
+    pendingNotificationDisplayLocks.delete(nextNotification.id);
+    return false;
+  }
+}
+
+async function recordNotificationMetrics(delta, options = {}) {
+  const normalizedDelta = delta && typeof delta === 'object' ? delta : null;
+  if (!normalizedDelta) {
+    return null;
+  }
+
+  const state = await runNotificationStateTask(async () => {
+    let state = await loadNotificationState();
+    state = notificationHelpers.applyMetricDelta(state, normalizedDelta);
+    state = notificationHelpers.queueNextSupportNotification(state, {
+      buyMeACoffeeUrl: notificationHelpers.BUY_ME_A_COFFEE_URL,
+      releaseNotesUrl: notificationHelpers.RELEASES_URL
+    });
+    await saveNotificationState(state);
+    return state;
+  });
+
+  if (Number.isInteger(options.tabId)) {
+    const pendingNotification = notificationHelpers.getNextPendingNotification(state);
+    await showPendingNotificationInTab(options.tabId, pendingNotification);
+  }
+
+  return state;
+}
+
+async function getPendingNotification() {
+  return runNotificationStateTask(async () => {
+    const state = await loadNotificationState();
+    return notificationHelpers.getNextPendingNotification(state);
+  });
+}
+
+async function markPendingNotificationShown(notificationId) {
+  if (!notificationId) {
+    return null;
+  }
+
+  pendingNotificationDisplayLocks.delete(notificationId);
+
+  return runNotificationStateTask(async () => {
+    const state = notificationHelpers.markNotificationShown(
+      await loadNotificationState(),
+      notificationId,
+      Date.now()
+    );
+    await saveNotificationState(state);
+    return state;
+  });
+}
+
+async function dismissPendingNotification(notificationId) {
+  if (!notificationId) {
+    return null;
+  }
+
+  pendingNotificationDisplayLocks.delete(notificationId);
+
+  return runNotificationStateTask(async () => {
+    let state = notificationHelpers.dismissNotification(await loadNotificationState(), notificationId);
+    state = notificationHelpers.queueNextSupportNotification(state, {
+      buyMeACoffeeUrl: notificationHelpers.BUY_ME_A_COFFEE_URL,
+      releaseNotesUrl: notificationHelpers.RELEASES_URL
+    });
+    await saveNotificationState(state);
+    return state;
+  });
+}
+
+async function handleInstalled(details) {
+  const currentVersion = browser.runtime.getManifest().version;
+
+  await runNotificationStateTask(async () => {
+    let state = await loadNotificationState();
+    const previousInstalledVersion = state.lastInstalledVersion;
+
+    state = {
+      ...state,
+      lastInstalledVersion: currentVersion
+    };
+
+    if (details.reason === 'update') {
+      const previousVersion = details.previousVersion || previousInstalledVersion;
+      if (previousVersion && previousVersion !== currentVersion) {
+        const highlights = await getReleaseHighlights(currentVersion);
+        state = notificationHelpers.queueVersionUpdate(state, {
+          previousVersion,
+          currentVersion,
+          highlights,
+          buyMeACoffeeUrl: notificationHelpers.BUY_ME_A_COFFEE_URL,
+          releaseNotesUrl: notificationHelpers.RELEASES_URL
+        });
+      }
+    }
+
+    await saveNotificationState(state);
+    return state;
+  });
+}
 
 // Batch cancellation signal
 class BatchCancelledError extends Error {
@@ -136,6 +356,16 @@ function handleFilenameConflict(downloadItem, suggest) {
  */
 async function handleMessages(message, sender, sendResponse) {
   switch (message.type) {
+    case "get-pending-notification":
+      return await getPendingNotification();
+    case "mark-notification-shown":
+      return await markPendingNotificationShown(message.notificationId);
+    case "dismiss-notification":
+      return await dismissPendingNotification(message.notificationId);
+    case "record-notification-metrics":
+      return await recordNotificationMetrics(message.delta, {
+        tabId: Number.isInteger(message.tabId) ? message.tabId : null
+      });
     case "clip":
       await handleClipRequest(message, sender.tab?.id);
       break;
@@ -154,7 +384,9 @@ async function handleMessages(message, sender, sendResponse) {
       markSnipUrls.set(message.url, {
         filename: message.filename,
         isMarkdown: message.isMarkdown || false,
-        isImage: message.isImage || false
+        isImage: message.isImage || false,
+        notificationDelta: message.notificationDelta || null,
+        tabId: Number.isInteger(message.tabId) ? message.tabId : null
       });
       // Also track as our blob URL if it's a blob URL
       if (message.url && message.url.startsWith('blob:')) {
@@ -202,7 +434,8 @@ async function handleMessages(message, sender, sendResponse) {
         message.tabId,
         message.imageList,
         message.mdClipsFolder,
-        message.options
+        message.options,
+        message.notificationDelta
       );
       break;
     case "offscreen-download-failed":
@@ -571,7 +804,8 @@ async function processBatchTab(urlObj, index, total, options, batchSaveMode = 'z
         urlObj.title || null,
         effectiveOptions,
         collectOnly,
-        signal
+        signal,
+        collectOnly ? NO_EXPORT_DOWNLOAD_NOTIFICATION_DELTA : BATCH_DOWNLOAD_NOTIFICATION_DELTA
       );
       lastResult = result;
       const likelyIncomplete = !!result?.likelyIncomplete;
@@ -698,6 +932,16 @@ async function handleBatchConversionInServiceWorker(message) {
       });
 
       await triggerBatchZipDownload(collectedFiles, options, originalTabId);
+    }
+
+    const successfulBatchUrls = Math.max(0, urlObjects.length - failures.length);
+    if (successfulBatchUrls > 0) {
+      await recordNotificationMetrics({
+        batchUrls: successfulBatchUrls,
+        exports: successfulBatchUrls
+      }, {
+        tabId: originalTabId
+      });
     }
 
     await browser.storage.local.remove('batchUrlList').catch(() => {});
@@ -1096,7 +1340,8 @@ async function handleDownloadRequest(message) {
         tabId: message.tab.id,
         imageList: message.imageList,
         mdClipsFolder: message.mdClipsFolder,
-        options: options
+        options: options,
+        notificationDelta: message.notificationDelta || SINGLE_DOWNLOAD_NOTIFICATION_DELTA
       });
     } catch (error) {
       console.error(`❌ [Service Worker] Offscreen download failed, trying service worker direct:`, error);
@@ -1106,7 +1351,8 @@ async function handleDownloadRequest(message) {
         message.title,
         message.tab.id,
         message.imageList,
-        message.mdClipsFolder
+        message.mdClipsFolder,
+        message.notificationDelta || SINGLE_DOWNLOAD_NOTIFICATION_DELTA
       );
     }
   } else {
@@ -1117,7 +1363,8 @@ async function handleDownloadRequest(message) {
       message.title,
       message.tab.id,
       message.imageList,
-      message.mdClipsFolder
+      message.mdClipsFolder,
+      message.notificationDelta || SINGLE_DOWNLOAD_NOTIFICATION_DELTA
     );
   }
 }
@@ -1216,6 +1463,82 @@ function handleDownloadComplete(message) {
   const { downloadId, url } = message;
   if (downloadId && url) {
     activeDownloads.set(downloadId, url);
+    if (markSnipUrls.has(url)) {
+      const urlInfo = markSnipUrls.get(url);
+      markSnipDownloads.set(downloadId, {
+        ...urlInfo,
+        url
+      });
+      markSnipUrls.delete(url);
+    }
+  }
+}
+
+function cleanupTrackedDownload(downloadId, url, downloadInfo) {
+  if (url && url.startsWith('blob:chrome-extension://')) {
+    browser.runtime.sendMessage({
+      type: 'cleanup-blob-url',
+      url: url
+    }).catch(err => {
+      console.log('âš ï¸ Could not cleanup blob URL (offscreen may be closed):', err.message);
+    });
+  }
+
+  activeDownloads.delete(downloadId);
+  markSnipDownloads.delete(downloadId);
+
+  if (url) {
+    markSnipBlobUrls.delete(url);
+  }
+
+  if (downloadInfo?.url && markSnipUrls.has(downloadInfo.url)) {
+    markSnipUrls.delete(downloadInfo.url);
+  } else if (url && markSnipUrls.has(url)) {
+    markSnipUrls.delete(url);
+  }
+}
+
+function downloadListener(id, url) {
+  activeDownloads.set(id, url);
+  return function handleChange(delta) {
+    if (
+      delta.id === id &&
+      delta.state &&
+      (delta.state.current === "complete" || delta.state.current === "interrupted")
+    ) {
+      browser.downloads.onChanged.removeListener(handleChange);
+    }
+  };
+}
+
+async function handleDownloadChange(delta) {
+  if (!delta.state) {
+    return;
+  }
+
+  const downloadInfo = markSnipDownloads.get(delta.id);
+  const url = activeDownloads.get(delta.id) || downloadInfo?.url || null;
+
+  if (delta.state.current === "complete") {
+    console.log('âœ… Download completed:', delta.id);
+
+    if (downloadInfo?.notificationDelta) {
+      try {
+        await recordNotificationMetrics(downloadInfo.notificationDelta, {
+          tabId: downloadInfo.tabId
+        });
+      } catch (error) {
+        console.error('[Notifications] Failed to record completed download:', error);
+      }
+    }
+
+    cleanupTrackedDownload(delta.id, url, downloadInfo);
+    return;
+  }
+
+  if (delta.state.current === "interrupted") {
+    console.error('âŒ Download interrupted:', delta.id, delta.error);
+    cleanupTrackedDownload(delta.id, url, downloadInfo);
   }
 }
 
@@ -1417,6 +1740,9 @@ async function handleObsidianIntegration(message) {
 
     // Open Obsidian URI
     await openObsidianUri(vault, folder, title);
+    await recordNotificationMetrics({ obsidianSends: 1, exports: 1 }, {
+      tabId
+    });
   } catch (error) {
     console.error('[Service Worker] Failed Obsidian integration:', error);
   }
@@ -1604,7 +1930,7 @@ async function ensureScripts(tabId) {
 /**
  * Download markdown from context menu
  */
-async function downloadMarkdownFromContext(info, tab, customTitle = null, providedOptions = null, collectOnly = false, signal = null) {
+async function downloadMarkdownFromContext(info, tab, customTitle = null, providedOptions = null, collectOnly = false, signal = null, notificationDelta = SINGLE_DOWNLOAD_NOTIFICATION_DELTA) {
   await ensureScripts(tab.id);
   await ensureOffscreenDocumentExists();
   const options = providedOptions || await getOptions();
@@ -1643,7 +1969,8 @@ async function downloadMarkdownFromContext(info, tab, customTitle = null, provid
     tabId: tab.id,
     options: options,
     customTitle: customTitle,
-    collectOnly: collectOnly
+    collectOnly: collectOnly,
+    notificationDelta: notificationDelta
   });
 
   // Wait for completion, racing against cancellation signal
@@ -1675,6 +2002,13 @@ async function copyMarkdownFromContext(info, tab) {
     tabId: tab.id,
     options: await getOptions()
   });
+
+  const delta = getCopyNotificationDelta(info.menuItemId);
+  if (delta) {
+    await recordNotificationMetrics(delta, {
+      tabId: tab.id
+    });
+  }
 }
 
 /**
@@ -1694,6 +2028,9 @@ async function copyTabAsMarkdownLink(tab) {
       type: 'copy-to-clipboard',
       text: `[${title}](${pageUrl})`,
       options: options
+    });
+    await recordNotificationMetrics({ copies: 1, exports: 0 }, {
+      tabId: tab.id
     });
   } catch (error) {
     console.error("Failed to copy as markdown link:", error);
@@ -1728,6 +2065,9 @@ async function copyTabAsMarkdownLinkAll(tab) {
       type: 'copy-to-clipboard',
       text: markdown,
       options: options
+    });
+    await recordNotificationMetrics({ copies: 1, exports: 0 }, {
+      tabId: tab.id
     });
   } catch (error) {
     console.error("Failed to copy all tabs as markdown links:", error);
@@ -1765,6 +2105,9 @@ async function copySelectedTabAsMarkdownLink(tab) {
       type: 'copy-to-clipboard',
       text: markdown,
       options: options
+    });
+    await recordNotificationMetrics({ copies: 1, exports: 0 }, {
+      tabId: tab.id
     });
   } catch (error) {
     console.error("Failed to copy selected tabs as markdown links:", error);
@@ -1840,7 +2183,7 @@ async function getArticleFromContent(tabId, selection = false, options = null) {
 /**
  * Handle download using blob URL created by offscreen document
  */
-async function handleDownloadWithBlobUrl(blobUrl, filename, tabId, imageList = {}, mdClipsFolder = '', options = null) {
+async function handleDownloadWithBlobUrl(blobUrl, filename, tabId, imageList = {}, mdClipsFolder = '', options = null, notificationDelta = SINGLE_DOWNLOAD_NOTIFICATION_DELTA) {
   if (!options) options = await getOptions();
   
   // CRITICAL: Ensure filename is never empty
@@ -1859,7 +2202,9 @@ async function handleDownloadWithBlobUrl(blobUrl, filename, tabId, imageList = {
       // Track in both Maps for redundancy
       markSnipUrls.set(blobUrl, {
         filename: filename,
-        isMarkdown: true
+        isMarkdown: true,
+        notificationDelta: notificationDelta,
+        tabId: tabId
       });
       markSnipBlobUrls.add(blobUrl);
       console.log(`📝 [Service Worker] Pre-tracked blob URL: ${blobUrl} -> ${filename}`);
@@ -1953,7 +2298,8 @@ async function handleDownloadDirectly(markdown, title, tabId, imageList = {}, md
       // Track in both Maps for redundancy
       markSnipUrls.set(url, {
         filename: fullFilename,
-        isMarkdown: true
+        isMarkdown: true,
+        tabId: tabId
       });
       markSnipBlobUrls.add(url);
       console.log(`📝 [Service Worker] Pre-tracked blob URL: ${url} -> ${fullFilename}`);
@@ -2034,7 +2380,7 @@ async function handleDownloadDirectly(markdown, title, tabId, imageList = {}, md
  * This function orchestrates with the offscreen document in Chrome
  * or handles directly in Firefox
  */
-async function downloadMarkdown(markdown, title, tabId, imageList = {}, mdClipsFolder = '') {
+async function downloadMarkdown(markdown, title, tabId, imageList = {}, mdClipsFolder = '', notificationDelta = SINGLE_DOWNLOAD_NOTIFICATION_DELTA) {
   const options = await getOptions();
   
   // CRITICAL: Ensure title is never empty
@@ -2058,7 +2404,8 @@ async function downloadMarkdown(markdown, title, tabId, imageList = {}, mdClipsF
       tabId: tabId,
       imageList: imageList,
       mdClipsFolder: mdClipsFolder,
-      options: await getOptions()
+      options: await getOptions(),
+      notificationDelta: notificationDelta
     });
   } 
   else if (options.downloadMode === 'downloadsApi' && (browser.downloads || (typeof chrome !== 'undefined' && chrome.downloads))) {
@@ -2080,7 +2427,9 @@ async function downloadMarkdown(markdown, title, tabId, imageList = {}, mdClipsF
       // Track in both Maps for redundancy
       markSnipUrls.set(url, {
         filename: fullFilename,
-        isMarkdown: true
+        isMarkdown: true,
+        notificationDelta: notificationDelta,
+        tabId: tabId
       });
       markSnipBlobUrls.add(url);
       console.log(`📝 [Service Worker] Pre-tracked blob URL: ${url} -> ${fullFilename}`);

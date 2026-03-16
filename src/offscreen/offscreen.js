@@ -81,7 +81,8 @@ async function handleMessages(message, sender) {
         message.tabId,
         message.imageList,
         message.mdClipsFolder,
-        message.options
+        message.options,
+        message.notificationDelta
       );
       break;
     case 'process-context-menu':
@@ -151,11 +152,11 @@ async function processContent(message) {
  * Process context menu actions
  */
 async function processContextMenu(message) {
-  const { action, info, tabId, options, customTitle, collectOnly } = message;
+  const { action, info, tabId, options, customTitle, collectOnly, notificationDelta } = message;
   
   try {
     if (action === 'download') {
-      await handleContextMenuDownload(info, tabId, options, customTitle, collectOnly);
+      await handleContextMenuDownload(info, tabId, options, customTitle, collectOnly, notificationDelta);
     } else if (action === 'copy') {
       await handleContextMenuCopy(info, tabId, options);
     }
@@ -193,7 +194,7 @@ function isLikelyIncompleteMarkdown(markdown) {
   );
 }
 
-async function handleContextMenuDownload(info, tabId, providedOptions = null, customTitle = null, collectOnly = false) {
+async function handleContextMenuDownload(info, tabId, providedOptions = null, customTitle = null, collectOnly = false, notificationDelta = null) {
   console.log(`Starting download for tab ${tabId}`);
   try {
     const options = providedOptions || defaultOptions;
@@ -222,7 +223,7 @@ async function handleContextMenuDownload(info, tabId, providedOptions = null, cu
 
     if (!collectOnly) {
       console.log(`Downloading markdown for tab ${tabId}`);
-      await downloadMarkdown(markdown, title, tabId, imageList, mdClipsFolder, options);
+      await downloadMarkdown(markdown, title, tabId, imageList, mdClipsFolder, options, notificationDelta);
     }
     
     // Signal completion
@@ -1747,7 +1748,7 @@ async function preDownloadImages(imageList, markdown, providedOptions = null) {
 /**
 * Download Markdown file
 */
-async function downloadMarkdown(markdown, title, tabId, imageList = {}, mdClipsFolder = '', providedOptions = null) {
+async function downloadMarkdown(markdown, title, tabId, imageList = {}, mdClipsFolder = '', providedOptions = null, notificationDelta = null) {
   const options = providedOptions || defaultOptions;
   
   // CRITICAL: Ensure title is never empty to prevent download failures
@@ -1782,7 +1783,9 @@ async function downloadMarkdown(markdown, title, tabId, imageList = {}, mdClipsF
        type: 'track-download-url',
        url: url,
        filename: fullFilename,
-       isMarkdown: true
+       isMarkdown: true,
+       notificationDelta: notificationDelta,
+       tabId: tabId
      });
      
      // Start the markdown download using the available API
@@ -1852,7 +1855,8 @@ async function downloadMarkdown(markdown, title, tabId, imageList = {}, mdClipsF
        tabId: tabId,
        imageList: imageList,
        mdClipsFolder: mdClipsFolder,
-       options: options
+       options: options,
+       notificationDelta: notificationDelta
      });
    } catch (err) {
      console.error("❌ [Offscreen] Failed to create blob, falling back to content script:", err);

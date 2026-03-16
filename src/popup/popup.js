@@ -1078,6 +1078,23 @@ async function downloadSelection(e) {
     }
 }
 
+async function recordSuccessfulCopyMetric() {
+    const tabs = await browser.tabs.query({
+        currentWindow: true,
+        active: true
+    }).catch(() => []);
+    const tabId = tabs?.[0]?.id ?? null;
+
+    return browser.runtime.sendMessage({
+        type: 'record-notification-metrics',
+        tabId,
+        delta: {
+            copies: 1,
+            exports: 1
+        }
+    }).catch(() => {});
+}
+
 // Function to handle copying text to clipboard
 async function copyToClipboard(e) {
     e.preventDefault();
@@ -1093,6 +1110,7 @@ async function copyToClipboard(e) {
         }
 
         await navigator.clipboard.writeText(textToCopy);
+        await recordSuccessfulCopyMetric();
 
         // Show success feedback
         const originalHTML = copyButton.innerHTML;
@@ -1136,7 +1154,9 @@ function copySelectionToClipboard(e) {
     if (!cm || !cm.somethingSelected() || !copySelButton) return;
 
     const selectedText = cm.getSelection();
-    navigator.clipboard.writeText(selectedText).then(() => {
+    navigator.clipboard.writeText(selectedText).then(async () => {
+        await recordSuccessfulCopyMetric();
+
         // Show success feedback
         const originalHTML = copySelButton.innerHTML;
         copySelButton.innerHTML = `
