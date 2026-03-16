@@ -203,7 +203,8 @@
 
                 <!-- Title template -->
                 <div class="setting-card" id="includeTemplate-container"
-                    data-search-keywords="append template,template toggle,frontmatter,front matter,backmatter,back matter">
+                    data-search-keywords="append template,template toggle,frontmatter,front matter,backmatter,back matter"
+                    data-setting-key="title">
                     <h3 class="card-title">Title template</h3>
                     <div class="input-group">
                         <label class="input-label" for="title">Template for title / filename</label>
@@ -212,7 +213,7 @@
                 </div>
 
                 <!-- Clips folder -->
-                <div class="setting-card" id="mdClipsFolder">
+                <div class="setting-card" id="mdClipsFolder" data-setting-key="mdClipsFolder">
                     <h3 class="card-title">Clips folder</h3>
                     <div class="input-group">
                         <label class="input-label" for="mdClipsFolder">Folder inside <code>Downloads/</code> to store MarkSnip clips</label>
@@ -221,7 +222,7 @@
                 </div>
 
                 <!-- Disallowed chars -->
-                <div class="setting-card">
+                <div class="setting-card" data-setting-key="disallowedChars">
                     <h3 class="card-title">Disallowed characters</h3>
                     <p class="card-desc">Characters to strip from title/filename — in addition to <code>/</code>, <code>?</code>, <code>&lt;</code>, <code>&gt;</code>, <code>\</code>, <code>:</code>, <code>*</code>, <code>|</code>, <code>"</code></p>
                     <div class="input-group">
@@ -230,7 +231,7 @@
                 </div>
 
                 <!-- Front-matter -->
-                <div class="setting-card">
+                <div class="setting-card" data-setting-key="frontmatter">
                     <h3 class="card-title">Front-matter template</h3>
                     <div class="input-group">
                         <label class="input-label" for="frontmatter">Text that appears at the top of the output file</label>
@@ -239,7 +240,7 @@
                 </div>
 
                 <!-- Back-matter -->
-                <div class="setting-card">
+                <div class="setting-card" data-setting-key="backmatter">
                     <h3 class="card-title">Back-matter template</h3>
                     <div class="input-group">
                         <label class="input-label" for="backmatter">Text that appears at the bottom of the output file</label>
@@ -248,7 +249,7 @@
                 </div>
 
                 <!-- Include template toggle -->
-                <div class="setting-card">
+                <div class="setting-card" data-setting-key="includeTemplate">
                     <div class="toggle-row">
                         <div class="toggle-info">
                             <label class="toggle-label-text" for="includeTemplate">Append front/back template to clipped text</label>
@@ -271,7 +272,7 @@
                 <p class="section-desc">Customize the look of the MarkSnip popup.</p>
 
                 <!-- Color Mode -->
-                <div class="setting-card" id="popupThemeGroup">
+                <div class="setting-card" id="popupThemeGroup" data-setting-key="popupTheme">
                     <h3 class="card-title">Color Mode</h3>
                     <div class="radio-group">
                         <div class="radio-pill">
@@ -290,7 +291,7 @@
                 </div>
 
                 <!-- Accent Color -->
-                <div class="setting-card" id="popupAccentGroup">
+                <div class="setting-card" id="popupAccentGroup" data-setting-key="popupAccent">
                     <h3 class="card-title">Accent Color</h3>
                     <div class="radio-group">
                         <div class="radio-pill">
@@ -317,7 +318,7 @@
                 </div>
 
                 <!-- Editor Theme -->
-                <div class="setting-card" id="editorThemeGroup">
+                <div class="setting-card" id="editorThemeGroup" data-setting-key="editorTheme">
                     <h3 class="card-title">Editor Theme</h3>
                     <p class="card-desc">Choose a syntax highlighting theme for the Markdown editor in the popup.</p>
                     <div class="radio-group">
@@ -368,7 +369,7 @@
                 </div>
 
                 <!-- Compact Mode -->
-                <div class="setting-card" id="compactMode-container">
+                <div class="setting-card" id="compactMode-container" data-setting-key="compactMode">
                     <div class="toggle-row">
                         <div class="toggle-info">
                             <label class="toggle-label-text" for="compactMode">Compact Mode</label>
@@ -391,7 +392,7 @@
                 <p class="section-desc">Configure how files are downloaded and integrate with Obsidian.</p>
 
                 <!-- Context Menus -->
-                <div class="setting-card" id="contextMenus-container">
+                <div class="setting-card" id="contextMenus-container" data-setting-key="contextMenus">
                     <div class="toggle-row">
                         <div class="toggle-info">
                             <label class="toggle-label-text" for="contextMenus">Enable Context Menus</label>
@@ -406,7 +407,8 @@
 
                 <!-- Download Mode -->
                 <div class="setting-card" id="downloadMode"
-                    data-search-keywords="download,dwnld,downloads api,content link">
+                    data-search-keywords="download,dwnld,downloads api,content link"
+                    data-setting-key="downloadMode">
                     <h3 class="card-title">Download Mode</h3>
                     <p class="card-desc">Method to use for downloading Markdown files. Set to "Content Link" if you're having trouble with the Downloads API
                         (Sometimes conflicts can occur with other download extensions, leading to randomly generated filenames and other symptoms).</p>
@@ -425,7 +427,7 @@
 
                 <!-- Downloads API sub-options -->
                 <div id="downloadModeGroup">
-                    <div class="setting-card" id="saveAs-container">
+                    <div class="setting-card" id="saveAs-container" data-setting-key="saveAs">
                         <div class="toggle-row">
                             <div class="toggle-info">
                                 <label class="toggle-label-text" for="saveAs">Always show Save As dialog</label>
@@ -439,7 +441,8 @@
                     </div>
 
                     <div class="setting-card" id="downloadImages-container"
-                        data-search-keywords="download images,dwnld,image download,image downloads">
+                        data-search-keywords="download images,dwnld,image download,image downloads"
+                        data-setting-key="downloadImages">
                         <div class="toggle-row">
                             <div class="toggle-info">
                                 <label class="toggle-label-text" for="downloadImages">Download images alongside markdown files</label>
@@ -452,7 +455,7 @@
                         </div>
                     </div>
 
-                    <div class="setting-card" id="imagePrefix">
+                    <div class="setting-card" id="imagePrefix" data-setting-key="imagePrefix">
                         <div class="input-group">
                             <label class="input-label" for="imagePrefix">Image filename prefix template</label>
                             <input type="text" name="imagePrefix" class="text-input" role="textbox" />
@@ -462,7 +465,8 @@
 
                 <!-- Obsidian Integration -->
                 <div class="setting-card" id="obsidian-container"
-                    data-search-keywords="obsidian,obsdn,advanced uri,obsidian uri">
+                    data-search-keywords="obsidian,obsdn,advanced uri,obsidian uri"
+                    data-setting-key="obsidianIntegration">
                     <h3 class="card-title">Obsidian Integration</h3>
                     <p class="card-desc">
                         For integration with Obsidian, you need to install and enable the community plugin <code>Advanced Obsidian URI</code>. This plugin helps bypass character limitations in URLs by using the clipboard as the source for creating new files. Images sent this way stay as remote links; attachment files are not copied into your vault.
@@ -480,7 +484,8 @@
                 </div>
 
                 <div class="setting-card" id="obsidianVault"
-                    data-search-keywords="obsidian,obsdn,vault,folder,vault name,folder name">
+                    data-search-keywords="obsidian,obsdn,vault,folder,vault name,folder name"
+                    data-setting-key="obsidianVault,obsidianFolder">
                     <div class="input-group">
                         <label class="input-label">Obsidian Vault Name</label>
                         <input type="text" name="obsidianVault" class="text-input" role="textbox" placeholder="If blank, it will use the main Vault. Please specify it." />
@@ -501,7 +506,7 @@
                 <p class="section-desc">Configure how HTML is converted to Markdown syntax.</p>
 
                 <!-- Heading Style -->
-                <div class="setting-card" id="headingStyle">
+                <div class="setting-card" id="headingStyle" data-setting-key="headingStyle">
                     <h3 class="card-title">Heading Style</h3>
                     <div class="radio-card-group">
                         <div class="radio-card">
@@ -523,7 +528,7 @@
                 </div>
 
                 <!-- Horizontal Rule -->
-                <div class="setting-card" id="hr">
+                <div class="setting-card" id="hr" data-setting-key="hr">
                     <h3 class="card-title">Horizontal Rule</h3>
                     <div class="radio-group">
                         <div class="radio-pill">
@@ -542,7 +547,7 @@
                 </div>
 
                 <!-- Bullet List Marker -->
-                <div class="setting-card" id="bulletListMarker">
+                <div class="setting-card" id="bulletListMarker" data-setting-key="bulletListMarker">
                     <h3 class="card-title">Bullet List Marker</h3>
                     <div class="radio-group">
                         <div class="radio-pill">
@@ -561,7 +566,7 @@
                 </div>
 
                 <!-- Code Block Style -->
-                <div class="setting-card" id="codeBlockStyle">
+                <div class="setting-card" id="codeBlockStyle" data-setting-key="codeBlockStyle">
                     <h3 class="card-title">Code Block Style</h3>
                     <div class="radio-card-group">
                         <div class="radio-card">
@@ -588,7 +593,7 @@ const helloWorld = () => {
                 </div>
 
                 <!-- Code formatting toggles -->
-                <div class="setting-card" id="preserveCodeFormatting-container">
+                <div class="setting-card" id="preserveCodeFormatting-container" data-setting-key="preserveCodeFormatting">
                     <div class="toggle-row">
                         <div class="toggle-info">
                             <label class="toggle-label-text" for="preserveCodeFormatting">Preserve Code Block HTML Formatting</label>
@@ -601,7 +606,7 @@ const helloWorld = () => {
                     </div>
                 </div>
 
-                <div class="setting-card" id="autoDetectCodeLanguage-container">
+                <div class="setting-card" id="autoDetectCodeLanguage-container" data-setting-key="autoDetectCodeLanguage">
                     <div class="toggle-row">
                         <div class="toggle-info">
                             <label class="toggle-label-text" for="autoDetectCodeLanguage">Auto-detect code block language</label>
@@ -615,7 +620,7 @@ const helloWorld = () => {
                 </div>
 
                 <!-- Code Block Fence -->
-                <div class="setting-card" id="fence">
+                <div class="setting-card" id="fence" data-setting-key="fence">
                     <h3 class="card-title">Code Block Fence</h3>
                     <div class="radio-group">
                         <div class="radio-pill">
@@ -630,7 +635,7 @@ const helloWorld = () => {
                 </div>
 
                 <!-- Emphasis Delimiter -->
-                <div class="setting-card" id="emDelimiter">
+                <div class="setting-card" id="emDelimiter" data-setting-key="emDelimiter">
                     <h3 class="card-title">Emphasis (italics) Delimiter</h3>
                     <div class="radio-group">
                         <div class="radio-pill">
@@ -649,7 +654,7 @@ const helloWorld = () => {
                 </div>
 
                 <!-- Strong (bold) Delimiter -->
-                <div class="setting-card" id="strongDelimiter">
+                <div class="setting-card" id="strongDelimiter" data-setting-key="strongDelimiter">
                     <h3 class="card-title">Strong (bold) Delimiter</h3>
                     <div class="radio-group">
                         <div class="radio-pill">
@@ -664,7 +669,7 @@ const helloWorld = () => {
                 </div>
 
                 <!-- Link Style -->
-                <div class="setting-card" id="linkStyle">
+                <div class="setting-card" id="linkStyle" data-setting-key="linkStyle">
                     <h3 class="card-title">Link Style</h3>
                     <div class="radio-card-group">
                         <div class="radio-card">
@@ -694,7 +699,7 @@ const helloWorld = () => {
                 </div>
 
                 <!-- Link Reference Style -->
-                <div class="setting-card" id="linkReferenceStyle">
+                <div class="setting-card" id="linkReferenceStyle" data-setting-key="linkReferenceStyle">
                     <h3 class="card-title">Link Reference Style</h3>
                     <div class="radio-card-group">
                         <div class="radio-card">
@@ -729,7 +734,8 @@ const helloWorld = () => {
 
                 <!-- Image Style -->
                 <div class="setting-card" id="imageOptions"
-                    data-search-keywords="image,img,imgstyle,base64,embed,obsidian embed,obsdn">
+                    data-search-keywords="image,img,imgstyle,base64,embed,obsidian embed,obsdn"
+                    data-setting-key="imageStyle">
                     <h3 class="card-title">Image Style</h3>
                     <div class="radio-card-group">
                         <div class="radio-card">
@@ -782,7 +788,8 @@ const helloWorld = () => {
 
                 <!-- Image Reference Style -->
                 <div class="setting-card" id="imageRefOptions"
-                    data-search-keywords="image,img,imgref,image ref,image reference">
+                    data-search-keywords="image,img,imgref,image ref,image reference"
+                    data-setting-key="imageRefStyle">
                     <h3 class="card-title">Image Reference Style</h3>
                     <p class="card-desc"><strong>Note:</strong> The following only apply if Image Style is markdown (not Obsidian-styled).</p>
                     <div class="radio-card-group">
@@ -806,7 +813,7 @@ const helloWorld = () => {
                 </div>
 
                 <!-- Escape Markdown -->
-                <div class="setting-card" id="turndownEscape-container">
+                <div class="setting-card" id="turndownEscape-container" data-setting-key="turndownEscape">
                     <div class="toggle-row">
                         <div class="toggle-info">
                             <label class="toggle-label-text" for="turndownEscape">Escape Markdown Characters</label>
@@ -828,7 +835,7 @@ const helloWorld = () => {
                 </div>
 
                 <!-- Hashtag Handling -->
-                <div class="setting-card" id="hashtagHandling-container">
+                <div class="setting-card" id="hashtagHandling-container" data-setting-key="hashtagHandling">
                     <h3 class="card-title">Hashtag Handling</h3>
                     <p class="card-desc">
                         Control how hashtag-like words (for example <code>#AI</code>) are written in clipped text.
@@ -863,7 +870,7 @@ const helloWorld = () => {
                 <h2 class="section-title">Tables</h2>
                 <p class="section-desc">Configure how HTML tables are converted to Markdown tables.</p>
 
-                <div class="setting-card" id="table-options">
+                <div class="setting-card" id="table-options" data-setting-key="tableFormatting">
                     <div class="toggle-row">
                         <div class="toggle-info">
                             <label class="toggle-label-text" for="table-stripLinks">Strip links from tables</label>
@@ -1003,6 +1010,20 @@ const helloWorld = () => {
                                 <line x1="12" y1="15" x2="12" y2="3"/>
                             </svg>
                             Export
+                        </button>
+                    </div>
+                </div>
+
+                <div class="setting-card">
+                    <h3 class="card-title">Reset All to Defaults</h3>
+                    <p class="card-desc">Restore every setting to its factory default. This cannot be undone.</p>
+                    <div class="btn-group">
+                        <button id="reset-all" class="btn btn-danger">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="1 4 1 10 7 10"/>
+                                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+                            </svg>
+                            Reset All to Defaults
                         </button>
                     </div>
                 </div>
