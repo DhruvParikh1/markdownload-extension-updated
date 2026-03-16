@@ -31,7 +31,8 @@ function inspectRecoveryPlan(html, url = 'https://example.com') {
   const dom = new JSDOM(html, { url });
   prepareDocumentForRecoveryTest(dom.window.document, env.ReadabilityRecovery);
 
-  const firstPassArticle = new env.Readability(dom.window.document).parse();
+  const firstPassDom = new JSDOM(dom.serialize(), { url });
+  const firstPassArticle = new env.Readability(firstPassDom.window.document).parse();
   const recoveryPlan = firstPassArticle?.content
     ? env.ReadabilityRecovery.analyzeNarrowExtraction(dom.window.document, firstPassArticle.content)
     : null;
@@ -338,6 +339,133 @@ file wrapper.o, main.o</code></pre>
       expect(article.content).toContain('main.lnk');
     });
 
+    test('should recover repeated nested-heading section siblings when the first pass lands on a wrapped body', () => {
+      const html = `
+        <!DOCTYPE html>
+        <html>
+          <head><title>Gateway Integration Guide</title></head>
+          <body>
+            <main class="api-content">
+              <h1>Gateway Integration Guide</h1>
+              <p>
+                This guide explains how merchants can integrate with the gateway, review required
+                request formats, and validate signatures before going live.
+              </p>
+
+              <div class="doc-section section-1">
+                <div class="heading-row row-1">
+                  <div class="heading-inner inner-1">
+                    <h2>Introduction</h2>
+                  </div>
+                </div>
+                <div class="doc-body body-1">
+                  <p>
+                    The introduction explains the system roles, the environment split, and the
+                    basic checkout flow.
+                  </p>
+                  <p>
+                    It also calls out the most important operational constraints that apply before
+                    launch.
+                  </p>
+                </div>
+              </div>
+
+              <div class="doc-section section-2">
+                <div class="heading-row row-2">
+                  <div class="heading-inner inner-2">
+                    <h2>Authentication</h2>
+                  </div>
+                </div>
+                <div class="doc-body body-2">
+                  <p>
+                    Authentication uses a merchant identifier and a calculated signature over the
+                    serialized request.
+                  </p>
+                  <ul>
+                    <li>Sort fields by name.</li>
+                    <li>Normalize line endings.</li>
+                    <li>Append the signing key before hashing.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="doc-section section-3">
+                <div class="heading-row row-3">
+                  <div class="heading-inner inner-3">
+                    <h2>HTTP Requests</h2>
+                  </div>
+                </div>
+                <div class="doc-body body-3">
+                  <p>
+                    Requests are sent as URL-encoded form bodies and may include nested field
+                    groups.
+                  </p>
+                  <table>
+                    <tr><th>Field</th><th>Description</th></tr>
+                    <tr><td>merchantID</td><td>Assigned account identifier.</td></tr>
+                    <tr><td>signature</td><td>Request authentication hash.</td></tr>
+                  </table>
+                </div>
+              </div>
+
+              <div class="doc-section section-4">
+                <div class="heading-row row-4">
+                  <div class="heading-inner inner-4">
+                    <h2>Example Integration Code</h2>
+                  </div>
+                </div>
+                <div class="doc-body body-4">
+                  <p>
+                    This section provides samples of how to integrate with the gateway using direct
+                    HTTP requests.
+                  </p>
+                  <pre><code>const payload = {
+  merchantID: '100001',
+  action: 'SALE',
+  amount: 1001,
+  currencyCode: 826,
+  orderRef: 'Test purchase',
+  transactionUnique: 'abc123',
+  redirectURL: 'https://merchant.example/callback'
+};
+
+const normalized = serialize(payload);
+const signature = sha512(normalized + signingKey);
+const response = await postForm('/direct', { ...payload, signature });
+const verification = verifyResponse(response, signingKey);
+if (!verification.valid) {
+  throw new Error('Signature check failed');
+}</code></pre>
+                  <p>
+                    The response handler must verify the signature and store the reference for later
+                    actions.
+                  </p>
+                </div>
+              </div>
+            </main>
+          </body>
+        </html>
+      `;
+
+      const { article } = parseArticle(html, 'https://example.com/redoc-like.html');
+      const { article: firstPassArticle, recoveryPlan } = inspectRecoveryPlan(html, 'https://example.com/redoc-like.html');
+
+      expect(firstPassArticle).not.toBeNull();
+      expect(recoveryPlan).not.toBeNull();
+      expect(firstPassArticle.content).not.toContain('Introduction');
+      expect(firstPassArticle.content).toContain('This section provides samples of how to integrate with the gateway');
+
+      expect(article).not.toBeNull();
+      expect(article.content).toContain('This guide explains how merchants can integrate with the gateway');
+      expect(article.content).toContain('Introduction');
+      expect(article.content).toContain('Authentication');
+      expect(article.content).toContain('HTTP Requests');
+      expect(article.content).toContain('Example Integration Code');
+      expect(article.content).toContain('This section provides samples of how to integrate with the gateway');
+      expect((article.content.match(/Introduction/g) || [])).toHaveLength(1);
+      expect((article.content.match(/Example Integration Code/g) || [])).toHaveLength(1);
+    });
+
     test('should not trigger recovery on repeated card listings', () => {
       const html = `
         <!DOCTYPE html>
@@ -391,6 +519,72 @@ file wrapper.o, main.o</code></pre>
       expect(article.content).toContain('Assembler Basics');
       expect(article.content).toContain('Linker Maps');
       expect(article.content).toContain('Debugger Tips');
+    });
+
+    test('should not trigger recovery on nested-heading catalog cards', () => {
+      const html = `
+        <!DOCTYPE html>
+        <html>
+          <head><title>Tooling Catalog</title></head>
+          <body>
+            <main class="catalog-grid">
+              <div class="catalog-card card-1">
+                <div class="heading-row row-1">
+                  <div class="heading-inner inner-1">
+                    <h2>Assembler Basics</h2>
+                  </div>
+                </div>
+                <div class="catalog-copy copy-1">
+                  <p>
+                    This card describes the assembler workflow, the source layout, and how the
+                    sample project is organized for quick browsing.
+                  </p>
+                  <p>
+                    The nested heading wrapper should not cause card listings to be merged as if
+                    they were one long article.
+                  </p>
+                </div>
+              </div>
+
+              <div class="catalog-card card-2">
+                <div class="heading-row row-2">
+                  <div class="heading-inner inner-2">
+                    <h2>Linker Maps</h2>
+                  </div>
+                </div>
+                <div class="catalog-copy copy-2">
+                  <p>
+                    This card summarizes linker maps, relocation notes, and output layout details
+                    for a second catalog entry.
+                  </p>
+                </div>
+              </div>
+
+              <div class="catalog-card card-3">
+                <div class="heading-row row-3">
+                  <div class="heading-inner inner-3">
+                    <h2>Debugger Tips</h2>
+                  </div>
+                </div>
+                <div class="catalog-copy copy-3">
+                  <p>
+                    This card covers debugger shortcuts, watch windows, and stepping behavior for a
+                    third catalog entry.
+                  </p>
+                </div>
+              </div>
+            </main>
+          </body>
+        </html>
+      `;
+
+      const { article, recoveryPlan } = inspectRecoveryPlan(html, 'https://example.com/catalog-cards.html');
+
+      expect(article).not.toBeNull();
+      expect(recoveryPlan).toBeNull();
+      expect(article.content).toContain('assembler workflow');
+      expect(article.content).not.toContain('Linker Maps');
+      expect(article.content).not.toContain('Debugger Tips');
     });
 
     test('should not trigger recovery on high-link-density accordion sections', () => {

@@ -66,17 +66,92 @@
     return linkDensity(node) > 0.5;
   }
 
-  function firstImmediateHeadingLevel(node) {
+  function meaningfulDirectChildren(node) {
     if (!node?.children) {
+      return [];
+    }
+
+    return Array.from(node.children).filter(child => {
+      if (child.tagName === 'SCRIPT' || child.tagName === 'STYLE' || child.tagName === 'NOSCRIPT') {
+        return false;
+      }
+
+      return meaningfulTextLength(child) > 0;
+    });
+  }
+
+  function directHeadingChild(node) {
+    return meaningfulDirectChildren(node).find(child => HEADING_TAG_PATTERN.test(child.tagName)) || null;
+  }
+
+  function headingWrapperDescriptor(node) {
+    if (!node || !WRAPPER_TAGS.has(node.tagName) || looksExcludedContainer(node)) {
       return null;
     }
 
-    const heading = Array.from(node.children).find(child => HEADING_TAG_PATTERN.test(child.tagName));
-    if (!heading) {
+    let current = node;
+    for (let depth = 0; depth <= 1 && current; depth += 1) {
+      const heading = directHeadingChild(current);
+      if (heading) {
+        const informativeSiblings = meaningfulDirectChildren(current).filter(child => (
+          child !== heading &&
+          !HEADING_TAG_PATTERN.test(child.tagName) &&
+          meaningfulTextLength(child) >= 30
+        ));
+        if (informativeSiblings.length) {
+          return null;
+        }
+
+        return {
+          heading,
+          level: Number(heading.tagName.substring(1)),
+          wrapper: node
+        };
+      }
+
+      const children = meaningfulDirectChildren(current);
+      if (children.length !== 1) {
+        return null;
+      }
+
+      const next = children[0];
+      if (!WRAPPER_TAGS.has(next.tagName) || looksExcludedContainer(next)) {
+        return null;
+      }
+
+      current = next;
+    }
+
+    return null;
+  }
+
+  function primaryHeadingDescriptor(node) {
+    const heading = directHeadingChild(node);
+    if (heading) {
+      return {
+        heading,
+        level: Number(heading.tagName.substring(1)),
+        wrapper: null
+      };
+    }
+
+    for (const child of meaningfulDirectChildren(node)) {
+      const descriptor = headingWrapperDescriptor(child);
+      if (descriptor) {
+        return descriptor;
+      }
+    }
+
+    return null;
+  }
+
+  function primaryHeadingLevel(node) {
+    const descriptor = primaryHeadingDescriptor(node);
+    if (!descriptor) {
       return null;
     }
 
-    return Number(heading.tagName.substring(1));
+    return descriptor.level;
   }
 
   function childRole(child) {
@@ -146,20 +221,13 @@
   }
 
   function directNonHeadingChildren(container) {
-    if (!container?.children) {
-      return [];
-    }
-
-    return Array.from(container.children).filter(child => {
+    const descriptor = primaryHeadingDescriptor(container);
+    return meaningfulDirectChildren(container).filter(child => {
       if (HEADING_TAG_PATTERN.test(child.tagName)) {
         return false;
       }
 
-      if (child.tagName === 'SCRIPT' || child.tagName === 'STYLE' || child.tagName === 'NOSCRIPT') {
-        return false;
-      }
-
-      return meaningfulTextLength(child) > 0;
+      return descriptor?.wrapper !== child;
     });
   }
 
@@ -187,8 +255,8 @@
   }
 
   function familySignatureMatches(reference, candidate) {
-    const referenceHeading = firstImmediateHeadingLevel(reference);
-    const candidateHeading = firstImmediateHeadingLevel(candidate);
+    const referenceHeading = primaryHeadingLevel(reference);
+    const candidateHeading = primaryHeadingLevel(candidate);
     if (referenceHeading && candidateHeading && referenceHeading !== candidateHeading) {
       return false;
     }
@@ -348,7 +416,7 @@
         continue;
       }
 
-      if (!firstImmediateHeadingLevel(sectionContainer)) {
+      if (!primaryHeadingLevel(sectionContainer)) {
         current = sectionContainer;
         continue;
       }
@@ -385,7 +453,7 @@
     const promotedIds = [];
     recoveryPlan.familyContainerIds.forEach(containerId => {
       const container = document.querySelector(`[${ANCHOR_ATTRIBUTE}="${containerId}"]`);
-      if (!container || looksExcludedContainer(container) || !firstImmediateHeadingLevel(container)) {
+      if (!container || looksExcludedContainer(container) || !primaryHeadingLevel(container)) {
         return;
       }
 
