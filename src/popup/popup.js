@@ -787,19 +787,28 @@ const checkInitialSettings = options => {
     updateObsidianButtonVisibility(options);
 
     // Set segmented control state
-    if (options.clipSelection) {
-        document.querySelector("#selected").classList.add("active");
-        document.querySelector("#document").classList.remove("active");
-    } else {
-        document.querySelector("#document").classList.add("active");
-        document.querySelector("#selected").classList.remove("active");
-    }
+    setClipSelectionState(options.clipSelection);
 }
 
-const toggleClipSelection = options => {
-    options.clipSelection = !options.clipSelection;
-    document.querySelector("#selected").classList.toggle("active");
-    document.querySelector("#document").classList.toggle("active");
+const setClipSelectionState = clipSelection => {
+    const selectedButton = document.querySelector("#selected");
+    const documentButton = document.querySelector("#document");
+
+    selectedButton.classList.toggle("active", clipSelection);
+    selectedButton.setAttribute("aria-pressed", String(clipSelection));
+
+    documentButton.classList.toggle("active", !clipSelection);
+    documentButton.setAttribute("aria-pressed", String(!clipSelection));
+}
+
+const setClipSelection = (options, clipSelection) => {
+    if (options.clipSelection === clipSelection) {
+        setClipSelectionState(clipSelection);
+        return;
+    }
+
+    options.clipSelection = clipSelection;
+    setClipSelectionState(clipSelection);
     browser.storage.sync.set(options).then(() => clipSite()).catch((error) => {
         console.error(error);
     });
@@ -929,11 +938,11 @@ browser.storage.sync.get(defaultOptions).then(options => {
     // Set up event listeners (unchanged)
     document.getElementById("selected").addEventListener("click", (e) => {
         e.preventDefault();
-        toggleClipSelection(options);
+        setClipSelection(options, true);
     });
     document.getElementById("document").addEventListener("click", (e) => {
         e.preventDefault();
-        toggleClipSelection(options);
+        setClipSelection(options, false);
     });
     document.getElementById("includeTemplate").addEventListener("click", () => {
         toggleIncludeTemplate(options);

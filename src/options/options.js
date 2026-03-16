@@ -331,38 +331,80 @@ const buttonClick = (e) => {
 
 // ── Sidebar Navigation ──
 function initSidebar() {
-    const sidebarItems = document.querySelectorAll('.sidebar-item');
-    const sections = document.querySelectorAll('.section');
+    const sidebarItems = Array.from(document.querySelectorAll('.sidebar-item'));
+    const sections = Array.from(document.querySelectorAll('.section'));
 
     // Restore last active tab from sessionStorage
     const lastActive = sessionStorage.getItem('marksnip-options-tab') || 'templates';
 
     function switchSection(sectionId) {
         // Update sidebar
-        sidebarItems.forEach(item => item.classList.remove('active'));
+        sidebarItems.forEach(item => {
+            const isActive = item.dataset.section === sectionId;
+            item.classList.toggle('active', isActive);
+            item.setAttribute('aria-selected', String(isActive));
+            item.tabIndex = isActive ? 0 : -1;
+        });
         const activeItem = document.querySelector(`.sidebar-item[data-section="${sectionId}"]`);
-        if (activeItem) activeItem.classList.add('active');
 
         // Update sections
-        sections.forEach(section => section.classList.remove('active'));
+        sections.forEach(section => {
+            const isActive = section.id === `section-${sectionId}`;
+            section.classList.toggle('active', isActive);
+            section.setAttribute('aria-hidden', String(!isActive));
+        });
         const activeSection = document.getElementById(`section-${sectionId}`);
-        if (activeSection) activeSection.classList.add('active');
 
         // Persist
         sessionStorage.setItem('marksnip-options-tab', sectionId);
+
+        return { activeItem, activeSection };
     }
 
-    // Click handlers
+    function activateSidebarItem(item, shouldFocus = false) {
+        if (!item) {
+            return;
+        }
+
+        const searchInput = document.getElementById('settings-search');
+        if (searchInput && searchInput.value) {
+            searchInput.value = '';
+            searchInput.dispatchEvent(new Event('input'));
+        }
+
+        const { activeItem } = switchSection(item.dataset.section);
+        if (shouldFocus && activeItem) {
+            activeItem.focus();
+        }
+    }
+
     sidebarItems.forEach(item => {
         item.addEventListener('click', () => {
-            // Clear search when navigating via sidebar
-            const searchInput = document.getElementById('settings-search');
-            if (searchInput && searchInput.value) {
-                searchInput.value = '';
-                searchInput.dispatchEvent(new Event('input'));
+            activateSidebarItem(item);
+        });
+
+        item.addEventListener('keydown', (event) => {
+            const currentIndex = sidebarItems.indexOf(item);
+            let targetIndex = currentIndex;
+
+            if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
+                targetIndex = (currentIndex + 1) % sidebarItems.length;
+            } else if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
+                targetIndex = (currentIndex - 1 + sidebarItems.length) % sidebarItems.length;
+            } else if (event.key === 'Home') {
+                targetIndex = 0;
+            } else if (event.key === 'End') {
+                targetIndex = sidebarItems.length - 1;
+            } else if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                activateSidebarItem(item);
+                return;
+            } else {
+                return;
             }
-            const sectionId = item.dataset.section;
-            switchSection(sectionId);
+
+            event.preventDefault();
+            activateSidebarItem(sidebarItems[targetIndex], true);
         });
     });
 
@@ -430,13 +472,20 @@ function initSearch() {
         const sidebarItems = document.querySelectorAll('.sidebar-item');
         const allSections = document.querySelectorAll('.section');
 
-        sidebarItems.forEach(item => item.classList.remove('active'));
+        sidebarItems.forEach(item => {
+            const isActive = item.dataset.section === activeTab;
+            item.classList.toggle('active', isActive);
+            item.setAttribute('aria-selected', String(isActive));
+            item.tabIndex = isActive ? 0 : -1;
+        });
         const activeItem = document.querySelector(`.sidebar-item[data-section="${activeTab}"]`);
-        if (activeItem) activeItem.classList.add('active');
 
-        allSections.forEach(section => section.classList.remove('active'));
+        allSections.forEach(section => {
+            const isActive = section.id === `section-${activeTab}`;
+            section.classList.toggle('active', isActive);
+            section.setAttribute('aria-hidden', String(!isActive));
+        });
         const activeSection = document.getElementById(`section-${activeTab}`);
-        if (activeSection) activeSection.classList.add('active');
 
         refreshElements();
     }
@@ -478,6 +527,7 @@ function initSearch() {
         sections.forEach(section => {
             const hasVisible = section.querySelector('.setting-card.search-match');
             section.classList.toggle('search-section-empty', !hasVisible);
+            section.setAttribute('aria-hidden', String(!hasVisible));
         });
 
         if (totalMatches === 0) {

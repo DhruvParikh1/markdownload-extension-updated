@@ -526,6 +526,11 @@ a:hover {
     color: var(--text-primary);
 }
 
+.sidebar-item:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
 .sidebar-item.active {
     background: var(--accent-light);
     color: var(--accent);

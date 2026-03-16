@@ -490,6 +490,11 @@ body {
     background: var(--bg-hover);
 }
 
+.segment:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+}
+
 .segment.active {
     background: var(--accent);
     color: var(--text-inverse);

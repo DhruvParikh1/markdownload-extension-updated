@@ -4,9 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MarkSnip</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="../shared/fonts.css">
   <link rel="stylesheet" href="lib/codemirror.css">
   <link rel="stylesheet" href="lib/xq-dark.css">
   <link rel="stylesheet" href="lib/xq-light.css">
@@ -75,14 +73,14 @@
 
       <div class="setting-row" id="clipOption">
         <span class="setting-text-static">Content:</span>
-        <div class="segmented-control">
-          <button class="segment" id="selected" data-value="selection">
+        <div class="segmented-control" role="group" aria-label="Content scope">
+          <button class="segment" id="selected" type="button" data-value="selection" aria-pressed="true">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
               <path d="M9 2v2H7c-1.1 0-2 .9-2 2v2H3c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2v-2h2c1.1 0 2-.9 2-2v-2h2c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-2V2c0-1.1-.9-2-2-2h-2c-1.1 0-2 .9-2 2zm10 4v8h-2v-2c0-1.1-.9-2-2-2h-2V6h6zM7 10h8v8H7v-8z"/>
             </svg>
             Selection
           </button>
-          <button class="segment" id="document" data-value="document">
+          <button class="segment" id="document" type="button" data-value="document" aria-pressed="false">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/>
             </svg>
