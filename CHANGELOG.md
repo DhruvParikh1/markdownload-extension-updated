@@ -1,5 +1,14 @@
 # Changelog
 
+## 4.1.2
+
+- **In-Product Notifications**: Added queued update and support milestone notifications with release-note links inside the extension.
+- **Options Management**: Added settings search with stricter fallback matching, per-setting reset links, a global **Reset All** action, and clearer URL metadata guidance.
+- **Batch Processing UX**: Improved the link picker, kept the popup open after batch start, and added an in-page progress overlay with a cancel button for running batches.
+- **Clipping Reliability**: Added two-pass readability recovery for repeated-section pages, preserved legacy `baseURI` behavior with SPA-safe page URL fields, and fixed `saveAs` handling in blob fallback paths without mutating markdown options.
+- **Accessibility & Packaging**: Bundled popup/options fonts locally, improved keyboard accessibility, and opened the options page in a browser tab by default.
+- **Licensing**: Replaced the Apache License with the PolyForm Noncommercial License.
+
 ## 4.1.1
 
 - **Selection Capture Fix**: Preserved selected HTML context during conversion to prevent broken markdown output from partial selections.
