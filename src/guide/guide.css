@@ -201,7 +201,7 @@
 *::-webkit-scrollbar-thumb   { background: var(--border-medium); border-radius: 3px; }
 *::-webkit-scrollbar-thumb:hover { background: var(--border-dark); }
 
-html { font-size: 14px; scroll-behavior: smooth; scroll-padding-top: calc(var(--header-height) + var(--space-4)); }
+html { font-size: 14px; scroll-behavior: smooth; }
 
 body {
     font-family: var(--font-sans);
@@ -241,8 +241,6 @@ a:hover { text-decoration: underline; }
    ============================================== */
 
 .guide-header {
-    position: sticky;
-    top: 0;
     z-index: 100;
     background: linear-gradient(135deg, var(--accent-darker) 0%, var(--accent-dark) 100%);
     border-bottom: 1px solid var(--accent-darker);
@@ -250,8 +248,6 @@ a:hover { text-decoration: underline; }
 }
 
 .guide-header-inner {
-    max-width: 1200px;
-    margin: 0 auto;
     display: flex;
     align-items: center;
     gap: var(--space-4);
@@ -378,15 +374,32 @@ a:hover { text-decoration: underline; }
 
 
 /* ==============================================
+   WINDOW CONTAINER
+   ============================================== */
+
+.guide-window {
+    max-width: 1100px;
+    margin: var(--space-6) auto;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    background: var(--bg-secondary);
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - var(--space-6) * 2);
+}
+
+
+/* ==============================================
    LAYOUT
    ============================================== */
 
 .guide-layout {
     display: grid;
     grid-template-columns: var(--toc-width) 1fr;
-    max-width: 1200px;
-    margin: 0 auto;
-    min-height: calc(100vh - var(--header-height));
+    flex: 1;
+    min-height: 0;
 }
 
 
@@ -395,11 +408,6 @@ a:hover { text-decoration: underline; }
    ============================================== */
 
 .guide-toc {
-    position: sticky;
-    top: var(--header-height);
-    height: calc(100vh - var(--header-height));
-    overflow-y: auto;
-    padding: var(--space-5) var(--space-3) var(--space-5) var(--space-4);
     border-right: 1px solid var(--border-light);
     background: var(--bg-primary);
 }
@@ -409,6 +417,11 @@ a:hover { text-decoration: underline; }
 }
 
 .toc-list {
+    position: sticky;
+    top: 0;
+    max-height: calc(100vh - var(--header-height) - var(--space-6) * 2);
+    overflow-y: auto;
+    padding: var(--space-5) var(--space-3) var(--space-5) var(--space-4);
     display: flex;
     flex-direction: column;
     gap: var(--space-1);
@@ -833,6 +846,12 @@ body.search-active .search-results {
    ============================================== */
 
 @media (max-width: 800px) {
+    .guide-window {
+        margin: var(--space-3);
+        border-radius: var(--radius-lg);
+        min-height: calc(100vh - var(--space-3) * 2);
+    }
+
     .guide-layout {
         grid-template-columns: 1fr;
     }

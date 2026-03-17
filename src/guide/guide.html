@@ -12,7 +12,10 @@
     <!-- Skip link for accessibility -->
     <a href="#guide-content" class="skip-link">Skip to content</a>
 
-    <!-- ═══ Sticky Header ═══ -->
+    <!-- ═══ Window Container ═══ -->
+    <div class="guide-window">
+
+    <!-- ═══ Header ═══ -->
     <header class="guide-header">
         <div class="guide-header-inner">
             <div class="header-brand">
@@ -41,7 +44,7 @@
     </header>
 
     <!-- ═══ Main Layout ═══ -->
-    <div class="guide-layout">
+    <div class="guide-layout" id="guide-layout">
 
         <!-- ── Sticky TOC Sidebar ── -->
         <nav class="guide-toc" aria-label="Table of contents">
@@ -622,6 +625,8 @@ author: {byline}
 
         </main>
     </div>
+
+    </div><!-- /.guide-window -->
 
     <script src="../browser-polyfill.min.js"></script>
     <script src="../shared/default-options.js"></script>
