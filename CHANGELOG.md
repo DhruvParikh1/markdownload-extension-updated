@@ -16,6 +16,16 @@
 
 ## 4.1.2
 
+### User Highlights
+
+- MarkSnip can now show update and support notifications inside the extension.
+- Settings are easier to search, reset, and understand.
+- Batch exports are easier to manage with a better link picker, progress overlay, and cancel control.
+- Clipping is more reliable on difficult pages.
+- Keyboard navigation and page accessibility have been improved.
+
+### Technical Notes
+
 - **In-Product Notifications**: Added queued update and support milestone notifications with release-note links inside the extension.
 - **Options Management**: Added settings search with stricter fallback matching, per-setting reset links, a global **Reset All** action, and clearer URL metadata guidance.
 - **Batch Processing UX**: Improved the link picker, kept the popup open after batch start, and added an in-page progress overlay with a cancel button for running batches.
@@ -25,12 +35,29 @@
 
 ## 4.1.1
 
+### User Highlights
+
+- Selected text exports stay intact more reliably.
+- Math content exports more cleanly when clipping selections.
+- Settings now include a shortcut to leave a store review.
+
+### Technical Notes
+
 - **Selection Capture Fix**: Preserved selected HTML context during conversion to prevent broken markdown output from partial selections.
 - **Math Output Normalization**: Normalized math rendering paths for cleaner markdown output when clipping selected content.
 - **Regression Coverage**: Added unit tests for selection capture behavior to lock in the fix.
 - **Options Sidebar**: Added a new **Leave Review** button under **Buy Me a Coffee** that automatically links to Chrome Web Store or Firefox Add-ons reviews based on the current browser.
 
 ## 4.1.0
+
+### User Highlights
+
+- New hashtag handling options let you keep, remove, or escape hashtags in your output.
+- Math extraction is more reliable on supported pages.
+- The popup now supports color mode, accent colors, and a compact layout.
+- The options page has a cleaner design with clearer controls and examples.
+
+### Technical Notes
 
 - **Markdown Controls**: Added configurable hashtag handling modes (`keep`, `remove`, `escape`) with safer conversion behavior and dedicated tests.
 - **Math Extraction Reliability**: Improved LaTeX capture flow before DOM snapshotting and fixed KaTeX handling in offscreen processing when annotation fallback is missing.
@@ -41,6 +68,15 @@
 
 ## 4.0.7
 
+### User Highlights
+
+- Character, word, and token counts are more accurate.
+- The popup editor now shows a rotating stats badge.
+- Code block exports are cleaner, with an optional language-detection toggle.
+- Clipping no longer risks mutating the live page during export.
+
+### Technical Notes
+
 - **Token Estimation**: Improved accuracy with per-content-type segmentation that better handles URLs, code blocks, markdown syntax, and non-ASCII characters.
 - **Editor Stats**: Added a cycling character/word/token counter badge to the editor header in the popup.
 - **Code Blocks**: Cleaned up `<pre>` code block conversion and added a controllable language-detection toggle in settings.
@@ -49,12 +85,27 @@
 
 ## 4.0.6
 
+### User Highlights
+
+- Firefox now uses a more consistent clipping flow.
+- Article extraction works better on difficult pages.
+
+### Technical Notes
+
 - **Firefox Support**: Unified offscreen processing across Chrome and Firefox by loading `offscreen/offscreen.html` in Firefox and routing clipping through the same messaging path.
 - **Firefox Build Output**: Updated browser manifest generation so Firefox bundles required background scripts and excludes the Chrome-only `offscreen` permission.
 - **Readability Improvements**: Cherry-picked Safari Reader heuristics into `Readability.js` for better article extraction on difficult pages.
 - **Regression Coverage**: Added end-to-end tests for command routing and download behavior (`command-download-regression.spec.js`).
 
 ## 4.0.5
+
+### User Highlights
+
+- Downloads are less likely to conflict with other extensions.
+- Empty or missing page titles no longer create blank Markdown filenames.
+- The user guide and in-app copy were refreshed.
+
+### Technical Notes
 
 - **Download Reliability**: Fixed filename conflicts with other extensions by only handling downloads positively identified as MarkSnip-owned.
 - **Filename Safety**: Added fallbacks for empty/missing titles to prevent invalid or blank `.md` filenames.
@@ -63,10 +114,25 @@
 
 ## 4.0.4
 
+### User Highlights
+
+- Popup buttons have a cleaner, more polished look.
+- Picking links from a page feels smoother and easier to use.
+
+### Technical Notes
+
 - **UI Modernization**: Updated popup buttons with the Inter font and a new batch processing icon for a more polished look.
 - **Batch Link Picker**: Improved the user experience of the link picker with smooth animations and a consistent sage-green color palette.
 
 ## 4.0.3
+
+### User Highlights
+
+- Firefox compatibility has been improved.
+- Copy and save keyboard shortcuts are more reliable.
+- The Strip Images option now works correctly for images inside tables.
+
+### Technical Notes
 
 - **Firefox Compatibility**: Added `data_collection_permissions` and updated the extension ID for better Firefox support.
 - **Reliability**: Improved keyboard shortcut reliability for "Copy as Markdown" and "Save as Markdown" actions.
@@ -74,6 +140,16 @@
 - **Build System**: Added support for generating browser-specific manifest files for Chrome and Firefox.
 
 ## 4.0.2
+
+### User Highlights
+
+- The settings page and popup have a cleaner, more polished layout.
+- The Send to Obsidian button now hides itself when the integration is turned off.
+- Several popup options now use more compact inline toggles.
+- Batch processing controls are easier to use.
+- The popup preview shows more content at once.
+
+### Technical Notes
 
 - Redesigned settings panel and popup with improved layout and polished styling
 - Hide "Send to Obsidian" button when Obsidian integration is disabled in settings
@@ -83,6 +159,14 @@
 
 ## 4.0.1
 
+### User Highlights
+
+- Download filenames no longer get overridden by other extensions.
+- Keyboard shortcuts work again after the Manifest V3 migration.
+- A new visual link picker helps you choose links for batch processing.
+
+### Technical Notes
+
 - Fixed download filename being overridden by other extensions
 - Fixed keyboard shortcuts not working after Manifest V3 migration
 - Added visual link picker feature for selecting links on a page during batch processing
@@ -91,6 +175,16 @@
 - Fixed CI build workflow: excluded unnecessary files from Chrome package and improved npm compatibility
 
 ## 4.0.0
+
+### User Highlights
+
+- The popup got a full redesign with a more modern layout.
+- MarkSnip can now send clipped content directly to Obsidian.
+- Batch URL processing was added, with progress feedback during export.
+- Batch URLs now stay saved between popup sessions.
+- Markdown conversion and Obsidian sending are more reliable.
+
+### Technical Notes
 
 - Complete popup UI overhaul with a modern, redesigned interface
 - Added **Send to Obsidian** button with the official Obsidian logo
