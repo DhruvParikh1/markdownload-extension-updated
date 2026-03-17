@@ -1,5 +1,12 @@
 # Changelog
 
+## 4.1.3
+
+- **Notification Card Refresh**: Redesigned in-product update and milestone notifications with a richer floating card layout, clearer actions, and improved highlight readability.
+- **Milestone Celebration UI**: Added a dedicated support milestone hero with formatted export counts and celebratory visual treatment.
+- **Clipping Reliability**: Improved repeated-section recovery on wrapped-heading layouts so extractions are less likely to start mid-article on structured docs pages.
+- **Regression Coverage**: Expanded real-world extraction tests for repeated-section recovery edge cases to lock in the clipping fix.
+
 ## 4.1.2
 
 - **In-Product Notifications**: Added queued update and support milestone notifications with release-note links inside the extension.
