@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-03-17T00:51:28.662Z",
+  "generatedAt": "2026-03-17T02:11:05.846Z",
   "source": "CHANGELOG.md",
   "versions": {
     "4.1.3": [
@@ -8,74 +8,65 @@
       "Clipping is more reliable on some documentation pages with repeated section headings."
     ],
     "4.1.2": [
-      "In-Product Notifications: Added queued update and support milestone notifications with release-note links inside the extension.",
-      "Options Management: Added settings search with stricter fallback matching, per-setting reset links, a global Reset All action, and clearer URL metadata guidance.",
-      "Batch Processing UX: Improved the link picker, kept the popup open after batch start, and added an in-page progress overlay with a cancel button for running batches.",
-      "Clipping Reliability: Added two-pass readability recovery for repeated-section pages, preserved legacy baseURI behavior with SPA-safe page URL fields, and fixed saveAs handling in blob fallback paths without mutating markdown options.",
-      "Accessibility & Packaging: Bundled popup/options fonts locally, improved keyboard accessibility, and opened the options page in a browser tab by default."
+      "MarkSnip can now show update and support notifications inside the extension.",
+      "Settings are easier to search, reset, and understand.",
+      "Batch exports are easier to manage with a better link picker, progress overlay, and cancel control.",
+      "Clipping is more reliable on difficult pages.",
+      "Keyboard navigation and page accessibility have been improved."
     ],
     "4.1.1": [
-      "Selection Capture Fix: Preserved selected HTML context during conversion to prevent broken markdown output from partial selections.",
-      "Math Output Normalization: Normalized math rendering paths for cleaner markdown output when clipping selected content.",
-      "Regression Coverage: Added unit tests for selection capture behavior to lock in the fix.",
-      "Options Sidebar: Added a new Leave Review button under Buy Me a Coffee that automatically links to Chrome Web Store or Firefox Add-ons reviews based on the current browser."
+      "Selected text exports stay intact more reliably.",
+      "Math content exports more cleanly when clipping selections.",
+      "Settings now include a shortcut to leave a store review."
     ],
     "4.1.0": [
-      "Markdown Controls: Added configurable hashtag handling modes (keep, remove, escape) with safer conversion behavior and dedicated tests.",
-      "Math Extraction Reliability: Improved LaTeX capture flow before DOM snapshotting and fixed KaTeX handling in offscreen processing when annotation fallback is missing.",
-      "Popup Appearance Settings: Added popup customization controls for color mode, accent colors, and compact mode.",
-      "Options Page Refresh: Redesigned the options page to align with the popup design system and improved sidebar behavior.",
-      "Options UX Improvements: Added visual examples for table settings, a CodeMirror editor theme selector, helper hints for key toggles, and a donation button in the sidebar."
+      "New hashtag handling options let you keep, remove, or escape hashtags in your output.",
+      "Math extraction is more reliable on supported pages.",
+      "The popup now supports color mode, accent colors, and a compact layout.",
+      "The options page has a cleaner design with clearer controls and examples."
     ],
     "4.0.7": [
-      "Token Estimation: Improved accuracy with per-content-type segmentation that better handles URLs, code blocks, markdown syntax, and non-ASCII characters.",
-      "Editor Stats: Added a cycling character/word/token counter badge to the editor header in the popup.",
-      "Code Blocks: Cleaned up <pre> code block conversion and added a controllable language-detection toggle in settings.",
-      "Clipping Reliability: Fixed a bug where the content script could mutate the live DOM during clipping; now operates on a cloned document.",
-      "Docs: Added Firefox installation instructions and linked them from the README."
+      "Character, word, and token counts are more accurate.",
+      "The popup editor now shows a rotating stats badge.",
+      "Code block exports are cleaner, with an optional language-detection toggle.",
+      "Clipping no longer risks mutating the live page during export."
     ],
     "4.0.6": [
-      "Firefox Support: Unified offscreen processing across Chrome and Firefox by loading offscreen/offscreen.html in Firefox and routing clipping through the same messaging path.",
-      "Firefox Build Output: Updated browser manifest generation so Firefox bundles required background scripts and excludes the Chrome-only offscreen permission.",
-      "Readability Improvements: Cherry-picked Safari Reader heuristics into Readability.js for better article extraction on difficult pages.",
-      "Regression Coverage: Added end-to-end tests for command routing and download behavior (command-download-regression.spec.js)."
+      "Firefox now uses a more consistent clipping flow.",
+      "Article extraction works better on difficult pages."
     ],
     "4.0.5": [
-      "Download Reliability: Fixed filename conflicts with other extensions by only handling downloads positively identified as MarkSnip-owned.",
-      "Filename Safety: Added fallbacks for empty/missing titles to prevent invalid or blank .md filenames.",
-      "Quality: Added targeted unit tests for filename conflict handling and empty-title edge cases.",
-      "Docs/UI: Refreshed README and user guide content and made small popup header styling updates."
+      "Downloads are less likely to conflict with other extensions.",
+      "Empty or missing page titles no longer create blank Markdown filenames.",
+      "The user guide and in-app copy were refreshed."
     ],
     "4.0.4": [
-      "UI Modernization: Updated popup buttons with the Inter font and a new batch processing icon for a more polished look.",
-      "Batch Link Picker: Improved the user experience of the link picker with smooth animations and a consistent sage-green color palette."
+      "Popup buttons have a cleaner, more polished look.",
+      "Picking links from a page feels smoother and easier to use."
     ],
     "4.0.3": [
-      "Firefox Compatibility: Added data_collection_permissions and updated the extension ID for better Firefox support.",
-      "Reliability: Improved keyboard shortcut reliability for \"Copy as Markdown\" and \"Save as Markdown\" actions.",
-      "Bug Fix: Fixed \"Strip Images\" option not being honored when images were inside tables.",
-      "Build System: Added support for generating browser-specific manifest files for Chrome and Firefox."
+      "Firefox compatibility has been improved.",
+      "Copy and save keyboard shortcuts are more reliable.",
+      "The Strip Images option now works correctly for images inside tables."
     ],
     "4.0.2": [
-      "Redesigned settings panel and popup with improved layout and polished styling",
-      "Hide \"Send to Obsidian\" button when Obsidian integration is disabled in settings",
-      "Converted \"Download Images\" and \"Include Template\" options to iOS-style inline toggles to save space",
-      "Updated batch processing UI: replaced radio buttons with iOS-style switches for \"Zip file\" and \"Individual files\" options, and resized the \"Pick Links from Page\" button",
-      "Increased popup window height to show more of the markdown preview"
+      "The settings page and popup have a cleaner, more polished layout.",
+      "The Send to Obsidian button now hides itself when the integration is turned off.",
+      "Several popup options now use more compact inline toggles.",
+      "Batch processing controls are easier to use.",
+      "The popup preview shows more content at once."
     ],
     "4.0.1": [
-      "Fixed download filename being overridden by other extensions",
-      "Fixed keyboard shortcuts not working after Manifest V3 migration",
-      "Added visual link picker feature for selecting links on a page during batch processing",
-      "Fixed link picker data passing when popup closes",
-      "Fixed script re-injection errors in link picker"
+      "Download filenames no longer get overridden by other extensions.",
+      "Keyboard shortcuts work again after the Manifest V3 migration.",
+      "A new visual link picker helps you choose links for batch processing."
     ],
     "4.0.0": [
-      "Complete popup UI overhaul with a modern, redesigned interface",
-      "Added Send to Obsidian button with the official Obsidian logo",
-      "Fixed Obsidian integration: resolved CSP violations, corrected URI scheme, added .md extension to filenames, and improved clipboard reliability",
-      "Added batch URL processing with progress indicator and markdown link output support",
-      "Persisted batch processing URLs across popup sessions so they don't disappear on close"
+      "The popup got a full redesign with a more modern layout.",
+      "MarkSnip can now send clipped content directly to Obsidian.",
+      "Batch URL processing was added, with progress feedback during export.",
+      "Batch URLs now stay saved between popup sessions.",
+      "Markdown conversion and Obsidian sending are more reliable."
     ],
     "3.9.0": [
       "Fixed referenced link styles not working properly",
