@@ -3,10 +3,36 @@
  * Validates that queued notifications render only after successful extension use.
  */
 
+const fs = require('fs');
 const { test, expect, chromium } = require('@playwright/test');
 const path = require('path');
 
 const extensionPath = path.join(__dirname, '../..');
+const fixtureHost = 'https://fixtures.marksnip.test';
+const notificationHostPath = '/notifications/host.html';
+const notificationHostUrl = `${fixtureHost}${notificationHostPath}`;
+const notificationHostFixture = path.join(__dirname, '../fixtures/e2e-pages/notifications/host.html');
+
+async function installFixtureRoutes(context) {
+  await context.route(`${fixtureHost}/**`, async (route) => {
+    const url = new URL(route.request().url());
+
+    if (url.pathname !== notificationHostPath) {
+      await route.fulfill({
+        status: 404,
+        contentType: 'text/plain; charset=utf-8',
+        body: `Fixture not found for ${url.pathname}`
+      });
+      return;
+    }
+
+    await route.fulfill({
+      status: 200,
+      contentType: 'text/html; charset=utf-8',
+      body: fs.readFileSync(notificationHostFixture, 'utf8')
+    });
+  });
+}
 
 async function loadExtensionContext() {
   const context = await chromium.launchPersistentContext('', {
@@ -17,9 +43,17 @@ async function loadExtensionContext() {
     ],
   });
 
+  const serviceWorkerPromise = context.waitForEvent('serviceworker', { timeout: 60000 }).catch(() => null);
+  await installFixtureRoutes(context);
+
   let [serviceWorker] = context.serviceWorkers();
   if (!serviceWorker) {
-    serviceWorker = await context.waitForEvent('serviceworker', { timeout: 15000 });
+    serviceWorker = await serviceWorkerPromise;
+  }
+
+  serviceWorker = serviceWorker || context.serviceWorkers()[0];
+  if (!serviceWorker) {
+    throw new Error('Failed to load MarkSnip service worker for notifications E2E');
   }
 
   const extensionId = new URL(serviceWorker.url()).host;
@@ -106,7 +140,7 @@ test.describe('Notifications E2E', () => {
     const page = await context.newPage();
 
     try {
-      await page.goto('https://example.com/');
+      await page.goto(notificationHostUrl);
       const pageTabId = await getTabIdForUrl(serviceWorker, page.url());
 
       expect(pageTabId).toBeTruthy();
@@ -172,7 +206,7 @@ test.describe('Notifications E2E', () => {
     const page = await context.newPage();
 
     try {
-      await page.goto('https://example.com/');
+      await page.goto(notificationHostUrl);
       const pageTabId = await getTabIdForUrl(serviceWorker, page.url());
       expect(pageTabId).toBeTruthy();
 

@@ -6,3 +6,7 @@ xcode/MarkDownload - Markdown Web Clipper/MarkDownload - Markdown Web Clipper.xc
 node_modules
 TODO.md
 .claude/
+src/test-artifacts/
+src/test-results/*
+!src/test-results/.last-run.json
+src/test-results/live-public/

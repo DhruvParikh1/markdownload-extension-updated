@@ -17,7 +17,36 @@ function initOffscreen() {
   TurndownService.prototype.defaultEscape = TurndownService.prototype.escape;
 }
 
+function getSelectionUtilsApi() {
+  return globalThis.markSnipSelectionUtils || null;
+}
+
+function getTemplateUtilsApi() {
+  return globalThis.markSnipTemplateUtils || null;
+}
+
+function getUrlUtilsApi() {
+  return globalThis.markSnipUrlUtils || null;
+}
+
+function getHashtagUtilsApi() {
+  return globalThis.markSnipHashtagUtils || null;
+}
+
+function getMarkdownOptionsApi() {
+  return globalThis.markSnipMarkdownOptions || null;
+}
+
+function getCodeBlockUtilsApi() {
+  return globalThis.markSnipCodeBlockUtils || null;
+}
+
 function buildDomWithSelection(domString, selectionHtml, shouldUseSelection = true) {
+  const sharedApi = getSelectionUtilsApi();
+  if (sharedApi?.buildDomWithSelection) {
+    return sharedApi.buildDomWithSelection(domString, selectionHtml, shouldUseSelection);
+  }
+
   if (!shouldUseSelection || typeof selectionHtml !== 'string' || !selectionHtml.trim()) {
     return domString;
   }
@@ -363,6 +392,11 @@ async function copyToClipboard(text) {
 }
 
 function createEffectiveMarkdownOptions(article, providedOptions = null, downloadImages = null) {
+  const sharedApi = getMarkdownOptionsApi();
+  if (sharedApi?.createEffectiveMarkdownOptions) {
+    return sharedApi.createEffectiveMarkdownOptions(article, providedOptions, downloadImages);
+  }
+
   const baseOptions = providedOptions || defaultOptions;
   const options = {
     ...baseOptions,
@@ -465,6 +499,11 @@ function getCodeLanguage(node) {
 const hashtagEscapeSentinel = '\uE000';
 
 function normalizeHashtagHandlingMode(mode) {
+  const sharedApi = getHashtagUtilsApi();
+  if (sharedApi?.normalizeHashtagHandlingMode) {
+    return sharedApi.normalizeHashtagHandlingMode(mode);
+  }
+
   if (mode === 'remove' || mode === 'escape' || mode === 'keep') {
     return mode;
   }
@@ -488,6 +527,11 @@ function replaceHashtagTokensInText(text, mode) {
 }
 
 function applyHashtagHandlingToHtml(content, mode) {
+  const sharedApi = getHashtagUtilsApi();
+  if (sharedApi?.applyHashtagHandlingToHtml) {
+    return sharedApi.applyHashtagHandlingToHtml(content, mode);
+  }
+
   const normalizedMode = normalizeHashtagHandlingMode(mode);
   if (normalizedMode === 'keep' || !content) {
     return content;
@@ -511,6 +555,11 @@ function applyHashtagHandlingToHtml(content, mode) {
 }
 
 function applyHashtagHandlingToMarkdown(markdown, mode) {
+  const sharedApi = getHashtagUtilsApi();
+  if (sharedApi?.applyHashtagHandlingToMarkdown) {
+    return sharedApi.applyHashtagHandlingToMarkdown(markdown, mode);
+  }
+
   if (!markdown) return markdown;
   const normalizedMode = normalizeHashtagHandlingMode(mode);
   if (normalizedMode !== 'escape') return markdown;
@@ -907,6 +956,11 @@ function turndown(content, options, article) {
   }
 
   function convertToFencedCodeBlock(node, options) {
+    const sharedApi = getCodeBlockUtilsApi();
+    if (sharedApi?.convertToFencedCodeBlock) {
+      return sharedApi.convertToFencedCodeBlock(node, options);
+    }
+
     function normalizeCodeBlockSpacing(text, maxBlankLines = 2) {
       const lines = text.split('\n');
       const normalizedLines = [];
@@ -1069,6 +1123,11 @@ function turndown(content, options, article) {
 * Get article from DOM string
 */
 function safeParseUrl(urlString) {
+  const sharedApi = getUrlUtilsApi();
+  if (sharedApi?.safeParseUrl) {
+    return sharedApi.safeParseUrl(urlString);
+  }
+
   try {
     return new URL(urlString);
   } catch {
@@ -1077,6 +1136,11 @@ function safeParseUrl(urlString) {
 }
 
 function resolveArticleUrl(domBaseUri, pageUrl) {
+  const sharedApi = getUrlUtilsApi();
+  if (sharedApi?.resolveArticleUrl) {
+    return sharedApi.resolveArticleUrl(domBaseUri, pageUrl);
+  }
+
   const normalizedPageUrl = typeof pageUrl === 'string' ? pageUrl.trim() : '';
   const preferredUrl = normalizedPageUrl ? safeParseUrl(normalizedPageUrl) : null;
   if (preferredUrl) {
@@ -1549,6 +1613,10 @@ async function formatObsidianFolder(article, providedOptions = null) {
 * Replace placeholder strings with article info
 */
 function textReplace(string, article, disallowedChars = null) {
+ if (getTemplateUtilsApi()?.textReplace) {
+   return getTemplateUtilsApi().textReplace(string, article, disallowedChars);
+ }
+
  // Same implementation as original
  for (const key in article) {
    if (article.hasOwnProperty(key) && key != "content") {
@@ -1601,6 +1669,10 @@ function textReplace(string, article, disallowedChars = null) {
 * Generate valid filename
 */
 function generateValidFileName(title, disallowedChars = null) {
+ if (getTemplateUtilsApi()?.generateValidFileName) {
+   return getTemplateUtilsApi().generateValidFileName(title, disallowedChars);
+ }
+
  if (!title) return title;
  else title = title + '';
  // Remove < > : " / \ | ? * 
@@ -1629,6 +1701,11 @@ function cleanAttribute(attribute) {
 * Validate URI
 */
 function validateUri(href, baseURI) {
+ const sharedApi = getUrlUtilsApi();
+ if (sharedApi?.validateUri) {
+   return sharedApi.validateUri(href, baseURI);
+ }
+
  // Check if the href is a valid url
  try {
    new URL(href);
@@ -1653,6 +1730,11 @@ function validateUri(href, baseURI) {
 * Get image filename
 */
 function getImageFilename(src, options, prependFilePath = true) {
+ const sharedApi = getUrlUtilsApi();
+ if (sharedApi?.getImageFilename) {
+   return sharedApi.getImageFilename(src, options, prependFilePath);
+ }
+
  const slashPos = src.lastIndexOf('/');
  const queryPos = src.indexOf('?');
  let filename = src.substring(slashPos + 1, queryPos > 0 ? queryPos : src.length);
@@ -1927,6 +2009,11 @@ function base64EncodeUnicode(str) {
 * Convert to fenced code block
 */
 function convertToFencedCodeBlock(node, options) {
+ const sharedApi = getCodeBlockUtilsApi();
+ if (sharedApi?.convertToFencedCodeBlock) {
+   return sharedApi.convertToFencedCodeBlock(node, options);
+ }
+
  function normalizeCodeBlockSpacing(text, maxBlankLines = 2) {
    const lines = text.split('\n');
    const normalizedLines = [];

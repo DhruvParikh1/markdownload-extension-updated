@@ -3,6 +3,12 @@
  * Tests template variable substitution and text replacement functionality
  */
 
+const moment = require('../../background/moment.min.js');
+const {
+  textReplace,
+  generateValidFileName
+} = require('../../shared/template-utils');
+
 describe('Template Processing', () => {
   // Mock article data for testing
   const mockArticle = {
@@ -17,83 +23,6 @@ describe('Template Processing', () => {
     pagePathname: '/app/123',
     siteName: 'Example Site'
   };
-
-  /**
-   * textReplace function - copied from offscreen.js for testing
-   * In production, this should be imported from the actual module
-   */
-  function textReplace(string, article, disallowedChars = null) {
-    // Replace article properties
-    for (const key in article) {
-      if (article.hasOwnProperty(key) && key != "content") {
-        let s = (article[key] || '') + '';
-        if (s && disallowedChars) s = generateValidFileName(s, disallowedChars);
-
-        string = string.replace(new RegExp('{' + key + '}', 'g'), s)
-          .replace(new RegExp('{' + key + ':kebab}', 'g'), s.replace(/ /g, '-').toLowerCase())
-          .replace(new RegExp('{' + key + ':snake}', 'g'), s.replace(/ /g, '_').toLowerCase())
-          .replace(new RegExp('{' + key + ':camel}', 'g'), s.replace(/ ./g, (str) => str.trim().toUpperCase()).replace(/^./, (str) => str.toLowerCase()))
-          .replace(new RegExp('{' + key + ':pascal}', 'g'), s.replace(/ ./g, (str) => str.trim().toUpperCase()).replace(/^./, (str) => str.toUpperCase()));
-      }
-    }
-
-    // Replace date formats (using a simplified version without moment.js for testing)
-    const now = new Date();
-    const dateRegex = /{date:(.+?)}/g;
-    const matches = string.match(dateRegex);
-    if (matches && matches.forEach) {
-      matches.forEach(match => {
-        const format = match.substring(6, match.length - 1);
-        // For testing, use a simple date format
-        const dateString = format === 'YYYY-MM-DD'
-          ? now.toISOString().split('T')[0]
-          : now.toISOString();
-        string = string.replaceAll(match, dateString);
-      });
-    }
-
-    // Replace keywords
-    const keywordRegex = /{keywords:?(.*)?}/g;
-    const keywordMatches = string.match(keywordRegex);
-    if (keywordMatches && keywordMatches.forEach) {
-      keywordMatches.forEach(match => {
-        let separator = match.substring(10, match.length - 1);
-        try {
-          separator = JSON.parse(JSON.stringify(separator).replace(/\\\\/g, '\\'));
-        } catch { }
-        const keywordsString = (article.keywords || []).join(separator);
-        string = string.replace(new RegExp(match.replace(/\\/g, '\\\\'), 'g'), keywordsString);
-      });
-    }
-
-    // Replace anything left in curly braces
-    const defaultRegex = /{(.*?)}/g;
-    string = string.replace(defaultRegex, '');
-
-    return string;
-  }
-
-  /**
-   * generateValidFileName function - copied from offscreen.js for testing
-   */
-  function generateValidFileName(title, disallowedChars = null) {
-    if (!title) return title;
-    else title = title + '';
-
-    // Remove < > : " / \ | ? *
-    var illegalRe = /[\/\?<>\\:\*\|":]/g;
-    // And non-breaking spaces
-    var name = title.replace(illegalRe, "").replace(new RegExp('\u00A0', 'g'), ' ');
-
-    if (disallowedChars) {
-      for (let c of disallowedChars) {
-        if (`[\\^$.|?*+()`.includes(c)) c = `\\${c}`;
-        name = name.replace(new RegExp(c, 'g'), '');
-      }
-    }
-
-    return name;
-  }
 
   describe('Basic Variable Substitution', () => {
     test('should replace {title} with article title', () => {
@@ -191,7 +120,7 @@ describe('Template Processing', () => {
     test('should replace {date:YYYY-MM-DD} with current date', () => {
       const template = 'Date: {date:YYYY-MM-DD}';
       const result = textReplace(template, mockArticle);
-      const today = new Date().toISOString().split('T')[0];
+      const today = moment().format('YYYY-MM-DD');
 
       expect(result).toBe(`Date: ${today}`);
     });
@@ -199,7 +128,7 @@ describe('Template Processing', () => {
     test('should handle multiple date placeholders', () => {
       const template = 'Created: {date:YYYY-MM-DD}, Modified: {date:YYYY-MM-DD}';
       const result = textReplace(template, mockArticle);
-      const today = new Date().toISOString().split('T')[0];
+      const today = moment().format('YYYY-MM-DD');
 
       expect(result).toBe(`Created: ${today}, Modified: ${today}`);
     });
@@ -255,7 +184,7 @@ date: {date:YYYY-MM-DD}
 ---`;
 
       const result = textReplace(frontmatter, mockArticle);
-      const today = new Date().toISOString().split('T')[0];
+      const today = moment().format('YYYY-MM-DD');
 
       expect(result).toContain('title: Test Article Title');
       expect(result).toContain(`date: ${today}`);
@@ -273,7 +202,7 @@ date: {date:YYYY-MM-DD}
       const result = textReplace(backmatter, mockArticle);
 
       expect(result).toContain('Clipped from: https://example.com/article');
-      expect(result).toContain(`Date: ${new Date().toISOString().split('T')[0]}`);
+      expect(result).toContain(`Date: ${moment().format('YYYY-MM-DD')}`);
     });
   });
 
@@ -333,7 +262,7 @@ date: {date:YYYY-MM-DD}
     test('should format title with date', () => {
       const titleTemplate = '{title} - {date:YYYY-MM-DD}';
       const result = textReplace(titleTemplate, mockArticle);
-      const today = new Date().toISOString().split('T')[0];
+      const today = moment().format('YYYY-MM-DD');
 
       expect(result).toBe(`Test Article Title - ${today}`);
     });
@@ -378,7 +307,7 @@ slug: {title:kebab}
 Source: {baseURI}`;
 
       const result = textReplace(template, mockArticle);
-      const today = new Date().toISOString().split('T')[0];
+      const today = moment().format('YYYY-MM-DD');
 
       expect(result).toContain('title: Test Article Title');
       expect(result).toContain('author: John Doe');

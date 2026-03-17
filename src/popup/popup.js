@@ -363,8 +363,17 @@ const updateObsidianButtonVisibility = (options) => {
     obsidianButton.style.display = options.obsidianIntegration ? "inline-flex" : "none";
 }
 
+function getPopupBatchUtilsApi() {
+    return globalThis.markSnipPopupBatchUtils || null;
+}
+
 // Function to parse markdown links
 function parseMarkdownLink(text) {
+    const sharedApi = getPopupBatchUtilsApi();
+    if (sharedApi?.parseMarkdownLink) {
+        return sharedApi.parseMarkdownLink(text);
+    }
+
     const markdownLinkRegex = /\[([^\]]+)\]\(([^)]+)\)/;
     const match = text.match(markdownLinkRegex);
     if (match) {
@@ -378,6 +387,11 @@ function parseMarkdownLink(text) {
 
 // Function to validate and normalize URL
 function normalizeUrl(url) {
+    const sharedApi = getPopupBatchUtilsApi();
+    if (sharedApi?.normalizeUrl) {
+        return sharedApi.normalizeUrl(url);
+    }
+
     // Add https:// if no protocol specified
     if (!/^https?:\/\//i.test(url)) {
         url = 'https://' + url;
@@ -393,6 +407,11 @@ function normalizeUrl(url) {
 
 // Function to process URLs from textarea
 function processUrlInput(text) {
+    const sharedApi = getPopupBatchUtilsApi();
+    if (sharedApi?.processUrlInput) {
+        return sharedApi.processUrlInput(text);
+    }
+
     const lines = text.split('\n').map(line => line.trim()).filter(line => line);
     const urlObjects = [];
 
@@ -431,23 +450,32 @@ function validateAndPreviewUrls() {
     const convertBtn = document.getElementById('convertUrls');
     const text = document.getElementById('urlList').value;
     const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+    const sharedApi = getPopupBatchUtilsApi();
+    const summary = sharedApi?.summarizeUrlValidation
+        ? sharedApi.summarizeUrlValidation(text)
+        : null;
 
-    if (lines.length === 0) {
+    if ((summary?.totalLines ?? lines.length) === 0) {
         urlValidation.style.display = 'none';
         convertBtn.disabled = false;
         return;
     }
 
-    let validCount = 0;
-    let invalidCount = 0;
+    let validCount = summary?.validCount;
+    let invalidCount = summary?.invalidCount;
 
-    for (const line of lines) {
-        const mdLink = parseMarkdownLink(line);
-        const url = mdLink ? normalizeUrl(mdLink.url) : normalizeUrl(line);
-        if (url) {
-            validCount++;
-        } else {
-            invalidCount++;
+    if (validCount == null || invalidCount == null) {
+        validCount = 0;
+        invalidCount = 0;
+
+        for (const line of lines) {
+            const mdLink = parseMarkdownLink(line);
+            const url = mdLink ? normalizeUrl(mdLink.url) : normalizeUrl(line);
+            if (url) {
+                validCount++;
+            } else {
+                invalidCount++;
+            }
         }
     }
 
@@ -556,6 +584,11 @@ async function activateTabForCapture(tabId, settleMs = 1500) {
 }
 
 function isLikelyIncompleteMarkdown(markdown) {
+    const sharedApi = getPopupBatchUtilsApi();
+    if (sharedApi?.isLikelyIncompleteMarkdown) {
+        return sharedApi.isLikelyIncompleteMarkdown(markdown);
+    }
+
     if (!markdown || !markdown.trim()) return true;
 
     const normalized = markdown.replace(/\r/g, '');

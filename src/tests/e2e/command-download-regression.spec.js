@@ -3,10 +3,34 @@
  * Covers service worker routing and download mode behavior.
  */
 
+const fs = require('fs');
 const { test, expect, chromium } = require('@playwright/test');
 const path = require('path');
 
 const extensionPath = path.join(__dirname, '../..');
+const fixtureHost = 'https://fixtures.marksnip.test';
+const fixturePath = '/command-download/host.html';
+const fixtureFile = path.join(__dirname, '../fixtures/e2e-pages/command-download/host.html');
+
+async function installFixtureRoutes(context) {
+  await context.route(`${fixtureHost}/**`, async (route) => {
+    const url = new URL(route.request().url());
+    if (url.pathname !== fixturePath) {
+      await route.fulfill({
+        status: 404,
+        contentType: 'text/plain; charset=utf-8',
+        body: `Fixture not found for ${url.pathname}`
+      });
+      return;
+    }
+
+    await route.fulfill({
+      status: 200,
+      contentType: 'text/html; charset=utf-8',
+      body: fs.readFileSync(fixtureFile, 'utf8')
+    });
+  });
+}
 
 test.describe('Command And Download Regression E2E', () => {
   let context;
@@ -20,6 +44,7 @@ test.describe('Command And Download Regression E2E', () => {
         `--load-extension=${extensionPath}`,
       ],
     });
+    await installFixtureRoutes(context);
 
     [serviceWorker] = context.serviceWorkers();
     if (!serviceWorker) {
@@ -33,7 +58,7 @@ test.describe('Command And Download Regression E2E', () => {
 
   test('routes keyboard commands to expected service worker handlers', async () => {
     const page = await context.newPage();
-    await page.goto('https://example.com/');
+    await page.goto(`${fixtureHost}${fixturePath}`);
     await page.bringToFront();
 
     const calls = await serviceWorker.evaluate(async () => {
@@ -102,7 +127,7 @@ test.describe('Command And Download Regression E2E', () => {
   });
 
   test('routes context menu actions to expected handlers', async () => {
-    const calls = await serviceWorker.evaluate(async () => {
+    const calls = await serviceWorker.evaluate(async ({ fixtureUrl }) => {
       const requiredFns = [
         'handleContextMenuClick',
         'downloadMarkdownFromContext',
@@ -144,7 +169,7 @@ test.describe('Command And Download Regression E2E', () => {
       spy('copyTabAsMarkdownLink', ([tab]) => ({ tabId: tab?.id ?? null }));
       spy('toggleSetting', ([setting]) => ({ setting }));
 
-      const tab = { id: 42, url: 'https://example.com/' };
+      const tab = { id: 42, url: fixtureUrl };
 
       try {
         await handleContextMenuClick({ menuItemId: 'copy-markdown-all' }, tab);
@@ -161,7 +186,7 @@ test.describe('Command And Download Regression E2E', () => {
       }
 
       return calls;
-    });
+    }, { fixtureUrl: `${fixtureHost}${fixturePath}` });
 
     expect(calls).toHaveLength(7);
     expect(calls).toEqual([

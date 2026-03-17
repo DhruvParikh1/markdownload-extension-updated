@@ -1,48 +1,39 @@
 /**
- * URL Processing and Normalization Tests
- * Tests URL validation, resolution, and normalization functionality
+ * URL processing and normalization tests for shared url helpers.
  */
 
+const {
+  safeParseUrl,
+  resolveArticleUrl,
+  validateUri,
+  getImageFilename
+} = require('../../shared/url-utils');
+
 describe('URL Processing and Normalization', () => {
-  /**
-   * validateUri function - copied from offscreen.js for testing
-   */
-  function validateUri(href, baseURI) {
-    // Check if the href is a valid url
-    try {
-      new URL(href);
-    } catch {
-      // If it's not a valid url, that likely means we have to prepend the base uri
-      const baseUri = new URL(baseURI);
+  describe('safeParseUrl and resolveArticleUrl', () => {
+    test('safeParseUrl returns URL instance for valid urls', () => {
+      const parsed = safeParseUrl('https://example.com/docs');
+      expect(parsed).toBeInstanceOf(URL);
+      expect(parsed.href).toBe('https://example.com/docs');
+    });
 
-      // If the href starts with '/', we need to go from the origin
-      if (href.startsWith('/')) {
-        href = baseUri.origin + href;
-      }
-      // Otherwise we need to go from the local folder
-      else {
-        href = baseUri.href + (baseUri.href.endsWith('/') ? '' : '/') + href;
-      }
-    }
-    return href;
-  }
+    test('safeParseUrl returns null for invalid urls', () => {
+      expect(safeParseUrl('not-a-url')).toBeNull();
+    });
 
-  /**
-   * getImageFilename function - simplified version from offscreen.js
-   */
-  function getImageFilename(src, options = {}, prependFilePath = true) {
-    const slashPos = src.lastIndexOf('/');
-    const queryPos = src.indexOf('?');
-    let filename = src.substring(slashPos + 1, queryPos > 0 ? queryPos : src.length);
+    test('resolveArticleUrl prefers explicit page url', () => {
+      const resolved = resolveArticleUrl(
+        'https://example.com/base',
+        'https://example.com/page?id=1'
+      );
+      expect(resolved.href).toBe('https://example.com/page?id=1');
+    });
 
-    let imagePrefix = (options.imagePrefix || '');
-
-    if (prependFilePath) {
-      filename = imagePrefix + filename;
-    }
-
-    return filename;
-  }
+    test('resolveArticleUrl falls back to dom base uri', () => {
+      const resolved = resolveArticleUrl('https://example.com/base', 'not-a-url');
+      expect(resolved.href).toBe('https://example.com/base');
+    });
+  });
 
   describe('Absolute URL Validation', () => {
     test('should keep absolute HTTP URLs unchanged', () => {
@@ -189,55 +180,61 @@ describe('URL Processing and Normalization', () => {
   });
 
   describe('Image Filename Extraction', () => {
-    test('should extract filename from URL', () => {
+    const baseOptions = {
+      title: 'Article',
+      imagePrefix: '',
+      disallowedChars: '[]#^'
+    };
+
+    test('should extract filename from URL when prepend path is disabled', () => {
       const src = 'https://example.com/images/photo.jpg';
-      const result = getImageFilename(src);
+      const result = getImageFilename(src, baseOptions, false);
 
       expect(result).toBe('photo.jpg');
     });
 
-    test('should extract filename with image prefix', () => {
+    test('should include title and image prefix when prepend path is enabled', () => {
       const src = 'https://example.com/images/photo.jpg';
-      const options = { imagePrefix: 'img-' };
-      const result = getImageFilename(src, options);
+      const options = { ...baseOptions, imagePrefix: 'img-' };
+      const result = getImageFilename(src, options, true);
 
-      expect(result).toBe('img-photo.jpg');
+      expect(result).toBe('Article/img-photo.jpg');
     });
 
     test('should extract filename without query string', () => {
       const src = 'https://example.com/images/photo.jpg?size=large';
-      const result = getImageFilename(src);
+      const result = getImageFilename(src, baseOptions, false);
 
       expect(result).toBe('photo.jpg');
     });
 
     test('should extract filename from complex path', () => {
       const src = 'https://example.com/cdn/v2/assets/images/photo.jpg';
-      const result = getImageFilename(src);
+      const result = getImageFilename(src, baseOptions, false);
 
       expect(result).toBe('photo.jpg');
     });
 
     test('should handle filename with multiple dots', () => {
       const src = 'https://example.com/my.image.file.jpg';
-      const result = getImageFilename(src);
+      const result = getImageFilename(src, baseOptions, false);
 
       expect(result).toBe('my.image.file.jpg');
     });
 
-    test('should handle filename without extension', () => {
+    test('should add fallback extension for filenames without extension', () => {
       const src = 'https://example.com/images/photo';
-      const result = getImageFilename(src);
+      const result = getImageFilename(src, baseOptions, false);
 
-      expect(result).toBe('photo');
+      expect(result).toBe('photo.idunno');
     });
 
-    test('should not prepend prefix when prependFilePath is false', () => {
+    test('should not prepend folder path when prependFilePath is false', () => {
       const src = 'https://example.com/images/photo.jpg';
-      const options = { imagePrefix: 'img-' };
+      const options = { ...baseOptions, imagePrefix: 'img-' };
       const result = getImageFilename(src, options, false);
 
-      expect(result).toBe('photo.jpg');
+      expect(result).toBe('img-photo.jpg');
     });
   });
 
@@ -306,7 +303,6 @@ describe('URL Processing and Normalization', () => {
       const baseURI = 'https://example.com/blog/';
       const result = validateUri(href, baseURI);
 
-      // Empty string is still added to the base
       expect(result).toBe('https://example.com/blog/');
     });
   });

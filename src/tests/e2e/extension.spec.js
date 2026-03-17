@@ -3,16 +3,43 @@
  * Tests the extension in a real browser environment using Playwright
  */
 
+const fs = require('fs');
 const { test, expect, chromium } = require('@playwright/test');
 const path = require('path');
 
 // Path to the extension
 const extensionPath = path.join(__dirname, '../..');
+const fixtureHost = 'https://fixtures.marksnip.test';
+const fixtureFiles = {
+  '/extension/deterministic-article.html': path.join(__dirname, '../fixtures/e2e-pages/extension/deterministic-article.html')
+};
+
+async function installFixtureRoutes(context) {
+  await context.route(`${fixtureHost}/**`, async (route) => {
+    const url = new URL(route.request().url());
+    const fixturePath = fixtureFiles[url.pathname];
+
+    if (!fixturePath) {
+      await route.fulfill({
+        status: 404,
+        contentType: 'text/plain; charset=utf-8',
+        body: `Fixture not found for ${url.pathname}`
+      });
+      return;
+    }
+
+    await route.fulfill({
+      status: 200,
+      contentType: 'text/html; charset=utf-8',
+      body: fs.readFileSync(fixturePath, 'utf8')
+    });
+  });
+}
 
 test.describe('MarkSnip Extension E2E', () => {
   let browser;
   let context;
-  let page;
+  let serviceWorker;
   let extensionId;
 
   test.beforeAll(async () => {
@@ -26,9 +53,9 @@ test.describe('MarkSnip Extension E2E', () => {
     });
 
     context = browser;
-    page = await context.newPage();
+    await installFixtureRoutes(context);
 
-    let [serviceWorker] = context.serviceWorkers();
+    [serviceWorker] = context.serviceWorkers();
     if (!serviceWorker) {
       serviceWorker = await context.waitForEvent('serviceworker', { timeout: 15000 });
     }
@@ -43,49 +70,63 @@ test.describe('MarkSnip Extension E2E', () => {
     // Verify service worker is running and extension pages are reachable.
     expect(extensionId).toBeTruthy();
 
-    await page.goto(`chrome-extension://${extensionId}/popup/popup.html`);
-    await expect(page.locator('#container')).toBeVisible();
+    const popupPage = await context.newPage();
+    try {
+      await popupPage.goto(`chrome-extension://${extensionId}/popup/popup.html`);
+      await expect(popupPage.locator('#container')).toBeVisible();
+    } finally {
+      await popupPage.close().catch(() => {});
+    }
   });
 
-  test('should convert simple HTML page to markdown', async () => {
-    // Create a simple test page
-    await page.setContent(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Test Page</title>
-        </head>
-        <body>
-          <article>
-            <h1>Test Article</h1>
-            <p>This is a <strong>test</strong> paragraph with <em>formatting</em>.</p>
-            <ul>
-              <li>Item 1</li>
-              <li>Item 2</li>
-            </ul>
-          </article>
-        </body>
-      </html>
-    `);
+  test('clips deterministic fixture page through popup flow and produces markdown', async () => {
+    const fixturePage = await context.newPage();
+    const popupPage = await context.newPage();
 
-    // Open extension popup (if available)
-    // Note: This requires the extension to be loaded and accessible
-    // The actual test will vary based on how the extension exposes its functionality
+    try {
+      await fixturePage.goto(`${fixtureHost}/extension/deterministic-article.html`);
+      await fixturePage.waitForLoadState('networkidle');
+      await expect(fixturePage.getByRole('heading', { name: 'Deterministic Markdown Fixture' })).toBeVisible();
+      await fixturePage.bringToFront();
 
-    // For now, just verify the page loaded
-    const title = await page.title();
-    expect(title).toBe('Test Page');
-  });
+      const fixtureTabId = await serviceWorker.evaluate(async ({ targetUrl }) => {
+        const tabs = await browser.tabs.query({});
+        return tabs.find((tab) => tab.url === targetUrl)?.id || null;
+      }, { targetUrl: fixturePage.url() });
+      expect(fixtureTabId).toBeTruthy();
 
-  test('should handle real-world page (Wikipedia)', async () => {
-    // Navigate to a real page
-    await page.goto('https://en.wikipedia.org/wiki/Markdown');
+      await popupPage.goto(`chrome-extension://${extensionId}/popup/popup.html`);
+      await expect(popupPage.locator('#container')).toBeVisible();
 
-    // Wait for page to load
-    await page.waitForLoadState('networkidle');
+      await popupPage.evaluate(async (tabId) => {
+        await clipSite(tabId);
+      }, fixtureTabId);
 
-    // Verify page loaded
-    const title = await page.title();
-    expect(title).toContain('Markdown');
+      await expect.poll(async () => {
+        return await popupPage.evaluate(() => {
+          if (typeof cm !== 'undefined' && cm?.getValue) {
+            return cm.getValue();
+          }
+          return document.getElementById('md')?.value || '';
+        });
+      }, { timeout: 45000 }).toContain('This page is routed by Playwright for deterministic extension E2E tests.');
+
+      const markdown = await popupPage.evaluate(() => {
+        if (typeof cm !== 'undefined' && cm?.getValue) {
+          return cm.getValue();
+        }
+        return document.getElementById('md')?.value || '';
+      });
+
+      expect(markdown).toContain('This page is routed by Playwright for deterministic extension E2E tests.');
+      expect(markdown).toContain('It contains stable content that does not depend on external networks.');
+      expect(markdown).not.toContain('Error clipping the page');
+
+      await expect.poll(async () => popupPage.inputValue('#title'), { timeout: 10000 })
+        .toContain('Deterministic Markdown Fixture');
+    } finally {
+      await popupPage.close().catch(() => {});
+      await fixturePage.close().catch(() => {});
+    }
   });
 });

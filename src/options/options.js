@@ -1,6 +1,108 @@
 let options = defaultOptions;
 let keyupTimeout = null;
 
+function getOptionsStateApi() {
+    return globalThis.markSnipOptionsState || null;
+}
+
+function normalizeImportedOptionsState(importedOptions) {
+    const optionsStateApi = getOptionsStateApi();
+    if (optionsStateApi?.normalizeImportedOptions) {
+        return optionsStateApi.normalizeImportedOptions(importedOptions, defaultOptions);
+    }
+
+    return {
+        ...defaultOptions,
+        ...(importedOptions || {}),
+        tableFormatting: {
+            ...(defaultOptions.tableFormatting || {}),
+            ...((importedOptions && importedOptions.tableFormatting) || {})
+        }
+    };
+}
+
+function getContextMenuTransitionState(previousOptions, nextOptions) {
+    const optionsStateApi = getOptionsStateApi();
+    if (optionsStateApi?.getContextMenuTransition) {
+        return optionsStateApi.getContextMenuTransition(previousOptions, nextOptions);
+    }
+
+    const previousEnabled = Boolean(previousOptions?.contextMenus);
+    const nextEnabled = Boolean(nextOptions?.contextMenus);
+    if (previousEnabled === nextEnabled) {
+        return 'none';
+    }
+    return nextEnabled ? 'create' : 'remove';
+}
+
+function resetOptionKeysState(keys) {
+    const optionsStateApi = getOptionsStateApi();
+    if (optionsStateApi?.resetOptionKeys) {
+        return optionsStateApi.resetOptionKeys(options, defaultOptions, keys);
+    }
+
+    const nextOptions = JSON.parse(JSON.stringify(options));
+    const keyList = Array.isArray(keys) ? keys : String(keys || '').split(',');
+    keyList.forEach((rawKey) => {
+        const key = String(rawKey || '').trim();
+        if (!key) return;
+
+        if (key === 'tableFormatting') {
+            nextOptions.tableFormatting = JSON.parse(JSON.stringify(defaultOptions.tableFormatting || {}));
+            return;
+        }
+
+        if (key.startsWith('tableFormatting.')) {
+            const optionName = key.split('.')[1];
+            if (!optionName) return;
+            nextOptions.tableFormatting = nextOptions.tableFormatting || {};
+            nextOptions.tableFormatting[optionName] = defaultOptions.tableFormatting?.[optionName];
+            return;
+        }
+
+        nextOptions[key] = typeof defaultOptions[key] === 'object'
+            ? JSON.parse(JSON.stringify(defaultOptions[key]))
+            : defaultOptions[key];
+    });
+
+    return {
+        options: normalizeImportedOptionsState(nextOptions),
+        contextMenuAction: getContextMenuTransitionState(options, nextOptions)
+    };
+}
+
+function resetAllOptionsState() {
+    const optionsStateApi = getOptionsStateApi();
+    if (optionsStateApi?.resetAllOptions) {
+        return optionsStateApi.resetAllOptions(options, defaultOptions);
+    }
+
+    const nextOptions = JSON.parse(JSON.stringify(defaultOptions));
+    return {
+        options: nextOptions,
+        contextMenuAction: getContextMenuTransitionState(options, nextOptions)
+    };
+}
+
+function buildExportFilenameState(date) {
+    const optionsStateApi = getOptionsStateApi();
+    if (optionsStateApi?.buildExportFilename) {
+        return optionsStateApi.buildExportFilename(date);
+    }
+
+    const d = date instanceof Date ? date : new Date(date);
+    const datestring = d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2);
+    return `MarkSnip-export-${datestring}.json`;
+}
+
+function applyContextMenuTransition(action) {
+    if (action === 'create') {
+        createMenus();
+    } else if (action === 'remove') {
+        browser.contextMenus.removeAll();
+    }
+}
+
 // Apply theme mode and accent color to the Options page itself
 function applyThemeSettings() {
     const root = document.documentElement;
@@ -144,7 +246,7 @@ function hideToast() {
 }
 
 const setCurrentChoice = result => {
-    options = result;
+    options = normalizeImportedOptionsState(result);
 
     // if browser doesn't support the download api (i.e. Safari)
     // we have to use contentLink download mode
@@ -160,17 +262,8 @@ const setCurrentChoice = result => {
         options.imageStyle = 'originalSource';
     }
 
-    options.preserveCodeFormatting = result.preserveCodeFormatting;
-    options.autoDetectCodeLanguage = result.autoDetectCodeLanguage !== false;
-
-    // Initialize tableFormatting with default values if it doesn't exist
-    options.tableFormatting = {
-        stripLinks: false, // Default to false
-        stripFormatting: false,
-        prettyPrint: true,
-        centerText: true,
-        ...options.tableFormatting  // Merge with any existing settings
-    };
+    options.preserveCodeFormatting = options.preserveCodeFormatting === true;
+    options.autoDetectCodeLanguage = options.autoDetectCodeLanguage !== false;
 
     document.querySelector("[name='frontmatter']").value = options.frontmatter;
     document.querySelector("[name='backmatter']").value = options.backmatter;
@@ -272,10 +365,10 @@ const inputChange = e => {
             fr = new FileReader();
             fr.onload = (ev) => {
                 let lines = ev.target.result;
-                options = JSON.parse(lines);
+                const previousOptions = options;
+                options = normalizeImportedOptionsState(JSON.parse(lines));
                 setCurrentChoice(options);
-                browser.contextMenus.removeAll()
-                createMenus()
+                applyContextMenuTransition(getContextMenuTransitionState(previousOptions, options));
                 save();            
                 refreshElements();
             };
@@ -318,13 +411,10 @@ const buttonClick = (e) => {
         const json = JSON.stringify(options, null, 2);
         var blob = new Blob([json], { type: "text/json" });
         var url = URL.createObjectURL(blob);
-        var d = new Date();
-
-        var datestring = d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2);
         browser.downloads.download({
             url: url,
             saveAs: true,
-            filename: `MarkSnip-export-${datestring}.json`
+            filename: buildExportFilenameState(new Date())
         });
     }
 }
@@ -448,32 +538,20 @@ function injectResetLinks() {
 
 function resetSettingByCard(card) {
     const keys = card.dataset.settingKey.split(',');
-    keys.forEach(key => {
-        key = key.trim();
-        if (key === 'tableFormatting') {
-            options.tableFormatting = JSON.parse(JSON.stringify(defaultOptions.tableFormatting));
-        } else {
-            options[key] = typeof defaultOptions[key] === 'object'
-                ? JSON.parse(JSON.stringify(defaultOptions[key]))
-                : defaultOptions[key];
-        }
-    });
+    const resetResult = resetOptionKeysState(keys);
+    options = resetResult.options;
     setCurrentChoice(options);
-    // Handle context menu toggle specially
-    if (keys.some(k => k.trim() === 'contextMenus')) {
-        if (options.contextMenus) { createMenus(); }
-        else { browser.contextMenus.removeAll(); }
-    }
+    applyContextMenuTransition(resetResult.contextMenuAction);
     save();
     showToast("Setting reset to default", "success");
 }
 
 function resetAllSettings() {
     if (!confirm('Reset all settings to defaults? This cannot be undone.')) return;
-    options = JSON.parse(JSON.stringify(defaultOptions));
+    const resetResult = resetAllOptionsState();
+    options = resetResult.options;
     setCurrentChoice(options);
-    browser.contextMenus.removeAll();
-    if (options.contextMenus) { createMenus(); }
+    applyContextMenuTransition(resetResult.contextMenuAction);
     save();
     showToast("All settings reset to defaults", "success");
 }

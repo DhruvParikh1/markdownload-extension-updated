@@ -1,30 +1,9 @@
 /**
  * Selection capture behavior tests.
- * Mirrors buildDomWithSelection in offscreen/offscreen.js.
+ * Uses the shared production helper.
  */
 
-function buildDomWithSelection(domString, selectionHtml, shouldUseSelection = true) {
-  if (!shouldUseSelection || typeof selectionHtml !== 'string' || !selectionHtml.trim()) {
-    return domString;
-  }
-
-  try {
-    const parser = new DOMParser();
-    const dom = parser.parseFromString(domString, 'text/html');
-    if (dom.documentElement.nodeName === 'parsererror') {
-      return domString;
-    }
-
-    if (dom.body) {
-      dom.body.innerHTML = selectionHtml;
-      return dom.documentElement.outerHTML;
-    }
-  } catch (error) {
-    return domString;
-  }
-
-  return domString;
-}
+const { buildDomWithSelection } = require('../../shared/selection-utils');
 
 describe('Selection Capture', () => {
   test('replaces body with selection html when selection mode is enabled', () => {
@@ -51,5 +30,45 @@ describe('Selection Capture', () => {
     const doc = new DOMParser().parseFromString(resultDom, 'text/html');
 
     expect(doc.body.innerHTML).toBe('<p>full page</p>');
+  });
+});
+
+describe('Selection Capture edge cases', () => {
+  const originalDOMParser = global.DOMParser;
+
+  afterEach(() => {
+    global.DOMParser = originalDOMParser;
+  });
+
+  test('falls back when DOMParser is unavailable', () => {
+    delete global.DOMParser;
+    const dom = '<html><body><p>source</p></body></html>';
+    const result = buildDomWithSelection(dom, '<p>select</p>', true);
+
+    expect(result).toBe(dom);
+  });
+
+  test('falls back when parser reports a parsererror document', () => {
+    global.DOMParser = class {
+      parseFromString() {
+        return { documentElement: { nodeName: 'parsererror' } };
+      }
+    };
+    const dom = '<html><body><p>source</p></body></html>';
+    const result = buildDomWithSelection(dom, '<p>select</p>', true);
+
+    expect(result).toBe(dom);
+  });
+
+  test('falls back when parser throws', () => {
+    global.DOMParser = class {
+      parseFromString() {
+        throw new Error('boom');
+      }
+    };
+    const dom = '<html><body><p>source</p></body></html>';
+    const result = buildDomWithSelection(dom, '<p>select</p>', true);
+
+    expect(result).toBe(dom);
   });
 });

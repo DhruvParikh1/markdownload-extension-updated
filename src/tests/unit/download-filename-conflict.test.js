@@ -4,57 +4,33 @@
  * and handles empty filenames properly
  */
 
+const { createDownloadTracker } = require('../../shared/download-tracker');
+
 describe('Download Filename Conflict Handling', () => {
-  let markSnipDownloads;
-  let markSnipUrls;
-  let markSnipBlobUrls;
-  let handleFilenameConflict;
+  let tracker;
+  let trackerState;
+  let cleanupCalls;
 
   beforeEach(() => {
-    markSnipDownloads = new Map();
-    markSnipUrls = new Map();
-    markSnipBlobUrls = new Set();
-
-    handleFilenameConflict = (downloadItem, suggest) => {
-      const trackedById = markSnipDownloads.has(downloadItem.id);
-      const trackedByUrl = downloadItem.url && markSnipUrls.has(downloadItem.url);
-      const isOurBlobUrl = downloadItem.url && markSnipBlobUrls.has(downloadItem.url);
-
-      if (trackedById || trackedByUrl || isOurBlobUrl) {
-        let filename = null;
-        
-        if (trackedById) {
-          const downloadInfo = markSnipDownloads.get(downloadItem.id);
-          filename = downloadInfo?.filename;
-        } else if (trackedByUrl) {
-          const urlInfo = markSnipUrls.get(downloadItem.url);
-          filename = urlInfo?.filename;
-        } else if (isOurBlobUrl) {
-          const urlInfo = markSnipUrls.get(downloadItem.url);
-          filename = urlInfo?.filename;
-        }
-
-        if (filename) {
-          suggest({
-            filename: filename,
-            conflictAction: 'uniquify'
-          });
-          return true;
-        }
+    cleanupCalls = [];
+    tracker = createDownloadTracker({
+      activeDownloads: new Map(),
+      sendCleanupBlobUrl: (url) => {
+        cleanupCalls.push(url);
+        return Promise.resolve();
       }
-
-      return false;
-    };
+    });
+    trackerState = tracker.getState();
   });
 
   describe('handleFilenameConflict', () => {
     test('should suggest filename for download tracked by ID', () => {
-      markSnipDownloads.set(123, { filename: 'folder/article.md' });
+      trackerState.markSnipDownloads.set(123, { filename: 'folder/article.md' });
       
       const suggest = jest.fn();
       const downloadItem = { id: 123, url: 'blob:chrome-extension://test/abc' };
       
-      const result = handleFilenameConflict(downloadItem, suggest);
+      const result = tracker.handleFilenameConflict(downloadItem, suggest);
       
       expect(result).toBe(true);
       expect(suggest).toHaveBeenCalledWith({
@@ -65,13 +41,13 @@ describe('Download Filename Conflict Handling', () => {
 
     test('should suggest filename for download tracked by URL', () => {
       const blobUrl = 'blob:chrome-extension://test/abc123';
-      markSnipUrls.set(blobUrl, { filename: 'downloads/note.md', isMarkdown: true });
-      markSnipBlobUrls.add(blobUrl);
+      trackerState.markSnipUrls.set(blobUrl, { filename: 'downloads/note.md', isMarkdown: true });
+      trackerState.markSnipBlobUrls.add(blobUrl);
       
       const suggest = jest.fn();
       const downloadItem = { id: 456, url: blobUrl };
       
-      const result = handleFilenameConflict(downloadItem, suggest);
+      const result = tracker.handleFilenameConflict(downloadItem, suggest);
       
       expect(result).toBe(true);
       expect(suggest).toHaveBeenCalledWith({
@@ -82,13 +58,13 @@ describe('Download Filename Conflict Handling', () => {
 
     test('should suggest filename for blob URL in tracking set', () => {
       const blobUrl = 'blob:chrome-extension://test/xyz789';
-      markSnipBlobUrls.add(blobUrl);
-      markSnipUrls.set(blobUrl, { filename: 'clip.md' });
+      trackerState.markSnipBlobUrls.add(blobUrl);
+      trackerState.markSnipUrls.set(blobUrl, { filename: 'clip.md' });
       
       const suggest = jest.fn();
       const downloadItem = { id: 789, url: blobUrl };
       
-      const result = handleFilenameConflict(downloadItem, suggest);
+      const result = tracker.handleFilenameConflict(downloadItem, suggest);
       
       expect(result).toBe(true);
       expect(suggest).toHaveBeenCalledWith({
@@ -101,7 +77,7 @@ describe('Download Filename Conflict Handling', () => {
       const suggest = jest.fn();
       const downloadItem = { id: 999, url: 'https://example.com/file.pdf' };
       
-      const result = handleFilenameConflict(downloadItem, suggest);
+      const result = tracker.handleFilenameConflict(downloadItem, suggest);
       
       expect(result).toBe(false);
       expect(suggest).not.toHaveBeenCalled();
@@ -113,19 +89,19 @@ describe('Download Filename Conflict Handling', () => {
       const suggest = jest.fn();
       const downloadItem = { id: 111, url: otherBlobUrl };
       
-      const result = handleFilenameConflict(downloadItem, suggest);
+      const result = tracker.handleFilenameConflict(downloadItem, suggest);
       
       expect(result).toBe(false);
       expect(suggest).not.toHaveBeenCalled();
     });
 
     test('should NOT call suggest when download is identified but filename is missing', () => {
-      markSnipDownloads.set(123, { filename: null });
+      trackerState.markSnipDownloads.set(123, { filename: null });
       
       const suggest = jest.fn();
       const downloadItem = { id: 123, url: 'blob:chrome-extension://test/abc' };
       
-      const result = handleFilenameConflict(downloadItem, suggest);
+      const result = tracker.handleFilenameConflict(downloadItem, suggest);
       
       expect(result).toBe(false);
       expect(suggest).not.toHaveBeenCalled();
@@ -133,13 +109,13 @@ describe('Download Filename Conflict Handling', () => {
 
     test('should prioritize ID tracking over URL tracking', () => {
       const blobUrl = 'blob:chrome-extension://test/abc';
-      markSnipDownloads.set(123, { filename: 'from-id.md' });
-      markSnipUrls.set(blobUrl, { filename: 'from-url.md' });
+      trackerState.markSnipDownloads.set(123, { filename: 'from-id.md' });
+      trackerState.markSnipUrls.set(blobUrl, { filename: 'from-url.md' });
       
       const suggest = jest.fn();
       const downloadItem = { id: 123, url: blobUrl };
       
-      handleFilenameConflict(downloadItem, suggest);
+      tracker.handleFilenameConflict(downloadItem, suggest);
       
       expect(suggest).toHaveBeenCalledWith({
         filename: 'from-id.md',
@@ -153,33 +129,30 @@ describe('Download Filename Conflict Handling', () => {
       const blobUrl = 'blob:chrome-extension://test/blob123';
       const filename = 'article.md';
       
-      markSnipUrls.set(blobUrl, { filename, isMarkdown: true });
-      markSnipBlobUrls.add(blobUrl);
+      tracker.trackUrl(blobUrl, { filename, isMarkdown: true });
       
-      expect(markSnipUrls.has(blobUrl)).toBe(true);
-      expect(markSnipBlobUrls.has(blobUrl)).toBe(true);
-      expect(markSnipUrls.get(blobUrl).filename).toBe(filename);
+      expect(trackerState.markSnipUrls.has(blobUrl)).toBe(true);
+      expect(trackerState.markSnipBlobUrls.has(blobUrl)).toBe(true);
+      expect(trackerState.markSnipUrls.get(blobUrl).filename).toBe(filename);
     });
 
-    test('should clean up tracking after download completes', () => {
+    test('should clean up tracking after download completes', async () => {
       const blobUrl = 'blob:chrome-extension://test/blob456';
       const downloadId = 100;
       
-      markSnipUrls.set(blobUrl, { filename: 'test.md' });
-      markSnipBlobUrls.add(blobUrl);
-      markSnipDownloads.set(downloadId, { filename: 'test.md', url: blobUrl });
+      tracker.trackUrl(blobUrl, { filename: 'test.md' });
+      trackerState.markSnipDownloads.set(downloadId, { filename: 'test.md', url: blobUrl });
+      trackerState.activeDownloads.set(downloadId, blobUrl);
       
-      expect(markSnipDownloads.has(downloadId)).toBe(true);
-      expect(markSnipUrls.has(blobUrl)).toBe(true);
-      expect(markSnipBlobUrls.has(blobUrl)).toBe(true);
+      await tracker.handleDownloadChange({
+        id: downloadId,
+        state: { current: 'complete' }
+      });
       
-      markSnipDownloads.delete(downloadId);
-      markSnipUrls.delete(blobUrl);
-      markSnipBlobUrls.delete(blobUrl);
-      
-      expect(markSnipDownloads.has(downloadId)).toBe(false);
-      expect(markSnipUrls.has(blobUrl)).toBe(false);
-      expect(markSnipBlobUrls.has(blobUrl)).toBe(false);
+      expect(trackerState.markSnipDownloads.has(downloadId)).toBe(false);
+      expect(trackerState.markSnipUrls.has(blobUrl)).toBe(false);
+      expect(trackerState.markSnipBlobUrls.has(blobUrl)).toBe(false);
+      expect(cleanupCalls).toContain(blobUrl);
     });
 
     test('should handle multiple concurrent downloads', () => {
@@ -188,23 +161,62 @@ describe('Download Filename Conflict Handling', () => {
         'blob:chrome-extension://test/2',
         'blob:chrome-extension://test/3'
       ];
-      
+
       urls.forEach((url, index) => {
-        markSnipUrls.set(url, { filename: `article-${index}.md` });
-        markSnipBlobUrls.add(url);
+        tracker.trackUrl(url, { filename: `article-${index}.md` });
       });
       
-      expect(markSnipBlobUrls.size).toBe(3);
-      expect(markSnipUrls.size).toBe(3);
+      expect(trackerState.markSnipBlobUrls.size).toBe(3);
+      expect(trackerState.markSnipUrls.size).toBe(3);
       
       urls.forEach((url, index) => {
         const suggest = jest.fn();
-        handleFilenameConflict({ id: index, url }, suggest);
+        tracker.handleFilenameConflict({ id: index, url }, suggest);
         expect(suggest).toHaveBeenCalledWith({
           filename: `article-${index}.md`,
           conflictAction: 'uniquify'
         });
       });
+    });
+
+    test('records metrics and cleanup for complete and interrupted states', async () => {
+      const metricsSpy = jest.fn().mockResolvedValue(undefined);
+      tracker.trackUrl('blob:chrome-extension://test/metrics', {
+        filename: 'metrics.md',
+        notificationDelta: { downloads: 1, exports: 1 },
+        tabId: 77
+      });
+      tracker.handleDownloadComplete({
+        downloadId: 500,
+        url: 'blob:chrome-extension://test/metrics'
+      });
+
+      await tracker.handleDownloadChange({
+        id: 500,
+        state: { current: 'complete' }
+      }, {
+        recordNotificationMetrics: metricsSpy
+      });
+
+      expect(metricsSpy).toHaveBeenCalledWith({ downloads: 1, exports: 1 }, 77);
+      expect(cleanupCalls).toContain('blob:chrome-extension://test/metrics');
+
+      tracker.trackUrl('blob:chrome-extension://test/interrupted', {
+        filename: 'interrupted.md'
+      });
+      tracker.handleDownloadComplete({
+        downloadId: 501,
+        url: 'blob:chrome-extension://test/interrupted'
+      });
+
+      await tracker.handleDownloadChange({
+        id: 501,
+        state: { current: 'interrupted' },
+        error: { current: 'NETWORK_FAILED' }
+      });
+
+      expect(trackerState.markSnipDownloads.has(501)).toBe(false);
+      expect(cleanupCalls).toContain('blob:chrome-extension://test/interrupted');
     });
   });
 });
@@ -368,6 +380,67 @@ describe('Blob Download Fallback Options', () => {
   });
 });
 
+describe('Download tracker helpers', () => {
+  test('trackDownload stores download info by id', () => {
+    const tracker = createDownloadTracker();
+    tracker.trackDownload(42, { filename: 'clip.md' });
+
+    const state = tracker.getState();
+    expect(state.markSnipDownloads.get(42)).toEqual({ filename: 'clip.md' });
+  });
+
+  test('moveTrackedUrlToDownloadId migrates url entries', () => {
+    const tracker = createDownloadTracker();
+    const state = tracker.getState();
+    state.markSnipUrls.set('https://example.com/file', { filename: 'file.md' });
+
+    const moved = tracker.moveTrackedUrlToDownloadId(777, 'https://example.com/file');
+
+    expect(moved).toMatchObject({ filename: 'file.md', url: 'https://example.com/file' });
+    expect(state.markSnipUrls.has('https://example.com/file')).toBe(false);
+    expect(state.markSnipDownloads.has(777)).toBe(true);
+  });
+
+  test('handleDownloadComplete wires the download into active tracking', () => {
+    const tracker = createDownloadTracker();
+    const state = tracker.getState();
+    state.markSnipUrls.set('https://example.com/complete', { filename: 'done.md' });
+
+    tracker.handleDownloadComplete({ downloadId: 9, url: 'https://example.com/complete' });
+
+    expect(state.activeDownloads.get(9)).toBe('https://example.com/complete');
+    expect(state.markSnipDownloads.has(9)).toBe(true);
+  });
+
+  test('handleDownloadChange reports metric errors when notification metrics fail', async () => {
+    const tracker = createDownloadTracker();
+    const state = tracker.getState();
+    state.markSnipUrls.set('https://example.com/metrics', {
+      filename: 'metrics.md',
+      notificationDelta: { downloads: 2 },
+      tabId: 5
+    });
+
+    tracker.handleDownloadComplete({ downloadId: 88, url: 'https://example.com/metrics' });
+
+    const metricsError = new Error('boom');
+    const deps = {
+      logComplete: jest.fn(),
+      recordNotificationMetrics: jest.fn().mockRejectedValue(metricsError),
+      onMetricsError: jest.fn()
+    };
+
+    await tracker.handleDownloadChange({
+      id: 88,
+      state: { current: 'complete' }
+    }, deps);
+
+    expect(deps.logComplete).toHaveBeenCalledWith(88);
+    expect(deps.onMetricsError).toHaveBeenCalledWith(metricsError);
+    expect(state.markSnipDownloads.has(88)).toBe(false);
+  });
+});
+
 describe('Article PageTitle Fallback', () => {
   const createArticleWithFallbacks = (dom, readabilityResult, pageUrl = null) => {
     const article = readabilityResult || { title: null };
@@ -506,29 +579,7 @@ describe('Download Full Filename Construction', () => {
 
 describe('Extension Conflict Prevention', () => {
   test('should not interfere with downloads from other extensions', () => {
-    const markSnipDownloads = new Map();
-    const markSnipUrls = new Map();
-    const markSnipBlobUrls = new Set();
-
-    const handleFilenameConflict = (downloadItem, suggest) => {
-      const trackedById = markSnipDownloads.has(downloadItem.id);
-      const trackedByUrl = downloadItem.url && markSnipUrls.has(downloadItem.url);
-      const isOurBlobUrl = downloadItem.url && markSnipBlobUrls.has(downloadItem.url);
-
-      if (trackedById || trackedByUrl || isOurBlobUrl) {
-        let filename = null;
-        if (trackedById) {
-          filename = markSnipDownloads.get(downloadItem.id)?.filename;
-        } else if (trackedByUrl) {
-          filename = markSnipUrls.get(downloadItem.url)?.filename;
-        }
-        if (filename) {
-          suggest({ filename, conflictAction: 'uniquify' });
-          return true;
-        }
-      }
-      return false;
-    };
+    const tracker = createDownloadTracker();
 
     const otherExtensionDownloads = [
       { id: 1, url: 'https://example.com/file.pdf' },
@@ -538,47 +589,26 @@ describe('Extension Conflict Prevention', () => {
 
     otherExtensionDownloads.forEach(downloadItem => {
       const suggest = jest.fn();
-      const result = handleFilenameConflict(downloadItem, suggest);
+      const result = tracker.handleFilenameConflict(downloadItem, suggest);
       expect(result).toBe(false);
       expect(suggest).not.toHaveBeenCalled();
     });
   });
 
   test('should only handle MarkSnip downloads', () => {
-    const markSnipDownloads = new Map();
-    const markSnipUrls = new Map();
-    const markSnipBlobUrls = new Set();
+    const tracker = createDownloadTracker();
+    const trackerState = tracker.getState();
 
     const ourBlobUrl = 'blob:chrome-extension://test-ext/our-blob';
-    markSnipUrls.set(ourBlobUrl, { filename: 'article.md' });
-    markSnipBlobUrls.add(ourBlobUrl);
-
-    const handleFilenameConflict = (downloadItem, suggest) => {
-      const trackedById = markSnipDownloads.has(downloadItem.id);
-      const trackedByUrl = downloadItem.url && markSnipUrls.has(downloadItem.url);
-      const isOurBlobUrl = downloadItem.url && markSnipBlobUrls.has(downloadItem.url);
-
-      if (trackedById || trackedByUrl || isOurBlobUrl) {
-        let filename = null;
-        if (trackedById) {
-          filename = markSnipDownloads.get(downloadItem.id)?.filename;
-        } else if (trackedByUrl) {
-          filename = markSnipUrls.get(downloadItem.url)?.filename;
-        }
-        if (filename) {
-          suggest({ filename, conflictAction: 'uniquify' });
-          return true;
-        }
-      }
-      return false;
-    };
+    trackerState.markSnipUrls.set(ourBlobUrl, { filename: 'article.md' });
+    trackerState.markSnipBlobUrls.add(ourBlobUrl);
 
     const suggest = jest.fn();
-    handleFilenameConflict({ id: 99, url: ourBlobUrl }, suggest);
+    tracker.handleFilenameConflict({ id: 99, url: ourBlobUrl }, suggest);
     expect(suggest).toHaveBeenCalled();
 
     suggest.mockClear();
-    handleFilenameConflict({ id: 100, url: 'blob:chrome-extension://other/blob' }, suggest);
+    tracker.handleFilenameConflict({ id: 100, url: 'blob:chrome-extension://other/blob' }, suggest);
     expect(suggest).not.toHaveBeenCalled();
   });
 });

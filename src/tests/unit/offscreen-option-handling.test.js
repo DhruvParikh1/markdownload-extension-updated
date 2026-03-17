@@ -1,63 +1,9 @@
 /**
- * Mirrors offscreen option normalization for markdown conversion.
+ * Tests shared offscreen markdown option normalization helper.
  */
 
-function textReplace(template, article, disallowedChars = '') {
-  return String(template || '')
-    .replaceAll('{pageTitle}', article.pageTitle || '')
-    .replaceAll('{title}', article.title || '')
-    .replaceAll('{byline}', article.byline || '')
-    .replaceAll('{excerpt}', article.excerpt || '')
-    .replaceAll('{pageURL}', article.pageURL || '')
-    .replaceAll('{baseURI}', article.baseURI || '')
-    .replaceAll('{keywords}', Array.isArray(article.keywords) ? article.keywords.join(', ') : '')
-    .replaceAll('{date:YYYY-MM-DD}', '2026-03-14')
-    .replace(new RegExp(`[${disallowedChars.replace(/[[\]\\^$.|?*+(){}-]/g, '\\$&')}]`, 'g'), '');
-}
-
-function generateValidFileName(title, disallowedChars = null) {
-  if (!title) return title;
-
-  let name = String(title).replace(/[\/\?<>\\:\*\|":]/g, '').replace(/\u00A0/g, ' ');
-
-  if (disallowedChars) {
-    for (let c of disallowedChars) {
-      if (`[\\^$.|?*+()`.includes(c)) c = `\\${c}`;
-      name = name.replace(new RegExp(c, 'g'), '');
-    }
-  }
-
-  return name;
-}
-
-function createEffectiveMarkdownOptions(article, providedOptions = null, downloadImages = null) {
-  const baseOptions = providedOptions;
-  const options = {
-    ...baseOptions,
-    tableFormatting: baseOptions.tableFormatting
-      ? { ...baseOptions.tableFormatting }
-      : baseOptions.tableFormatting
-  };
-
-  if (downloadImages != null) {
-    options.downloadImages = downloadImages;
-  }
-
-  if (options.includeTemplate) {
-    options.frontmatter = textReplace(options.frontmatter, article) + '\n';
-    options.backmatter = '\n' + textReplace(options.backmatter, article);
-  } else {
-    options.frontmatter = '';
-    options.backmatter = '';
-  }
-
-  options.imagePrefix = textReplace(options.imagePrefix, article, options.disallowedChars)
-    .split('/')
-    .map(segment => generateValidFileName(segment, options.disallowedChars))
-    .join('/');
-
-  return options;
-}
+const { createEffectiveMarkdownOptions } = require('../../shared/markdown-options');
+const templateUtils = require('../../shared/template-utils');
 
 describe('Offscreen markdown option handling', () => {
   const article = {
@@ -92,7 +38,7 @@ describe('Offscreen markdown option handling', () => {
     expect(derivedOptions.downloadImages).toBe(false);
     expect(derivedOptions.frontmatter).toBe('');
     expect(derivedOptions.backmatter).toBe('');
-    expect(derivedOptions.imagePrefix).toBe('Doc/Page Title/assets');
+    expect(derivedOptions.imagePrefix).toBe('DocPage Title/assets');
     expect(originalOptions).toEqual(snapshot);
   });
 
@@ -113,9 +59,207 @@ describe('Offscreen markdown option handling', () => {
 
     expect(derivedOptions.frontmatter).toBe('title: Doc/Page Title\n');
     expect(derivedOptions.backmatter).toBe('\nsource: https://example.com/docs/page');
-    expect(derivedOptions.imagePrefix).toBe('Doc/Page Title/images');
+    expect(derivedOptions.imagePrefix).toBe('DocPage Title/images');
     expect(originalOptions.frontmatter).toBe('title: {pageTitle}');
     expect(originalOptions.backmatter).toBe('source: {pageURL}');
     expect(originalOptions.imagePrefix).toBe('{pageTitle}/images');
+  });
+
+  test('honors downloadImages override parameter', () => {
+    const originalOptions = {
+      includeTemplate: false,
+      downloadImages: false,
+      frontmatter: '',
+      backmatter: '',
+      imagePrefix: 'assets/',
+      disallowedChars: '',
+      tableFormatting: {}
+    };
+
+    const derived = createEffectiveMarkdownOptions(article, originalOptions, true);
+
+    expect(derived.downloadImages).toBe(true);
+    expect(originalOptions.downloadImages).toBe(false);
+    expect(derived.imagePrefix).toBe('assets/');
+  });
+
+  test('sanitizes imagePrefix segments via generateValidFileName', () => {
+    const spy = jest.spyOn(templateUtils, 'generateValidFileName');
+    const options = {
+      includeTemplate: false,
+      imagePrefix: '{pageTitle}/assets /snapshots',
+      disallowedChars: '[]',
+      tableFormatting: {}
+    };
+
+    const derived = createEffectiveMarkdownOptions(article, options, null);
+
+    expect(spy).toHaveBeenCalled();
+    expect(derived.imagePrefix).toContain('assets');
+    spy.mockRestore();
+  });
+
+  test('prefers runtime template utils when the helper is predefined before module loads', () => {
+    const originalHelper = global.markSnipTemplateUtils;
+    global.markSnipTemplateUtils = {
+      textReplace: jest.fn((value) => String(value || '').replace('{title}', 'Preloaded')),
+      generateValidFileName: jest.fn((value) => value)
+    };
+    jest.resetModules();
+
+    try {
+      const { createEffectiveMarkdownOptions: runtimeOptions } = require('../../shared/markdown-options');
+      const derived = runtimeOptions(article, {
+        includeTemplate: true,
+        frontmatter: 'title: {title}',
+        backmatter: '',
+        imagePrefix: '{title}/assets',
+        disallowedChars: ''
+      }, null);
+
+      expect(global.markSnipTemplateUtils.textReplace).toHaveBeenCalled();
+      expect(derived.imagePrefix).toBe('Preloaded/assets');
+    } finally {
+      global.markSnipTemplateUtils = originalHelper;
+      jest.resetModules();
+    }
+  });
+
+  test('handles missing tableFormatting without throwing', () => {
+    const derived = createEffectiveMarkdownOptions(article, {
+      includeTemplate: false,
+      imagePrefix: '',
+      backmatter: '',
+      frontmatter: '',
+      disallowedChars: ''
+    }, null);
+
+    expect(derived.tableFormatting).toBeUndefined();
+  });
+
+  test('falls back to global defaultOptions when no explicit options are provided', () => {
+    const originalDefaults = global.defaultOptions;
+    global.defaultOptions = {
+      includeTemplate: false,
+      imagePrefix: 'defaults/',
+      disallowedChars: '',
+      tableFormatting: {
+        prettyPrint: true
+      }
+    };
+
+    try {
+      const derived = createEffectiveMarkdownOptions(article, null, null);
+      expect(derived.imagePrefix).toBe('defaults/');
+      expect(derived.tableFormatting).toEqual({ prettyPrint: true });
+    } finally {
+      global.defaultOptions = originalDefaults;
+    }
+  });
+
+  test('returns safe defaults when neither explicit options nor defaultOptions exist', () => {
+    const originalDefaults = global.defaultOptions;
+    delete global.defaultOptions;
+
+    try {
+      const derived = createEffectiveMarkdownOptions(article, null, null);
+      expect(derived.frontmatter).toBe('');
+      expect(derived.backmatter).toBe('');
+      expect(derived.imagePrefix).toBe('');
+      expect(derived.tableFormatting).toBeUndefined();
+    } finally {
+      global.defaultOptions = originalDefaults;
+    }
+  });
+
+  test('uses fallback template utils when the runtime helper is missing', () => {
+    const originalHelper = global.markSnipTemplateUtils;
+    delete global.markSnipTemplateUtils;
+    jest.resetModules();
+
+    jest.isolateModules(() => {
+      const { createEffectiveMarkdownOptions: fallbackOptions } = require('../../shared/markdown-options');
+      const fallbackArticle = {
+        title: 'Fallback Title',
+        pageURL: 'https://fallback.test/page',
+        baseURI: 'https://fallback.test',
+        keywords: ['fallback']
+      };
+
+      const derived = fallbackOptions(fallbackArticle, {
+        includeTemplate: true,
+        frontmatter: 'title: {title}',
+        backmatter: 'source: {pageURL}',
+        imagePrefix: '{title}/assets',
+        disallowedChars: '[]'
+      }, null);
+
+      expect(derived.frontmatter).toBe('title: Fallback Title\n');
+      expect(derived.imagePrefix).toContain('Fallback Title/assets');
+    });
+
+    global.markSnipTemplateUtils = originalHelper;
+    jest.resetModules();
+  });
+
+  test('uses runtime template utils when the global helper is present', () => {
+    const originalHelper = global.markSnipTemplateUtils;
+    global.markSnipTemplateUtils = {
+      textReplace: jest.fn((value) => String(value || '').replace('{pageTitle}', 'Injected Title')),
+      generateValidFileName: jest.fn((value) => value)
+    };
+    jest.resetModules();
+
+    try {
+      jest.isolateModules(() => {
+        const { createEffectiveMarkdownOptions: runtimeOptions } = require('../../shared/markdown-options');
+        const derived = runtimeOptions(article, {
+          includeTemplate: true,
+          frontmatter: 'title: {pageTitle}',
+          backmatter: 'source: {pageTitle}',
+          imagePrefix: '{pageTitle}/images',
+          disallowedChars: '',
+          tableFormatting: {}
+        });
+
+        expect(global.markSnipTemplateUtils.textReplace).toHaveBeenCalled();
+        expect(derived.frontmatter).toBe('title: Injected Title\n');
+        expect(derived.imagePrefix).toBe('Injected Title/images');
+      });
+    } finally {
+      global.markSnipTemplateUtils = originalHelper;
+      jest.resetModules();
+    }
+  });
+
+  test('falls back to inert helpers when template utils cannot be required', () => {
+    const originalHelper = global.markSnipTemplateUtils;
+    delete global.markSnipTemplateUtils;
+    jest.resetModules();
+    jest.doMock('../../shared/template-utils', () => {
+      throw new Error('template utils unavailable');
+    });
+
+    try {
+      jest.isolateModules(() => {
+        const { createEffectiveMarkdownOptions: fallbackOptions } = require('../../shared/markdown-options');
+        const derived = fallbackOptions(article, {
+          includeTemplate: true,
+          frontmatter: 'front',
+          backmatter: 'back',
+          imagePrefix: 'images/',
+          disallowedChars: '',
+          tableFormatting: {}
+        });
+
+        expect(derived.frontmatter).toBe('front\n');
+        expect(derived.backmatter).toBe('\nback');
+        expect(derived.imagePrefix).toBe('images/');
+      });
+    } finally {
+      jest.dontMock('../../shared/template-utils');
+      global.markSnipTemplateUtils = originalHelper;
+      jest.resetModules();
+    }
   });
 });

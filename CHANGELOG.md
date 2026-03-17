@@ -1,5 +1,23 @@
 # Changelog
 
+## 4.1.4
+
+### User Highlights
+
+- MarkSnip now includes a built-in User Guide, so help is available directly inside the extension.
+- Settings search is more consistent and easier to reuse across the extension's help and configuration experiences.
+- Clipping and markdown export behavior are more consistent behind the scenes, especially around selections, templates, URLs, and code blocks.
+- Download handling is more reliable when resolving tracked exports and filename conflicts.
+- Real-world website regression coverage is stronger, making live-site breakages easier to detect and diagnose. This makes your user experience better!
+
+### Technical Notes
+
+- **In-Extension User Guide**: Added a bundled first-class User Guide and exposed it through the extension package for easier onboarding and discovery.
+- **Shared Search Core**: Extracted reusable search scoring so guide search and options search use the same matching logic.
+- **Shared Clipping Utilities**: Moved template, URL, selection, hashtag, markdown-option, and code-block processing into shared modules used by the offscreen pipeline and tests.
+- **Download Tracking Refactor**: Extracted service-worker download bookkeeping and filename conflict handling into shared tracker logic to reduce drift between runtime behavior and tests.
+- **Regression Coverage Expansion**: Expanded fixture-backed E2E coverage and added live public site artifact baselines so failures can be compared against the last successful run.
+
 ## 4.1.3
 
 ### User Highlights
