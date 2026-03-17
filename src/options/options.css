@@ -628,6 +628,22 @@ a:hover {
     box-shadow: 0 2px 8px rgba(227, 108, 70, 0.35);
 }
 
+.guide-btn {
+    margin-top: 0;
+    background: var(--accent-light);
+    color: var(--accent-darker) !important;
+}
+
+.guide-btn:hover {
+    background: var(--accent);
+    color: var(--text-inverse) !important;
+    box-shadow: 0 2px 8px rgba(107, 142, 111, 0.35);
+}
+
+.guide-btn .icon-svg {
+    stroke: currentColor;
+}
+
 
 /* ── Content Panel ── */
 .content-panel {

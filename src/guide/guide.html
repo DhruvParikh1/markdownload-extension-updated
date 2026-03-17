@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MarkSnip User Guide</title>
+    <link rel="stylesheet" href="../shared/fonts.css">
+    <link rel="stylesheet" href="guide.css">
+</head>
+
+<body>
+    <!-- Skip link for accessibility -->
+    <a href="#guide-content" class="skip-link">Skip to content</a>
+
+    <!-- ═══ Sticky Header ═══ -->
+    <header class="guide-header">
+        <div class="guide-header-inner">
+            <div class="header-brand">
+                <img src="../icons/favicon-32x32.png" alt="MarkSnip" class="header-logo">
+                <h1 class="header-title">MarkSnip</h1>
+                <span class="header-subtitle">User Guide</span>
+            </div>
+            <div class="header-search">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" id="guide-search" class="search-input" placeholder="Search guide..." autocomplete="off" aria-label="Search the user guide" />
+                <kbd class="search-shortcut" id="search-shortcut-hint">/</kbd>
+            </div>
+            <div class="header-actions">
+                <button id="open-settings" class="header-btn" title="Open Settings">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                    Settings
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ═══ Main Layout ═══ -->
+    <div class="guide-layout">
+
+        <!-- ── Sticky TOC Sidebar ── -->
+        <nav class="guide-toc" aria-label="Table of contents">
+            <ul class="toc-list" role="list">
+                <li><a href="#quick-start" class="toc-link active">Quick Start</a></li>
+                <li><a href="#using-the-popup" class="toc-link">Using the Popup</a>
+                    <ul class="toc-sublist">
+                        <li><a href="#quick-settings" class="toc-link">Quick Settings</a></li>
+                        <li><a href="#clipping-scope" class="toc-link">Clipping Scope</a></li>
+                        <li><a href="#editing-title" class="toc-link">Editing the Title</a></li>
+                        <li><a href="#markdown-preview" class="toc-link">Markdown Preview</a></li>
+                        <li><a href="#action-buttons" class="toc-link">Action Buttons</a></li>
+                    </ul>
+                </li>
+                <li><a href="#batch-processing" class="toc-link">Batch Processing</a>
+                    <ul class="toc-sublist">
+                        <li><a href="#adding-urls" class="toc-link">Adding URLs</a></li>
+                        <li><a href="#pick-links" class="toc-link">Pick Links from Page</a></li>
+                        <li><a href="#output-format" class="toc-link">Output Format</a></li>
+                    </ul>
+                </li>
+                <li><a href="#context-menus" class="toc-link">Context Menus &amp; Shortcuts</a>
+                    <ul class="toc-sublist">
+                        <li><a href="#download-actions" class="toc-link">Download Actions</a></li>
+                        <li><a href="#copy-actions" class="toc-link">Copy Actions</a></li>
+                        <li><a href="#obsidian-actions" class="toc-link">Obsidian Actions</a></li>
+                        <li><a href="#keyboard-shortcuts" class="toc-link">Keyboard Shortcuts</a></li>
+                    </ul>
+                </li>
+                <li><a href="#settings" class="toc-link">Settings &amp; Customization</a>
+                    <ul class="toc-sublist">
+                        <li><a href="#templates" class="toc-link">Templates</a></li>
+                        <li><a href="#download-settings" class="toc-link">Downloads</a></li>
+                        <li><a href="#markdown-options" class="toc-link">Markdown Options</a></li>
+                        <li><a href="#table-options" class="toc-link">Table Options</a></li>
+                        <li><a href="#import-export" class="toc-link">Import / Export</a></li>
+                    </ul>
+                </li>
+                <li><a href="#obsidian-downloads" class="toc-link">Obsidian &amp; Downloads</a>
+                    <ul class="toc-sublist">
+                        <li><a href="#obsidian-integration" class="toc-link">Obsidian Integration</a></li>
+                        <li><a href="#download-mode" class="toc-link">Download Mode</a></li>
+                        <li><a href="#image-downloads" class="toc-link">Image Downloads</a></li>
+                    </ul>
+                </li>
+                <li><a href="#troubleshooting" class="toc-link">Troubleshooting / FAQ</a></li>
+                <li><a href="#text-substitutions" class="toc-link">Text Substitutions</a></li>
+            </ul>
+        </nav>
+
+        <!-- ── Guide Content ── -->
+        <main class="guide-content" id="guide-content">
+
+            <!-- Search Results Container (hidden by default) -->
+            <div id="search-results" class="search-results" role="region" aria-live="polite" aria-label="Search results" style="display:none;">
+                <div class="search-results-header">
+                    <span id="search-results-count" class="search-results-count"></span>
+                    <button id="search-clear" class="search-clear-btn" aria-label="Clear search">Clear</button>
+                </div>
+                <ul id="search-results-list" class="search-results-list" role="list"></ul>
+                <div id="search-no-results" class="search-no-results" style="display:none;">
+                    <svg class="no-results-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        <line x1="8" y1="8" x2="14" y2="14"/>
+                        <line x1="14" y1="8" x2="8" y2="14"/>
+                    </svg>
+                    <p>No results for "<span id="search-no-results-query"></span>"</p>
+                    <p class="no-results-hint">Try different keywords or browse the table of contents.</p>
+                </div>
+            </div>
+
+            <!-- ────────────────────────────────────────────
+                 SECTION: Quick Start
+                 ──────────────────────────────────────────── -->
+            <section id="quick-start" class="guide-section"
+                data-guide-section="Quick Start"
+                data-guide-summary="Get started with MarkSnip in three steps"
+                data-search-keywords="getting started,intro,overview,begin,first time,how to use">
+                <h2 class="section-heading"><a href="#quick-start" class="anchor-link">#</a>Quick Start</h2>
+                <div class="section-body">
+                    <ol class="steps-list">
+                        <li><strong>Click the MarkSnip icon</strong> in the browser toolbar to open the popup.</li>
+                        <li>The current page is run through <em>Mozilla Readability</em> to extract the main content, then converted to Markdown with <em>Turndown</em>.</li>
+                        <li><strong>Edit, copy, or download</strong> the Markdown using the built-in CodeMirror editor.</li>
+                    </ol>
+                    <div class="tip-box">
+                        <strong>Tip:</strong> Use <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>M</kbd> to open the popup without clicking the icon.
+                    </div>
+                </div>
+            </section>
+
+            <!-- ────────────────────────────────────────────
+                 SECTION: Using the Popup
+                 ──────────────────────────────────────────── -->
+            <section id="using-the-popup" class="guide-section"
+                data-guide-section="Using the Popup"
+                data-guide-summary="The main popup interface for clipping pages"
+                data-search-keywords="popup,main interface,clip,clipper,extension popup">
+                <h2 class="section-heading"><a href="#using-the-popup" class="anchor-link">#</a>Using the Popup</h2>
+
+                <div id="quick-settings" class="guide-subsection"
+                    data-guide-section="Quick Settings"
+                    data-guide-summary="Toggle images and template inclusion"
+                    data-search-keywords="images toggle,template toggle,front matter,back matter">
+                    <h3 class="subsection-heading"><a href="#quick-settings" class="anchor-link">#</a>Quick Settings</h3>
+                    <p>At the top of the popup you'll find two toggle switches:</p>
+                    <ul>
+                        <li><strong>Images</strong> &mdash; when on, images are downloaded alongside your Markdown file (requires Downloads API mode).</li>
+                        <li><strong>Template</strong> &mdash; when on, the front-matter and back-matter templates are prepended/appended to the output.</li>
+                    </ul>
+                </div>
+
+                <div id="clipping-scope" class="guide-subsection"
+                    data-guide-section="Clipping Scope"
+                    data-guide-summary="Choose between selection and full document clipping"
+                    data-search-keywords="selection,document,full page,clip scope,segmented control,content scope">
+                    <h3 class="subsection-heading"><a href="#clipping-scope" class="anchor-link">#</a>Clipping Selection vs. Full Document</h3>
+                    <p>Below the toggles is a segmented control with two buttons:</p>
+                    <ul>
+                        <li><strong>Selection</strong> &mdash; clips only the text you selected on the page before opening the popup.</li>
+                        <li><strong>Document</strong> &mdash; clips the entire page content (default if nothing is selected).</li>
+                    </ul>
+                </div>
+
+                <div id="editing-title" class="guide-subsection"
+                    data-guide-section="Editing the Title"
+                    data-guide-summary="Set the filename for your downloaded Markdown"
+                    data-search-keywords="title,filename,title template,rename">
+                    <h3 class="subsection-heading"><a href="#editing-title" class="anchor-link">#</a>Editing the Title</h3>
+                    <p>The <strong>Title</strong> field determines the filename of the downloaded Markdown file. It is populated automatically from the title template (configurable in options) but you can edit it freely before saving.</p>
+                </div>
+
+                <div id="markdown-preview" class="guide-subsection"
+                    data-guide-section="Markdown Preview"
+                    data-guide-summary="Edit and copy Markdown in the built-in editor"
+                    data-search-keywords="editor,codemirror,preview,copy,copy all,copy selection,edit markdown">
+                    <h3 class="subsection-heading"><a href="#markdown-preview" class="anchor-link">#</a>Markdown Preview</h3>
+                    <p>The main area of the popup is a syntax-highlighted Markdown editor (powered by CodeMirror). You can make quick edits here before downloading.</p>
+                    <p>Above the editor are two buttons:</p>
+                    <ul>
+                        <li><strong>Copy All</strong> &mdash; copies all the Markdown to your clipboard.</li>
+                        <li><strong>Copy Selection</strong> &mdash; appears when you select text <em>inside the editor</em>, allowing you to copy just the highlighted portion.</li>
+                    </ul>
+                </div>
+
+                <div id="action-buttons" class="guide-subsection"
+                    data-guide-section="Action Buttons"
+                    data-guide-summary="Download, copy, or send Markdown to Obsidian"
+                    data-search-keywords="download,download selection,send to obsidian,save,export">
+                    <h3 class="subsection-heading"><a href="#action-buttons" class="anchor-link">#</a>Action Buttons</h3>
+                    <div class="ref-table-wrap">
+                        <table class="ref-table">
+                            <thead><tr><th>Button</th><th>Action</th></tr></thead>
+                            <tbody>
+                                <tr><td><strong>Download</strong></td><td>Downloads the Markdown as a <code>.md</code> file.</td></tr>
+                                <tr><td><strong>Download Selection</strong></td><td>Appears when text is selected inside the editor; downloads only the selection.</td></tr>
+                                <tr><td><strong>Send to Obsidian</strong></td><td>Copies Markdown to clipboard and opens Obsidian via the Advanced URI plugin to create a new note (only visible when Obsidian integration is enabled).</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ────────────────────────────────────────────
+                 SECTION: Batch Processing
+                 ──────────────────────────────────────────── -->
+            <section id="batch-processing" class="guide-section"
+                data-guide-section="Batch Processing"
+                data-guide-summary="Convert multiple URLs to Markdown at once"
+                data-search-keywords="batch,bulk,multiple pages,urls,zip,convert all">
+                <h2 class="section-heading"><a href="#batch-processing" class="anchor-link">#</a>Batch Processing</h2>
+                <p>Click the batch icon in the popup header to switch to batch mode.</p>
+
+                <div id="adding-urls" class="guide-subsection"
+                    data-guide-section="Adding URLs"
+                    data-guide-summary="Paste URLs or use Markdown link syntax"
+                    data-search-keywords="paste urls,url list,markdown links">
+                    <h3 class="subsection-heading"><a href="#adding-urls" class="anchor-link">#</a>Adding URLs</h3>
+                    <p>Paste URLs into the text area, one per line. You can also use Markdown link syntax:</p>
+                    <pre class="code-block">https://example.com/page1
+https://example.com/page2
+[Page Title](https://example.com/page3)</pre>
+                </div>
+
+                <div id="pick-links" class="guide-subsection"
+                    data-guide-section="Pick Links from Page"
+                    data-guide-summary="Visually select links from the current page"
+                    data-search-keywords="link picker,visual picker,select links,pick">
+                    <h3 class="subsection-heading"><a href="#pick-links" class="anchor-link">#</a>Pick Links from Page</h3>
+                    <p>Click <strong>Pick Links from Page</strong> to enter the visual link picker. This injects an overlay onto the current page that lets you click on links to select them. A floating toolbar shows how many links you've selected, and a <strong>Done</strong> button sends them back to the batch URL list.</p>
+                </div>
+
+                <div id="output-format" class="guide-subsection"
+                    data-guide-section="Output Format"
+                    data-guide-summary="Choose ZIP or individual file downloads"
+                    data-search-keywords="zip,individual,output format,batch save">
+                    <h3 class="subsection-heading"><a href="#output-format" class="anchor-link">#</a>Output Format</h3>
+                    <ul>
+                        <li><strong>ZIP file</strong> &mdash; all converted Markdown files are bundled into a single <code>.zip</code> download.</li>
+                        <li><strong>Individual</strong> &mdash; each page is downloaded as a separate <code>.md</code> file.</li>
+                    </ul>
+                    <p>Click <strong>Convert All URLs</strong> to start processing. A progress bar shows the current status including a count and the URL being processed.</p>
+                </div>
+            </section>
+
+            <!-- ────────────────────────────────────────────
+                 SECTION: Context Menus & Shortcuts
+                 ──────────────────────────────────────────── -->
+            <section id="context-menus" class="guide-section"
+                data-guide-section="Context Menus and Shortcuts"
+                data-guide-summary="Right-click actions and keyboard shortcuts"
+                data-search-keywords="context menu,right click,keyboard,shortcut,hotkey,keybinding">
+                <h2 class="section-heading"><a href="#context-menus" class="anchor-link">#</a>Context Menus &amp; Shortcuts</h2>
+                <p>Right-click on a page to access MarkSnip actions under the context menu. These are available when <strong>Enable Context Menus</strong> is turned on in settings.</p>
+
+                <div id="download-actions" class="guide-subsection"
+                    data-guide-section="Download Actions"
+                    data-guide-summary="Context menu download options"
+                    data-search-keywords="download tab,download selection,download all tabs">
+                    <h3 class="subsection-heading"><a href="#download-actions" class="anchor-link">#</a>Download Actions</h3>
+                    <div class="ref-table-wrap">
+                        <table class="ref-table">
+                            <thead><tr><th>Menu Item</th><th>Context</th><th>Description</th></tr></thead>
+                            <tbody>
+                                <tr><td>Download Tab as Markdown</td><td>Page / Tab</td><td>Downloads the current tab as a Markdown file without opening the popup.</td></tr>
+                                <tr><td>Download Selection as Markdown</td><td>Selected text</td><td>Downloads the highlighted text as Markdown.</td></tr>
+                                <tr><td>Download All Tabs as Markdown</td><td>Page / Tab</td><td>Downloads every open tab in the current window as Markdown files.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="copy-actions" class="guide-subsection"
+                    data-guide-section="Copy Actions"
+                    data-guide-summary="Context menu copy options"
+                    data-search-keywords="copy tab,copy selection,copy link,copy image,copy url,clipboard">
+                    <h3 class="subsection-heading"><a href="#copy-actions" class="anchor-link">#</a>Copy Actions</h3>
+                    <div class="ref-table-wrap">
+                        <table class="ref-table">
+                            <thead><tr><th>Menu Item</th><th>Description</th></tr></thead>
+                            <tbody>
+                                <tr><td>Copy Tab as Markdown</td><td>Converts the entire page to Markdown and copies it to the clipboard.</td></tr>
+                                <tr><td>Copy Selection as Markdown</td><td>Converts the selection to Markdown and copies it.</td></tr>
+                                <tr><td>Copy Link as Markdown</td><td>Copies the right-clicked link as <code>[text](url)</code>.</td></tr>
+                                <tr><td>Copy Image as Markdown</td><td>Copies the right-clicked image as <code>![alt](src)</code>.</td></tr>
+                                <tr><td>Copy Tab URL as Markdown Link</td><td>Copies the tab's URL as <code>[title](url)</code>.</td></tr>
+                                <tr><td>Copy All Tab URLs as Markdown Link List</td><td>Copies all open tab URLs as a Markdown link list.</td></tr>
+                                <tr><td>Copy Selected Tab URLs as Markdown Link List</td><td>Copies URLs from multi-selected tabs (<kbd>Ctrl</kbd>/<kbd>Cmd</kbd>) as a link list.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="obsidian-actions" class="guide-subsection"
+                    data-guide-section="Obsidian Actions"
+                    data-guide-summary="Context menu actions for Obsidian"
+                    data-search-keywords="obsidian context menu,send to obsidian context">
+                    <h3 class="subsection-heading"><a href="#obsidian-actions" class="anchor-link">#</a>Obsidian Actions</h3>
+                    <p>These items appear only when Obsidian integration is enabled:</p>
+                    <div class="ref-table-wrap">
+                        <table class="ref-table">
+                            <thead><tr><th>Menu Item</th><th>Description</th></tr></thead>
+                            <tbody>
+                                <tr><td>Send Text Selection to Obsidian</td><td>Sends the selection to Obsidian as a new note.</td></tr>
+                                <tr><td>Send Tab to Obsidian</td><td>Sends the full page to Obsidian as a new note.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p>At the bottom of the context menu you'll also find checkboxes for <strong>Include front/back template</strong> and <strong>Download Images</strong>.</p>
+                </div>
+
+                <div id="keyboard-shortcuts" class="guide-subsection"
+                    data-guide-section="Keyboard Shortcuts"
+                    data-guide-summary="Default keyboard shortcuts and customization"
+                    data-search-keywords="keyboard shortcut,hotkey,alt shift,keybinding,command">
+                    <h3 class="subsection-heading"><a href="#keyboard-shortcuts" class="anchor-link">#</a>Keyboard Shortcuts</h3>
+                    <div class="ref-table-wrap">
+                        <table class="ref-table">
+                            <thead><tr><th>Shortcut</th><th>Action</th></tr></thead>
+                            <tbody>
+                                <tr><td><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>M</kbd></td><td>Open the MarkSnip popup</td></tr>
+                                <tr><td><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>D</kbd></td><td>Download current tab as Markdown</td></tr>
+                                <tr><td><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd></td><td>Copy current tab as Markdown</td></tr>
+                                <tr><td><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>L</kbd></td><td>Copy current tab URL as Markdown link</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p>Additional commands without default shortcuts (assign your own in the browser's shortcut settings):</p>
+                    <ul>
+                        <li>Copy current selection as Markdown</li>
+                        <li>Copy selected tabs as Markdown link list</li>
+                        <li>Copy current selection to Obsidian</li>
+                        <li>Copy current tab to Obsidian</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- ────────────────────────────────────────────
+                 SECTION: Settings & Customization
+                 ──────────────────────────────────────────── -->
+            <section id="settings" class="guide-section"
+                data-guide-section="Settings and Customization"
+                data-guide-summary="Configure all extension options"
+                data-search-keywords="settings,options,customize,configuration,preferences">
+                <h2 class="section-heading"><a href="#settings" class="anchor-link">#</a>Settings &amp; Customization</h2>
+                <p>Open the options page by clicking the gear icon in the popup header, or by right-clicking the MarkSnip icon and selecting <strong>Options</strong>.</p>
+
+                <div id="templates" class="guide-subsection"
+                    data-guide-section="Templates"
+                    data-guide-summary="Title template, front-matter, and back-matter"
+                    data-search-keywords="title template,front matter,back matter,yaml,frontmatter,backmatter,disallowed characters,clips folder">
+                    <h3 class="subsection-heading"><a href="#templates" class="anchor-link">#</a>Templates</h3>
+                    <h4>Title Template</h4>
+                    <p>Controls the popup's title field and the resulting filename. Uses <a href="#text-substitutions">Custom Text Substitutions</a>. Default: <code>{pageTitle}</code></p>
+                    <h4>Downloads Subfolder</h4>
+                    <p>A subfolder within your browser's downloads folder where Markdown files are saved. Only available in Downloads API mode. Uses <a href="#text-substitutions">text substitutions</a>.</p>
+                    <h4>Disallowed Characters</h4>
+                    <p>Characters automatically stripped from filenames, in addition to system-reserved characters. Default: <code>[]#^</code> (for Obsidian compatibility).</p>
+                    <h4>Front/Back Templates</h4>
+                    <p>Text prepended or appended to every clipped Markdown file. Useful for YAML front-matter or other metadata. Uses <a href="#text-substitutions">text substitutions</a>.</p>
+                    <pre class="code-block">---
+created: {date:YYYY-MM-DDTHH:mm:ss} (UTC {date:Z})
+tags: [{keywords}]
+source: {pageURL}
+author: {byline}
+---</pre>
+                </div>
+
+                <div id="download-settings" class="guide-subsection"
+                    data-guide-section="Download Settings"
+                    data-guide-summary="Configure download behavior and context menus"
+                    data-search-keywords="context menus toggle,enable context menus">
+                    <h3 class="subsection-heading"><a href="#download-settings" class="anchor-link">#</a>Downloads</h3>
+                    <h4>Context Menus</h4>
+                    <p>Toggles the right-click context menu items on and off. Default: <strong>On</strong>.</p>
+                </div>
+
+                <div id="markdown-options" class="guide-subsection"
+                    data-guide-section="Markdown Options"
+                    data-guide-summary="Heading style, code blocks, links, images, and more"
+                    data-search-keywords="heading style,setext,atx,horizontal rule,bullet list,code block,fenced,indented,emphasis,italics,bold,strong,link style,inlined,referenced,strip links,image style,base64,escape markdown,hashtag handling">
+                    <h3 class="subsection-heading"><a href="#markdown-options" class="anchor-link">#</a>Markdown Options</h3>
+
+                    <h4>Heading Style</h4>
+                    <p><strong>Setext</strong> uses underlines (<code>===</code> / <code>---</code>); <strong>Atx</strong> (default) uses <code>#</code> prefixes.</p>
+
+                    <h4>Horizontal Rule Style</h4>
+                    <p>Choose between <code>***</code>, <code>---</code>, or <code>___</code> (default).</p>
+
+                    <h4>Bullet List Marker</h4>
+                    <p><code>*</code>, <code>-</code> (default), or <code>+</code>.</p>
+
+                    <h4>Code Block Style</h4>
+                    <p><strong>Indented</strong> (four-space indent) or <strong>Fenced</strong> (default, wrapped in <code>```</code> or <code>~~~</code>).</p>
+
+                    <h4>Preserve Code Block HTML Formatting</h4>
+                    <p>When enabled, preserves the original HTML formatting inside code blocks. Default: <strong>Off</strong>.</p>
+
+                    <h4>Emphasis &amp; Strong Delimiters</h4>
+                    <p>Italics: <code>_</code> (default), <code>*</code>, or <code>__</code> (for Roam). Bold: <code>**</code> (default) or <code>__</code>.</p>
+
+                    <h4>Link Style</h4>
+                    <p><strong>Inlined</strong> (default): <code>[Google](http://google.com)</code>. <strong>Referenced</strong>: separate link definitions at the bottom. <strong>Strip Links</strong>: removes links entirely.</p>
+
+                    <h4>Image Style</h4>
+                    <div class="ref-table-wrap">
+                        <table class="ref-table">
+                            <thead><tr><th>Style</th><th>Output</th><th>Requires Download Images</th></tr></thead>
+                            <tbody>
+                                <tr><td>Original Source</td><td><code>![](http://example.com/img.jpg)</code></td><td>No</td></tr>
+                                <tr><td>Strip Images</td><td><em>(image removed)</em></td><td>No</td></tr>
+                                <tr><td>Pure Markdown (default)</td><td><code>![](folder/image.jpg)</code></td><td>Yes</td></tr>
+                                <tr><td>Base64 Encoded</td><td><code>![](data:image/png;base64,...)</code></td><td>Yes</td></tr>
+                                <tr><td>Obsidian Internal Embed</td><td><code>![[folder/image.jpg]]</code></td><td>Yes</td></tr>
+                                <tr><td>Obsidian Embed (no folder)</td><td><code>![[image.jpg]]</code></td><td>Yes</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h4>Escape Markdown Characters</h4>
+                    <p>Backslash-escapes special Markdown characters to prevent misinterpretation. Default: <strong>On</strong>.</p>
+
+                    <h4>Hashtag Handling</h4>
+                    <p><strong>Keep</strong> (default), <strong>Remove #</strong>, or <strong>Escape #</strong>. Only affects article text; Markdown syntax and code are preserved.</p>
+                </div>
+
+                <div id="table-options" class="guide-subsection"
+                    data-guide-section="Table Options"
+                    data-guide-summary="Configure table formatting in clipped Markdown"
+                    data-search-keywords="table,strip links tables,strip formatting,pretty print,center text,table formatting">
+                    <h3 class="subsection-heading"><a href="#table-options" class="anchor-link">#</a>Table Formatting Options</h3>
+                    <div class="ref-table-wrap">
+                        <table class="ref-table">
+                            <thead><tr><th>Option</th><th>Description</th><th>Default</th></tr></thead>
+                            <tbody>
+                                <tr><td>Strip Links from Tables</td><td>Removes hyperlinks from table cells, keeping only the text.</td><td>On</td></tr>
+                                <tr><td>Strip Formatting</td><td>Removes bold, italic, and other formatting from table cells.</td><td>Off</td></tr>
+                                <tr><td>Pretty Print Tables</td><td>Adds proper spacing and column alignment.</td><td>On</td></tr>
+                                <tr><td>Center Text in Columns</td><td>Centers text within table columns.</td><td>On</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="import-export" class="guide-subsection"
+                    data-guide-section="Import / Export"
+                    data-guide-summary="Backup and restore your settings"
+                    data-search-keywords="import,export,backup,restore,json,transfer">
+                    <h3 class="subsection-heading"><a href="#import-export" class="anchor-link">#</a>Import / Export Settings</h3>
+                    <ul>
+                        <li><strong>Import</strong> &mdash; restore settings from a previously exported JSON file.</li>
+                        <li><strong>Export</strong> &mdash; save all current settings to a JSON file for backup or transfer to another browser.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- ────────────────────────────────────────────
+                 SECTION: Obsidian & Downloads
+                 ──────────────────────────────────────────── -->
+            <section id="obsidian-downloads" class="guide-section"
+                data-guide-section="Obsidian and Downloads"
+                data-guide-summary="Obsidian integration, download modes, and image handling"
+                data-search-keywords="obsidian,vault,advanced uri,download mode,downloads api,content link,save as,image download,image prefix">
+                <h2 class="section-heading"><a href="#obsidian-downloads" class="anchor-link">#</a>Obsidian &amp; Downloads</h2>
+
+                <div id="obsidian-integration" class="guide-subsection"
+                    data-guide-section="Obsidian Integration"
+                    data-guide-summary="Send clipped pages directly to Obsidian"
+                    data-search-keywords="obsidian integration,vault name,folder name,advanced uri,obsidian plugin">
+                    <h3 class="subsection-heading"><a href="#obsidian-integration" class="anchor-link">#</a>Obsidian Integration</h3>
+                    <p>Enable this to show the <strong>Send to Obsidian</strong> button and Obsidian context menu actions. Requires the <strong>Advanced Obsidian URI</strong> community plugin.</p>
+                    <ul>
+                        <li><strong>Vault Name</strong> &mdash; leave blank for the default vault.</li>
+                        <li><strong>Folder Name</strong> &mdash; supports <a href="#text-substitutions">text substitutions</a> (e.g. <code>{date:YYYY-MM-DD}/</code>).</li>
+                    </ul>
+                    <div class="tip-box">
+                        <strong>Note:</strong> Images sent via Obsidian stay as remote links. The extension does not place attachment files inside the vault.
+                    </div>
+                </div>
+
+                <div id="download-mode" class="guide-subsection"
+                    data-guide-section="Download Mode"
+                    data-guide-summary="Choose between Downloads API and Content Link"
+                    data-search-keywords="downloads api,content link,download mode,save as dialog">
+                    <h3 class="subsection-heading"><a href="#download-mode" class="anchor-link">#</a>Download Mode</h3>
+                    <div class="ref-table-wrap">
+                        <table class="ref-table">
+                            <thead><tr><th>Mode</th><th>Description</th></tr></thead>
+                            <tbody>
+                                <tr><td><strong>Downloads API</strong> (recommended)</td><td>Uses the browser's download API. Supports subfolders, image downloads, and Save As dialogs.</td></tr>
+                                <tr><td><strong>Content Link</strong></td><td>Falls back to a content link for downloading. More limited &mdash; disables image downloads and subfolders.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <h4>Show Save As Dialog</h4>
+                    <p>Forces the browser's Save As dialog for every download. Not recommended when Download Images is on.</p>
+                </div>
+
+                <div id="image-downloads" class="guide-subsection"
+                    data-guide-section="Image Downloads"
+                    data-guide-summary="Download images alongside Markdown files"
+                    data-search-keywords="download images,image prefix,image filename,local images">
+                    <h3 class="subsection-heading"><a href="#image-downloads" class="anchor-link">#</a>Image Downloads</h3>
+                    <p>When enabled (Downloads API mode only), images are downloaded alongside the Markdown file with local references.</p>
+                    <h4>Image Filename Prefix</h4>
+                    <p>A prefix or subfolder for downloaded images. Uses <a href="#text-substitutions">text substitutions</a>. Including a <code>/</code> creates a subfolder. Default: <code>{pageTitle}/</code>.</p>
+                </div>
+            </section>
+
+            <!-- ────────────────────────────────────────────
+                 SECTION: Troubleshooting / FAQ
+                 ──────────────────────────────────────────── -->
+            <section id="troubleshooting" class="guide-section"
+                data-guide-section="Troubleshooting / FAQ"
+                data-guide-summary="Common issues and solutions"
+                data-search-keywords="troubleshooting,faq,help,problem,issue,bug,not working,error,fix">
+                <h2 class="section-heading"><a href="#troubleshooting" class="anchor-link">#</a>Troubleshooting / FAQ</h2>
+                <div class="section-body">
+                    <div class="faq-item">
+                        <h4>The popup shows "Processing page..." and nothing happens</h4>
+                        <p>Some pages block content scripts. Try refreshing the page, or check that MarkSnip has permission to access the site. Internal browser pages (<code>chrome://</code>, <code>about:</code>) cannot be clipped.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h4>Images are not downloading</h4>
+                        <p>Make sure <strong>Download Mode</strong> is set to "Downloads API" and the <strong>Images</strong> toggle is enabled. Content Link mode does not support image downloads.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h4>Send to Obsidian is not visible</h4>
+                        <p>Enable <strong>Obsidian Integration</strong> in <a href="#obsidian-integration">Settings</a>. You also need the <strong>Advanced Obsidian URI</strong> community plugin installed in Obsidian.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h4>Context menu items are missing</h4>
+                        <p>Check that <strong>Enable Context Menus</strong> is turned on in <a href="#download-settings">Downloads settings</a>.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h4>Keyboard shortcuts don't work</h4>
+                        <p>Another extension may have claimed the same shortcut. Open your browser's extension shortcut settings to reassign keys.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h4>Markdown output looks wrong</h4>
+                        <p>Check the <a href="#markdown-options">Markdown Options</a> to adjust heading style, link style, code block style, and escape settings to match your workflow.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ────────────────────────────────────────────
+                 SECTION: Custom Text Substitutions
+                 ──────────────────────────────────────────── -->
+            <section id="text-substitutions" class="guide-section"
+                data-guide-section="Text Substitutions"
+                data-guide-summary="Variables for templates, titles, and filenames"
+                data-search-keywords="text substitution,variable,template variable,placeholder,date format,moment,meta tag,parameterization,casing,pascal,camel,kebab,snake,article metadata,url components">
+                <h2 class="section-heading"><a href="#text-substitutions" class="anchor-link">#</a>Custom Text Substitutions</h2>
+                <p>The Title Template, Downloads Subfolder, Front/Back Templates, Image Filename Prefix, and Obsidian Folder Name all support these variables:</p>
+
+                <h3 class="subsection-heading">Article Metadata</h3>
+                <div class="ref-table-wrap">
+                    <table class="ref-table">
+                        <thead><tr><th>Variable</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>{title}</code></td><td>Article title (as determined by Readability)</td></tr>
+                            <tr><td><code>{pageTitle}</code></td><td>Title of the actual page (<code>&lt;title&gt;</code> tag)</td></tr>
+                            <tr><td><code>{length}</code></td><td>Length of the article in characters</td></tr>
+                            <tr><td><code>{excerpt}</code></td><td>Article description or short excerpt</td></tr>
+                            <tr><td><code>{byline}</code></td><td>Author metadata</td></tr>
+                            <tr><td><code>{dir}</code></td><td>Content direction (e.g. <code>ltr</code>)</td></tr>
+                            <tr><td><code>{baseURI}</code></td><td>Parsed document/base URI</td></tr>
+                            <tr><td><code>{pageURL}</code> / <code>{tabURL}</code></td><td>Address-bar URL of the tab</td></tr>
+                            <tr><td><code>{keywords}</code></td><td>Meta keywords, comma-separated</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3 class="subsection-heading">URL Components</h3>
+                <div class="ref-table-wrap">
+                    <table class="ref-table">
+                        <thead><tr><th>Variable</th><th>Description</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>{origin}</code></td><td>Scheme + domain + port</td></tr>
+                            <tr><td><code>{host}</code></td><td>Hostname + port</td></tr>
+                            <tr><td><code>{hostname}</code></td><td>Domain only</td></tr>
+                            <tr><td><code>{port}</code></td><td>Port number</td></tr>
+                            <tr><td><code>{protocol}</code></td><td>Protocol with trailing <code>:</code></td></tr>
+                            <tr><td><code>{pathname}</code></td><td>URL path</td></tr>
+                            <tr><td><code>{search}</code></td><td>Query string including <code>?</code></td></tr>
+                            <tr><td><code>{hash}</code></td><td>Fragment identifier including <code>#</code></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p>All URL components are also available prefixed with <code>page</code> (e.g. <code>{pageOrigin}</code>, <code>{pageHostname}</code>).</p>
+
+                <h3 class="subsection-heading">Date/Time</h3>
+                <p>Use <code>{date:FORMAT}</code> with Moment.js formatting tokens. Example: <code>{date:YYYY-MM-DD}</code>.</p>
+
+                <h3 class="subsection-heading">Meta Tags</h3>
+                <p>Any <code>&lt;meta&gt;</code> tag value can be referenced, e.g. <code>{og:image}</code>, <code>{og:description}</code>.</p>
+
+                <h3 class="subsection-heading">Parameterizations</h3>
+                <p>Change the casing of any text variable (except <code>{date}</code> and <code>{keywords}</code>) by appending a colon and style:</p>
+                <div class="ref-table-wrap">
+                    <table class="ref-table">
+                        <thead><tr><th>Syntax</th><th>Style</th><th>Example</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>{variable:pascal}</code></td><td>PascalCase</td><td><code>DifferentTypesOfCasing</code></td></tr>
+                            <tr><td><code>{variable:camel}</code></td><td>camelCase</td><td><code>differentTypesOfCasing</code></td></tr>
+                            <tr><td><code>{variable:kebab}</code></td><td>kebab-case</td><td><code>different-types-of-casing</code></td></tr>
+                            <tr><td><code>{variable:snake}</code></td><td>snake_case</td><td><code>different_types_of_casing</code></td></tr>
+                            <tr><td><code>{variable:lowercase}</code></td><td>lowercase</td><td>all lowercase</td></tr>
+                            <tr><td><code>{variable:uppercase}</code></td><td>UPPERCASE</td><td>ALL UPPERCASE</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tip-box">
+                    <strong>Note:</strong> Not all websites provide all metadata values. Missing values are replaced with empty strings.
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="../browser-polyfill.min.js"></script>
+    <script src="../shared/default-options.js"></script>
+    <script src="../shared/search-core.js"></script>
+    <script src="guide.js"></script>
+</body>
+</html>

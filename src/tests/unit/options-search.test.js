@@ -2,10 +2,16 @@ const fs = require('fs');
 const path = require('path');
 const { JSDOM } = require('jsdom');
 
+// Load search-core first — options-search depends on globalThis.markSnipSearchCore
+require('../../shared/search-core.js');
 const optionsSearch = require('../../options/options-search.js');
 
 const optionsHtml = fs.readFileSync(
   path.join(__dirname, '../../options/options.html'),
+  'utf8'
+);
+const searchCoreSource = fs.readFileSync(
+  path.join(__dirname, '../../shared/search-core.js'),
   'utf8'
 );
 const optionsSearchSource = fs.readFileSync(
@@ -132,6 +138,7 @@ function createOptionsPageDom(optionOverrides = {}) {
   dom.window.chrome = browser;
   dom.window.createMenus = jest.fn();
   dom.window.eval(`var defaultOptions = ${JSON.stringify(storedOptions)};`);
+  dom.window.eval(searchCoreSource);
   dom.window.eval(optionsSearchSource);
   dom.window.eval(optionsSource);
 

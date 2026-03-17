@@ -90,6 +90,15 @@
                     <span class="sidebar-label">Import / Export</span>
                 </li>
                 <div class="sidebar-divider"></div>
+                <a href="/guide/guide.html" target="_blank" class="coffee-btn guide-btn" id="open-guide-link">
+                    <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    User Guide
+                </a>
                 <a href="https://www.buymeacoffee.com/dhruvparikh" target="_blank" rel="noopener noreferrer" class="coffee-btn">
                     <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -1038,6 +1047,7 @@ const helloWorld = () => {
                     <line x1="14" y1="8" x2="8" y2="14"/>
                 </svg>
                 <p>No settings match "<span id="search-no-results-query"></span>"</p>
+                <p style="margin-top: 8px;"><a href="/guide/guide.html" target="_blank" style="color: var(--accent); font-size: var(--text-sm);">Search the User Guide instead</a></p>
             </div>
 
         </main>
@@ -1050,6 +1060,7 @@ const helloWorld = () => {
     <script src="../browser-polyfill.min.js"></script>
     <script src="../shared/default-options.js"></script>
     <script src="../shared/context-menus.js"></script>
+    <script src="../shared/search-core.js"></script>
     <script src="options-search.js"></script>
     <script src="options.js"></script>
 </body>
