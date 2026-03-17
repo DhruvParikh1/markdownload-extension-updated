@@ -6,6 +6,7 @@ const ROOT_DIR = path.resolve(SRC_DIR, '..');
 const MANIFEST_PATH = path.join(SRC_DIR, 'manifest.json');
 const CHANGELOG_PATH = path.join(ROOT_DIR, 'CHANGELOG.md');
 const OUTPUT_PATH = path.join(SRC_DIR, 'shared', 'release-highlights.json');
+const USER_HIGHLIGHTS_HEADING = 'user highlights';
 
 function normalizeBulletText(line) {
   return line
@@ -21,16 +22,26 @@ function extractReleaseSections(changelogText) {
   const lines = changelogText.split(/\r?\n/);
   const versions = {};
   let currentVersion = null;
-  let bullets = [];
+  let topLevelBullets = [];
+  let userHighlights = [];
+  let currentSubheading = null;
+
+  function commitCurrentVersion() {
+    if (!currentVersion) {
+      return;
+    }
+
+    versions[currentVersion] = userHighlights.length > 0 ? userHighlights : topLevelBullets;
+  }
 
   for (const line of lines) {
     const headingMatch = line.match(/^##\s+(\d+\.\d+\.\d+)\s*$/);
     if (headingMatch) {
-      if (currentVersion) {
-        versions[currentVersion] = bullets;
-      }
+      commitCurrentVersion();
       currentVersion = headingMatch[1];
-      bullets = [];
+      topLevelBullets = [];
+      userHighlights = [];
+      currentSubheading = null;
       continue;
     }
 
@@ -38,17 +49,25 @@ function extractReleaseSections(changelogText) {
       continue;
     }
 
+    const subheadingMatch = line.match(/^###\s+(.+?)\s*$/);
+    if (subheadingMatch) {
+      currentSubheading = subheadingMatch[1].trim().toLowerCase();
+      continue;
+    }
+
     if (/^\s*-\s+/.test(line)) {
       const normalizedBullet = normalizeBulletText(line);
       if (normalizedBullet) {
-        bullets.push(normalizedBullet);
+        if (currentSubheading === USER_HIGHLIGHTS_HEADING) {
+          userHighlights.push(normalizedBullet);
+        } else if (currentSubheading === null) {
+          topLevelBullets.push(normalizedBullet);
+        }
       }
     }
   }
 
-  if (currentVersion) {
-    versions[currentVersion] = bullets;
-  }
+  commitCurrentVersion();
 
   return versions;
 }

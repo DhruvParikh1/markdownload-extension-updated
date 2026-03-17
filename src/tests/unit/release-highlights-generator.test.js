@@ -10,12 +10,19 @@ describe('release highlights generator', () => {
 
 ## 4.2.0
 
-- **Selection Capture Fix**: Preserved selected HTML context.
+### User Highlights
+
+- **Selection Capture Fix**: Keeps selected content intact during clipping.
 - Added \`batch\` toggle support.
 - [Docs](https://example.com) updated.
 - Fourth bullet.
 - Fifth bullet.
 - Sixth bullet.
+
+### Technical Notes
+
+- Added regression coverage.
+- Internal parser cleanup.
 
 ## 4.1.9
 
@@ -28,10 +35,17 @@ describe('release highlights generator', () => {
     ).toBe('Selection with code and Docs');
   });
 
-  test('extracts release sections by semantic version heading', () => {
+  test('extracts user highlights when the subsection is present', () => {
     const sections = extractReleaseSections(sampleChangelog);
 
     expect(sections['4.2.0']).toHaveLength(6);
+    expect(sections['4.1.9']).toEqual(['Older fix.']);
+    expect(sections['4.2.0']).not.toContain('Added regression coverage.');
+  });
+
+  test('falls back to top-level bullets for legacy changelog entries', () => {
+    const sections = extractReleaseSections(sampleChangelog);
+
     expect(sections['4.1.9']).toEqual(['Older fix.']);
   });
 
@@ -39,7 +53,7 @@ describe('release highlights generator', () => {
     const asset = buildReleaseHighlightsAsset(sampleChangelog, '4.2.0');
 
     expect(asset.versions['4.2.0']).toHaveLength(5);
-    expect(asset.versions['4.2.0'][0]).toBe('Selection Capture Fix: Preserved selected HTML context.');
+    expect(asset.versions['4.2.0'][0]).toBe('Selection Capture Fix: Keeps selected content intact during clipping.');
   });
 
   test('throws when the manifest version is missing from the changelog', () => {

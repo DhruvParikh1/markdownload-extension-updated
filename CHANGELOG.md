@@ -2,6 +2,13 @@
 
 ## 4.1.3
 
+### User Highlights
+
+- Update notifications are easier to read, with clearer actions and simpler release summaries.
+- Clipping is more reliable on some documentation pages with repeated section headings.
+
+### Technical Notes
+
 - **Notification Card Refresh**: Redesigned in-product update and milestone notifications with a richer floating card layout, clearer actions, and improved highlight readability.
 - **Milestone Celebration UI**: Added a dedicated support milestone hero with formatted export counts and celebratory visual treatment.
 - **Clipping Reliability**: Improved repeated-section recovery on wrapped-heading layouts so extractions are less likely to start mid-article on structured docs pages.
