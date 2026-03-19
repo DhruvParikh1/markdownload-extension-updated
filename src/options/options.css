@@ -564,84 +564,310 @@ a:hover {
     white-space: nowrap;
 }
 
+
 .sidebar-divider {
     height: 1px;
     background: var(--border-light);
     margin: var(--space-3) var(--space-4);
 }
 
-/* ── Buy Me a Coffee button ── */
-.coffee-btn {
+/* ── Sidebar Category Label ── */
+.sidebar-category {
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: var(--weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-tertiary);
+    padding: var(--space-4) var(--space-4) var(--space-1) var(--space-4);
+    margin-top: var(--space-2);
+    user-select: none;
+}
+
+.sidebar-category:first-of-type {
+    margin-top: var(--space-1);
+    border-top: 1px solid var(--border-light);
+    padding-top: var(--space-4);
+}
+
+/* ── Sidebar Action Button (base) ── */
+.sidebar-action-btn {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
-    margin: 0 var(--space-3) var(--space-3);
-    padding: var(--space-3) var(--space-4);
+    gap: var(--space-3);
+    margin: 0 var(--space-3) var(--space-2);
+    padding: var(--space-2) var(--space-3);
     border-radius: var(--radius-lg);
-    background: #b9a3ed;
-    color: #1a1200 !important;
+    border-left: 3px solid transparent;
+    background: var(--bg-secondary);
+    color: var(--text-primary) !important;
     font-size: var(--text-sm);
-    font-weight: var(--weight-semibold);
+    font-weight: var(--weight-medium);
     text-decoration: none !important;
-    transition: all var(--transition);
     cursor: pointer;
     user-select: none;
     white-space: nowrap;
     overflow: hidden;
+    position: relative;
+    transition: all var(--transition);
 }
 
-.coffee-btn:hover {
-    background: #9de3ff;
-    box-shadow: 0 2px 8px rgba(0, 208, 255, 0.45);
+.sidebar-action-btn:hover {
     transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
     text-decoration: none !important;
 }
 
-.coffee-btn:active {
+.sidebar-action-btn:active {
     transform: translateY(0);
-    box-shadow: none;
+    box-shadow: var(--shadow-sm);
 }
 
-.coffee-btn .icon-svg {
-    width: 17px;
-    height: 17px;
+/* Icon container */
+.sidebar-action-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-md);
     flex-shrink: 0;
-    stroke: #1a1200;
+    transition: all var(--transition);
 }
 
-.review-btn {
-    margin-top: 0;
-    background: #f2ecd7;
+.sidebar-action-icon svg {
+    width: 15px;
+    height: 15px;
 }
 
-.review-btn:hover {
-    background: #f8e9a7;
-    box-shadow: 0 2px 8px rgba(245, 189, 46, 0.35);
-}
-.issue-btn {
-    margin-top: 0;
-    background: #ffd9d2;
+.sidebar-action-label {
+    line-height: 1.2;
 }
 
-.issue-btn:hover {
-    background: #ffc2b5;
-    box-shadow: 0 2px 8px rgba(227, 108, 70, 0.35);
-}
 
-.guide-btn {
-    margin-top: 0;
+/* ── Variant: User Guide ── */
+.sidebar-action--guide {
+    border-left-color: var(--accent);
     background: var(--accent-light);
-    color: var(--accent-darker) !important;
 }
 
-.guide-btn:hover {
+.sidebar-action--guide .sidebar-action-icon {
+    background: var(--accent);
+    color: var(--text-inverse);
+}
+
+.sidebar-action--guide .sidebar-action-icon svg {
+    stroke: #fff;
+}
+
+.sidebar-action--guide:hover {
     background: var(--accent);
     color: var(--text-inverse) !important;
-    box-shadow: 0 2px 8px rgba(107, 142, 111, 0.35);
+    box-shadow: 0 3px 12px rgba(107, 142, 111, 0.3);
 }
 
-.guide-btn .icon-svg {
-    stroke: currentColor;
+.sidebar-action--guide:hover .sidebar-action-icon {
+    background: rgba(255,255,255,0.25);
+}
+
+
+/* ── Variant: Buy Me a Coffee (with sheen) ── */
+.sidebar-action--coffee {
+    border-left-color: #9B7FD4;
+    background: linear-gradient(135deg, #E8E0F4 0%, #D7CDEB 100%);
+    color: #3D2E63 !important;
+}
+
+.sidebar-action--coffee .sidebar-action-icon {
+    background: #9B7FD4;
+}
+
+.sidebar-action--coffee .sidebar-action-icon svg {
+    stroke: #fff;
+}
+
+.sidebar-action--coffee:hover {
+    background: linear-gradient(135deg, #C9B8E8 0%, #B5A2D9 100%);
+    box-shadow: 0 3px 12px rgba(155, 127, 212, 0.35);
+    color: #2D1F4E !important;
+}
+
+/* Sheen sweep effect */
+.sidebar-action--coffee::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(
+        105deg,
+        transparent 20%,
+        rgba(255, 255, 255, 0.35) 45%,
+        rgba(255, 255, 255, 0.5) 50%,
+        rgba(255, 255, 255, 0.35) 55%,
+        transparent 80%
+    );
+    pointer-events: none;
+    transition: none;
+}
+
+.sidebar-action--coffee:hover::after {
+    animation: sheen 0.8s ease-in-out;
+}
+
+@keyframes sheen {
+    0%   { left: -100%; }
+    100% { left: 200%; }
+}
+
+
+/* ── Variant: Leave a Review ── */
+.sidebar-action--review {
+    border-left-color: #C9A84C;
+    background: #F7F2E4;
+    color: #5C4A1E !important;
+}
+
+.sidebar-action--review .sidebar-action-icon {
+    background: #C9A84C;
+}
+
+.sidebar-action--review .sidebar-action-icon svg {
+    stroke: #fff;
+}
+
+.sidebar-action--review:hover {
+    background: #F0E6C9;
+    box-shadow: 0 3px 12px rgba(201, 168, 76, 0.3);
+    color: #4A3A15 !important;
+}
+
+
+/* ── Variant: Report Issue ── */
+.sidebar-action--issue {
+    border-left-color: #D07060;
+    background: #FBEAE7;
+    color: #5A2E28 !important;
+}
+
+.sidebar-action--issue .sidebar-action-icon {
+    background: #D07060;
+}
+
+.sidebar-action--issue .sidebar-action-icon svg {
+    stroke: #fff;
+}
+
+.sidebar-action--issue:hover {
+    background: #F4D4CE;
+    box-shadow: 0 3px 12px rgba(208, 112, 96, 0.3);
+    color: #4A2420 !important;
+}
+
+
+/* ── Dark‐mode overrides for sidebar action buttons ── */
+@media (prefers-color-scheme: dark) {
+    .sidebar-action-btn {
+        background: rgba(255,255,255,0.04);
+    }
+
+    .sidebar-action--guide {
+        background: rgba(107,142,111,0.12);
+        color: #a3c8a7 !important;
+    }
+    .sidebar-action--guide:hover {
+        background: var(--accent);
+        color: #fff !important;
+    }
+
+    .sidebar-action--coffee {
+        background: linear-gradient(135deg, rgba(155,127,212,0.15) 0%, rgba(155,127,212,0.10) 100%);
+        color: #c8b5e8 !important;
+    }
+    .sidebar-action--coffee:hover {
+        background: linear-gradient(135deg, rgba(155,127,212,0.28) 0%, rgba(155,127,212,0.20) 100%);
+        color: #ddd0f0 !important;
+    }
+    .sidebar-action--coffee::after {
+        background: linear-gradient(
+            105deg,
+            transparent 20%,
+            rgba(255,255,255,0.12) 45%,
+            rgba(255,255,255,0.20) 50%,
+            rgba(255,255,255,0.12) 55%,
+            transparent 80%
+        );
+    }
+
+    .sidebar-action--review {
+        background: rgba(201,168,76,0.10);
+        color: #d4be72 !important;
+    }
+    .sidebar-action--review:hover {
+        background: rgba(201,168,76,0.20);
+        color: #e0cc86 !important;
+    }
+
+    .sidebar-action--issue {
+        background: rgba(208,112,96,0.10);
+        color: #e09888 !important;
+    }
+    .sidebar-action--issue:hover {
+        background: rgba(208,112,96,0.20);
+        color: #eeaa98 !important;
+    }
+}
+
+/* Forced dark theme */
+:root.theme-dark .sidebar-action-btn {
+    background: rgba(255,255,255,0.04);
+}
+
+:root.theme-dark .sidebar-action--guide {
+    background: rgba(107,142,111,0.12);
+    color: #a3c8a7 !important;
+}
+:root.theme-dark .sidebar-action--guide:hover {
+    background: var(--accent);
+    color: #fff !important;
+}
+
+:root.theme-dark .sidebar-action--coffee {
+    background: linear-gradient(135deg, rgba(155,127,212,0.15) 0%, rgba(155,127,212,0.10) 100%);
+    color: #c8b5e8 !important;
+}
+:root.theme-dark .sidebar-action--coffee:hover {
+    background: linear-gradient(135deg, rgba(155,127,212,0.28) 0%, rgba(155,127,212,0.20) 100%);
+    color: #ddd0f0 !important;
+}
+:root.theme-dark .sidebar-action--coffee::after {
+    background: linear-gradient(
+        105deg,
+        transparent 20%,
+        rgba(255,255,255,0.12) 45%,
+        rgba(255,255,255,0.20) 50%,
+        rgba(255,255,255,0.12) 55%,
+        transparent 80%
+    );
+}
+
+:root.theme-dark .sidebar-action--review {
+    background: rgba(201,168,76,0.10);
+    color: #d4be72 !important;
+}
+:root.theme-dark .sidebar-action--review:hover {
+    background: rgba(201,168,76,0.20);
+    color: #e0cc86 !important;
+}
+
+:root.theme-dark .sidebar-action--issue {
+    background: rgba(208,112,96,0.10);
+    color: #e09888 !important;
+}
+:root.theme-dark .sidebar-action--issue:hover {
+    background: rgba(208,112,96,0.20);
+    color: #eeaa98 !important;
 }
 
 

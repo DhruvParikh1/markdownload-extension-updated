@@ -89,47 +89,59 @@
                     </svg>
                     <span class="sidebar-label">Import / Export</span>
                 </li>
-                <div class="sidebar-divider"></div>
-                <a href="/guide/guide.html" target="_blank" class="coffee-btn guide-btn" id="open-guide-link">
-                    <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                        <line x1="12" y1="17" x2="12.01" y2="17"/>
-                    </svg>
-                    User Guide
+                <!-- ── Help & Resources ── -->
+                <div class="sidebar-category">Help & Resources</div>
+                <a href="/guide/guide.html" target="_blank" class="sidebar-action-btn sidebar-action--guide" id="open-guide-link">
+                    <span class="sidebar-action-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+                    </span>
+                    <span class="sidebar-action-label">User Guide</span>
                 </a>
-                <a href="https://www.buymeacoffee.com/dhruvparikh" target="_blank" rel="noopener noreferrer" class="coffee-btn">
-                    <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M3 8h15v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z"></path>
-                        <path d="M18 10h1a3 3 0 0 1 0 6h-1"></path>
-                        <line x1="6" y1="3" x2="6" y2="5"></line>
-                        <line x1="10" y1="3" x2="10" y2="5"></line>
-                        <line x1="14" y1="3" x2="14" y2="5"></line>
-                    </svg>
-                    Buy Me a Coffee
+
+                <!-- ── Community ── -->
+                <div class="sidebar-category">Community</div>
+                <a href="https://www.buymeacoffee.com/dhruvparikh" target="_blank" rel="noopener noreferrer" class="sidebar-action-btn sidebar-action--coffee">
+                    <span class="sidebar-action-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M3 8h15v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z"></path>
+                            <path d="M18 10h1a3 3 0 0 1 0 6h-1"></path>
+                            <line x1="6" y1="3" x2="6" y2="5"></line>
+                            <line x1="10" y1="3" x2="10" y2="5"></line>
+                            <line x1="14" y1="3" x2="14" y2="5"></line>
+                        </svg>
+                    </span>
+                    <span class="sidebar-action-label">Buy Me a Coffee</span>
                 </a>
                 <a id="leave-review-link"
                     href="https://chromewebstore.google.com/detail/marksnip-markdown-web-cli/kcbaglhfgbkjdnpeokaamjjkddempipm/reviews"
                     data-chrome-url="https://chromewebstore.google.com/detail/marksnip-markdown-web-cli/kcbaglhfgbkjdnpeokaamjjkddempipm/reviews"
                     data-firefox-url="https://addons.mozilla.org/en-US/firefox/addon/marksnip-markdown-web-clipper/reviews/"
-                    target="_blank" rel="noopener noreferrer" class="coffee-btn review-btn">
-                    <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.2 6.4 20.2l1.1-6.2L3 9.6l6.2-.9L12 3z"></path>
-                    </svg>
-                    Leave Review
+                    target="_blank" rel="noopener noreferrer" class="sidebar-action-btn sidebar-action--review">
+                    <span class="sidebar-action-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.2 6.4 20.2l1.1-6.2L3 9.6l6.2-.9L12 3z"></path>
+                        </svg>
+                    </span>
+                    <span class="sidebar-action-label">Leave a Review</span>
                 </a>
                 <a href="https://github.com/DhruvParikh1/markdownload-extension-updated/issues"
-                    target="_blank" rel="noopener noreferrer" class="coffee-btn issue-btn">
-                    <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M12 8v4"></path>
-                        <path d="M12 16h.01"></path>
-                        <path d="M10.3 3.9l-7 12.1A2 2 0 0 0 5 19h14a2 2 0 0 0 1.7-3l-7-12.1a2 2 0 0 0-3.4 0z"></path>
-                    </svg>
-                    Report Issue
+                    target="_blank" rel="noopener noreferrer" class="sidebar-action-btn sidebar-action--issue">
+                    <span class="sidebar-action-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M12 8v4"></path>
+                            <path d="M12 16h.01"></path>
+                            <path d="M10.3 3.9l-7 12.1A2 2 0 0 0 5 19h14a2 2 0 0 0 1.7-3l-7-12.1a2 2 0 0 0-3.4 0z"></path>
+                        </svg>
+                    </span>
+                    <span class="sidebar-action-label">Report Issue</span>
                 </a>
             </ul>
         </nav>
