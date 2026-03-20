@@ -4,6 +4,27 @@ var selectedText = null;
 var imageList = null;
 var sourceImageMap = null;
 var mdClipsFolder = '';
+let librarySettings = null;
+let libraryItems = [];
+let currentClipState = {
+    title: '',
+    markdown: '',
+    pageUrl: ''
+};
+const autoSavedLibraryUrls = new Set();
+
+const libraryUI = {
+    toggle: document.getElementById('libraryViewToggle'),
+    container: document.getElementById('libraryContainer'),
+    close: document.getElementById('closeLibraryView'),
+    countBadge: document.getElementById('libraryCountBadge'),
+    saveButton: document.getElementById('saveLibraryClip'),
+    toolbarNote: document.getElementById('libraryToolbarNote'),
+    status: document.getElementById('libraryStatus'),
+    emptyState: document.getElementById('libraryEmptyState'),
+    emptyText: document.getElementById('libraryEmptyText'),
+    list: document.getElementById('libraryList')
+};
 
 const progressUI = {
     container: document.getElementById('progressContainer'),
@@ -52,6 +73,10 @@ const progressUI = {
 };
 
 let darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+function getLibraryStateApi() {
+    return globalThis.markSnipLibraryState || null;
+}
 
 // Theme application
 const EDITOR_THEME_MAP = {
@@ -202,6 +227,8 @@ const cm = CodeMirror.fromTextArea(document.getElementById("md"), {
     lineWrapping: true
 });
 cm.on("change", (instance) => {
+    currentClipState.markdown = instance.getValue();
+    updateSaveLibraryButtonState();
     updateCharCount(instance.getValue());
 });
 cm.on("cursorActivity", (cm) => {
@@ -222,6 +249,9 @@ cm.on("cursorActivity", (cm) => {
 });
 document.getElementById("download").addEventListener("click", download);
 document.getElementById("downloadSelection").addEventListener("click", downloadSelection);
+document.getElementById("title").addEventListener("input", (event) => {
+    currentClipState.title = event.target.value;
+});
 
 document.getElementById("copy").addEventListener("click", copyToClipboard);
 document.getElementById("copySelection").addEventListener("click", copySelectionToClipboard);
@@ -231,6 +261,9 @@ document.getElementById("sendToObsidian").addEventListener("click", sendToObsidi
 document.getElementById("batchProcess").addEventListener("click", showBatchProcess);
 document.getElementById("convertUrls").addEventListener("click", handleBatchConversion);
 document.getElementById("cancelBatch").addEventListener("click", hideBatchProcess);
+libraryUI.toggle?.addEventListener("click", showLibraryView);
+libraryUI.close?.addEventListener("click", hideLibraryView);
+libraryUI.saveButton?.addEventListener("click", handleManualLibrarySave);
 document.getElementById("pickLinks").addEventListener("click", activateLinkPicker);
 document.getElementById("batchSaveModeToggle").addEventListener("change", saveBatchSettings);
 document.getElementById("cancelBatchProgress").addEventListener("click", () => {
@@ -283,8 +316,7 @@ document.getElementById("urlList").addEventListener("input", () => {
 
 async function showBatchProcess(e) {
     e.preventDefault();
-    document.getElementById("container").style.display = 'none';
-    document.getElementById("batchContainer").style.display = 'flex';
+    showBatchView();
 
     // Check if there are pending link picker results from storage
     try {
@@ -306,8 +338,7 @@ async function showBatchProcess(e) {
 
 function hideBatchProcess(e) {
     e.preventDefault();
-    document.getElementById("container").style.display = 'flex';
-    document.getElementById("batchContainer").style.display = 'none';
+    showMainView();
 }
 
 async function activateLinkPicker(e) {
@@ -361,6 +392,319 @@ const updateObsidianButtonVisibility = (options) => {
     const obsidianButton = document.getElementById("sendToObsidian");
     if (!obsidianButton) return;
     obsidianButton.style.display = options.obsidianIntegration ? "inline-flex" : "none";
+}
+
+function resolveClipPageUrl(article = {}) {
+    const api = getLibraryStateApi();
+    const candidates = [
+        article?.pageURL,
+        article?.tabURL,
+        article?.pageUrl,
+        article?.baseURI
+    ];
+
+    for (const candidate of candidates) {
+        if (!candidate) continue;
+        const normalized = api?.normalizePageUrl ? api.normalizePageUrl(candidate) : String(candidate).trim();
+        if (normalized) {
+            return normalized;
+        }
+    }
+
+    return '';
+}
+
+function updateCurrentClipState(nextState = {}) {
+    currentClipState = {
+        title: String(nextState.title || '').trim(),
+        markdown: String(nextState.markdown || ''),
+        pageUrl: String(nextState.pageUrl || '').trim()
+    };
+    updateSaveLibraryButtonState();
+}
+
+function hasSavableClip() {
+    return Boolean(currentClipState.pageUrl && currentClipState.markdown.trim());
+}
+
+function updateSaveLibraryButtonState() {
+    if (!libraryUI.saveButton) {
+        return;
+    }
+
+    const manualMode = librarySettings?.enabled && !librarySettings?.autoSaveOnPopupOpen;
+    libraryUI.saveButton.hidden = !manualMode;
+    libraryUI.saveButton.style.display = manualMode ? 'flex' : 'none';
+    libraryUI.saveButton.disabled = !manualMode || !hasSavableClip();
+}
+
+function setLibraryStatus(message = '', isError = false) {
+    if (!libraryUI.status) {
+        return;
+    }
+
+    libraryUI.status.textContent = message;
+    libraryUI.status.style.color = isError ? 'var(--error)' : 'var(--accent-dark)';
+}
+
+function formatSavedAt(savedAt) {
+    if (!savedAt) {
+        return '';
+    }
+
+    const date = new Date(savedAt);
+    if (Number.isNaN(date.getTime())) {
+        return '';
+    }
+
+    return date.toLocaleString([], {
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit'
+    });
+}
+
+async function copyLibraryItemMarkdown(itemId) {
+    const item = libraryItems.find((entry) => entry.id === itemId);
+    if (!item?.markdown) {
+        return;
+    }
+
+    try {
+        await navigator.clipboard.writeText(item.markdown);
+        setLibraryStatus(`Copied "${item.title}"`);
+    } catch (error) {
+        console.error('Failed to copy library item:', error);
+        setLibraryStatus('Failed to copy saved clip', true);
+    }
+}
+
+function renderLibraryItems() {
+    if (!libraryUI.list || !libraryUI.emptyState || !libraryUI.emptyText || !libraryUI.countBadge) {
+        return;
+    }
+
+    libraryUI.countBadge.textContent = String(libraryItems.length);
+    libraryUI.list.innerHTML = '';
+
+    const autoSaveEnabled = librarySettings?.autoSaveOnPopupOpen !== false;
+    libraryUI.emptyText.textContent = autoSaveEnabled
+        ? 'Open the popup on any page and the current clip will be saved here automatically.'
+        : 'Manual mode is on. Use "Save Clip" to add the current page to your local library.';
+    libraryUI.emptyState.hidden = libraryItems.length > 0;
+
+    libraryItems.forEach((item) => {
+        const card = document.createElement('article');
+        card.className = 'library-card';
+        card.setAttribute('role', 'listitem');
+
+        const header = document.createElement('div');
+        header.className = 'library-card-header';
+
+        const title = document.createElement('h3');
+        title.className = 'library-card-title';
+        title.textContent = item.title || 'Untitled';
+
+        const timestamp = document.createElement('time');
+        timestamp.className = 'library-card-time';
+        timestamp.dateTime = item.savedAt || '';
+        timestamp.textContent = formatSavedAt(item.savedAt);
+
+        header.appendChild(title);
+        header.appendChild(timestamp);
+
+        const preview = document.createElement('p');
+        preview.className = 'library-card-preview';
+        preview.textContent = item.previewText || '';
+
+        const source = document.createElement('a');
+        source.className = 'library-card-source';
+        source.href = item.pageUrl;
+        source.target = '_blank';
+        source.rel = 'noopener noreferrer';
+        source.textContent = item.pageUrl;
+
+        const actions = document.createElement('div');
+        actions.className = 'library-card-actions';
+
+        const copyButton = document.createElement('button');
+        copyButton.type = 'button';
+        copyButton.className = 'btn btn-secondary btn-sm';
+        copyButton.textContent = 'Copy';
+        copyButton.addEventListener('click', () => {
+            copyLibraryItemMarkdown(item.id);
+        });
+
+        actions.appendChild(copyButton);
+
+        card.appendChild(header);
+        if (item.previewText) {
+            card.appendChild(preview);
+        }
+        card.appendChild(source);
+        card.appendChild(actions);
+        libraryUI.list.appendChild(card);
+    });
+}
+
+function updateLibraryUIState() {
+    const enabled = librarySettings?.enabled !== false;
+    const manualMode = enabled && !librarySettings?.autoSaveOnPopupOpen;
+
+    if (libraryUI.toggle) {
+        libraryUI.toggle.style.display = enabled ? 'flex' : 'none';
+    }
+
+    if (!enabled) {
+        hideLibraryView();
+    }
+
+    if (libraryUI.toolbarNote) {
+        libraryUI.toolbarNote.textContent = manualMode
+            ? 'Manual mode is on. Save the current clip when you want to keep it.'
+            : 'Library saves the current page automatically the first time this popup loads it.';
+    }
+
+    updateSaveLibraryButtonState();
+    renderLibraryItems();
+}
+
+function showMainView() {
+    document.getElementById("container").style.display = 'flex';
+    document.getElementById("batchContainer").style.display = 'none';
+    if (libraryUI.container) {
+        libraryUI.container.style.display = 'none';
+        libraryUI.container.setAttribute('aria-hidden', 'true');
+    }
+    libraryUI.toggle?.classList.remove('active');
+}
+
+function isLibraryViewVisible() {
+    return libraryUI.container?.style.display === 'flex';
+}
+
+function showBatchView() {
+    document.getElementById("container").style.display = 'none';
+    document.getElementById("batchContainer").style.display = 'flex';
+    if (libraryUI.container) {
+        libraryUI.container.style.display = 'none';
+        libraryUI.container.setAttribute('aria-hidden', 'true');
+    }
+    libraryUI.toggle?.classList.remove('active');
+}
+
+function showLibraryView(e) {
+    if (e) {
+        e.preventDefault();
+    }
+    if (librarySettings?.enabled === false || !libraryUI.container) {
+        return;
+    }
+
+    document.getElementById("container").style.display = 'none';
+    document.getElementById("batchContainer").style.display = 'none';
+    libraryUI.container.style.display = 'flex';
+    libraryUI.container.setAttribute('aria-hidden', 'false');
+    libraryUI.toggle?.classList.add('active');
+    renderLibraryItems();
+}
+
+function hideLibraryView(e) {
+    if (e) {
+        e.preventDefault();
+    }
+
+    if (libraryUI.container) {
+        libraryUI.container.style.display = 'none';
+        libraryUI.container.setAttribute('aria-hidden', 'true');
+    }
+    libraryUI.toggle?.classList.remove('active');
+
+    if (document.getElementById("batchContainer").style.display === 'flex') {
+        return;
+    }
+
+    if (document.getElementById("spinner").style.display !== 'flex') {
+        document.getElementById("container").style.display = 'flex';
+    }
+}
+
+async function loadLibraryState() {
+    const api = getLibraryStateApi();
+    if (!api) {
+        return;
+    }
+
+    try {
+        const [settings, items] = await Promise.all([
+            api.loadLibrarySettings(),
+            api.loadLibraryItems()
+        ]);
+        librarySettings = settings;
+        libraryItems = items;
+        updateLibraryUIState();
+        await maybeAutoSaveCurrentClip();
+    } catch (error) {
+        console.error('Failed to load library state:', error);
+    }
+}
+
+async function persistLibrarySnapshot(snapshot, successMessage) {
+    const api = getLibraryStateApi();
+    if (!api || !librarySettings?.enabled) {
+        return null;
+    }
+
+    const nextItems = api.upsertLibraryItem(libraryItems, snapshot, librarySettings.itemsToKeep);
+    libraryItems = await api.saveLibraryItems(nextItems);
+    renderLibraryItems();
+    if (successMessage) {
+        setLibraryStatus(successMessage);
+    }
+    return nextItems[0] || null;
+}
+
+async function handleManualLibrarySave(e) {
+    e.preventDefault();
+    const snapshot = {
+        title: document.getElementById('title')?.value || currentClipState.title,
+        markdown: cm?.getValue ? cm.getValue() : currentClipState.markdown,
+        pageUrl: currentClipState.pageUrl
+    };
+
+    if (!snapshot.pageUrl || !String(snapshot.markdown || '').trim()) {
+        return;
+    }
+
+    try {
+        updateCurrentClipState(snapshot);
+        await persistLibrarySnapshot(snapshot, 'Saved current clip to Library');
+    } catch (error) {
+        console.error('Failed to save library item:', error);
+        setLibraryStatus('Failed to save clip to Library', true);
+    }
+}
+
+async function maybeAutoSaveCurrentClip() {
+    const api = getLibraryStateApi();
+    if (!api || !librarySettings?.enabled || !librarySettings?.autoSaveOnPopupOpen || !hasSavableClip()) {
+        return;
+    }
+
+    const normalizedUrl = api.normalizePageUrl(currentClipState.pageUrl);
+    if (!normalizedUrl || autoSavedLibraryUrls.has(normalizedUrl)) {
+        return;
+    }
+
+    autoSavedLibraryUrls.add(normalizedUrl);
+
+    try {
+        await persistLibrarySnapshot(currentClipState);
+    } catch (error) {
+        autoSavedLibraryUrls.delete(normalizedUrl);
+        console.error('Failed to auto-save library item:', error);
+    }
 }
 
 function getPopupBatchUtilsApi() {
@@ -948,12 +1292,12 @@ browser.storage.sync.get(defaultOptions).then(options => {
 
     // Load batch settings from storage
     loadBatchSettings();
+    loadLibraryState();
 
     // Check for in-progress batch and auto-switch to batch view
     browser.runtime.sendMessage({ type: 'get-batch-state' }).then(state => {
         if (state && ['started', 'loading', 'converting', 'retrying'].includes(state.status)) {
-            document.getElementById("container").style.display = 'none';
-            document.getElementById("batchContainer").style.display = 'flex';
+            showBatchView();
             document.getElementById("spinner").style.display = 'none';
             progressUI.show();
             progressUI.showCancelButton();
@@ -1015,8 +1359,29 @@ browser.storage.sync.get(defaultOptions).then(options => {
 browser.runtime.onMessage.addListener(notify);
 
 browser.storage.onChanged.addListener((changes, areaName) => {
-    if (areaName !== "sync" || !changes.obsidianIntegration) return;
-    updateObsidianButtonVisibility({ obsidianIntegration: changes.obsidianIntegration.newValue });
+    if (areaName === "sync" && changes.obsidianIntegration) {
+        updateObsidianButtonVisibility({ obsidianIntegration: changes.obsidianIntegration.newValue });
+        return;
+    }
+
+    if (areaName !== "local") {
+        return;
+    }
+
+    const libraryApi = getLibraryStateApi();
+    if (!libraryApi) {
+        return;
+    }
+
+    if (changes.librarySettings) {
+        librarySettings = libraryApi.normalizeLibrarySettings(changes.librarySettings.newValue);
+        updateLibraryUIState();
+    }
+
+    if (changes.libraryItems) {
+        libraryItems = Array.isArray(changes.libraryItems.newValue) ? changes.libraryItems.newValue : [];
+        renderLibraryItems();
+    }
 });
 
 // Listen for link picker results
@@ -1297,20 +1662,28 @@ async function sendToObsidian(e) {
 function notify(message) {
     // message for displaying markdown
     if (message.type == "display.md") {
-
-        // set the values from the message
-        //document.getElementById("md").value = message.markdown;
         cm.setValue(message.markdown);
         document.getElementById("title").value = message.article.title;
         imageList = message.imageList;
         sourceImageMap = message.sourceImageMap;
         mdClipsFolder = message.mdClipsFolder;
-        
-        // show the hidden elements
-        document.getElementById("container").style.display = 'flex';
+        updateCurrentClipState({
+            title: message.article?.title,
+            markdown: message.markdown,
+            pageUrl: resolveClipPageUrl(message.article)
+        });
+
+        if (!isLibraryViewVisible()) {
+            document.getElementById("container").style.display = 'flex';
+        }
         document.getElementById("spinner").style.display = 'none';
-         // focus the download button
-        document.getElementById("download").focus();
+        maybeAutoSaveCurrentClip().catch((error) => {
+            console.error('Failed during popup library auto-save:', error);
+        });
+
+        if (!isLibraryViewVisible()) {
+            document.getElementById("download").focus();
+        }
         cm.refresh();
     }
     else if (message.type === "batch-progress") {

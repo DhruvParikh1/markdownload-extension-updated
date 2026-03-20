@@ -36,6 +36,19 @@ async function installFixtureRoutes(context) {
   });
 }
 
+async function setLibraryStorage(serviceWorker, payload) {
+  await serviceWorker.evaluate(async ({ nextState }) => {
+    await browser.storage.local.remove(['librarySettings', 'libraryItems']);
+    await browser.storage.local.set(nextState);
+  }, { nextState: payload });
+}
+
+async function getLibraryStorage(serviceWorker) {
+  return await serviceWorker.evaluate(async () => {
+    return await browser.storage.local.get(['librarySettings', 'libraryItems']);
+  });
+}
+
 test.describe('MarkSnip Extension E2E', () => {
   let browser;
   let context;
@@ -84,6 +97,11 @@ test.describe('MarkSnip Extension E2E', () => {
     const popupPage = await context.newPage();
 
     try {
+      const initialLibraryCount = await serviceWorker.evaluate(async () => {
+        const state = await browser.storage.local.get(['libraryItems']);
+        return state.libraryItems?.length || 0;
+      });
+
       await fixturePage.goto(`${fixtureHost}/extension/deterministic-article.html`);
       await fixturePage.waitForLoadState('networkidle');
       await expect(fixturePage.getByRole('heading', { name: 'Deterministic Markdown Fixture' })).toBeVisible();
@@ -124,9 +142,132 @@ test.describe('MarkSnip Extension E2E', () => {
 
       await expect.poll(async () => popupPage.inputValue('#title'), { timeout: 10000 })
         .toContain('Deterministic Markdown Fixture');
+      await popupPage.locator('#libraryViewToggle').click();
+      await expect(popupPage.locator('#saveLibraryClip')).toBeHidden();
+      await popupPage.locator('#closeLibraryView').click();
+
+      await expect.poll(async () => {
+        const state = await getLibraryStorage(serviceWorker);
+        return state.libraryItems?.length || 0;
+      }, { timeout: 10000 }).toBeGreaterThan(initialLibraryCount);
+      const firstLibraryCount = (await getLibraryStorage(serviceWorker)).libraryItems?.length || 0;
+
+      await popupPage.close().catch(() => {});
+
+      const popupAgain = await context.newPage();
+      await popupAgain.goto(`chrome-extension://${extensionId}/popup/popup.html`);
+      await expect(popupAgain.locator('#container')).toBeVisible();
+      await popupAgain.evaluate(async (tabId) => {
+        await clipSite(tabId);
+      }, fixtureTabId);
+      await expect.poll(async () => {
+        const state = await getLibraryStorage(serviceWorker);
+        return state.libraryItems?.length || 0;
+      }, { timeout: 10000 }).toBe(firstLibraryCount);
+      await popupAgain.close().catch(() => {});
     } finally {
       await popupPage.close().catch(() => {});
       await fixturePage.close().catch(() => {});
+    }
+  });
+
+  test('manual-save mode does not auto-save until Save Clip is pressed', async () => {
+    await setLibraryStorage(serviceWorker, {
+      librarySettings: {
+        enabled: true,
+        autoSaveOnPopupOpen: false,
+        itemsToKeep: 10
+      },
+      libraryItems: []
+    });
+
+    const fixturePage = await context.newPage();
+    const popupPage = await context.newPage();
+
+    try {
+      await fixturePage.goto(`${fixtureHost}/extension/deterministic-article.html`);
+      await fixturePage.waitForLoadState('networkidle');
+      await fixturePage.bringToFront();
+
+      await popupPage.goto(`chrome-extension://${extensionId}/popup/popup.html`);
+      await expect(popupPage.locator('#libraryViewToggle')).toBeVisible();
+      await expect.poll(async () => {
+        const state = await getLibraryStorage(serviceWorker);
+        return state.libraryItems?.length || 0;
+      }, { timeout: 5000 }).toBe(0);
+
+      await popupPage.locator('#libraryViewToggle').click();
+      await expect(popupPage.locator('#saveLibraryClip')).toBeVisible();
+      await expect(popupPage.locator('#saveLibraryClip')).toBeEnabled();
+      await popupPage.locator('#saveLibraryClip').click();
+
+      await expect.poll(async () => {
+        const state = await getLibraryStorage(serviceWorker);
+        return state.libraryItems?.length || 0;
+      }, { timeout: 10000 }).toBe(1);
+    } finally {
+      await popupPage.close().catch(() => {});
+      await fixturePage.close().catch(() => {});
+    }
+  });
+
+  test('disabling the library hides the popup entry point and prevents auto-save', async () => {
+    await setLibraryStorage(serviceWorker, {
+      librarySettings: {
+        enabled: false,
+        autoSaveOnPopupOpen: true,
+        itemsToKeep: 10
+      },
+      libraryItems: []
+    });
+
+    const fixturePage = await context.newPage();
+    const popupPage = await context.newPage();
+
+    try {
+      await fixturePage.goto(`${fixtureHost}/extension/deterministic-article.html`);
+      await fixturePage.waitForLoadState('networkidle');
+      await fixturePage.bringToFront();
+
+      await popupPage.goto(`chrome-extension://${extensionId}/popup/popup.html`);
+      await expect(popupPage.locator('#libraryViewToggle')).toBeHidden();
+      await expect.poll(async () => {
+        const state = await getLibraryStorage(serviceWorker);
+        return state.libraryItems?.length || 0;
+      }, { timeout: 5000 }).toBe(0);
+    } finally {
+      await popupPage.close().catch(() => {});
+      await fixturePage.close().catch(() => {});
+    }
+  });
+
+  test('lowering items-to-keep trims stored library items immediately from the options page', async () => {
+    await setLibraryStorage(serviceWorker, {
+      librarySettings: {
+        enabled: true,
+        autoSaveOnPopupOpen: true,
+        itemsToKeep: 3
+      },
+      libraryItems: [
+        { id: 'one', pageUrl: 'https://example.com/1', normalizedPageUrl: 'https://example.com/1', title: 'One', markdown: 'One', savedAt: '2026-03-20T10:00:00.000Z', previewText: 'One' },
+        { id: 'two', pageUrl: 'https://example.com/2', normalizedPageUrl: 'https://example.com/2', title: 'Two', markdown: 'Two', savedAt: '2026-03-20T09:00:00.000Z', previewText: 'Two' },
+        { id: 'three', pageUrl: 'https://example.com/3', normalizedPageUrl: 'https://example.com/3', title: 'Three', markdown: 'Three', savedAt: '2026-03-20T08:00:00.000Z', previewText: 'Three' }
+      ]
+    });
+
+    const optionsPage = await context.newPage();
+    try {
+      await optionsPage.goto(`chrome-extension://${extensionId}/options/options.html`);
+      await optionsPage.locator('#tab-library').click();
+      await optionsPage.locator('#libraryItemsToKeep').fill('2');
+      await optionsPage.locator('#libraryItemsToKeep').press('Tab');
+
+      await expect.poll(async () => {
+        const state = await getLibraryStorage(serviceWorker);
+        return state.libraryItems?.length || 0;
+      }, { timeout: 10000 }).toBe(2);
+    } finally {
+      await optionsPage.close().catch(() => {});
     }
   });
 });

@@ -1,8 +1,86 @@
 let options = defaultOptions;
+let librarySettings = {
+    enabled: true,
+    autoSaveOnPopupOpen: true,
+    itemsToKeep: 10
+};
 let keyupTimeout = null;
 
 function getOptionsStateApi() {
     return globalThis.markSnipOptionsState || null;
+}
+
+function getLibraryStateApi() {
+    return globalThis.markSnipLibraryState || null;
+}
+
+function normalizeLibrarySettingsState(settings) {
+    const libraryApi = getLibraryStateApi();
+    if (libraryApi?.normalizeLibrarySettings) {
+        return libraryApi.normalizeLibrarySettings(settings);
+    }
+
+    return {
+        enabled: settings?.enabled !== false,
+        autoSaveOnPopupOpen: settings?.autoSaveOnPopupOpen !== false,
+        itemsToKeep: Math.max(1, Number.parseInt(settings?.itemsToKeep ?? 10, 10) || 10)
+    };
+}
+
+async function saveLibrarySettingsState(nextSettings) {
+    const libraryApi = getLibraryStateApi();
+    librarySettings = normalizeLibrarySettingsState(nextSettings);
+
+    if (libraryApi?.saveLibrarySettings) {
+        librarySettings = await libraryApi.saveLibrarySettings(librarySettings);
+    } else {
+        await browser.storage.local.set({ librarySettings });
+    }
+
+    return librarySettings;
+}
+
+async function loadLibrarySettingsState() {
+    const libraryApi = getLibraryStateApi();
+    if (libraryApi?.loadLibrarySettings) {
+        librarySettings = await libraryApi.loadLibrarySettings();
+    } else {
+        const result = await browser.storage.local.get('librarySettings');
+        librarySettings = normalizeLibrarySettingsState(result.librarySettings);
+    }
+
+    return librarySettings;
+}
+
+async function resetLibrarySettingsState() {
+    const libraryApi = getLibraryStateApi();
+    if (libraryApi?.resetLibrarySettings) {
+        librarySettings = await libraryApi.resetLibrarySettings();
+        return librarySettings;
+    }
+
+    librarySettings = normalizeLibrarySettingsState();
+    await browser.storage.local.set({ librarySettings });
+    return librarySettings;
+}
+
+async function trimLibraryItemsState(itemsToKeep) {
+    const libraryApi = getLibraryStateApi();
+    if (libraryApi?.trimStoredLibraryItems) {
+        return await libraryApi.trimStoredLibraryItems(itemsToKeep);
+    }
+
+    return [];
+}
+
+async function clearLibraryItemsState() {
+    const libraryApi = getLibraryStateApi();
+    if (libraryApi?.clearLibraryItems) {
+        return await libraryApi.clearLibraryItems();
+    }
+
+    await browser.storage.local.remove('libraryItems');
+    return [];
 }
 
 function normalizeImportedOptionsState(importedOptions) {
@@ -93,6 +171,13 @@ function buildExportFilenameState(date) {
     const d = date instanceof Date ? date : new Date(date);
     const datestring = d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2);
     return `MarkSnip-export-${datestring}.json`;
+}
+
+function buildExportPayload() {
+    return {
+        ...options,
+        librarySettings: normalizeLibrarySettingsState(librarySettings)
+    };
 }
 
 function applyContextMenuTransition(action) {
@@ -313,14 +398,26 @@ const setCurrentChoice = result => {
     applyThemeSettings();
 }
 
-const restoreOptions = () => {
-    
+const setCurrentLibraryChoice = (result) => {
+    librarySettings = normalizeLibrarySettingsState(result);
+    document.querySelector("[name='libraryEnabled']").checked = librarySettings.enabled;
+    document.querySelector("[name='libraryAutoSaveOnPopupOpen']").checked = librarySettings.autoSaveOnPopupOpen;
+    document.querySelector("[name='libraryItemsToKeep']").value = librarySettings.itemsToKeep;
+    refreshElements();
+}
 
+const restoreOptions = () => {
     const onError = error => {
         console.error(error);
     }
 
-    browser.storage.sync.get(defaultOptions).then(setCurrentChoice, onError);
+    Promise.all([
+        browser.storage.sync.get(defaultOptions),
+        loadLibrarySettingsState()
+    ]).then(([syncOptions, localLibrarySettings]) => {
+        setCurrentChoice(syncOptions);
+        setCurrentLibraryChoice(localLibrarySettings);
+    }, onError);
 }
 
 const show = (el, visible) => {
@@ -354,25 +451,55 @@ const refreshElements = () => {
     document.getElementById('obsidian').disabled = !downloadImages;
     document.getElementById('obsidian-nofolder').disabled = !downloadImages;
 
-    
+    show(document.getElementById("libraryAutoSave-container"), librarySettings.enabled);
+    show(document.getElementById("libraryItemsToKeep-container"), librarySettings.enabled);
 }
 
-const inputChange = e => {
+const inputChange = async (e) => {
     if (e) {
         let key = e.target.name;
         let value = e.target.value;
         if (key == "import-file") {
             fr = new FileReader();
-            fr.onload = (ev) => {
+            fr.onload = async (ev) => {
                 let lines = ev.target.result;
+                const importedPayload = JSON.parse(lines);
+                const importedLibrarySettings = importedPayload?.librarySettings;
+                const importedOptions = { ...importedPayload };
+                delete importedOptions.librarySettings;
+                delete importedOptions.libraryItems;
                 const previousOptions = options;
-                options = normalizeImportedOptionsState(JSON.parse(lines));
+                options = normalizeImportedOptionsState(importedOptions);
                 setCurrentChoice(options);
                 applyContextMenuTransition(getContextMenuTransitionState(previousOptions, options));
-                save();            
+                if (importedLibrarySettings) {
+                    await saveLibrarySettingsState(importedLibrarySettings);
+                    setCurrentLibraryChoice(librarySettings);
+                }
+                save();
                 refreshElements();
             };
             fr.readAsText(e.target.files[0])
+        }
+        else if (key === 'libraryEnabled' || key === 'libraryAutoSaveOnPopupOpen' || key === 'libraryItemsToKeep') {
+            if (e.target.type == "checkbox") value = e.target.checked;
+
+            if (key === 'libraryEnabled') {
+                librarySettings.enabled = Boolean(value);
+            } else if (key === 'libraryAutoSaveOnPopupOpen') {
+                librarySettings.autoSaveOnPopupOpen = Boolean(value);
+            } else if (key === 'libraryItemsToKeep') {
+                librarySettings.itemsToKeep = normalizeLibrarySettingsState({
+                    ...librarySettings,
+                    itemsToKeep: value
+                }).itemsToKeep;
+                document.querySelector("[name='libraryItemsToKeep']").value = librarySettings.itemsToKeep;
+                await trimLibraryItemsState(librarySettings.itemsToKeep);
+            }
+
+            await saveLibrarySettingsState(librarySettings);
+            setCurrentLibraryChoice(librarySettings);
+            showToast("Library settings saved", "success");
         }
         else {
             if (e.target.type == "checkbox") value = e.target.checked;
@@ -408,7 +535,7 @@ const buttonClick = (e) => {
     }
     else if (e.target.id == "export" || e.target.closest('#export')) {
         console.log("export");
-        const json = JSON.stringify(options, null, 2);
+        const json = JSON.stringify(buildExportPayload(), null, 2);
         var blob = new Blob([json], { type: "text/json" });
         var url = URL.createObjectURL(blob);
         browser.downloads.download({
@@ -417,9 +544,26 @@ const buttonClick = (e) => {
             filename: buildExportFilenameState(new Date())
         });
     }
+    else if (e.target.id == "clear-library" || e.target.closest('#clear-library')) {
+        clearLibraryItems();
+    }
 }
 
 // ── Sidebar Navigation ──
+async function clearLibraryItems() {
+    if (!confirm('Delete all saved Library clips from this browser? This cannot be undone.')) {
+        return;
+    }
+
+    try {
+        await clearLibraryItemsState();
+        showToast("Library cleared", "success");
+    } catch (error) {
+        console.error('Failed to clear library:', error);
+        showToast(String(error), "error");
+    }
+}
+
 function initSidebar() {
     const sidebarItems = Array.from(document.querySelectorAll('.sidebar-item'));
     const sections = Array.from(document.querySelectorAll('.section'));
@@ -505,7 +649,7 @@ function initSidebar() {
 // ── Per-card and global reset ──
 
 function injectResetLinks() {
-    document.querySelectorAll('.setting-card[data-setting-key]').forEach(card => {
+    document.querySelectorAll('.setting-card[data-setting-key], .setting-card[data-local-setting-key]').forEach(card => {
         // Skip if already injected
         if (card.querySelector('.reset-setting-link')) return;
 
@@ -536,7 +680,24 @@ function injectResetLinks() {
     });
 }
 
-function resetSettingByCard(card) {
+async function resetSettingByCard(card) {
+    const localKey = card.dataset.localSettingKey;
+
+    if (localKey) {
+        const defaults = normalizeLibrarySettingsState();
+        librarySettings = {
+            ...librarySettings,
+            [localKey]: defaults[localKey]
+        };
+        if (localKey === 'itemsToKeep') {
+            await trimLibraryItemsState(librarySettings.itemsToKeep);
+        }
+        await saveLibrarySettingsState(librarySettings);
+        setCurrentLibraryChoice(librarySettings);
+        showToast("Setting reset to default", "success");
+        return;
+    }
+
     const keys = card.dataset.settingKey.split(',');
     const resetResult = resetOptionKeysState(keys);
     options = resetResult.options;
@@ -546,12 +707,14 @@ function resetSettingByCard(card) {
     showToast("Setting reset to default", "success");
 }
 
-function resetAllSettings() {
+async function resetAllSettings() {
     if (!confirm('Reset all settings to defaults? This cannot be undone.')) return;
     const resetResult = resetAllOptionsState();
     options = resetResult.options;
     setCurrentChoice(options);
     applyContextMenuTransition(resetResult.contextMenuAction);
+    await resetLibrarySettingsState();
+    setCurrentLibraryChoice(librarySettings);
     save();
     showToast("All settings reset to defaults", "success");
 }
@@ -579,6 +742,10 @@ const loaded = () => {
         if (input.id === 'settings-search') return;
         if (input.tagName == "TEXTAREA" || input.type == "text") {
             input.addEventListener('keyup', inputKeyup);
+        }
+        else if (input.type == "number") {
+            input.addEventListener('keyup', inputKeyup);
+            input.addEventListener('change', inputChange);
         }
         else if (input.tagName == "BUTTON") {
             input.addEventListener('click', buttonClick);

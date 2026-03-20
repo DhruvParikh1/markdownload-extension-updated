@@ -22,6 +22,10 @@ const optionsSource = fs.readFileSync(
   path.join(__dirname, '../../options/options.js'),
   'utf8'
 );
+const libraryStateSource = fs.readFileSync(
+  path.join(__dirname, '../../shared/library-state.js'),
+  'utf8'
+);
 
 const baseOptions = {
   headingStyle: 'atx',
@@ -109,7 +113,7 @@ async function waitForMicrotasks() {
   await Promise.resolve();
 }
 
-function createOptionsPageDom(optionOverrides = {}) {
+function createOptionsPageDom(optionOverrides = {}, libraryOverrides = {}) {
   const dom = new JSDOM(optionsHtml, {
     url: 'https://example.com/options.html',
     pretendToBeVisual: true,
@@ -117,11 +121,45 @@ function createOptionsPageDom(optionOverrides = {}) {
   });
 
   const storedOptions = mergeOptions(optionOverrides);
+  let localState = {
+    librarySettings: {
+      enabled: true,
+      autoSaveOnPopupOpen: true,
+      itemsToKeep: 10,
+      ...libraryOverrides.settings
+    },
+    libraryItems: Array.isArray(libraryOverrides.items) ? libraryOverrides.items.slice() : []
+  };
   const browser = {
     storage: {
       sync: {
         get: jest.fn(() => Promise.resolve(storedOptions)),
         set: jest.fn(() => Promise.resolve())
+      },
+      local: {
+        get: jest.fn((keys) => {
+          if (typeof keys === 'string') {
+            return Promise.resolve({ [keys]: localState[keys] });
+          }
+          if (Array.isArray(keys)) {
+            return Promise.resolve(keys.reduce((acc, key) => {
+              acc[key] = localState[key];
+              return acc;
+            }, {}));
+          }
+          return Promise.resolve({ ...localState });
+        }),
+        set: jest.fn((payload) => {
+          localState = { ...localState, ...payload };
+          return Promise.resolve();
+        }),
+        remove: jest.fn((keys) => {
+          const keyList = Array.isArray(keys) ? keys : [keys];
+          keyList.forEach((key) => {
+            delete localState[key];
+          });
+          return Promise.resolve();
+        })
       }
     },
     runtime: {
@@ -139,10 +177,16 @@ function createOptionsPageDom(optionOverrides = {}) {
   dom.window.createMenus = jest.fn();
   dom.window.eval(`var defaultOptions = ${JSON.stringify(storedOptions)};`);
   dom.window.eval(searchCoreSource);
+  dom.window.eval(libraryStateSource);
   dom.window.eval(optionsSearchSource);
   dom.window.eval(optionsSource);
 
-  return { dom, browser, storedOptions };
+  return {
+    dom,
+    browser,
+    storedOptions,
+    getLocalState: () => ({ ...localState })
+  };
 }
 
 describe('Options search helper', () => {
@@ -206,6 +250,16 @@ describe('Options search helper', () => {
     expect(getMatchIds(index, 'download images')).toContain('downloadImages-container');
   });
 
+  test('library search surfaces the new local-only library controls', () => {
+    const matchIds = getMatchIds(index, 'library');
+    const matchLabels = getMatchLabels(index, 'library');
+
+    expect(matchIds).toContain('libraryAutoSave-container');
+    expect(matchIds).toContain('libraryItemsToKeep-container');
+    expect(matchLabels).toContain('Enable Library');
+    expect(matchLabels).toContain('Clear Library');
+  });
+
   test('excluded examples and reference details do not affect search results', () => {
     expect(getMatchIds(index, 'google')).toEqual([]);
     expect(getMatchIds(index, 'format reference')).toEqual([]);
@@ -230,8 +284,6 @@ describe('Options page search UI', () => {
 
     expect(noResults.classList.contains('visible')).toBe(true);
     expect(noResultsQuery.textContent).toBe('google');
-
-    dom.window.close();
   });
 
   test('clearing search restores the active tab and conditional visibility', async () => {
@@ -245,6 +297,7 @@ describe('Options page search UI', () => {
 
     document.dispatchEvent(new dom.window.Event('DOMContentLoaded', { bubbles: true }));
     await waitForMicrotasks();
+    await waitFor(dom.window, 50);
 
     const appearanceSection = document.getElementById('section-appearance');
     const downloadsSection = document.getElementById('section-downloads');
@@ -266,13 +319,129 @@ describe('Options page search UI', () => {
     searchInput.focus();
     document.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
     await waitForMicrotasks();
+    await waitFor(dom.window, 50);
 
     expect(document.querySelector('.content-panel').classList.contains('search-active')).toBe(false);
     expect(appearanceSection.classList.contains('active')).toBe(true);
     expect(downloadsSection.classList.contains('active')).toBe(false);
     expect(imagePrefixCard.classList.contains('search-match')).toBe(false);
     expect(imagePrefixCard.style.display).toBe('none');
+  });
 
-    dom.window.close();
+  test('reset all restores library defaults without deleting library items', async () => {
+    const { dom, browser, getLocalState } = createOptionsPageDom({}, {
+      settings: {
+        enabled: false,
+        autoSaveOnPopupOpen: false,
+        itemsToKeep: 3
+      },
+      items: [{ id: 'saved-item' }]
+    });
+    const { document } = dom.window;
+
+    dom.window.confirm = jest.fn(() => true);
+    document.dispatchEvent(new dom.window.Event('DOMContentLoaded', { bubbles: true }));
+    await waitForMicrotasks();
+    await waitFor(dom.window, 50);
+
+    document.getElementById('reset-all').click();
+    await waitForMicrotasks();
+
+    expect(browser.storage.local.set).toHaveBeenCalledWith({
+      librarySettings: {
+        enabled: true,
+        autoSaveOnPopupOpen: true,
+        itemsToKeep: 10
+      }
+    });
+    expect(getLocalState().libraryItems).toEqual([{ id: 'saved-item' }]);
+  });
+
+  test('clear library removes saved library items from local storage', async () => {
+    const { dom, browser } = createOptionsPageDom({}, {
+      items: [{ id: 'saved-item' }]
+    });
+    const { document } = dom.window;
+
+    dom.window.confirm = jest.fn(() => true);
+    document.dispatchEvent(new dom.window.Event('DOMContentLoaded', { bubbles: true }));
+    await waitForMicrotasks();
+
+    document.getElementById('clear-library').click();
+    await waitForMicrotasks();
+
+    expect(browser.storage.local.remove).toHaveBeenCalledWith('libraryItems');
+  });
+
+  test('export payload includes library settings but excludes library items', async () => {
+    const { dom } = createOptionsPageDom({}, {
+      settings: {
+        enabled: false,
+        autoSaveOnPopupOpen: false,
+        itemsToKeep: 4
+      },
+      items: [{ id: 'saved-item' }]
+    });
+    const { document } = dom.window;
+
+    document.dispatchEvent(new dom.window.Event('DOMContentLoaded', { bubbles: true }));
+    await waitForMicrotasks();
+
+    const payload = dom.window.buildExportPayload();
+
+    expect(payload.librarySettings).toEqual({
+      enabled: false,
+      autoSaveOnPopupOpen: false,
+      itemsToKeep: 4
+    });
+    expect(payload.libraryItems).toBeUndefined();
+  });
+
+  test('import restores library settings when present in the backup payload', async () => {
+    const { dom, browser } = createOptionsPageDom();
+    const { document } = dom.window;
+
+    class MockFileReader {
+      readAsText() {
+        this.onload({
+          target: {
+            result: JSON.stringify({
+              ...mergeOptions({ popupTheme: 'dark' }),
+              librarySettings: {
+                enabled: false,
+                autoSaveOnPopupOpen: false,
+                itemsToKeep: 4
+              },
+              libraryItems: [{ id: 'should-be-ignored' }]
+            })
+          }
+        });
+      }
+    }
+
+    dom.window.FileReader = MockFileReader;
+    document.dispatchEvent(new dom.window.Event('DOMContentLoaded', { bubbles: true }));
+    await waitForMicrotasks();
+
+    const importInput = document.getElementById('import-file');
+    Object.defineProperty(importInput, 'files', {
+      configurable: true,
+      value: [{}]
+    });
+
+    importInput.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
+    await waitForMicrotasks();
+    await waitFor(dom.window, 50);
+
+    expect(browser.storage.local.set).toHaveBeenCalledWith({
+      librarySettings: {
+        enabled: false,
+        autoSaveOnPopupOpen: false,
+        itemsToKeep: 4
+      }
+    });
+    expect(document.getElementById('libraryEnabled').checked).toBe(false);
+    expect(document.getElementById('libraryAutoSaveOnPopupOpen').checked).toBe(false);
+    expect(document.getElementById('libraryItemsToKeep').value).toBe('4');
   });
 });

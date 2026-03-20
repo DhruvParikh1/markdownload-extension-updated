@@ -61,6 +61,13 @@
                     </svg>
                     <span class="sidebar-label">Downloads</span>
                 </li>
+                <li class="sidebar-item" id="tab-library" data-section="library" role="tab" tabindex="-1" aria-selected="false" aria-controls="section-library">
+                    <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 0 4 24V4.5A2.5 2.5 0 0 1 6.5 2z"/>
+                    </svg>
+                    <span class="sidebar-label">Library</span>
+                </li>
                 <li class="sidebar-item" id="tab-markdown" data-section="markdown" role="tab" tabindex="-1" aria-selected="false" aria-controls="section-markdown">
                     <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -514,6 +521,70 @@
                     <div class="input-group">
                         <label class="input-label">Obsidian Folder Name</label>
                         <input type="text" name="obsidianFolder" class="text-input" role="textbox" placeholder="Enter Folder Name eg. Clippers" />
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="section" id="section-library" data-section-label="Library" role="tabpanel" tabindex="0" aria-labelledby="tab-library">
+                <h2 class="section-title">Library</h2>
+                <p class="section-desc">Manage the popup Library that stores saved clips locally on this browser only.</p>
+
+                <div class="setting-card" data-search-keywords="library local clips saved clips popup history local only import export"
+                    data-local-setting-key="enabled">
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <label class="toggle-label-text" for="libraryEnabled">Enable Library</label>
+                            <p class="toggle-hint">Shows the Library view in the popup. Turning it off hides the feature without deleting saved items.</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input name="libraryEnabled" id="libraryEnabled" type="checkbox" />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="setting-card" id="libraryAutoSave-container"
+                    data-search-keywords="library auto save popup opens automatic clip save manual save"
+                    data-local-setting-key="autoSaveOnPopupOpen">
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <label class="toggle-label-text" for="libraryAutoSaveOnPopupOpen">Save pages automatically when popup opens</label>
+                            <p class="toggle-hint">When off, the popup Library shows a manual <strong>Save Clip</strong> button instead.</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input name="libraryAutoSaveOnPopupOpen" id="libraryAutoSaveOnPopupOpen" type="checkbox" />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="setting-card" id="libraryItemsToKeep-container"
+                    data-search-keywords="library items keep retain retention max saved clips limit"
+                    data-local-setting-key="itemsToKeep">
+                    <h3 class="card-title">Items to Keep</h3>
+                    <p class="card-desc">Maximum number of saved Library clips to keep locally. Lowering this trims older items immediately.</p>
+                    <div class="input-group">
+                        <label class="input-label" for="libraryItemsToKeep">Saved clip limit</label>
+                        <input type="number" min="1" step="1" id="libraryItemsToKeep" name="libraryItemsToKeep" class="text-input" role="spinbutton" />
+                    </div>
+                    <p class="option-note">Library settings are included in settings import/export. Saved Library items remain local-only and are excluded.</p>
+                </div>
+
+                <div class="setting-card" data-search-keywords="clear library delete saved clips local history">
+                    <h3 class="card-title">Clear Library</h3>
+                    <p class="card-desc">Delete all saved Library items from local storage. This cannot be undone.</p>
+                    <div class="btn-group">
+                        <button id="clear-library" class="btn btn-danger">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="3 6 5 6 21 6"/>
+                                <path d="M19 6l-1 14H6L5 6"/>
+                                <path d="M10 11v6"/>
+                                <path d="M14 11v6"/>
+                                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                            </svg>
+                            Clear Library
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1072,6 +1143,7 @@ const helloWorld = () => {
     <script src="../browser-polyfill.min.js"></script>
     <script src="../shared/default-options.js"></script>
     <script src="../shared/context-menus.js"></script>
+    <script src="../shared/library-state.js"></script>
     <script src="../shared/search-core.js"></script>
     <script src="../shared/options-state.js"></script>
     <script src="options-search.js"></script>
