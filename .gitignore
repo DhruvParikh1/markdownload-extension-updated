@@ -11,3 +11,5 @@ src/test-results/*
 !src/test-results/.last-run.json
 src/test-results/live-public/
 video/
+COOK.md
+.cook/
