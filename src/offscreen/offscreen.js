@@ -72,34 +72,36 @@ function buildDomWithSelection(domString, selectionHtml, shouldUseSelection = tr
 /**
  * Handle messages from service worker
  */
-async function handleMessages(message, sender) {
+function handleMessages(message, sender) {
   // Handle messages that aren't specifically targeted at offscreen
   if (!message.target || message.target !== 'offscreen') {
     if (message.type === 'article-dom-data') {
-      try {
-        const domForArticle = buildDomWithSelection(message.dom, message.selection, true);
-        const article = await getArticleFromDom(domForArticle, defaultOptions, message.pageUrl);
-        
-        // Send the article back to service worker
-        await browser.runtime.sendMessage({
-          type: 'article-result',
-          requestId: message.requestId,
-          article: article
-        });
-      } catch (error) {
-        console.error('Error processing article DOM:', error);
-        await browser.runtime.sendMessage({
-          type: 'article-result',
-          requestId: message.requestId,
-          error: error.message
-        });
-      }
-      return;
+      return (async () => {
+        try {
+          const domForArticle = buildDomWithSelection(message.dom, message.selection, true);
+          const article = await getArticleFromDom(domForArticle, defaultOptions, message.pageUrl);
+          
+          // Send the article back to service worker
+          await browser.runtime.sendMessage({
+            type: 'article-result',
+            requestId: message.requestId,
+            article: article
+          });
+        } catch (error) {
+          console.error('Error processing article DOM:', error);
+          await browser.runtime.sendMessage({
+            type: 'article-result',
+            requestId: message.requestId,
+            error: error.message
+          });
+        }
+      })();
     }
-    return; // Not for this context
+    return false; // Not for this context
   }
 
-  switch (message.type) {
+  return (async () => {
+    switch (message.type) {
     case 'process-content':
       await processContent(message);
       break;
@@ -135,7 +137,8 @@ async function handleMessages(message, sender) {
     case 'download-batch-zip':
       await downloadBatchZip(message);
       break;
-  }
+    }
+  })();
 }
 
 /**

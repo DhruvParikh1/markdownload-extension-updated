@@ -898,6 +898,17 @@ body {
     flex-shrink: 0;
 }
 
+.library-toolbar-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+
+.library-toolbar-actions .btn {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
 .library-toolbar-note {
     margin-top: var(--space-2);
     font-size: var(--text-xs);

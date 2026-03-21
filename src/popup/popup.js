@@ -11,6 +11,7 @@ let currentClipState = {
     markdown: '',
     pageUrl: ''
 };
+let libraryExportInProgress = false;
 const autoSavedLibraryUrls = new Set();
 
 const libraryUI = {
@@ -19,6 +20,7 @@ const libraryUI = {
     close: document.getElementById('closeLibraryView'),
     countBadge: document.getElementById('libraryCountBadge'),
     saveButton: document.getElementById('saveLibraryClip'),
+    exportButton: document.getElementById('exportLibraryAll'),
     toolbarNote: document.getElementById('libraryToolbarNote'),
     status: document.getElementById('libraryStatus'),
     emptyState: document.getElementById('libraryEmptyState'),
@@ -264,6 +266,7 @@ document.getElementById("cancelBatch").addEventListener("click", hideBatchProces
 libraryUI.toggle?.addEventListener("click", showLibraryView);
 libraryUI.close?.addEventListener("click", hideLibraryView);
 libraryUI.saveButton?.addEventListener("click", handleManualLibrarySave);
+libraryUI.exportButton?.addEventListener("click", handleLibraryExportAll);
 document.getElementById("pickLinks").addEventListener("click", activateLinkPicker);
 document.getElementById("batchSaveModeToggle").addEventListener("change", saveBatchSettings);
 document.getElementById("cancelBatchProgress").addEventListener("click", () => {
@@ -449,6 +452,23 @@ function updateSaveLibraryButtonState() {
     libraryUI.saveButton.disabled = !manualMode || !hasSavableClip();
 }
 
+function updateLibraryExportButtonState() {
+    if (!libraryUI.exportButton) {
+        return;
+    }
+
+    const hasItems = libraryItems.length > 0;
+    libraryUI.exportButton.disabled = libraryExportInProgress || !hasItems;
+    libraryUI.exportButton.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        ${libraryExportInProgress ? 'Exporting...' : 'Export All'}
+    `;
+}
+
 function setLibraryStatus(message = '', isError = false) {
     if (!libraryUI.status) {
         return;
@@ -545,6 +565,7 @@ function renderLibraryItems() {
     }
 
     libraryUI.countBadge.textContent = String(libraryItems.length);
+    updateLibraryExportButtonState();
     libraryUI.list.innerHTML = '';
 
     const autoSaveEnabled = librarySettings?.autoSaveOnPopupOpen !== false;
@@ -657,6 +678,7 @@ function updateLibraryUIState() {
     }
 
     updateSaveLibraryButtonState();
+    updateLibraryExportButtonState();
     renderLibraryItems();
 }
 
@@ -773,6 +795,54 @@ async function handleManualLibrarySave(e) {
     } catch (error) {
         console.error('Failed to save library item:', error);
         setLibraryStatus('Failed to save clip to Library', true);
+    }
+}
+
+async function resolveLibraryExportTabId() {
+    const tabs = await browser.tabs.query({
+        currentWindow: true,
+        active: true
+    }).catch(() => []);
+
+    return tabs?.[0]?.id ?? null;
+}
+
+async function handleLibraryExportAll(e) {
+    e.preventDefault();
+
+    if (libraryExportInProgress || libraryItems.length === 0) {
+        return;
+    }
+
+    libraryExportInProgress = true;
+    updateLibraryExportButtonState();
+    setLibraryStatus('Exporting library...');
+
+    try {
+        const tabId = await resolveLibraryExportTabId();
+        const result = await browser.runtime.sendMessage({
+            type: 'export-library-items',
+            items: libraryItems.map((item) => ({
+                title: item?.title || '',
+                markdown: item?.markdown || '',
+                savedAt: item?.savedAt || '',
+                pageUrl: item?.pageUrl || ''
+            })),
+            tabId
+        });
+
+        const exportedCount = Number(result?.exportedCount || 0);
+        if (exportedCount > 0) {
+            setLibraryStatus(`Exported ${exportedCount} clip${exportedCount === 1 ? '' : 's'} to ZIP`);
+        } else {
+            setLibraryStatus('No saved clips to export', true);
+        }
+    } catch (error) {
+        console.error('Failed to export library items:', error);
+        setLibraryStatus('Failed to export Library', true);
+    } finally {
+        libraryExportInProgress = false;
+        updateLibraryExportButtonState();
     }
 }
 

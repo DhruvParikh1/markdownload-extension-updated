@@ -7,6 +7,8 @@ if (typeof importScripts === 'function') {
     'background/apache-mime-types.js',
     'shared/notifications.js',
     'shared/default-options.js',
+    'shared/template-utils.js',
+    'shared/library-export.js',
     'shared/context-menus.js',
     'shared/download-tracker.js'
   );
@@ -507,6 +509,8 @@ async function handleMessages(message, sender, sendResponse) {
     case "start-batch-conversion":
       await handleBatchConversionInServiceWorker(message);
       break;
+    case "export-library-items":
+      return await handleLibraryExportRequest(message, sender);
     case "cancel-batch":
       activeBatchSignal?.cancel();
       break;
@@ -671,7 +675,11 @@ function createBatchZipFilename() {
   return `MarkSnip-batch-${moment().format('YYYYMMDD-HHmmss')}.zip`;
 }
 
-async function triggerBatchZipDownload(files, options, fallbackTabId = null) {
+function getLibraryExportApi() {
+  return globalThis.markSnipLibraryExport || null;
+}
+
+async function triggerBatchZipDownload(files, options, fallbackTabId = null, zipFilename = null) {
   try {
     await ensureOffscreenDocumentExists();
     console.log(`[Batch] Triggering ZIP download with ${files.length} file(s)`);
@@ -679,7 +687,7 @@ async function triggerBatchZipDownload(files, options, fallbackTabId = null) {
       target: 'offscreen',
       type: 'download-batch-zip',
       files,
-      zipFilename: createBatchZipFilename(),
+      zipFilename: zipFilename || createBatchZipFilename(),
       fallbackTabId: fallbackTabId,
       options: {
         ...options,
@@ -691,6 +699,54 @@ async function triggerBatchZipDownload(files, options, fallbackTabId = null) {
     console.error('[Batch] Failed to trigger ZIP download:', error);
     throw error;
   }
+}
+
+async function resolveLibraryExportTabId(message, sender) {
+  if (Number.isInteger(message?.tabId)) {
+    return message.tabId;
+  }
+
+  if (Number.isInteger(sender?.tab?.id)) {
+    return sender.tab.id;
+  }
+
+  const activeTabs = await browser.tabs.query({ currentWindow: true, active: true }).catch(() => []);
+  return activeTabs?.[0]?.id || null;
+}
+
+async function handleLibraryExportRequest(message, sender) {
+  const items = Array.isArray(message?.items) ? message.items : [];
+  if (items.length === 0) {
+    return {
+      exportedCount: 0
+    };
+  }
+
+  const options = await getOptions();
+  const libraryExportApi = getLibraryExportApi();
+  const usedPaths = new Set();
+  const files = libraryExportApi?.createLibraryExportFiles
+    ? libraryExportApi.createLibraryExportFiles(items, {
+      disallowedChars: options.disallowedChars,
+      generateValidFileName,
+      ensureUniquePath: ensureUniqueBatchEntryPath,
+      usedPaths
+    })
+    : items.map((item) => ({
+      filename: ensureUniqueBatchEntryPath(`${String(generateValidFileName(String(item?.title || '').trim() || 'Untitled', options.disallowedChars) || 'Untitled').trim() || 'Untitled'}.md`, usedPaths),
+      content: String(item?.markdown || '')
+    }));
+  const zipFilename = libraryExportApi?.createLibraryExportZipFilename
+    ? libraryExportApi.createLibraryExportZipFilename()
+    : `MarkSnip-library-${moment().format('YYYYMMDD-HHmmss')}.zip`;
+  const fallbackTabId = await resolveLibraryExportTabId(message, sender);
+
+  await triggerBatchZipDownload(files, options, fallbackTabId, zipFilename);
+
+  return {
+    exportedCount: files.length,
+    zipFilename
+  };
 }
 
 // ===== In-page batch progress overlay =====

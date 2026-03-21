@@ -49,6 +49,36 @@ async function getLibraryStorage(serviceWorker) {
   });
 }
 
+async function installLibraryExportHarness(serviceWorker) {
+  await serviceWorker.evaluate(() => {
+    if (!self.__markSnipLibraryExportHarnessInstalled) {
+      self.__markSnipLibraryExportHarnessInstalled = true;
+      self.__markSnipLibraryExportHarnessOriginals = {
+        triggerBatchZipDownload: self.triggerBatchZipDownload
+      };
+
+      self.triggerBatchZipDownload = async (files, options, fallbackTabId = null, zipFilename = null) => {
+        self.__markSnipLibraryExportHarnessState.zipCalls.push({
+          files: JSON.parse(JSON.stringify(files || [])),
+          options: JSON.parse(JSON.stringify(options || {})),
+          fallbackTabId,
+          zipFilename
+        });
+      };
+    }
+
+    self.__markSnipLibraryExportHarnessState = {
+      zipCalls: []
+    };
+  });
+}
+
+async function getLibraryExportHarnessState(serviceWorker) {
+  return await serviceWorker.evaluate(() => (
+    JSON.parse(JSON.stringify(self.__markSnipLibraryExportHarnessState || { zipCalls: [] }))
+  ));
+}
+
 test.describe('MarkSnip Extension E2E', () => {
   let browser;
   let context;
@@ -208,6 +238,69 @@ test.describe('MarkSnip Extension E2E', () => {
     } finally {
       await popupPage.close().catch(() => {});
       await fixturePage.close().catch(() => {});
+    }
+  });
+
+  test('library export all stays disabled when there are no saved clips', async () => {
+    await setLibraryStorage(serviceWorker, {
+      librarySettings: {
+        enabled: true,
+        autoSaveOnPopupOpen: false,
+        itemsToKeep: 10
+      },
+      libraryItems: []
+    });
+
+    const popupPage = await context.newPage();
+
+    try {
+      await popupPage.goto(`chrome-extension://${extensionId}/popup/popup.html`);
+      await popupPage.locator('#libraryViewToggle').click();
+      await expect(popupPage.locator('#exportLibraryAll')).toBeDisabled();
+    } finally {
+      await popupPage.close().catch(() => {});
+    }
+  });
+
+  test('library export all routes saved clips through the ZIP export path', async () => {
+    await installLibraryExportHarness(serviceWorker);
+    await setLibraryStorage(serviceWorker, {
+      librarySettings: {
+        enabled: true,
+        autoSaveOnPopupOpen: false,
+        itemsToKeep: 10
+      },
+      libraryItems: [
+        { id: 'one', pageUrl: 'https://example.com/alpha', normalizedPageUrl: 'https://example.com/alpha', title: 'Alpha', markdown: '# Alpha', savedAt: '2026-03-20T10:00:00.000Z', previewText: 'Alpha' },
+        { id: 'two', pageUrl: 'https://example.com/beta', normalizedPageUrl: 'https://example.com/beta', title: 'Alpha', markdown: '# Beta', savedAt: '2026-03-20T09:00:00.000Z', previewText: 'Beta' },
+        { id: 'three', pageUrl: 'https://example.com/gamma', normalizedPageUrl: 'https://example.com/gamma', title: '', markdown: '# Gamma', savedAt: '2026-03-20T08:00:00.000Z', previewText: 'Gamma' },
+        { id: 'four', pageUrl: 'https://example.com/delta', normalizedPageUrl: 'https://example.com/delta', title: 'Fancy:/Title?', markdown: '# Delta', savedAt: '2026-03-20T07:00:00.000Z', previewText: 'Delta' }
+      ]
+    });
+
+    const popupPage = await context.newPage();
+
+    try {
+      await popupPage.goto(`chrome-extension://${extensionId}/popup/popup.html`);
+      await popupPage.locator('#libraryViewToggle').click();
+      await expect(popupPage.locator('#exportLibraryAll')).toBeEnabled();
+      await popupPage.locator('#exportLibraryAll').click();
+
+      await expect(popupPage.locator('#libraryStatus')).toContainText('Exported 4 clips to ZIP');
+
+      const harnessState = await getLibraryExportHarnessState(serviceWorker);
+      expect(harnessState.zipCalls).toHaveLength(1);
+
+      const latestCall = harnessState.zipCalls[0];
+      expect(latestCall.zipFilename).toMatch(/^MarkSnip-library-\d{8}-\d{6}\.zip$/);
+      expect(latestCall.files).toEqual([
+        { filename: 'Alpha.md', content: '# Alpha' },
+        { filename: 'Alpha (2).md', content: '# Beta' },
+        { filename: 'Untitled.md', content: '# Gamma' },
+        { filename: 'FancyTitle.md', content: '# Delta' }
+      ]);
+    } finally {
+      await popupPage.close().catch(() => {});
     }
   });
 
