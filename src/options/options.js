@@ -263,6 +263,7 @@ const saveOptions = e => {
         popupTheme: getCheckedValue(document.querySelectorAll("input[name='popupTheme']")),
         popupAccent: getCheckedValue(document.querySelectorAll("input[name='popupAccent']")),
         compactMode: document.querySelector("[name='compactMode']").checked,
+        showUserGuideIcon: document.querySelector("[name='showUserGuideIcon']").checked,
         editorTheme: getCheckedValue(document.querySelectorAll("input[name='editorTheme']")),
     }
 
@@ -392,6 +393,7 @@ const setCurrentChoice = result => {
     setCheckedValue(document.querySelectorAll("[name='popupTheme']"), options.popupTheme || 'system');
     setCheckedValue(document.querySelectorAll("[name='popupAccent']"), options.popupAccent || 'sage');
     document.querySelector("[name='compactMode']").checked = options.compactMode || false;
+    document.querySelector("[name='showUserGuideIcon']").checked = options.showUserGuideIcon !== false;
     setCheckedValue(document.querySelectorAll("[name='editorTheme']"), options.editorTheme || 'default');
 
     refreshElements();

@@ -385,6 +385,7 @@ const defaultOptions = {
     popupTheme: 'system',
     popupAccent: 'sage',
     compactMode: false,
+    showUserGuideIcon: true,
     editorTheme: 'default',
 }
 
@@ -392,6 +393,16 @@ const updateObsidianButtonVisibility = (options) => {
     const obsidianButton = document.getElementById("sendToObsidian");
     if (!obsidianButton) return;
     obsidianButton.style.display = options.obsidianIntegration ? "inline-flex" : "none";
+}
+
+const updateGuideButtonVisibility = (options) => {
+    const guideButton = document.getElementById("openGuide");
+    if (!guideButton) return;
+
+    const shouldShowGuideButton = options.showUserGuideIcon !== false;
+    guideButton.hidden = !shouldShowGuideButton;
+    guideButton.style.display = shouldShowGuideButton ? "" : "none";
+    guideButton.setAttribute("aria-hidden", String(!shouldShowGuideButton));
 }
 
 function resolveClipPageUrl(article = {}) {
@@ -1241,6 +1252,7 @@ const checkInitialSettings = options => {
     document.querySelector("#includeTemplate").checked = options.includeTemplate || false;
     document.querySelector("#downloadImages").checked = options.downloadImages || false;
     updateObsidianButtonVisibility(options);
+    updateGuideButtonVisibility(options);
 
     // Set segmented control state
     setClipSelectionState(options.clipSelection);
@@ -1438,8 +1450,13 @@ browser.storage.sync.get(defaultOptions).then(options => {
 browser.runtime.onMessage.addListener(notify);
 
 browser.storage.onChanged.addListener((changes, areaName) => {
-    if (areaName === "sync" && changes.obsidianIntegration) {
-        updateObsidianButtonVisibility({ obsidianIntegration: changes.obsidianIntegration.newValue });
+    if (areaName === "sync") {
+        if (changes.obsidianIntegration) {
+            updateObsidianButtonVisibility({ obsidianIntegration: changes.obsidianIntegration.newValue });
+        }
+        if (changes.showUserGuideIcon) {
+            updateGuideButtonVisibility({ showUserGuideIcon: changes.showUserGuideIcon.newValue });
+        }
         return;
     }
 

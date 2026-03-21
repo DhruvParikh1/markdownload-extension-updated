@@ -38,6 +38,7 @@ const defaultOptions = {
   popupTheme: 'system',
   popupAccent: 'sage',
   compactMode: false,
+  showUserGuideIcon: true,
   editorTheme: 'default',
 }
 

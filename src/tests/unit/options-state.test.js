@@ -5,6 +5,7 @@ const defaultOptions = {
   contextMenus: true,
   includeTemplate: false,
   imagePrefix: '{pageTitle}/',
+  showUserGuideIcon: true,
   tableFormatting: {
     stripLinks: true,
     stripFormatting: false,
@@ -211,6 +212,18 @@ test('resetOptionKeys handles comma-separated strings and ignores empty keys', (
   const result = optionsState.resetOptionKeys(current, defaultOptions, 'includeTemplate,,  ');
 
   expect(result.options.includeTemplate).toBe(false);
+  expect(result.contextMenuAction).toBe('none');
+});
+
+test('resetOptionKeys restores the popup guide icon toggle to its default', () => {
+  const current = {
+    ...defaultOptions,
+    showUserGuideIcon: false
+  };
+
+  const result = optionsState.resetOptionKeys(current, defaultOptions, ['showUserGuideIcon']);
+
+  expect(result.options.showUserGuideIcon).toBe(true);
   expect(result.contextMenuAction).toBe('none');
 });
 

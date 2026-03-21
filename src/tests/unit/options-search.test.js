@@ -66,6 +66,7 @@ const baseOptions = {
   popupTheme: 'system',
   popupAccent: 'sage',
   compactMode: false,
+  showUserGuideIcon: true,
   editorTheme: 'default'
 };
 
@@ -244,10 +245,14 @@ describe('Options search helper', () => {
     expect(getMatchLabels(index, 'frontmatter')).toContain('Front-matter template');
     expect(getMatchLabels(index, 'backmatter')).toContain('Back-matter template');
     expect(getMatchIds(index, 'base64')).toContain('imageOptions');
+    expect(getMatchIds(index, 'highlight')).toContain('autoDetectCodeLanguage-container');
+    expect(getMatchIds(index, 'highlightjs')).toContain('autoDetectCodeLanguage-container');
+    expect(getMatchIds(index, 'highlight.js')).toContain('autoDetectCodeLanguage-container');
     expect(getMatchIds(index, 'shortcut')).toContain('linkReferenceStyle');
     expect(getMatchIds(index, 'hashtag')).toContain('hashtagHandling-container');
     expect(getMatchIds(index, 'obsidian vault')).toContain('obsidianVault');
     expect(getMatchIds(index, 'download images')).toContain('downloadImages-container');
+    expect(getMatchIds(index, 'guide icon')).toContain('showUserGuideIcon-container');
   });
 
   test('library search surfaces the new local-only library controls', () => {
@@ -386,6 +391,7 @@ describe('Options page search UI', () => {
 
     document.dispatchEvent(new dom.window.Event('DOMContentLoaded', { bubbles: true }));
     await waitForMicrotasks();
+    await waitFor(dom.window, 50);
 
     const payload = dom.window.buildExportPayload();
 
@@ -443,5 +449,24 @@ describe('Options page search UI', () => {
     expect(document.getElementById('libraryEnabled').checked).toBe(false);
     expect(document.getElementById('libraryAutoSaveOnPopupOpen').checked).toBe(false);
     expect(document.getElementById('libraryItemsToKeep').value).toBe('4');
+  });
+
+  test('restores and saves the popup guide icon toggle', async () => {
+    const { dom, browser } = createOptionsPageDom({ showUserGuideIcon: false });
+    const { document } = dom.window;
+
+    document.dispatchEvent(new dom.window.Event('DOMContentLoaded', { bubbles: true }));
+    await waitForMicrotasks();
+
+    const toggle = document.getElementById('showUserGuideIcon');
+    expect(toggle.checked).toBe(false);
+
+    toggle.checked = true;
+    toggle.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
+    await waitForMicrotasks();
+
+    expect(browser.storage.sync.set).toHaveBeenCalledWith(expect.objectContaining({
+      showUserGuideIcon: true
+    }));
   });
 });
