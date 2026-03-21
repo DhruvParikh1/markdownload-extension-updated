@@ -465,7 +465,7 @@ function formatSavedAt(savedAt) {
     });
 }
 
-async function copyLibraryItemMarkdown(itemId) {
+async function copyLibraryItemMarkdown(itemId, buttonElement) {
     const item = libraryItems.find((entry) => entry.id === itemId);
     if (!item?.markdown) {
         return;
@@ -473,10 +473,58 @@ async function copyLibraryItemMarkdown(itemId) {
 
     try {
         await navigator.clipboard.writeText(item.markdown);
-        setLibraryStatus(`Copied "${item.title}"`);
+
+        if (buttonElement) {
+            const originalHTML = buttonElement.innerHTML;
+            buttonElement.innerHTML = `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                Copied!
+            `;
+            buttonElement.classList.add("success");
+            setTimeout(() => {
+                buttonElement.innerHTML = originalHTML;
+                buttonElement.classList.remove("success");
+            }, 2000);
+        }
     } catch (error) {
         console.error('Failed to copy library item:', error);
-        setLibraryStatus('Failed to copy saved clip', true);
+
+        if (buttonElement) {
+            const originalHTML = buttonElement.innerHTML;
+            buttonElement.innerHTML = `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M13,13H11V7H13M13,17H11V15H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
+                </svg>
+                Failed
+            `;
+            buttonElement.classList.add("error");
+            setTimeout(() => {
+                buttonElement.innerHTML = originalHTML;
+                buttonElement.classList.remove("error");
+            }, 2000);
+        }
+    }
+}
+
+async function deleteLibraryItem(itemId) {
+    const api = getLibraryStateApi();
+    if (!api) {
+        return;
+    }
+
+    const item = libraryItems.find((entry) => entry.id === itemId);
+    const itemTitle = item?.title || 'Untitled';
+    const filtered = libraryItems.filter((entry) => entry.id !== itemId);
+
+    try {
+        libraryItems = await api.saveLibraryItems(filtered);
+        renderLibraryItems();
+        setLibraryStatus(`Removed "${itemTitle}"`);
+    } catch (error) {
+        console.error('Failed to delete library item:', error);
+        setLibraryStatus('Failed to remove clip', true);
     }
 }
 
@@ -494,10 +542,19 @@ function renderLibraryItems() {
         : 'Manual mode is on. Use "Save Clip" to add the current page to your local library.';
     libraryUI.emptyState.hidden = libraryItems.length > 0;
 
-    libraryItems.forEach((item) => {
+    const api = getLibraryStateApi();
+    const currentNormalized = api?.normalizePageUrl(currentClipState.pageUrl) || '';
+
+    libraryItems.forEach((item, index) => {
         const card = document.createElement('article');
         card.className = 'library-card';
         card.setAttribute('role', 'listitem');
+        card.style.animationDelay = `${index * 40}ms`;
+
+        const itemNormalized = item.normalizedPageUrl || (api?.normalizePageUrl(item.pageUrl) ?? '');
+        if (currentNormalized && itemNormalized && currentNormalized === itemNormalized) {
+            card.classList.add('library-card--current');
+        }
 
         const header = document.createElement('div');
         header.className = 'library-card-header';
@@ -533,12 +590,34 @@ function renderLibraryItems() {
         copyButton.className = 'btn btn-secondary btn-sm';
         copyButton.textContent = 'Copy';
         copyButton.addEventListener('click', () => {
-            copyLibraryItemMarkdown(item.id);
+            copyLibraryItemMarkdown(item.id, copyButton);
         });
 
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.className = 'btn btn-sm library-card-delete';
+        deleteButton.setAttribute('aria-label', `Delete clip: ${item.title || 'Untitled'}`);
+        deleteButton.innerHTML = `
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </svg>
+            Delete
+        `;
+        deleteButton.addEventListener('click', () => {
+            deleteLibraryItem(item.id);
+        });
+
+        actions.appendChild(deleteButton);
         actions.appendChild(copyButton);
 
         card.appendChild(header);
+        if (card.classList.contains('library-card--current')) {
+            const badge = document.createElement('span');
+            badge.className = 'library-card-current-badge';
+            badge.textContent = 'Current page';
+            card.appendChild(badge);
+        }
         if (item.previewText) {
             card.appendChild(preview);
         }
@@ -562,7 +641,7 @@ function updateLibraryUIState() {
 
     if (libraryUI.toolbarNote) {
         libraryUI.toolbarNote.textContent = manualMode
-            ? 'Manual mode is on. Save the current clip when you want to keep it.'
+            ? 'Manual mode is on. Press Save Clip to save the current page.'
             : 'Library saves the current page automatically the first time this popup loads it.';
     }
 

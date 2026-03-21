@@ -891,7 +891,7 @@ body {
     display: flex;
     flex-direction: column;
     padding: var(--space-4);
-    gap: var(--space-3);
+    gap: var(--space-2);
 }
 
 .library-toolbar {
@@ -949,6 +949,29 @@ body {
     border-radius: var(--radius-lg);
     background: var(--bg-secondary);
     box-shadow: var(--shadow-sm);
+    transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.library-card:hover {
+    border-color: var(--border-medium);
+    box-shadow: var(--shadow-md);
+}
+
+.library-card--current {
+    border-left: 3px solid var(--accent-dark);
+}
+
+.library-card-current-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: var(--accent-light);
+    color: var(--accent-dark);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-semibold);
+    white-space: nowrap;
+    margin-top: var(--space-2);
 }
 
 .library-card-header {
@@ -1001,6 +1024,17 @@ body {
 .library-card-actions .btn {
     flex: 0 0 auto;
     min-width: auto;
+}
+
+.library-card-delete {
+    color: var(--text-tertiary);
+    background: transparent;
+    border-color: transparent;
+}
+
+.library-card-delete:hover {
+    color: var(--error);
+    border-color: var(--error);
 }
 
 .url-textarea {
@@ -1108,6 +1142,10 @@ body {
 
 .fade-in {
     animation: fadeIn 200ms ease-out;
+}
+
+.library-card {
+    animation: fadeIn 200ms ease-out backwards;
 }
 
 /* Responsive */
