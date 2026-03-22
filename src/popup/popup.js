@@ -14,6 +14,48 @@ let currentClipState = {
 let libraryExportInProgress = false;
 const autoSavedLibraryUrls = new Set();
 let agentBridgeClipPersistTimeout = null;
+let cm = null;
+let editorInitPromise = null;
+let pendingEditorValue = '';
+let pendingEditorRefresh = false;
+let notificationHostLoadPromise = null;
+let libraryStateLoadPromise = null;
+let libraryStateLoaded = false;
+let batchSettingsLoadPromise = null;
+let batchSettingsLoaded = false;
+let activeTabPromise = null;
+let activeTabCache = null;
+let currentOptions = null;
+let deferredStartupScheduled = false;
+let deferredLibraryWarmupScheduled = false;
+const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+const dom = {
+    root: document.documentElement,
+    body: document.body,
+    spinner: document.getElementById('spinner'),
+    container: document.getElementById('container'),
+    batchContainer: document.getElementById('batchContainer'),
+    editorTextarea: document.getElementById('md'),
+    titleInput: document.getElementById('title'),
+    charCount: document.getElementById('char-count'),
+    downloadButton: document.getElementById('download'),
+    downloadSelectionButton: document.getElementById('downloadSelection'),
+    copyButton: document.getElementById('copy'),
+    copySelectionButton: document.getElementById('copySelection'),
+    includeTemplate: document.getElementById('includeTemplate'),
+    downloadImages: document.getElementById('downloadImages'),
+    selectedButton: document.getElementById('selected'),
+    documentButton: document.getElementById('document'),
+    clipOption: document.getElementById('clipOption'),
+    urlList: document.getElementById('urlList'),
+    convertUrlsButton: document.getElementById('convertUrls'),
+    pickLinksButton: document.getElementById('pickLinks'),
+    batchSaveModeToggle: document.getElementById('batchSaveModeToggle'),
+    openGuideButton: document.getElementById('openGuide'),
+    sendToObsidianButton: document.getElementById('sendToObsidian')
+};
+
+globalThis.cm = null;
 
 const libraryUI = {
     toggle: document.getElementById('libraryViewToggle'),
@@ -75,7 +117,7 @@ const progressUI = {
     }
 };
 
-let darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+let darkMode = prefersDarkScheme.matches;
 
 function getLibraryStateApi() {
     return globalThis.markSnipLibraryState || null;
@@ -123,6 +165,230 @@ const EDITOR_THEME_MAP = {
     solarized: { dark: 'solarized dark',  light: 'solarized light' },
     twilight:  { dark: 'twilight',         light: 'xq-light' },
 };
+const EDITOR_THEME_STYLESHEET_MAP = Object.freeze({
+    'xq-dark': 'lib/xq-dark.css',
+    'xq-light': 'lib/xq-light.css',
+    'dracula': 'lib/dracula.css',
+    'material': 'lib/material.css',
+    'material-darker': 'lib/material-darker.css',
+    'monokai': 'lib/monokai.css',
+    'nord': 'lib/nord.css',
+    'solarized dark': 'lib/solarized.css',
+    'solarized light': 'lib/solarized.css',
+    'twilight': 'lib/twilight.css'
+});
+
+function afterNextPaint() {
+    return new Promise((resolve) => {
+        requestAnimationFrame(() => resolve());
+    });
+}
+
+function scheduleDeferredTask(task, timeout = 800) {
+    if (typeof window.requestIdleCallback === 'function') {
+        window.requestIdleCallback(() => {
+            Promise.resolve().then(task).catch((error) => {
+                console.error('Deferred popup task failed:', error);
+            });
+        }, { timeout });
+        return;
+    }
+
+    setTimeout(() => {
+        Promise.resolve().then(task).catch((error) => {
+            console.error('Deferred popup task failed:', error);
+        });
+    }, 0);
+}
+
+function getEditorThemeStylesheetLink() {
+    let link = document.getElementById('cm-theme-stylesheet');
+    if (link) {
+        return link;
+    }
+
+    link = document.createElement('link');
+    link.id = 'cm-theme-stylesheet';
+    link.rel = 'stylesheet';
+    dom.root.querySelector('head')?.appendChild(link);
+    return link;
+}
+
+function ensureEditorThemeStylesheet(themeName) {
+    const href = EDITOR_THEME_STYLESHEET_MAP[themeName];
+    if (!href) {
+        return;
+    }
+
+    const link = getEditorThemeStylesheetLink();
+    if (link.getAttribute('href') === href) {
+        return;
+    }
+
+    link.setAttribute('href', href);
+    link.setAttribute('data-theme-name', themeName);
+}
+
+function getEditorValue() {
+    if (cm?.getValue) {
+        return cm.getValue();
+    }
+    return dom.editorTextarea?.value || pendingEditorValue || currentClipState.markdown || '';
+}
+
+function editorHasSelection() {
+    return Boolean(cm?.somethingSelected && cm.somethingSelected());
+}
+
+function getEditorSelection() {
+    return cm?.getSelection ? cm.getSelection() : '';
+}
+
+function syncSelectionActionVisibility(showSelectionActions) {
+    if (dom.downloadSelectionButton) {
+        dom.downloadSelectionButton.style.display = showSelectionActions ? 'block' : 'none';
+    }
+    if (dom.copySelectionButton) {
+        dom.copySelectionButton.style.display = showSelectionActions ? 'block' : 'none';
+    }
+}
+
+function setEditorValue(value) {
+    const nextValue = String(value || '');
+    pendingEditorValue = nextValue;
+    currentClipState.markdown = nextValue;
+
+    if (cm?.getValue) {
+        if (cm.getValue() !== nextValue) {
+            cm.setValue(nextValue);
+            return;
+        }
+    } else if (dom.editorTextarea) {
+        dom.editorTextarea.value = nextValue;
+    }
+
+    updateSaveLibraryButtonState();
+    updateCharCount(nextValue);
+}
+
+function refreshEditor() {
+    if (cm?.refresh) {
+        cm.refresh();
+        return;
+    }
+    pendingEditorRefresh = true;
+}
+
+function initializeEditor() {
+    if (editorInitPromise) {
+        return editorInitPromise;
+    }
+
+    editorInitPromise = Promise.resolve().then(() => {
+        const initialValue = pendingEditorValue || dom.editorTextarea?.value || currentClipState.markdown || '';
+        if (dom.editorTextarea) {
+            dom.editorTextarea.value = initialValue;
+        }
+
+        cm = CodeMirror.fromTextArea(dom.editorTextarea, {
+            theme: resolveEditorTheme(currentOptions?.editorTheme || 'default', darkMode),
+            mode: 'markdown',
+            lineWrapping: true
+        });
+        globalThis.cm = cm;
+
+        cm.on('change', (instance) => {
+            const nextValue = instance.getValue();
+            pendingEditorValue = nextValue;
+            currentClipState.markdown = nextValue;
+            updateSaveLibraryButtonState();
+            updateCharCount(nextValue);
+            queuePersistAgentBridgeClip();
+        });
+
+        cm.on('cursorActivity', (instance) => {
+            const somethingSelected = instance.somethingSelected();
+            syncSelectionActionVisibility(somethingSelected);
+            updateCharCount(somethingSelected ? instance.getSelection() : currentClipState.markdown);
+        });
+
+        syncSelectionActionVisibility(false);
+        updateCharCount(initialValue);
+
+        if (pendingEditorRefresh) {
+            pendingEditorRefresh = false;
+            requestAnimationFrame(() => cm.refresh());
+        }
+
+        return cm;
+    });
+
+    return editorInitPromise;
+}
+
+function loadScriptOnce(src, id) {
+    if (id) {
+        const existingById = document.getElementById(id);
+        if (existingById) {
+            return Promise.resolve(existingById);
+        }
+    }
+
+    const existing = Array.from(document.scripts).find((script) => script.getAttribute('src') === src);
+    if (existing) {
+        return Promise.resolve(existing);
+    }
+
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.type = 'application/javascript';
+        script.src = src;
+        if (id) {
+            script.id = id;
+        }
+        script.addEventListener('load', () => resolve(script), { once: true });
+        script.addEventListener('error', () => reject(new Error(`Failed to load script: ${src}`)), { once: true });
+        document.body.appendChild(script);
+    });
+}
+
+function loadNotificationHostDeferred() {
+    if (notificationHostLoadPromise) {
+        return notificationHostLoadPromise;
+    }
+
+    notificationHostLoadPromise = loadScriptOnce('../notifications/notification-host.js', 'notification-host-script').catch((error) => {
+        console.error('Failed to load notification host:', error);
+        throw error;
+    });
+    return notificationHostLoadPromise;
+}
+
+async function getActiveTab(forceRefresh = false) {
+    if (!forceRefresh && activeTabCache) {
+        return activeTabCache;
+    }
+
+    if (!forceRefresh && activeTabPromise) {
+        return activeTabPromise;
+    }
+
+    activeTabPromise = browser.tabs.query({
+        currentWindow: true,
+        active: true
+    }).then((tabs) => {
+        activeTabCache = tabs?.[0] || null;
+        return activeTabCache;
+    }).finally(() => {
+        activeTabPromise = null;
+    });
+
+    return activeTabPromise;
+}
+
+async function getActiveTabId(forceRefresh = false) {
+    return (await getActiveTab(forceRefresh))?.id ?? null;
+}
 
 function resolveEditorTheme(editorTheme, isDark) {
     const entry = EDITOR_THEME_MAP[editorTheme] || EDITOR_THEME_MAP.default;
@@ -130,28 +396,28 @@ function resolveEditorTheme(editorTheme, isDark) {
 }
 
 function applyThemeSettings(options) {
-    const root = document.documentElement;
-
     // Apply theme mode
-    root.classList.remove('theme-light', 'theme-dark', 'theme-system');
-    root.classList.add('theme-' + (options.popupTheme || 'system'));
+    dom.root.classList.remove('theme-light', 'theme-dark', 'theme-system');
+    dom.root.classList.add('theme-' + (options.popupTheme || 'system'));
 
     // Apply accent color
-    root.classList.remove('accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber');
+    dom.root.classList.remove('accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber');
     const accent = options.popupAccent || 'sage';
     if (accent !== 'sage') {
-        root.classList.add('accent-' + accent);
+        dom.root.classList.add('accent-' + accent);
     }
 
     // Compact mode
-    document.body.classList.toggle('compact-mode', !!options.compactMode);
+    dom.body.classList.toggle('compact-mode', !!options.compactMode);
 
     // Update CodeMirror theme based on resolved dark mode + editor theme
     const isDark = options.popupTheme === 'dark' ||
-        (options.popupTheme !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        (options.popupTheme !== 'light' && prefersDarkScheme.matches);
     darkMode = isDark;
+    const themeName = resolveEditorTheme(options.editorTheme || 'default', isDark);
+    ensureEditorThemeStylesheet(themeName);
     if (typeof cm !== 'undefined' && cm) {
-        cm.setOption('theme', resolveEditorTheme(options.editorTheme || 'default', isDark));
+        cm.setOption('theme', themeName);
     }
 }
 
@@ -227,8 +493,7 @@ function estimateTokens(text) {
 
 function updateCharCount(value) {
     _lastCounterText = value;
-    const charCountEl = document.getElementById('char-count');
-    if (!charCountEl) return;
+    if (!dom.charCount) return;
     let display;
     if (countMode === 'chars') {
         display = value.length.toLocaleString() + ' chars';
@@ -238,91 +503,53 @@ function updateCharCount(value) {
     } else {
         display = estimateTokens(value).toLocaleString() + ' tokens';
     }
-    charCountEl.textContent = display;
+    dom.charCount.textContent = display;
 }
 
-document.getElementById('char-count').addEventListener('click', () => {
+dom.charCount?.addEventListener('click', () => {
     const idx = COUNT_MODES.indexOf(countMode);
     countMode = COUNT_MODES[(idx + 1) % COUNT_MODES.length];
     updateCharCount(_lastCounterText);
     browser.storage.local.set({ countMode });
 });
-
-// Restore persisted count mode
-browser.storage.local.get('countMode').then(data => {
-    if (data.countMode && COUNT_MODES.includes(data.countMode)) {
-        countMode = data.countMode;
-    }
-});
-
-// set up event handlers
-const cm = CodeMirror.fromTextArea(document.getElementById("md"), {
-    theme: resolveEditorTheme('default', darkMode),
-    mode: "markdown",
-    lineWrapping: true
-});
-cm.on("change", (instance) => {
-    currentClipState.markdown = instance.getValue();
-    updateSaveLibraryButtonState();
-    updateCharCount(instance.getValue());
-    queuePersistAgentBridgeClip();
-});
-cm.on("cursorActivity", (cm) => {
-    const somethingSelected = cm.somethingSelected();
-    var downloadSelectionButton = document.getElementById("downloadSelection");
-    var copySelectionButton = document.getElementById("copySelection");
-
-    if (somethingSelected) {
-        if(downloadSelectionButton.style.display != "block") downloadSelectionButton.style.display = "block";
-        if(copySelectionButton.style.display != "block") copySelectionButton.style.display = "block";
-        updateCharCount(cm.getSelection());
-    }
-    else {
-        if(downloadSelectionButton.style.display != "none") downloadSelectionButton.style.display = "none";
-        if(copySelectionButton.style.display != "none") copySelectionButton.style.display = "none";
-        updateCharCount(cm.getValue());
-    }
-});
-document.getElementById("download").addEventListener("click", download);
-document.getElementById("downloadSelection").addEventListener("click", downloadSelection);
-document.getElementById("title").addEventListener("input", (event) => {
+dom.downloadButton?.addEventListener("click", download);
+dom.downloadSelectionButton?.addEventListener("click", downloadSelection);
+dom.titleInput?.addEventListener("input", (event) => {
     currentClipState.title = event.target.value;
     queuePersistAgentBridgeClip();
 });
 
-document.getElementById("copy").addEventListener("click", copyToClipboard);
-document.getElementById("copySelection").addEventListener("click", copySelectionToClipboard);
+dom.copyButton?.addEventListener("click", copyToClipboard);
+dom.copySelectionButton?.addEventListener("click", copySelectionToClipboard);
 
-document.getElementById("sendToObsidian").addEventListener("click", sendToObsidian);
+dom.sendToObsidianButton?.addEventListener("click", sendToObsidian);
 
 document.getElementById("batchProcess").addEventListener("click", showBatchProcess);
-document.getElementById("convertUrls").addEventListener("click", handleBatchConversion);
+dom.convertUrlsButton?.addEventListener("click", handleBatchConversion);
 document.getElementById("cancelBatch").addEventListener("click", hideBatchProcess);
 libraryUI.toggle?.addEventListener("click", showLibraryView);
 libraryUI.close?.addEventListener("click", hideLibraryView);
 libraryUI.saveButton?.addEventListener("click", handleManualLibrarySave);
 libraryUI.exportButton?.addEventListener("click", handleLibraryExportAll);
-document.getElementById("pickLinks").addEventListener("click", activateLinkPicker);
-document.getElementById("batchSaveModeToggle").addEventListener("change", saveBatchSettings);
-document.getElementById("cancelBatchProgress").addEventListener("click", () => {
+dom.pickLinksButton?.addEventListener("click", activateLinkPicker);
+dom.batchSaveModeToggle?.addEventListener("change", saveBatchSettings);
+progressUI.cancelBtn?.addEventListener("click", () => {
     browser.runtime.sendMessage({ type: 'cancel-batch' }).catch(() => {});
-    document.getElementById("cancelBatchProgress").disabled = true;
-    document.getElementById("cancelBatchProgress").textContent = 'Cancelling...';
+    progressUI.cancelBtn.disabled = true;
+    progressUI.cancelBtn.textContent = 'Cancelling...';
 });
 
 function getSelectedBatchSaveMode() {
-    const toggle = document.getElementById("batchSaveModeToggle");
-    return toggle?.checked ? 'individual' : 'zip';
+    return dom.batchSaveModeToggle?.checked ? 'individual' : 'zip';
 }
 
 function setSelectedBatchSaveMode(mode) {
-    const toggle = document.getElementById("batchSaveModeToggle");
-    if (toggle) toggle.checked = mode === 'individual';
+    if (dom.batchSaveModeToggle) dom.batchSaveModeToggle.checked = mode === 'individual';
 }
 
 // Save batch settings to storage
 function saveBatchSettings() {
-    const urlList = document.getElementById("urlList").value;
+    const urlList = dom.urlList?.value || '';
     const batchSaveMode = getSelectedBatchSaveMode();
     browser.storage.local.set({
         batchUrlList: urlList,
@@ -336,18 +563,36 @@ function saveBatchSettings() {
 async function loadBatchSettings() {
     try {
         const data = await browser.storage.local.get(['batchUrlList', 'batchSaveMode']);
-        if (data.batchUrlList) {
-            document.getElementById("urlList").value = data.batchUrlList;
+        if (data.batchUrlList && dom.urlList) {
+            dom.urlList.value = data.batchUrlList;
         }
         setSelectedBatchSaveMode(data.batchSaveMode || 'zip');
         validateAndPreviewUrls();
+        batchSettingsLoaded = true;
+        return data;
     } catch (err) {
         console.error("Error loading batch settings:", err);
+        return null;
     }
 }
 
+function ensureBatchSettingsLoaded() {
+    if (batchSettingsLoaded) {
+        return Promise.resolve();
+    }
+
+    if (batchSettingsLoadPromise) {
+        return batchSettingsLoadPromise;
+    }
+
+    batchSettingsLoadPromise = loadBatchSettings().finally(() => {
+        batchSettingsLoadPromise = null;
+    });
+    return batchSettingsLoadPromise;
+}
+
 // Save batch URL list as user types and validate
-document.getElementById("urlList").addEventListener("input", () => {
+dom.urlList?.addEventListener("input", () => {
     saveBatchSettings();
     debouncedValidateUrls();
 });
@@ -355,6 +600,7 @@ document.getElementById("urlList").addEventListener("input", () => {
 async function showBatchProcess(e) {
     e.preventDefault();
     showBatchView();
+    await ensureBatchSettingsLoaded();
 
     // Check if there are pending link picker results from storage
     try {
@@ -383,14 +629,11 @@ async function activateLinkPicker(e) {
     e.preventDefault();
 
     try {
-        // Get the current active tab
-        const tabs = await browser.tabs.query({ currentWindow: true, active: true });
-        if (!tabs || tabs.length === 0) {
+        const activeTab = await getActiveTab();
+        if (!activeTab?.id) {
             console.error("No active tab found");
             return;
         }
-
-        const activeTab = tabs[0];
 
         // Ensure content script is injected
         await browser.scripting.executeScript({
@@ -426,21 +669,20 @@ const defaultOptions = {
     showUserGuideIcon: true,
     editorTheme: 'default',
 }
+currentOptions = { ...defaultOptions };
 
 const updateObsidianButtonVisibility = (options) => {
-    const obsidianButton = document.getElementById("sendToObsidian");
-    if (!obsidianButton) return;
-    obsidianButton.style.display = options.obsidianIntegration ? "inline-flex" : "none";
+    if (!dom.sendToObsidianButton) return;
+    dom.sendToObsidianButton.style.display = options.obsidianIntegration ? "inline-flex" : "none";
 }
 
 const updateGuideButtonVisibility = (options) => {
-    const guideButton = document.getElementById("openGuide");
-    if (!guideButton) return;
+    if (!dom.openGuideButton) return;
 
     const shouldShowGuideButton = options.showUserGuideIcon !== false;
-    guideButton.hidden = !shouldShowGuideButton;
-    guideButton.style.display = shouldShowGuideButton ? "" : "none";
-    guideButton.setAttribute("aria-hidden", String(!shouldShowGuideButton));
+    dom.openGuideButton.hidden = !shouldShowGuideButton;
+    dom.openGuideButton.style.display = shouldShowGuideButton ? "" : "none";
+    dom.openGuideButton.setAttribute("aria-hidden", String(!shouldShowGuideButton));
 }
 
 function resolveClipPageUrl(article = {}) {
@@ -587,7 +829,10 @@ async function deleteLibraryItem(itemId) {
 
     try {
         libraryItems = await api.saveLibraryItems(filtered);
-        renderLibraryItems();
+        syncLibrarySummaryUi();
+        if (isLibraryViewVisible()) {
+            renderLibraryItems();
+        }
         setLibraryStatus(`Removed "${itemTitle}"`);
     } catch (error) {
         console.error('Failed to delete library item:', error);
@@ -595,13 +840,19 @@ async function deleteLibraryItem(itemId) {
     }
 }
 
+function syncLibrarySummaryUi() {
+    if (libraryUI.countBadge) {
+        libraryUI.countBadge.textContent = String(libraryItems.length);
+    }
+    updateLibraryExportButtonState();
+}
+
 function renderLibraryItems() {
     if (!libraryUI.list || !libraryUI.emptyState || !libraryUI.emptyText || !libraryUI.countBadge) {
         return;
     }
 
-    libraryUI.countBadge.textContent = String(libraryItems.length);
-    updateLibraryExportButtonState();
+    syncLibrarySummaryUi();
     libraryUI.list.innerHTML = '';
 
     const autoSaveEnabled = librarySettings?.autoSaveOnPopupOpen !== false;
@@ -714,13 +965,15 @@ function updateLibraryUIState() {
     }
 
     updateSaveLibraryButtonState();
-    updateLibraryExportButtonState();
-    renderLibraryItems();
+    syncLibrarySummaryUi();
+    if (isLibraryViewVisible()) {
+        renderLibraryItems();
+    }
 }
 
 function showMainView() {
-    document.getElementById("container").style.display = 'flex';
-    document.getElementById("batchContainer").style.display = 'none';
+    dom.container.style.display = 'flex';
+    dom.batchContainer.style.display = 'none';
     if (libraryUI.container) {
         libraryUI.container.style.display = 'none';
         libraryUI.container.setAttribute('aria-hidden', 'true');
@@ -733,8 +986,8 @@ function isLibraryViewVisible() {
 }
 
 function showBatchView() {
-    document.getElementById("container").style.display = 'none';
-    document.getElementById("batchContainer").style.display = 'flex';
+    dom.container.style.display = 'none';
+    dom.batchContainer.style.display = 'flex';
     if (libraryUI.container) {
         libraryUI.container.style.display = 'none';
         libraryUI.container.setAttribute('aria-hidden', 'true');
@@ -742,7 +995,7 @@ function showBatchView() {
     libraryUI.toggle?.classList.remove('active');
 }
 
-function showLibraryView(e) {
+async function showLibraryView(e) {
     if (e) {
         e.preventDefault();
     }
@@ -750,8 +1003,10 @@ function showLibraryView(e) {
         return;
     }
 
-    document.getElementById("container").style.display = 'none';
-    document.getElementById("batchContainer").style.display = 'none';
+    await ensureLibraryStateLoaded({ renderIfVisible: true });
+
+    dom.container.style.display = 'none';
+    dom.batchContainer.style.display = 'none';
     libraryUI.container.style.display = 'flex';
     libraryUI.container.setAttribute('aria-hidden', 'false');
     libraryUI.toggle?.classList.add('active');
@@ -769,12 +1024,12 @@ function hideLibraryView(e) {
     }
     libraryUI.toggle?.classList.remove('active');
 
-    if (document.getElementById("batchContainer").style.display === 'flex') {
+    if (dom.batchContainer.style.display === 'flex') {
         return;
     }
 
-    if (document.getElementById("spinner").style.display !== 'flex') {
-        document.getElementById("container").style.display = 'flex';
+    if (dom.spinner.style.display !== 'flex') {
+        dom.container.style.display = 'flex';
     }
 }
 
@@ -791,11 +1046,33 @@ async function loadLibraryState() {
         ]);
         librarySettings = settings;
         libraryItems = items;
+        libraryStateLoaded = true;
         updateLibraryUIState();
         await maybeAutoSaveCurrentClip();
     } catch (error) {
         console.error('Failed to load library state:', error);
     }
+}
+
+function ensureLibraryStateLoaded({ renderIfVisible = false } = {}) {
+    if (libraryStateLoaded) {
+        if (renderIfVisible && isLibraryViewVisible()) {
+            renderLibraryItems();
+        }
+        return Promise.resolve();
+    }
+
+    if (libraryStateLoadPromise) {
+        return libraryStateLoadPromise;
+    }
+
+    libraryStateLoadPromise = loadLibraryState().finally(() => {
+        libraryStateLoadPromise = null;
+        if (renderIfVisible && isLibraryViewVisible()) {
+            renderLibraryItems();
+        }
+    });
+    return libraryStateLoadPromise;
 }
 
 async function persistLibrarySnapshot(snapshot, successMessage) {
@@ -806,7 +1083,10 @@ async function persistLibrarySnapshot(snapshot, successMessage) {
 
     const nextItems = api.upsertLibraryItem(libraryItems, snapshot, librarySettings.itemsToKeep);
     libraryItems = await api.saveLibraryItems(nextItems);
-    renderLibraryItems();
+    syncLibrarySummaryUi();
+    if (isLibraryViewVisible()) {
+        renderLibraryItems();
+    }
     if (successMessage) {
         setLibraryStatus(successMessage);
     }
@@ -816,8 +1096,8 @@ async function persistLibrarySnapshot(snapshot, successMessage) {
 async function handleManualLibrarySave(e) {
     e.preventDefault();
     const snapshot = {
-        title: document.getElementById('title')?.value || currentClipState.title,
-        markdown: cm?.getValue ? cm.getValue() : currentClipState.markdown,
+        title: dom.titleInput?.value || currentClipState.title,
+        markdown: getEditorValue(),
         pageUrl: currentClipState.pageUrl
     };
 
@@ -835,12 +1115,7 @@ async function handleManualLibrarySave(e) {
 }
 
 async function resolveLibraryExportTabId() {
-    const tabs = await browser.tabs.query({
-        currentWindow: true,
-        active: true
-    }).catch(() => []);
-
-    return tabs?.[0]?.id ?? null;
+    return await getActiveTabId();
 }
 
 async function handleLibraryExportAll(e) {
@@ -987,8 +1262,8 @@ let _urlValidationTimer = null;
 
 function validateAndPreviewUrls() {
     const urlValidation = document.getElementById('urlValidation');
-    const convertBtn = document.getElementById('convertUrls');
-    const text = document.getElementById('urlList').value;
+    const convertBtn = dom.convertUrlsButton;
+    const text = dom.urlList?.value || '';
     const lines = text.split('\n').map(l => l.trim()).filter(l => l);
     const sharedApi = getPopupBatchUtilsApi();
     const summary = sharedApi?.summarizeUrlValidation
@@ -1173,9 +1448,15 @@ async function clipTabWithRetry(tab, maxAttempts = 2) {
                         message.article.title = tab.customTitle;
                     }
 
-                    cm.setValue(message.markdown);
-                    updateCharCount(message.markdown);
-                    document.getElementById("title").value = message.article.title;
+                    updateCurrentClipState({
+                        title: message.article?.title,
+                        markdown: message.markdown,
+                        pageUrl: resolveClipPageUrl(message.article)
+                    });
+                    setEditorValue(message.markdown);
+                    if (dom.titleInput) {
+                        dom.titleInput.value = message.article.title;
+                    }
                     imageList = message.imageList;
                     sourceImageMap = message.sourceImageMap;
                     mdClipsFolder = message.mdClipsFolder;
@@ -1216,7 +1497,7 @@ async function clipTabWithRetry(tab, maxAttempts = 2) {
 async function handleBatchConversion(e) {
     e.preventDefault();
     
-    const urlText = document.getElementById("urlList").value;
+    const urlText = dom.urlList?.value || '';
     const urlObjects = processUrlInput(urlText);
     
     if (urlObjects.length === 0) {
@@ -1228,18 +1509,14 @@ async function handleBatchConversion(e) {
     // Default path: run batch in service worker so popup lifecycle doesn't interrupt processing.
     // Keep inline mode for e2e tests by setting window.__MARKSNIP_FORCE_INLINE_BATCH__ = true.
     if (!window.__MARKSNIP_FORCE_INLINE_BATCH__) {
-        document.getElementById("spinner").style.display = 'flex';
-        document.getElementById("convertUrls").style.display = 'none';
+        dom.spinner.style.display = 'flex';
+        dom.convertUrlsButton.style.display = 'none';
         progressUI.show();
         progressUI.reset();
         progressUI.setStatus('Starting background batch...');
 
         try {
-            const activeTabs = await browser.tabs.query({
-                currentWindow: true,
-                active: true
-            });
-            const originalTabId = activeTabs?.[0]?.id || null;
+            const originalTabId = await getActiveTabId();
 
             browser.runtime.sendMessage({
                 type: 'start-batch-conversion',
@@ -1255,14 +1532,14 @@ async function handleBatchConversion(e) {
         } catch (error) {
             console.error('Failed to start background batch:', error);
             progressUI.setStatus(`Error: ${error.message}`);
-            document.getElementById("spinner").style.display = 'none';
-            document.getElementById("convertUrls").style.display = 'block';
+            dom.spinner.style.display = 'none';
+            dom.convertUrlsButton.style.display = 'block';
         }
         return;
     }
 
-    document.getElementById("spinner").style.display = 'flex';
-    document.getElementById("convertUrls").style.display = 'none';
+    dom.spinner.style.display = 'flex';
+    dom.convertUrlsButton.style.display = 'none';
     progressUI.show();
     progressUI.reset();
 
@@ -1274,11 +1551,7 @@ async function handleBatchConversion(e) {
     };
 
     try {
-        const currentTabs = await browser.tabs.query({
-            currentWindow: true,
-            active: true
-        });
-        originalTabId = currentTabs?.[0]?.id || null;
+        originalTabId = await getActiveTabId();
 
         const total = urlObjects.length;
         let current = 0;
@@ -1316,7 +1589,7 @@ async function handleBatchConversion(e) {
                 console.log(`Processing tab ${tab.id}`);
 
                 const message = await clipTabWithRetry(tab, 2);
-                await sendDownloadMessage(message?.markdown || cm.getValue());
+                await sendDownloadMessage(message?.markdown || getEditorValue());
 
             } catch (error) {
                 console.error(`Error processing URL ${urlObj.url}:`, error);
@@ -1345,34 +1618,40 @@ async function handleBatchConversion(e) {
         await restoreOriginalTab();
         console.error('Batch processing error:', error);
         progressUI.setStatus(`Error: ${error.message}`);
-        document.getElementById("spinner").style.display = 'none';
-        document.getElementById("convertUrls").style.display = 'block';
+        dom.spinner.style.display = 'none';
+        dom.convertUrlsButton.style.display = 'block';
     }
 }
 
 const checkInitialSettings = options => {
+    currentOptions = {
+        ...defaultOptions,
+        ...options
+    };
+
     // Apply theme settings
-    applyThemeSettings(options);
+    applyThemeSettings(currentOptions);
 
     // Set checkbox states
-    document.querySelector("#includeTemplate").checked = options.includeTemplate || false;
-    document.querySelector("#downloadImages").checked = options.downloadImages || false;
-    updateObsidianButtonVisibility(options);
-    updateGuideButtonVisibility(options);
+    if (dom.includeTemplate) {
+        dom.includeTemplate.checked = currentOptions.includeTemplate || false;
+    }
+    if (dom.downloadImages) {
+        dom.downloadImages.checked = currentOptions.downloadImages || false;
+    }
+    updateObsidianButtonVisibility(currentOptions);
+    updateGuideButtonVisibility(currentOptions);
 
     // Set segmented control state
-    setClipSelectionState(options.clipSelection);
+    setClipSelectionState(currentOptions.clipSelection);
 }
 
 const setClipSelectionState = clipSelection => {
-    const selectedButton = document.querySelector("#selected");
-    const documentButton = document.querySelector("#document");
+    dom.selectedButton?.classList.toggle("active", clipSelection);
+    dom.selectedButton?.setAttribute("aria-pressed", String(clipSelection));
 
-    selectedButton.classList.toggle("active", clipSelection);
-    selectedButton.setAttribute("aria-pressed", String(clipSelection));
-
-    documentButton.classList.toggle("active", !clipSelection);
-    documentButton.setAttribute("aria-pressed", String(!clipSelection));
+    dom.documentButton?.classList.toggle("active", !clipSelection);
+    dom.documentButton?.setAttribute("aria-pressed", String(!clipSelection));
 }
 
 const setClipSelection = (options, clipSelection) => {
@@ -1389,17 +1668,15 @@ const setClipSelection = (options, clipSelection) => {
 }
 
 const toggleIncludeTemplate = options => {
-    const el = document.getElementById("includeTemplate");
-    if (el) {
-        options.includeTemplate = el.checked;
+    if (dom.includeTemplate) {
+        options.includeTemplate = dom.includeTemplate.checked;
     }
 
     browser.storage.sync.set(options).then(() => {
-        // Re-clip the site to update the preview
-        return browser.tabs.query({ currentWindow: true, active: true });
-    }).then((tabs) => {
-        if (tabs && tabs[0]) {
-            return clipSite(tabs[0].id);
+        return getActiveTab();
+    }).then((tab) => {
+        if (tab?.id) {
+            return clipSite(tab.id);
         }
     }).catch((error) => {
         console.error("Error toggling include template:", error);
@@ -1407,9 +1684,8 @@ const toggleIncludeTemplate = options => {
 }
 
 const toggleDownloadImages = options => {
-    const el = document.getElementById("downloadImages");
-    if (el) {
-        options.downloadImages = el.checked;
+    if (dom.downloadImages) {
+        options.downloadImages = dom.downloadImages.checked;
     }
 
     browser.storage.sync.set(options).catch((error) => {
@@ -1419,10 +1695,10 @@ const toggleDownloadImages = options => {
 
 const showOrHideClipOption = selection => {
     if (selection) {
-        document.getElementById("clipOption").style.display = "flex";
+        dom.clipOption.style.display = "flex";
     }
     else {
-        document.getElementById("clipOption").style.display = "none";
+        dom.clipOption.style.display = "none";
     }
 }
 
@@ -1430,12 +1706,9 @@ const showOrHideClipOption = selection => {
 const clipSite = id => {
     // If no id is provided, get the active tab's id first
     if (!id) {
-        return browser.tabs.query({
-            currentWindow: true,
-            active: true
-        }).then(tabs => {
-            if (tabs && tabs.length > 0) {
-                return clipSite(tabs[0].id);
+        return getActiveTab().then(tab => {
+            if (tab?.id) {
+                return clipSite(tab.id);
             }
             throw new Error("No active tab found");
         });
@@ -1463,10 +1736,20 @@ const clipSite = id => {
                 selection: result[0].result.selection,
                 pageUrl: result[0].result.pageUrl || null
             }
-            return browser.storage.sync.get(defaultOptions).then(options => {
-                browser.runtime.sendMessage({
+            if (currentOptions) {
+                return browser.runtime.sendMessage({
                     ...message,
+                    ...currentOptions
+                });
+            }
+            return browser.storage.sync.get(defaultOptions).then(options => {
+                currentOptions = {
+                    ...defaultOptions,
                     ...options
+                };
+                return browser.runtime.sendMessage({
+                    ...message,
+                    ...currentOptions
                 });
             }).catch(err => {
                 console.error(err);
@@ -1483,74 +1766,116 @@ const clipSite = id => {
     });
 }
 
-// Inject the necessary scripts - updated for Manifest V3
-browser.storage.sync.get(defaultOptions).then(options => {
-    checkInitialSettings(options);
-
-    // Load batch settings from storage
-    loadBatchSettings();
-    loadLibraryState();
-
-    // Check for in-progress batch and auto-switch to batch view
-    browser.runtime.sendMessage({ type: 'get-batch-state' }).then(state => {
-        if (state && ['started', 'loading', 'converting', 'retrying'].includes(state.status)) {
-            showBatchView();
-            document.getElementById("spinner").style.display = 'none';
-            progressUI.show();
-            progressUI.showCancelButton();
-            const current = state.current || 0;
-            const total = state.total || 0;
-            if (total > 0) {
-                progressUI.updateProgress(current, total, state.url || '', state.pageTitle || null);
-            }
-            progressUI.setStatus(state.status === 'loading' ? 'Loading page...' :
-                                 state.status === 'converting' ? 'Converting page...' :
-                                 state.status === 'retrying' ? 'Retrying page capture...' : 'Processing...');
-        }
-    }).catch(() => {});
-
-    // Set up event listeners (unchanged)
-    document.getElementById("selected").addEventListener("click", (e) => {
-        e.preventDefault();
-        setClipSelection(options, true);
-    });
-    document.getElementById("document").addEventListener("click", (e) => {
-        e.preventDefault();
-        setClipSelection(options, false);
-    });
-    document.getElementById("includeTemplate").addEventListener("click", () => {
-        toggleIncludeTemplate(options);
-    });
-    document.getElementById("downloadImages").addEventListener("click", () => {
-        toggleDownloadImages(options);
-    });
-    
-    return browser.tabs.query({
-        currentWindow: true,
-        active: true
-    });
-}).then((tabs) => {
-    var id = tabs[0].id;
-    var url = tabs[0].url;
-    
-    // Use scripting API instead of executeScript
-    browser.scripting.executeScript({
-        target: { tabId: id },
+function ensureContentScriptInjected(tabId) {
+    return browser.scripting.executeScript({
+        target: { tabId },
         files: ["/browser-polyfill.min.js"]
-    })
-    .then(() => {
+    }).then(() => {
         return browser.scripting.executeScript({
-            target: { tabId: id },
+            target: { tabId },
             files: ["/contentScript/contentScript.js"]
         });
-    }).then(() => {
-        console.info("Successfully injected MarkSnip content script");
-        return clipSite(id);
-    }).catch((error) => {
+    });
+}
+
+function scheduleDeferredLibraryWarmup() {
+    if (deferredLibraryWarmupScheduled) {
+        return;
+    }
+
+    deferredLibraryWarmupScheduled = true;
+    scheduleDeferredTask(() => ensureLibraryStateLoaded(), 1200);
+}
+
+function scheduleDeferredStartupTasks() {
+    if (deferredStartupScheduled) {
+        return;
+    }
+
+    deferredStartupScheduled = true;
+    setTimeout(() => {
+        restoreBatchState().catch(() => {});
+    }, 0);
+    scheduleDeferredTask(() => ensureBatchSettingsLoaded(), 1000);
+    scheduleDeferredTask(() => ensureLibraryStateLoaded(), 1200);
+    scheduleDeferredTask(() => loadNotificationHostDeferred(), 1500);
+}
+
+async function restoreBatchState() {
+    const state = await browser.runtime.sendMessage({ type: 'get-batch-state' }).catch(() => null);
+    if (!state || !['started', 'loading', 'converting', 'retrying'].includes(state.status)) {
+        return;
+    }
+
+    await ensureBatchSettingsLoaded();
+    showBatchView();
+    dom.spinner.style.display = 'none';
+    progressUI.show();
+    progressUI.showCancelButton();
+    const current = state.current || 0;
+    const total = state.total || 0;
+    if (total > 0) {
+        progressUI.updateProgress(current, total, state.url || '', state.pageTitle || null);
+    }
+    progressUI.setStatus(state.status === 'loading' ? 'Loading page...' :
+                         state.status === 'converting' ? 'Converting page...' :
+                         state.status === 'retrying' ? 'Retrying page capture...' : 'Processing...');
+}
+
+async function initializePopup() {
+    try {
+        const [options, localState, activeTab] = await Promise.all([
+            browser.storage.sync.get(defaultOptions).catch(() => ({ ...defaultOptions })),
+            browser.storage.local.get('countMode').catch(() => ({})),
+            getActiveTab()
+        ]);
+
+        if (localState.countMode && COUNT_MODES.includes(localState.countMode)) {
+            countMode = localState.countMode;
+        }
+
+        checkInitialSettings(options);
+        updateCharCount(getEditorValue());
+        syncSelectionActionVisibility(false);
+
+        dom.selectedButton?.addEventListener("click", (e) => {
+            e.preventDefault();
+            setClipSelection(currentOptions, true);
+        });
+        dom.documentButton?.addEventListener("click", (e) => {
+            e.preventDefault();
+            setClipSelection(currentOptions, false);
+        });
+        dom.includeTemplate?.addEventListener("click", () => {
+            toggleIncludeTemplate(currentOptions);
+        });
+        dom.downloadImages?.addEventListener("click", () => {
+            toggleDownloadImages(currentOptions);
+        });
+
+        await afterNextPaint();
+
+        const editorPromise = initializeEditor();
+        scheduleDeferredStartupTasks();
+
+        if (!activeTab?.id) {
+            throw new Error("No active tab found");
+        }
+
+        const clipPromise = ensureContentScriptInjected(activeTab.id).then(() => {
+            console.info("Successfully injected MarkSnip content script");
+            return clipSite(activeTab.id);
+        });
+
+        await Promise.all([editorPromise, clipPromise]);
+    } catch (error) {
         console.error(error);
         showError(error);
-    });
-});
+        scheduleDeferredStartupTasks();
+    }
+}
+
+initializePopup();
 
 // listen for notifications from the background page
 browser.runtime.onMessage.addListener(notify);
@@ -1577,12 +1902,17 @@ browser.storage.onChanged.addListener((changes, areaName) => {
 
     if (changes.librarySettings) {
         librarySettings = libraryApi.normalizeLibrarySettings(changes.librarySettings.newValue);
+        libraryStateLoaded = true;
         updateLibraryUIState();
     }
 
     if (changes.libraryItems) {
         libraryItems = Array.isArray(changes.libraryItems.newValue) ? changes.libraryItems.newValue : [];
-        renderLibraryItems();
+        libraryStateLoaded = true;
+        syncLibrarySummaryUi();
+        if (isLibraryViewVisible()) {
+            renderLibraryItems();
+        }
     }
 });
 
@@ -1600,7 +1930,7 @@ function handleLinkPickerComplete(links) {
     }
 
     // Get current textarea value
-    const urlListTextarea = document.getElementById("urlList");
+    const urlListTextarea = dom.urlList;
     const currentUrls = urlListTextarea.value.trim();
 
     // Combine existing URLs with new ones (deduplicate)
@@ -1618,7 +1948,7 @@ function handleLinkPickerComplete(links) {
     console.log(`Added ${links.length} links to batch processor`);
 
     // Optional: Show temporary success indicator
-    const pickLinksBtn = document.getElementById("pickLinks");
+    const pickLinksBtn = dom.pickLinksButton;
     const originalText = pickLinksBtn.innerHTML;
     pickLinksBtn.innerHTML = `
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1637,16 +1967,15 @@ function handleLinkPickerComplete(links) {
 //function to send the download message to the background page
 function sendDownloadMessage(text) {
     if (text != null) {
-
-        return browser.tabs.query({
-            currentWindow: true,
-            active: true
-        }).then(tabs => {
+        return getActiveTab().then(tab => {
+            if (!tab?.id) {
+                throw new Error('No active tab found');
+            }
             var message = {
                 type: "download",
                 markdown: text,
-                title: document.getElementById("title").value,
-                tab: tabs[0],
+                title: dom.titleInput?.value || '',
+                tab,
                 imageList: imageList,
                 mdClipsFolder: mdClipsFolder
             };
@@ -1659,7 +1988,7 @@ function sendDownloadMessage(text) {
 async function download(e) {
     e.preventDefault();
     try {
-        await sendDownloadMessage(cm.getValue());
+        await sendDownloadMessage(getEditorValue());
         window.close();
     } catch (error) {
         console.error("Error sending download message:", error);
@@ -1669,9 +1998,9 @@ async function download(e) {
 // Download selection handler - updated to use promises
 async function downloadSelection(e) {
     e.preventDefault();
-    if (cm.somethingSelected()) {
+    if (editorHasSelection()) {
         try {
-            await sendDownloadMessage(cm.getSelection());
+            await sendDownloadMessage(getEditorSelection());
         } catch (error) {
             console.error("Error sending selection download message:", error);
         }
@@ -1679,11 +2008,7 @@ async function downloadSelection(e) {
 }
 
 async function recordSuccessfulCopyMetric() {
-    const tabs = await browser.tabs.query({
-        currentWindow: true,
-        active: true
-    }).catch(() => []);
-    const tabId = tabs?.[0]?.id ?? null;
+    const tabId = await getActiveTabId();
 
     return browser.runtime.sendMessage({
         type: 'record-notification-metrics',
@@ -1698,12 +2023,12 @@ async function recordSuccessfulCopyMetric() {
 // Function to handle copying text to clipboard
 async function copyToClipboard(e) {
     e.preventDefault();
-    const copyButton = document.getElementById("copy");
-    if (!cm || !copyButton) return;
+    const copyButton = dom.copyButton;
+    if (!copyButton) return;
 
     try {
-        const hasSelection = cm.somethingSelected();
-        const textToCopy = hasSelection ? cm.getSelection() : cm.getValue();
+        const hasSelection = editorHasSelection();
+        const textToCopy = hasSelection ? getEditorSelection() : getEditorValue();
 
         if (!textToCopy.trim()) {
             return;
@@ -1750,10 +2075,10 @@ async function copyToClipboard(e) {
 
 function copySelectionToClipboard(e) {
     e.preventDefault();
-    const copySelButton = document.getElementById("copySelection");
-    if (!cm || !cm.somethingSelected() || !copySelButton) return;
+    const copySelButton = dom.copySelectionButton;
+    if (!editorHasSelection() || !copySelButton) return;
 
-    const selectedText = cm.getSelection();
+    const selectedText = getEditorSelection();
     navigator.clipboard.writeText(selectedText).then(async () => {
         await recordSuccessfulCopyMetric();
 
@@ -1779,7 +2104,7 @@ function copySelectionToClipboard(e) {
 // Function to send markdown to Obsidian
 async function sendToObsidian(e) {
     e.preventDefault();
-    const obsidianButton = document.getElementById("sendToObsidian");
+    const obsidianButton = dom.sendToObsidianButton;
     if (!obsidianButton) return;
 
     const originalHTML = obsidianButton.innerHTML;
@@ -1808,14 +2133,15 @@ async function sendToObsidian(e) {
 
         // Get markdown content
         const markdown = markSnipObsidian.prepareMarkdownForObsidian(
-            cm.getValue(),
+            getEditorValue(),
             sourceImageMap || {}
         );
-        const title = document.getElementById("title").value || 'Untitled';
+        const title = dom.titleInput?.value || 'Untitled';
 
-        // Get current tab
-        const tabs = await browser.tabs.query({ currentWindow: true, active: true });
-        const currentTab = tabs[0];
+        const currentTab = await getActiveTab();
+        if (!currentTab?.id) {
+            throw new Error('No active tab found');
+        }
 
         // Send message to service worker to handle Obsidian integration
         await browser.runtime.sendMessage({
@@ -1864,8 +2190,6 @@ async function sendToObsidian(e) {
 function notify(message) {
     // message for displaying markdown
     if (message.type == "display.md") {
-        cm.setValue(message.markdown);
-        document.getElementById("title").value = message.article.title;
         imageList = message.imageList;
         sourceImageMap = message.sourceImageMap;
         mdClipsFolder = message.mdClipsFolder;
@@ -1874,19 +2198,24 @@ function notify(message) {
             markdown: message.markdown,
             pageUrl: resolveClipPageUrl(message.article)
         });
+        if (dom.titleInput) {
+            dom.titleInput.value = message.article.title;
+        }
+        setEditorValue(message.markdown);
 
         if (!isLibraryViewVisible()) {
-            document.getElementById("container").style.display = 'flex';
+            dom.container.style.display = 'flex';
         }
-        document.getElementById("spinner").style.display = 'none';
+        dom.spinner.style.display = 'none';
         maybeAutoSaveCurrentClip().catch((error) => {
             console.error('Failed during popup library auto-save:', error);
         });
+        scheduleDeferredLibraryWarmup();
 
         if (!isLibraryViewVisible()) {
-            document.getElementById("download").focus();
+            dom.downloadButton?.focus();
         }
-        cm.refresh();
+        refreshEditor();
     }
     else if (message.type === "batch-progress") {
         progressUI.show();
@@ -1926,14 +2255,14 @@ function notify(message) {
             case 'cancelled':
                 progressUI.setStatus('Batch cancelled');
                 progressUI.hideCancelButton();
-                document.getElementById("spinner").style.display = 'none';
-                document.getElementById("convertUrls").style.display = 'block';
+                dom.spinner.style.display = 'none';
+                dom.convertUrlsButton.style.display = 'block';
                 break;
             case 'failed':
                 progressUI.setStatus(`Batch failed: ${message.error || 'Unknown error'}`);
                 progressUI.hideCancelButton();
-                document.getElementById("spinner").style.display = 'none';
-                document.getElementById("convertUrls").style.display = 'block';
+                dom.spinner.style.display = 'none';
+                dom.convertUrlsButton.style.display = 'block';
                 break;
             case 'finished':
                 if (message.failed > 0) {
@@ -1942,8 +2271,8 @@ function notify(message) {
                     progressUI.setStatus(message.batchSaveMode === 'zip' ? 'ZIP downloaded' : 'Batch complete');
                 }
                 progressUI.hideCancelButton();
-                document.getElementById("spinner").style.display = 'none';
-                document.getElementById("convertUrls").style.display = 'block';
+                dom.spinner.style.display = 'none';
+                dom.convertUrlsButton.style.display = 'block';
                 break;
         }
     }
@@ -1951,15 +2280,14 @@ function notify(message) {
 
 function showError(err, useEditor = true) {
     // show the hidden elements
-    document.getElementById("container").style.display = 'flex';
-    document.getElementById("spinner").style.display = 'none';
+    dom.container.style.display = 'flex';
+    dom.spinner.style.display = 'none';
     
     if (useEditor) {
-        // Original behavior - show error in CodeMirror
-        cm.setValue(`Error clipping the page\n\n${err}`);
+        setEditorValue(`Error clipping the page\n\n${err}`);
     } else {
-        // Batch processing error - show in CodeMirror but don't disrupt UI
-        const currentContent = cm.getValue();
-        cm.setValue(`${currentContent}\n\nError: ${err}`);
+        const currentContent = getEditorValue();
+        setEditorValue(`${currentContent}\n\nError: ${err}`);
     }
+    refreshEditor();
 }

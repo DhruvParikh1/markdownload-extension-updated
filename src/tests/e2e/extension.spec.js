@@ -49,6 +49,18 @@ async function getLibraryStorage(serviceWorker) {
   });
 }
 
+async function setSyncStorage(serviceWorker, payload) {
+  await serviceWorker.evaluate(async ({ nextState }) => {
+    await browser.storage.sync.set(nextState);
+  }, { nextState: payload });
+}
+
+async function setLocalStorage(serviceWorker, payload) {
+  await serviceWorker.evaluate(async ({ nextState }) => {
+    await browser.storage.local.set(nextState);
+  }, { nextState: payload });
+}
+
 async function installLibraryExportHarness(serviceWorker) {
   await serviceWorker.evaluate(() => {
     if (!self.__markSnipLibraryExportHarnessInstalled) {
@@ -257,6 +269,102 @@ test.describe('MarkSnip Extension E2E', () => {
       await popupPage.goto(`chrome-extension://${extensionId}/popup/popup.html`);
       await popupPage.locator('#libraryViewToggle').click();
       await expect(popupPage.locator('#exportLibraryAll')).toBeDisabled();
+    } finally {
+      await popupPage.close().catch(() => {});
+    }
+  });
+
+  test('popup startup loads only the resolved CodeMirror theme stylesheet', async () => {
+    await setSyncStorage(serviceWorker, {
+      popupTheme: 'dark',
+      editorTheme: 'nord'
+    });
+
+    const popupPage = await context.newPage();
+
+    try {
+      await popupPage.goto(`chrome-extension://${extensionId}/popup/popup.html`);
+
+      await expect.poll(async () => {
+        return await popupPage.evaluate(() => {
+          return document.getElementById('cm-theme-stylesheet')?.getAttribute('href') || null;
+        });
+      }, { timeout: 10000 }).toBe('lib/nord.css');
+
+      const themeLinks = await popupPage.evaluate(() => {
+        return Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
+          .map((link) => link.getAttribute('href'))
+          .filter((href) => href && href.startsWith('lib/') && href !== 'lib/codemirror.css');
+      });
+
+      expect(themeLinks).toEqual(['lib/nord.css']);
+    } finally {
+      await popupPage.close().catch(() => {});
+    }
+  });
+
+  test('library items stay unrendered until the Library view opens', async () => {
+    await setLibraryStorage(serviceWorker, {
+      librarySettings: {
+        enabled: true,
+        autoSaveOnPopupOpen: false,
+        itemsToKeep: 10
+      },
+      libraryItems: [
+        { id: 'one', pageUrl: 'https://example.com/alpha', normalizedPageUrl: 'https://example.com/alpha', title: 'Alpha', markdown: '# Alpha', savedAt: '2026-03-20T10:00:00.000Z', previewText: 'Alpha' },
+        { id: 'two', pageUrl: 'https://example.com/beta', normalizedPageUrl: 'https://example.com/beta', title: 'Beta', markdown: '# Beta', savedAt: '2026-03-20T09:00:00.000Z', previewText: 'Beta' }
+      ]
+    });
+
+    const popupPage = await context.newPage();
+
+    try {
+      await popupPage.goto(`chrome-extension://${extensionId}/popup/popup.html`);
+      await expect(popupPage.locator('#libraryViewToggle')).toBeVisible({ timeout: 10000 });
+
+      await expect.poll(async () => {
+        return await popupPage.textContent('#libraryCountBadge');
+      }, { timeout: 10000 }).toBe('2');
+
+      expect(await popupPage.locator('#libraryList .library-card').count()).toBe(0);
+
+      await popupPage.locator('#libraryViewToggle').click();
+      await expect.poll(async () => {
+        return await popupPage.locator('#libraryList .library-card').count();
+      }, { timeout: 10000 }).toBe(2);
+    } finally {
+      await popupPage.close().catch(() => {});
+    }
+  });
+
+  test('deferred popup notifications still render after startup', async () => {
+    await setLocalStorage(serviceWorker, {
+      pendingNotifications: [
+        {
+          id: 'popup-deferred-notification',
+          type: 'support-milestone',
+          title: 'Popup notification test',
+          message: 'Deferred popup notification body',
+          milestone: 100,
+          primaryAction: {
+            label: 'View release notes',
+            url: 'https://example.com/releases'
+          },
+          secondaryAction: {
+            label: 'Buy Me a Coffee',
+            url: 'https://example.com/support'
+          }
+        }
+      ]
+    });
+
+    const popupPage = await context.newPage();
+
+    try {
+      await popupPage.goto(`chrome-extension://${extensionId}/popup/popup.html`);
+      await expect(popupPage.getByText('Popup notification test')).toBeVisible({ timeout: 15000 });
+      await expect(popupPage.getByText('Deferred popup notification body')).toBeVisible();
+      await expect(popupPage.getByLabel('Dismiss notification')).toBeVisible();
     } finally {
       await popupPage.close().catch(() => {});
     }

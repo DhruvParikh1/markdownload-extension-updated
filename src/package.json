@@ -6,6 +6,7 @@
     "build": "npm run build:manifests && web-ext build -s .build/firefox",
     "build:chrome": "npm run build:manifests && cd .build/chrome && zip -r ../../../dist/marksnip-chrome-$(node -p \"require('../../manifest.json').version\").zip . -x '*.DS_Store'",
     "build:all": "npm run build && npm run build:chrome",
+    "benchmark:popup": "node scripts/benchmark-popup-startup.js",
     "start:firefoxdeveloper": "web-ext run -f firefoxdeveloperedition -u https://en.wikipedia.org/wiki/Special:Random --bc",
     "start:chromedevwin": "web-ext run -t chromium --chromium-binary \"C:\\Program Files\\Google\\Chrome Dev\\Application\\chrome.exe\" -u https://en.wikipedia.org/wiki/Special:Random --bc",
     "start:waveboxwin": "web-ext run -t chromium --chromium-binary %localappdata%/WaveboxApp/Application/wavebox.exe",
