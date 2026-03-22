@@ -2,7 +2,7 @@
 
 Markdown web clipper for Chrome and Firefox. Save pages as clean Markdown, copy content to clipboard, or send notes directly to Obsidian.
 
-[Chrome Web Store](https://chromewebstore.google.com/detail/marksnip-markdown-web-cli/kcbaglhfgbkjdnpeokaamjjkddempipm?hl=en) | [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/marksnip-markdown-web-clipper/) | [User Guide](user-guide.md) | [Changelog](CHANGELOG.md) | [Privacy Policy](PRIVACY.md)
+[Chrome Web Store](https://chromewebstore.google.com/detail/marksnip-markdown-web-cli/kcbaglhfgbkjdnpeokaamjjkddempipm?hl=en) | [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/marksnip-markdown-web-clipper/) | [User Guide](user-guide.md) | [Agent Bridge Walkthrough](agent-bridge-walkthrough.md) | [Changelog](CHANGELOG.md) | [Privacy Policy](PRIVACY.md)
 
 ![MarkSnip popup](media/Chrome.Screenshot.1.png)
 
@@ -24,6 +24,7 @@ Core pipeline:
 - Save batch output as ZIP or individual files
 - Context menu actions for page, selection, links, images, and tabs
 - Obsidian integration (via Advanced URI + clipboard)
+- Agent Bridge CLI for pulling the current page's markdown from local tools
 - Keyboard shortcuts for common actions
 - Rich markdown formatting controls (headings, fences, links, images, tables, templates)
 - Import/export extension settings as JSON
@@ -61,6 +62,28 @@ Install from [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/ma
 2. Choose **Selection** or **Document**.
 3. Review/edit markdown.
 4. Use **Download**, **Copy All**, or **Send to Obsidian**.
+
+Agent Bridge:
+
+1. Install the Windows companion from GitHub Releases.
+2. Run `marksnip.exe install-host`.
+3. Enable **Agent Bridge** in MarkSnip Settings.
+4. Use `marksnip.exe clip` to print the current page's markdown.
+
+For local unpacked Chrome testing, first look up the unpacked extension ID:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\find-unpacked-chrome-extension-id.ps1 -ExtensionPath .\src
+```
+
+Then install the host against that unpacked ID:
+
+```powershell
+cd .\native
+.\marksnip.exe install-host --chrome-extension-id <YOUR_UNPACKED_EXTENSION_ID>
+```
+
+If the unpacked Chrome extension ID changes later, rerun that command with the new ID.
 
 Batch mode:
 
@@ -104,6 +127,7 @@ npm ci
 - `npm run build` - Firefox package build via `web-ext`
 - `npm run build:chrome` - Chrome ZIP package
 - `npm run build:all` - Build Firefox + Chrome artifacts
+- `go build ./cmd/marksnip` and `go build ./cmd/marksnip-native-host` from `native/` - Agent Bridge companion
 
 ## Build Architecture
 

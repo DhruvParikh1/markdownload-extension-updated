@@ -13,3 +13,7 @@ src/test-results/live-public/
 video/
 COOK.md
 .cook/
+.gocache/
+native/*.exe
+native/*.dll
+native/*.zip

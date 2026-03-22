@@ -4,6 +4,19 @@ let librarySettings = {
     autoSaveOnPopupOpen: true,
     itemsToKeep: 10
 };
+let agentBridgeSettings = {
+    enabled: false
+};
+let agentBridgeStatus = {
+    enabled: false,
+    permissionGranted: false,
+    connected: false,
+    hostInstalled: false,
+    browser: '',
+    hostVersion: '',
+    lastError: '',
+    updatedAt: ''
+};
 let keyupTimeout = null;
 
 function getOptionsStateApi() {
@@ -12,6 +25,15 @@ function getOptionsStateApi() {
 
 function getLibraryStateApi() {
     return globalThis.markSnipLibraryState || null;
+}
+
+function getAgentBridgeStateApi() {
+    return globalThis.markSnipAgentBridgeState || null;
+}
+
+function usesOptionalNativeMessagingPermission() {
+    const optionalPermissions = browser.runtime?.getManifest?.().optional_permissions || [];
+    return Array.isArray(optionalPermissions) && optionalPermissions.includes('nativeMessaging');
 }
 
 function normalizeLibrarySettingsState(settings) {
@@ -81,6 +103,91 @@ async function clearLibraryItemsState() {
 
     await browser.storage.local.remove('libraryItems');
     return [];
+}
+
+function normalizeAgentBridgeSettingsState(settings) {
+    const bridgeApi = getAgentBridgeStateApi();
+    if (bridgeApi?.normalizeSettings) {
+        return bridgeApi.normalizeSettings(settings);
+    }
+
+    return {
+        enabled: settings?.enabled === true
+    };
+}
+
+function normalizeAgentBridgeStatusState(status) {
+    const bridgeApi = getAgentBridgeStateApi();
+    if (bridgeApi?.normalizeStatus) {
+        return bridgeApi.normalizeStatus(status);
+    }
+
+    return {
+        enabled: status?.enabled === true,
+        permissionGranted: status?.permissionGranted === true,
+        connected: status?.connected === true,
+        hostInstalled: status?.hostInstalled === true,
+        browser: typeof status?.browser === 'string' ? status.browser.trim().toLowerCase() : '',
+        hostVersion: typeof status?.hostVersion === 'string' ? status.hostVersion.trim() : '',
+        lastError: typeof status?.lastError === 'string' ? status.lastError.trim() : '',
+        updatedAt: typeof status?.updatedAt === 'string' ? status.updatedAt.trim() : ''
+    };
+}
+
+async function saveAgentBridgeSettingsState(nextSettings) {
+    const bridgeApi = getAgentBridgeStateApi();
+    agentBridgeSettings = normalizeAgentBridgeSettingsState(nextSettings);
+
+    if (bridgeApi?.saveSettings) {
+        agentBridgeSettings = await bridgeApi.saveSettings(agentBridgeSettings);
+    } else {
+        await browser.storage.local.set({ agentBridgeSettings });
+    }
+
+    return agentBridgeSettings;
+}
+
+async function loadAgentBridgeSettingsState() {
+    const bridgeApi = getAgentBridgeStateApi();
+    if (bridgeApi?.loadSettings) {
+        agentBridgeSettings = await bridgeApi.loadSettings();
+    } else {
+        const result = await browser.storage.local.get('agentBridgeSettings');
+        agentBridgeSettings = normalizeAgentBridgeSettingsState(result.agentBridgeSettings);
+    }
+
+    return agentBridgeSettings;
+}
+
+async function loadAgentBridgeStatusState() {
+    const bridgeApi = getAgentBridgeStateApi();
+    if (bridgeApi?.loadStatus) {
+        agentBridgeStatus = await bridgeApi.loadStatus();
+    } else {
+        const result = await browser.storage.local.get('agentBridgeStatus');
+        agentBridgeStatus = normalizeAgentBridgeStatusState(result.agentBridgeStatus);
+    }
+
+    return agentBridgeStatus;
+}
+
+async function refreshAgentBridgeStatusState() {
+    if (!browser.runtime?.sendMessage) {
+        await loadAgentBridgeStatusState();
+        return agentBridgeStatus;
+    }
+
+    try {
+        const status = await browser.runtime.sendMessage({
+            type: 'refresh-agent-bridge-status'
+        });
+        agentBridgeStatus = normalizeAgentBridgeStatusState(status);
+    } catch (error) {
+        console.warn('Failed to refresh Agent Bridge status:', error);
+        await loadAgentBridgeStatusState();
+    }
+
+    return agentBridgeStatus;
 }
 
 function normalizeImportedOptionsState(importedOptions) {
@@ -408,6 +515,49 @@ const setCurrentLibraryChoice = (result) => {
     refreshElements();
 }
 
+const setCurrentAgentBridgeChoice = (settingsResult, statusResult = agentBridgeStatus) => {
+    agentBridgeSettings = normalizeAgentBridgeSettingsState(settingsResult);
+    agentBridgeStatus = normalizeAgentBridgeStatusState(statusResult);
+
+    const toggle = document.querySelector("[name='agentBridgeEnabled']");
+    if (toggle) {
+        toggle.checked = agentBridgeSettings.enabled;
+    }
+
+    const statusText = document.getElementById('agentBridgeStatusText');
+    const statusHint = document.getElementById('agentBridgeStatusHint');
+    const versionEl = document.getElementById('agentBridgeHostVersion');
+
+    let text = 'Disabled';
+    let hint = 'Enable the Agent Bridge to let MarkSnip connect to the local companion.';
+
+    if (usesOptionalNativeMessagingPermission() && agentBridgeSettings.enabled && !agentBridgeStatus.permissionGranted) {
+        text = 'Permission needed';
+        hint = 'Native messaging permission has not been granted yet.';
+    } else if (agentBridgeSettings.enabled && agentBridgeStatus.connected) {
+        text = `Connected${agentBridgeStatus.browser ? ` via ${agentBridgeStatus.browser}` : ''}`;
+        hint = 'The local CLI can request the current page while this browser is open.';
+    } else if (agentBridgeSettings.enabled && agentBridgeStatus.lastError) {
+        text = 'Waiting for companion';
+        hint = agentBridgeStatus.lastError;
+    } else if (agentBridgeSettings.enabled) {
+        text = 'Starting';
+        hint = 'MarkSnip is trying to connect to the local companion.';
+    }
+
+    if (statusText) {
+        statusText.textContent = text;
+    }
+    if (statusHint) {
+        statusHint.textContent = hint;
+    }
+    if (versionEl) {
+        versionEl.textContent = agentBridgeStatus.hostVersion
+            ? `Host ${agentBridgeStatus.hostVersion}`
+            : 'Host version unavailable';
+    }
+}
+
 const restoreOptions = () => {
     const onError = error => {
         console.error(error);
@@ -415,10 +565,16 @@ const restoreOptions = () => {
 
     Promise.all([
         browser.storage.sync.get(defaultOptions),
-        loadLibrarySettingsState()
-    ]).then(([syncOptions, localLibrarySettings]) => {
+        loadLibrarySettingsState(),
+        loadAgentBridgeSettingsState(),
+        loadAgentBridgeStatusState()
+    ]).then(([syncOptions, localLibrarySettings, localAgentBridgeSettings, localAgentBridgeStatus]) => {
         setCurrentChoice(syncOptions);
         setCurrentLibraryChoice(localLibrarySettings);
+        setCurrentAgentBridgeChoice(localAgentBridgeSettings, localAgentBridgeStatus);
+        refreshAgentBridgeStatusState().then((status) => {
+            setCurrentAgentBridgeChoice(agentBridgeSettings, status);
+        }).catch(onError);
     }, onError);
 }
 
@@ -503,6 +659,37 @@ const inputChange = async (e) => {
             setCurrentLibraryChoice(librarySettings);
             showToast("Library settings saved", "success");
         }
+        else if (key === 'agentBridgeEnabled') {
+            const nextEnabled = Boolean(e.target.checked);
+
+            if (nextEnabled && usesOptionalNativeMessagingPermission()) {
+                if (!browser.permissions?.request) {
+                    e.target.checked = false;
+                    showToast("This browser cannot request native messaging permission here", "error");
+                    return;
+                }
+
+                const granted = await browser.permissions.request({
+                    permissions: ['nativeMessaging']
+                }).catch((error) => {
+                    console.error('Failed to request native messaging permission:', error);
+                    return false;
+                });
+
+                if (!granted) {
+                    agentBridgeSettings.enabled = false;
+                    setCurrentAgentBridgeChoice(agentBridgeSettings, agentBridgeStatus);
+                    showToast("Agent Bridge permission was not granted", "error");
+                    return;
+                }
+            }
+
+            agentBridgeSettings.enabled = nextEnabled;
+            await saveAgentBridgeSettingsState(agentBridgeSettings);
+            const refreshedStatus = await refreshAgentBridgeStatusState();
+            setCurrentAgentBridgeChoice(agentBridgeSettings, refreshedStatus);
+            showToast(nextEnabled ? "Agent Bridge enabled" : "Agent Bridge disabled", "success");
+        }
         else {
             if (e.target.type == "checkbox") value = e.target.checked;
             
@@ -548,6 +735,28 @@ const buttonClick = (e) => {
     }
     else if (e.target.id == "clear-library" || e.target.closest('#clear-library')) {
         clearLibraryItems();
+    }
+    else if (e.target.id == "refreshAgentBridgeStatus" || e.target.closest('#refreshAgentBridgeStatus')) {
+        refreshAgentBridgeStatusState()
+            .then((status) => {
+                setCurrentAgentBridgeChoice(agentBridgeSettings, status);
+                showToast("Agent Bridge status refreshed", "success");
+            })
+            .catch((error) => {
+                console.error('Failed to refresh Agent Bridge status:', error);
+                showToast(String(error), "error");
+            });
+    }
+    else if (e.target.id == "copyAgentBridgeCommand" || e.target.closest('#copyAgentBridgeCommand')) {
+        const command = 'marksnip install-host';
+        navigator.clipboard.writeText(command)
+            .then(() => {
+                showToast("Install command copied", "success");
+            })
+            .catch((error) => {
+                console.error('Failed to copy Agent Bridge install command:', error);
+                showToast("Failed to copy install command", "error");
+            });
     }
 }
 
@@ -729,6 +938,26 @@ const loaded = () => {
 
     // Restore saved options
     restoreOptions();
+
+    browser.storage.onChanged?.addListener?.((changes, areaName) => {
+        if (areaName !== 'local') {
+            return;
+        }
+
+        const bridgeApi = getAgentBridgeStateApi();
+        const settingsKey = bridgeApi?.STORAGE_KEYS?.SETTINGS;
+        const statusKey = bridgeApi?.STORAGE_KEYS?.STATUS;
+
+        if (settingsKey && changes[settingsKey]) {
+            agentBridgeSettings = normalizeAgentBridgeSettingsState(changes[settingsKey].newValue);
+            setCurrentAgentBridgeChoice(agentBridgeSettings, agentBridgeStatus);
+        }
+
+        if (statusKey && changes[statusKey]) {
+            agentBridgeStatus = normalizeAgentBridgeStatusState(changes[statusKey].newValue);
+            setCurrentAgentBridgeChoice(agentBridgeSettings, agentBridgeStatus);
+        }
+    });
 
     // Inject per-card reset links
     injectResetLinks();

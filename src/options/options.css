@@ -1497,6 +1497,49 @@ code {
     color: var(--text-secondary);
 }
 
+.agent-bridge-status-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--border-light);
+    margin-top: var(--space-4);
+}
+
+.agent-bridge-status-copy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-width: 0;
+}
+
+.agent-bridge-status-label {
+    font-size: var(--text-xs);
+    color: var(--text-tertiary);
+    font-weight: var(--weight-medium);
+}
+
+.agent-bridge-status-text {
+    font-size: var(--text-base);
+    color: var(--text-primary);
+    font-weight: var(--weight-semibold);
+}
+
+.agent-bridge-command-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+}
+
+.agent-bridge-command-row code {
+    display: block;
+    flex: 1 1 220px;
+    padding: var(--space-3);
+    color: var(--text-primary);
+}
+
 
 /* ── Buttons ── */
 .btn {

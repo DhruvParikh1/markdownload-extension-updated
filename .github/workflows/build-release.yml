@@ -25,6 +25,11 @@ jobs:
           cache: "npm"
           cache-dependency-path: "src/package-lock.json"
 
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
       - name: Install dependencies
         working-directory: src
         run: npm ci || npm ci || npm ci
@@ -74,6 +79,16 @@ jobs:
       - name: Create dist directory
         run: mkdir -p dist
 
+      - name: Build Agent Bridge companion
+        working-directory: native
+        run: |
+          mkdir -p ../dist/marksnip-agent-bridge
+          GOOS=windows GOARCH=amd64 go build -o ../dist/marksnip-agent-bridge/marksnip.exe ./cmd/marksnip
+          GOOS=windows GOARCH=amd64 go build -o ../dist/marksnip-agent-bridge/marksnip-native-host.exe ./cmd/marksnip-native-host
+          cp README.md ../dist/marksnip-agent-bridge/README.md
+          cd ../dist/marksnip-agent-bridge
+          zip -r ../marksnip-agent-bridge-windows-amd64.zip .
+
       - name: Create Chrome package (.zip)
         working-directory: src/.build/chrome
         run: |
@@ -100,6 +115,13 @@ jobs:
           path: dist/marksnip-firefox-${{ steps.get-version.outputs.version }}.xpi
           retention-days: 30
 
+      - name: Upload Agent Bridge artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: marksnip-agent-bridge
+          path: dist/marksnip-agent-bridge-windows-amd64.zip
+          retention-days: 30
+
   release:
     name: Create GitHub Release
     runs-on: ubuntu-latest
@@ -123,6 +145,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: marksnip-firefox
+          path: ./artifacts
+
+      - name: Download Agent Bridge artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: marksnip-agent-bridge
           path: ./artifacts
 
       - name: List artifacts
@@ -162,6 +190,12 @@ jobs:
             1. Download `marksnip-firefox-${{ needs.build.outputs.version }}.xpi`
             2. Open Firefox and drag the .xpi file into the browser
             3. Confirm the installation
+
+            **Agent Bridge (Windows):**
+            1. Download `marksnip-agent-bridge-windows-amd64.zip`
+            2. Extract it anywhere on your machine
+            3. Run `marksnip.exe install-host`
+            4. Enable **Agent Bridge** in the extension settings
 
             ### Changes
             See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details.

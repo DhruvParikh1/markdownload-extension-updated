@@ -13,6 +13,7 @@ let currentClipState = {
 };
 let libraryExportInProgress = false;
 const autoSavedLibraryUrls = new Set();
+let agentBridgeClipPersistTimeout = null;
 
 const libraryUI = {
     toggle: document.getElementById('libraryViewToggle'),
@@ -78,6 +79,38 @@ let darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
 function getLibraryStateApi() {
     return globalThis.markSnipLibraryState || null;
+}
+
+function getAgentBridgeStateApi() {
+    return globalThis.markSnipAgentBridgeState || null;
+}
+
+function queuePersistAgentBridgeClip(snapshot = currentClipState) {
+    const api = getAgentBridgeStateApi();
+    if (!api?.saveLatestClip) {
+        return;
+    }
+
+    const nextSnapshot = {
+        title: String(snapshot?.title || '').trim(),
+        markdown: String(snapshot?.markdown || ''),
+        pageUrl: String(snapshot?.pageUrl || '').trim(),
+        source: 'popup'
+    };
+
+    if (!nextSnapshot.pageUrl || !nextSnapshot.markdown.trim()) {
+        return;
+    }
+
+    if (agentBridgeClipPersistTimeout) {
+        clearTimeout(agentBridgeClipPersistTimeout);
+    }
+
+    agentBridgeClipPersistTimeout = setTimeout(() => {
+        api.saveLatestClip(nextSnapshot).catch((error) => {
+            console.error('Failed to persist Agent Bridge clip snapshot:', error);
+        });
+    }, 250);
 }
 
 // Theme application
@@ -232,6 +265,7 @@ cm.on("change", (instance) => {
     currentClipState.markdown = instance.getValue();
     updateSaveLibraryButtonState();
     updateCharCount(instance.getValue());
+    queuePersistAgentBridgeClip();
 });
 cm.on("cursorActivity", (cm) => {
     const somethingSelected = cm.somethingSelected();
@@ -253,6 +287,7 @@ document.getElementById("download").addEventListener("click", download);
 document.getElementById("downloadSelection").addEventListener("click", downloadSelection);
 document.getElementById("title").addEventListener("input", (event) => {
     currentClipState.title = event.target.value;
+    queuePersistAgentBridgeClip();
 });
 
 document.getElementById("copy").addEventListener("click", copyToClipboard);
@@ -435,6 +470,7 @@ function updateCurrentClipState(nextState = {}) {
         pageUrl: String(nextState.pageUrl || '').trim()
     };
     updateSaveLibraryButtonState();
+    queuePersistAgentBridgeClip(currentClipState);
 }
 
 function hasSavableClip() {

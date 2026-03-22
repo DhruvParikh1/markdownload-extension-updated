@@ -18,6 +18,7 @@
     "storage",
     "contextMenus",
     "clipboardWrite",
+    "nativeMessaging",
     "scripting",
     "offscreen"
   ],

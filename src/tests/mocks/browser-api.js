@@ -88,6 +88,10 @@ const storageMock = {
     _reset: () => {
       storageMock.sync._data = {};
     }
+  },
+  onChanged: {
+    addListener: jest.fn(),
+    removeListener: jest.fn()
   }
 };
 
@@ -95,6 +99,18 @@ const storageMock = {
 const runtimeMock = {
   lastError: null,
   id: 'test-extension-id',
+  connectNative: jest.fn(() => ({
+    postMessage: jest.fn(),
+    disconnect: jest.fn(),
+    onMessage: {
+      addListener: jest.fn(),
+      removeListener: jest.fn()
+    },
+    onDisconnect: {
+      addListener: jest.fn(),
+      removeListener: jest.fn()
+    }
+  })),
   sendMessage: jest.fn((message, callback) => {
     if (callback) {
       callback({ success: true });
@@ -275,6 +291,11 @@ const commandsMock = {
   }
 };
 
+const permissionsMock = {
+  contains: jest.fn(() => Promise.resolve(false)),
+  request: jest.fn(() => Promise.resolve(true))
+};
+
 // Offscreen mock
 const offscreenMock = {
   createDocument: jest.fn((parameters) => {
@@ -295,6 +316,7 @@ const browserAPI = {
   scripting: scriptingMock,
   clipboard: clipboardMock,
   commands: commandsMock,
+  permissions: permissionsMock,
   offscreen: offscreenMock,
 
   // Helper to reset all mocks

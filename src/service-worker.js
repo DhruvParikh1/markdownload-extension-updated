@@ -8,6 +8,7 @@ if (typeof importScripts === 'function') {
     'shared/notifications.js',
     'shared/default-options.js',
     'shared/template-utils.js',
+    'shared/agent-bridge-state.js',
     'shared/library-export.js',
     'shared/context-menus.js',
     'shared/download-tracker.js'
@@ -27,6 +28,13 @@ browser.runtime.onInstalled.addListener((details) => {
     console.error('[Notifications] Failed to handle install event:', error);
   });
 });
+if (browser.runtime.onStartup?.addListener) {
+  browser.runtime.onStartup.addListener(() => {
+    initializeAgentBridge().catch((error) => {
+      console.error('[Agent Bridge] Failed to initialize on startup:', error);
+    });
+  });
+}
 browser.contextMenus.onClicked.addListener(handleContextMenuClick);
 browser.commands.onCommand.addListener(handleCommands);
 browser.downloads.onChanged.addListener(handleDownloadChange);
@@ -34,6 +42,9 @@ browser.storage.onChanged.addListener(handleStorageChange);
 
 // Create context menus when service worker starts
 createMenus();
+initializeAgentBridge().catch((error) => {
+  console.error('[Agent Bridge] Failed to initialize:', error);
+});
 
 // Track active downloads
 const activeDownloads = new Map();
@@ -47,6 +58,13 @@ const NO_EXPORT_DOWNLOAD_NOTIFICATION_DELTA = Object.freeze({ downloads: 0, expo
 let releaseHighlightsCachePromise = null;
 let notificationStateTaskChain = Promise.resolve();
 const pendingNotificationDisplayLocks = new Set();
+const AGENT_BRIDGE_HOST_NAME = 'com.marksnip.bridge';
+const AGENT_BRIDGE_RECONNECT_DELAY_MS = 3000;
+let agentBridgePort = null;
+let agentBridgeConnectPromise = null;
+let agentBridgeReconnectTimer = null;
+let agentBridgeSuccessfulConnect = false;
+let agentBridgeOffscreenReady = false;
 
 function runNotificationStateTask(task) {
   const run = notificationStateTaskChain.then(() => task(), () => task());
@@ -96,6 +114,188 @@ async function getReleaseHighlights(version) {
   return highlights
     .filter((entry) => typeof entry === 'string' && entry.trim().length > 0)
     .slice(0, 5);
+}
+
+function getAgentBridgeApi() {
+  return globalThis.markSnipAgentBridgeState || null;
+}
+
+async function loadAgentBridgeSettings() {
+  const api = getAgentBridgeApi();
+  if (!api?.loadSettings) {
+    return { enabled: false };
+  }
+
+  return await api.loadSettings();
+}
+
+async function loadAgentBridgeStatus() {
+  const api = getAgentBridgeApi();
+  if (!api?.loadStatus) {
+    return {
+      enabled: false,
+      permissionGranted: false,
+      connected: false,
+      hostInstalled: false,
+      browser: '',
+      hostVersion: '',
+      lastError: '',
+      updatedAt: ''
+    };
+  }
+
+  return await api.loadStatus();
+}
+
+async function getAgentBridgePermissionGranted() {
+  const optionalPermissions = browser.runtime.getManifest?.().optional_permissions || [];
+  if (!Array.isArray(optionalPermissions) || !optionalPermissions.includes('nativeMessaging')) {
+    return true;
+  }
+
+  if (!browser.permissions?.contains) {
+    return false;
+  }
+
+  try {
+    return await browser.permissions.contains({
+      permissions: ['nativeMessaging']
+    });
+  } catch (error) {
+    console.warn('[Agent Bridge] Failed to inspect nativeMessaging permission:', error);
+    return false;
+  }
+}
+
+async function ensureAgentBridgeOffscreenReady(force = false) {
+  if (agentBridgeOffscreenReady && !force) {
+    return;
+  }
+
+  await ensureOffscreenDocumentExists();
+  agentBridgeOffscreenReady = true;
+}
+
+function getCurrentBrowserLabel() {
+  const runtimeUrl = browser.runtime.getURL('/');
+  return runtimeUrl.startsWith('moz-extension://') ? 'firefox' : 'chrome';
+}
+
+async function saveAgentBridgeStatus(patch = {}) {
+  const api = getAgentBridgeApi();
+  if (!api?.saveStatus) {
+    return patch;
+  }
+
+  const [settings, currentStatus, permissionGranted] = await Promise.all([
+    loadAgentBridgeSettings(),
+    loadAgentBridgeStatus(),
+    getAgentBridgePermissionGranted()
+  ]);
+
+  return await api.saveStatus({
+    ...currentStatus,
+    ...patch,
+    enabled: settings.enabled,
+    permissionGranted,
+    updatedAt: new Date().toISOString()
+  });
+}
+
+function clearAgentBridgeReconnectTimer() {
+  if (agentBridgeReconnectTimer != null) {
+    clearTimeout(agentBridgeReconnectTimer);
+    agentBridgeReconnectTimer = null;
+  }
+}
+
+function getAgentBridgeErrorMessage(error) {
+  if (!error) {
+    return '';
+  }
+
+  if (typeof error === 'string') {
+    return error;
+  }
+
+  return String(error?.message || error).trim();
+}
+
+async function disconnectAgentBridge(options = {}) {
+  const { lastError = '', hostInstalled = agentBridgeSuccessfulConnect } = options || {};
+
+  clearAgentBridgeReconnectTimer();
+  agentBridgeOffscreenReady = false;
+
+  if (agentBridgePort) {
+    const port = agentBridgePort;
+    agentBridgePort = null;
+
+    try {
+      port.onMessage.removeListener(handleAgentBridgeNativeMessage);
+    } catch (error) {}
+
+    try {
+      port.onDisconnect.removeListener(handleAgentBridgeDisconnect);
+    } catch (error) {}
+
+    try {
+      port.disconnect();
+    } catch (error) {}
+  }
+
+  await saveAgentBridgeStatus({
+    connected: false,
+    hostInstalled,
+    lastError,
+    hostVersion: hostInstalled ? undefined : '',
+    browser: hostInstalled ? undefined : ''
+  });
+}
+
+function scheduleAgentBridgeReconnect() {
+  if (agentBridgeReconnectTimer != null) {
+    return;
+  }
+
+  agentBridgeReconnectTimer = setTimeout(() => {
+    agentBridgeReconnectTimer = null;
+    initializeAgentBridge(true).catch((error) => {
+      console.error('[Agent Bridge] Reconnect failed:', error);
+    });
+  }, AGENT_BRIDGE_RECONNECT_DELAY_MS);
+}
+
+async function handleAgentBridgeDisconnect() {
+  const disconnectMessage = getAgentBridgeErrorMessage(browser.runtime?.lastError) || 'Agent bridge disconnected';
+  const hostMissing = /native messaging host|Specified native messaging host not found|not found/i.test(disconnectMessage);
+  agentBridgePort = null;
+
+  await saveAgentBridgeStatus({
+    connected: false,
+    hostInstalled: !hostMissing && agentBridgeSuccessfulConnect,
+    lastError: disconnectMessage
+  });
+
+  const settings = await loadAgentBridgeSettings();
+  const permissionGranted = await getAgentBridgePermissionGranted();
+  if (settings.enabled && permissionGranted) {
+    scheduleAgentBridgeReconnect();
+  }
+}
+
+function postAgentBridgeMessage(message) {
+  if (!agentBridgePort) {
+    return false;
+  }
+
+  try {
+    agentBridgePort.postMessage(message);
+    return true;
+  } catch (error) {
+    console.error('[Agent Bridge] Failed to send native message:', error);
+    return false;
+  }
 }
 
 function createDownloadNotificationDelta(config = {}) {
@@ -511,6 +711,11 @@ async function handleMessages(message, sender, sendResponse) {
       break;
     case "export-library-items":
       return await handleLibraryExportRequest(message, sender);
+    case "get-agent-bridge-status":
+      return await loadAgentBridgeStatus();
+    case "refresh-agent-bridge-status":
+      await initializeAgentBridge(true);
+      return await loadAgentBridgeStatus();
     case "cancel-batch":
       activeBatchSignal?.cancel();
       break;
@@ -1628,6 +1833,242 @@ function isRestrictedTabUrl(url) {
   );
 }
 
+async function getAgentBridgeActiveTab() {
+  const tabs = await browser.tabs.query({
+    active: true,
+    lastFocusedWindow: true
+  }).catch(() => []);
+
+  const tab = tabs?.[0] || null;
+  if (!tab?.id) {
+    throw new Error('No active browser tab is available for MarkSnip');
+  }
+
+  if (isRestrictedTabUrl(tab.url || '')) {
+    throw new Error(`MarkSnip cannot clip this page: ${tab.url}`);
+  }
+
+  return tab;
+}
+
+async function captureTabForAgentBridge(tabId) {
+  await ensureScripts(tabId);
+  await ensureAgentBridgeOffscreenReady();
+  const requestId = generateRequestId();
+  const options = await getOptions();
+
+  const resultPromise = new Promise((resolve, reject) => {
+    let timeoutHandle = null;
+    const messageListener = (message) => {
+      if (message.type !== 'bridge-capture-result' || message.requestId !== requestId) {
+        return;
+      }
+
+      browser.runtime.onMessage.removeListener(messageListener);
+      clearTimeout(timeoutHandle);
+
+      if (message.error) {
+        reject(new Error(message.error));
+        return;
+      }
+
+      resolve(message.result);
+    };
+
+    browser.runtime.onMessage.addListener(messageListener);
+    timeoutHandle = setTimeout(() => {
+      browser.runtime.onMessage.removeListener(messageListener);
+      reject(new Error('Timeout waiting for MarkSnip bridge capture'));
+    }, 30000);
+  });
+
+  await browser.runtime.sendMessage({
+    target: 'offscreen',
+    type: 'capture-for-bridge',
+    requestId,
+    tabId,
+    options
+  });
+
+  return await resultPromise;
+}
+
+async function resolveAgentBridgeClip(message = {}) {
+  const api = getAgentBridgeApi();
+  const fresh = message?.fresh === true;
+  const tab = await getAgentBridgeActiveTab();
+
+  if (!fresh && api?.loadLatestClip && api?.shouldUseLatestClipForPage) {
+    const latestClip = await api.loadLatestClip();
+    if (api.shouldUseLatestClipForPage(latestClip, tab.url)) {
+      const normalizedClip = api.normalizeLatestClip(latestClip);
+      return {
+        markdown: normalizedClip.markdown,
+        title: normalizedClip.title || tab.title || 'Untitled',
+        url: normalizedClip.pageUrl || tab.url || '',
+        source: 'popup',
+        capturedAt: normalizedClip.updatedAt || new Date().toISOString(),
+        browser: getCurrentBrowserLabel()
+      };
+    }
+  }
+
+  const liveCapture = await captureTabForAgentBridge(tab.id);
+  return {
+    markdown: String(liveCapture?.markdown || ''),
+    title: String(liveCapture?.title || tab.title || 'Untitled').trim() || 'Untitled',
+    url: String(liveCapture?.pageUrl || tab.url || '').trim(),
+    source: 'live',
+    capturedAt: String(liveCapture?.capturedAt || new Date().toISOString()),
+    browser: getCurrentBrowserLabel()
+  };
+}
+
+async function handleAgentBridgeClipRequest(message = {}) {
+  const requestId = String(message?.requestId || '').trim();
+  if (!requestId) {
+    return;
+  }
+
+  try {
+    const result = await resolveAgentBridgeClip(message);
+    postAgentBridgeMessage({
+      type: 'bridge.clip.result',
+      requestId,
+      result
+    });
+  } catch (error) {
+    postAgentBridgeMessage({
+      type: 'bridge.error',
+      requestId,
+      error: getAgentBridgeErrorMessage(error) || 'MarkSnip bridge clip failed'
+    });
+  }
+}
+
+function handleAgentBridgeNativeMessage(message = {}) {
+  switch (message?.type) {
+    case 'bridge.ready':
+      agentBridgeSuccessfulConnect = true;
+      saveAgentBridgeStatus({
+        connected: true,
+        hostInstalled: true,
+        browser: String(message.browser || getCurrentBrowserLabel()).trim().toLowerCase(),
+        hostVersion: String(message.hostVersion || '').trim(),
+        lastError: ''
+      }).catch((error) => {
+        console.error('[Agent Bridge] Failed to save ready status:', error);
+      });
+      break;
+    case 'bridge.clip':
+      setTimeout(() => {
+        handleAgentBridgeClipRequest(message).catch((error) => {
+          postAgentBridgeMessage({
+            type: 'bridge.error',
+            requestId: String(message?.requestId || '').trim(),
+            error: getAgentBridgeErrorMessage(error) || 'MarkSnip bridge clip failed'
+          });
+        });
+      }, 0);
+      break;
+  }
+}
+
+async function initializeAgentBridge(forceReconnect = false) {
+  const settings = await loadAgentBridgeSettings();
+  const permissionGranted = await getAgentBridgePermissionGranted();
+
+  if (!settings.enabled) {
+    await disconnectAgentBridge({
+      lastError: ''
+    });
+    return null;
+  }
+
+  if (!permissionGranted) {
+    await disconnectAgentBridge({
+      lastError: 'Enable native messaging permission to use the Agent Bridge',
+      hostInstalled: agentBridgeSuccessfulConnect
+    });
+    return null;
+  }
+
+  if (agentBridgePort && !forceReconnect) {
+    await saveAgentBridgeStatus({
+      connected: true,
+      hostInstalled: agentBridgeSuccessfulConnect,
+      lastError: ''
+    });
+    return agentBridgePort;
+  }
+
+  if (agentBridgeConnectPromise) {
+    return await agentBridgeConnectPromise;
+  }
+
+  agentBridgeConnectPromise = (async () => {
+    clearAgentBridgeReconnectTimer();
+    if (forceReconnect) {
+      await disconnectAgentBridge({
+        lastError: '',
+        hostInstalled: agentBridgeSuccessfulConnect
+      });
+    }
+
+    try {
+      const port = browser.runtime.connectNative
+        ? browser.runtime.connectNative(AGENT_BRIDGE_HOST_NAME)
+        : (typeof chrome !== 'undefined' && chrome.runtime?.connectNative
+          ? chrome.runtime.connectNative(AGENT_BRIDGE_HOST_NAME)
+          : null);
+      if (!port) {
+        throw new Error('Native messaging is unavailable in this browser context');
+      }
+      agentBridgePort = port;
+      port.onMessage.addListener(handleAgentBridgeNativeMessage);
+      port.onDisconnect.addListener(handleAgentBridgeDisconnect);
+
+      postAgentBridgeMessage({
+        type: 'bridge.hello',
+        browser: getCurrentBrowserLabel(),
+        extensionId: browser.runtime.id,
+        extensionVersion: browser.runtime.getManifest().version,
+        connectedAt: new Date().toISOString()
+      });
+
+      agentBridgeSuccessfulConnect = true;
+      await saveAgentBridgeStatus({
+        connected: true,
+        hostInstalled: true,
+        browser: getCurrentBrowserLabel(),
+        lastError: ''
+      });
+      ensureAgentBridgeOffscreenReady(true).catch((error) => {
+        agentBridgeOffscreenReady = false;
+        console.warn('[Agent Bridge] Failed to pre-warm offscreen document:', error);
+      });
+      return port;
+    } catch (error) {
+      agentBridgePort = null;
+      const message = getAgentBridgeErrorMessage(error) || 'Failed to connect to MarkSnip native host';
+      const hostMissing = /native messaging host|Specified native messaging host not found|not found/i.test(message);
+      await saveAgentBridgeStatus({
+        connected: false,
+        hostInstalled: hostMissing ? false : agentBridgeSuccessfulConnect,
+        browser: hostMissing ? '' : getCurrentBrowserLabel(),
+        hostVersion: hostMissing ? '' : undefined,
+        lastError: message
+      });
+      scheduleAgentBridgeReconnect();
+      return null;
+    } finally {
+      agentBridgeConnectPromise = null;
+    }
+  })();
+
+  return await agentBridgeConnectPromise;
+}
+
 /**
  * Handle keyboard commands
  */
@@ -1684,6 +2125,12 @@ async function handleStorageChange(changes, areaName) {
     console.log('Options changed, recreating context menus...');
     // Recreate all context menus with updated options
     await createMenus();
+    return;
+  }
+
+  const agentBridgeKey = getAgentBridgeApi()?.STORAGE_KEYS?.SETTINGS;
+  if (areaName === 'local' && agentBridgeKey && changes[agentBridgeKey]) {
+    await initializeAgentBridge(true);
   }
 }
 

@@ -536,6 +536,47 @@
                         <input type="text" name="obsidianFolder" class="text-input" role="textbox" placeholder="Enter Folder Name eg. Clippers" />
                     </div>
                 </div>
+
+                <div class="setting-card" id="agent-bridge-container"
+                    data-search-keywords="agent bridge,cli,native host,native messaging,claude code,coding agent,stdout,bridge">
+                    <h3 class="card-title">Agent Bridge</h3>
+                    <p class="card-desc">Install the local MarkSnip companion once, then let local tools pull the current page's Markdown directly without using downloads.</p>
+
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <label class="toggle-label-text" for="agentBridgeEnabled">Enable Agent Bridge</label>
+                            <p class="toggle-hint">MarkSnip opens a native messaging connection only while this toggle is on.</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input name="agentBridgeEnabled" id="agentBridgeEnabled" type="checkbox" />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="agent-bridge-status-row">
+                        <div class="agent-bridge-status-copy">
+                            <span class="agent-bridge-status-label">Status</span>
+                            <strong id="agentBridgeStatusText" class="agent-bridge-status-text">Disabled</strong>
+                            <p id="agentBridgeStatusHint" class="option-note">Enable the Agent Bridge to let MarkSnip connect to the local companion.</p>
+                            <p id="agentBridgeHostVersion" class="option-note">Host version unavailable</p>
+                        </div>
+                        <button id="refreshAgentBridgeStatus" class="btn btn-secondary btn-sm" type="button">Check Connection</button>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label" for="agentBridgeInstallCommand">Install command</label>
+                        <div class="agent-bridge-command-row">
+                            <code id="agentBridgeInstallCommand">marksnip install-host</code>
+                            <button id="copyAgentBridgeCommand" class="btn btn-secondary btn-sm" type="button">Copy</button>
+                        </div>
+                    </div>
+
+                    <p class="option-note">Local-only feature. Bridge settings are not exported and do not sync between machines.</p>
+
+                    <div class="btn-group">
+                        <a class="btn btn-secondary" href="https://github.com/DhruvParikh1/markdownload-extension-updated/releases" target="_blank" rel="noopener noreferrer">Open Releases</a>
+                    </div>
+                </div>
             </div>
 
 
@@ -1157,6 +1198,7 @@ const helloWorld = () => {
     <script src="../browser-polyfill.min.js"></script>
     <script src="../shared/default-options.js"></script>
     <script src="../shared/context-menus.js"></script>
+    <script src="../shared/agent-bridge-state.js"></script>
     <script src="../shared/library-state.js"></script>
     <script src="../shared/search-core.js"></script>
     <script src="../shared/options-state.js"></script>

@@ -125,6 +125,9 @@ function handleMessages(message, sender) {
     case 'get-article-content':
       await handleGetArticleContent(message);
       break;
+    case 'capture-for-bridge':
+      await handleBridgeCapture(message);
+      break;
     case 'cleanup-blob-url':
       // Clean up blob URL in offscreen document (has DOM access)
       try {
@@ -194,6 +197,44 @@ async function processContextMenu(message) {
     }
   } catch (error) {
     console.error(`Error processing context menu ${action}:`, error);
+  }
+}
+
+async function handleBridgeCapture(message) {
+  const { requestId, tabId, options } = message || {};
+
+  try {
+    const article = await getArticleFromContent(tabId, false, options || defaultOptions);
+    if (!article?.content) {
+      throw new Error(`Failed to get valid article content from tab ${tabId}`);
+    }
+
+    const title = await formatTitle(article, options || defaultOptions);
+    const { markdown } = await convertArticleToMarkdown(article, false, options || defaultOptions);
+    const pageUrl = String(
+      article?.pageURL ||
+      article?.tabURL ||
+      article?.pageUrl ||
+      article?.baseURI ||
+      ''
+    ).trim();
+
+    await browser.runtime.sendMessage({
+      type: 'bridge-capture-result',
+      requestId,
+      result: {
+        markdown,
+        title,
+        pageUrl,
+        capturedAt: new Date().toISOString()
+      }
+    });
+  } catch (error) {
+    await browser.runtime.sendMessage({
+      type: 'bridge-capture-result',
+      requestId,
+      error: error.message
+    });
   }
 }
 

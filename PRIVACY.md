@@ -14,6 +14,10 @@ machine and none of it is collected by me.
 
 The settings of the extension get stored in the browser's local storage and likewise are never collected or transmitted by me.
 
+If you enable the optional Agent Bridge feature, MarkSnip may also send the current page's converted Markdown, title, and URL to a
+native messaging host running on your own machine so the local `marksnip.exe` CLI can read it. This bridge is local-only, opt-in,
+and is not used to send your data to me or to any remote MarkSnip service.
+
 ## Changes to This Privacy Policy
 I may update this Privacy Policy from time to time, for example if new features are developed which require data collection.
 Thus, it might be a good idea to review this page periodically for any changes. Any changes are effective immediately, as they are
