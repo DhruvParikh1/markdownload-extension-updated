@@ -1,5 +1,21 @@
 # Changelog
 
+## 4.2.1
+
+### User Highlights
+
+- Agent Bridge companion downloads are now available for Windows, macOS, and Linux instead of Windows only.
+- Agent Bridge setup is clearer in Settings, with a built-in setup guide, platform-specific install commands, and clearer connection states.
+- Batch Processing can now be turned off in Settings if you do not want bulk URL clipping controls in the popup.
+- The popup starts faster by deferring heavy editor theme assets, notification loading, and non-critical startup work.
+
+### Technical Notes
+
+- **Cross-Platform Agent Bridge**: Added macOS and Linux native companion packaging, OS-specific install/uninstall paths, and updated release assets and setup docs so the bridge works beyond Windows.
+- **Agent Bridge Settings UX**: Refined the Agent Bridge card with richer status states, host-version display, permission/connection feedback, and platform-aware install command copying.
+- **Batch Processing Toggle**: Added a first-class `batchProcessingEnabled` option that hides batch entry points when disabled and blocks batch runs at the service-worker layer.
+- **Popup Startup Performance**: Deferred CodeMirror theme CSS and notification-host loading, cached startup dependencies, and added a popup benchmark harness plus startup regression coverage.
+
 ## 4.2.0
 
 ### User Highlights

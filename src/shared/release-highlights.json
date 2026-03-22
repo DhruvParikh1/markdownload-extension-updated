@@ -1,7 +1,13 @@
 {
-  "generatedAt": "2026-03-22T02:51:51.042Z",
+  "generatedAt": "2026-03-22T19:12:55.276Z",
   "source": "CHANGELOG.md",
   "versions": {
+    "4.2.1": [
+      "Agent Bridge companion downloads are now available for Windows, macOS, and Linux instead of Windows only.",
+      "Agent Bridge setup is clearer in Settings, with a built-in setup guide, platform-specific install commands, and clearer connection states.",
+      "Batch Processing can now be turned off in Settings if you do not want bulk URL clipping controls in the popup.",
+      "The popup starts faster by deferring heavy editor theme assets, notification loading, and non-critical startup work."
+    ],
     "4.2.0": [
       "MarkSnip now includes a local Library in the popup so you can keep saved clips in the browser and revisit them later.",
       "The new Library can save clips automatically when the popup opens or manually on demand, and it can export all saved clips as a ZIP.",
