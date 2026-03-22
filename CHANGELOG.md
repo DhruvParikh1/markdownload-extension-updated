@@ -13,7 +13,7 @@
 ### Technical Notes
 
 - **Popup Library**: Added local-only Library storage, save/export actions, retention controls, and shared state helpers for managing saved clip snapshots.
-- **Agent Bridge Companion**: Added a native messaging bridge, Windows companion binaries, install docs, and service-worker support for CLI-driven captures of the current tab.
+- **Agent Bridge Companion**: Added a native messaging bridge, desktop companion binaries, install docs, and service-worker support for CLI-driven captures of the current tab.
 - **Options IA Refresh**: Reworked the options sidebar action layout and added first-class Library and Agent Bridge settings with connection status and local-only guidance.
 - **Popup UX Polish**: Improved Library badge/header behavior, manual save states, and popup control presentation around the new Library workflow.
 - **Coverage & Packaging**: Added unit and end-to-end coverage for Library and Agent Bridge behavior, plus release workflow updates and native companion docs.

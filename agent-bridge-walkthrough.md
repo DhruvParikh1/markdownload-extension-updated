@@ -19,19 +19,27 @@ Typical examples:
 You need:
 
 - MarkSnip installed in Chrome or Firefox
-- the Windows Agent Bridge companion downloaded from the MarkSnip releases page
+- the Agent Bridge companion for your OS downloaded from the MarkSnip releases page
 - the browser open while you use the CLI
 
 The CLI only talks to the local browser on your machine. Nothing is sent to a remote service by the bridge itself.
 
 ## First-Time Setup
 
-1. Download and extract the Windows Agent Bridge companion.
+1. Download and extract the Agent Bridge companion for your OS.
 2. Open a terminal in the extracted folder.
-3. Run:
+3. Run the install command:
+
+**Windows**
 
 ```powershell
 .\marksnip.exe install-host
+```
+
+**macOS/Linux**
+
+```bash
+./marksnip install-host
 ```
 
 4. Open MarkSnip Settings.
@@ -43,8 +51,16 @@ If the browser asks you to review new extension permissions after installing or 
 
 If you use a local unpacked Chrome build during development, install the host with the current unpacked extension ID:
 
+**Windows**
+
 ```powershell
 .\marksnip.exe install-host --chrome-extension-id <your-unpacked-id>
+```
+
+**macOS/Linux**
+
+```bash
+./marksnip install-host --chrome-extension-id <your-unpacked-id>
 ```
 
 If that unpacked Chrome extension ID ever changes, rerun the same command with the new ID so Chrome can reconnect to the native host.
@@ -55,11 +71,22 @@ If that unpacked Chrome extension ID ever changes, rerun the same command with t
 2. Keep that tab active.
 3. Run one of these commands:
 
+**Windows**
+
 ```powershell
 .\marksnip.exe status
 .\marksnip.exe clip
 .\marksnip.exe clip --json
 .\marksnip.exe clip --fresh
+```
+
+**macOS/Linux**
+
+```bash
+./marksnip status
+./marksnip clip
+./marksnip clip --json
+./marksnip clip --fresh
 ```
 
 What each command does:
@@ -81,26 +108,50 @@ That means you can:
 1. open the popup
 2. make a quick edit
 3. switch back to the page
-4. run `marksnip.exe clip`
+4. run the matching `clip` command for your platform
 
 If you do not want the edited popup version, use:
 
+**Windows**
+
 ```powershell
 .\marksnip.exe clip --fresh
+```
+
+**macOS/Linux**
+
+```bash
+./marksnip clip --fresh
 ```
 
 ## Using It With Other Tools
 
 Raw Markdown to stdout:
 
+**Windows**
+
 ```powershell
 .\marksnip.exe clip
 ```
 
+**macOS/Linux**
+
+```bash
+./marksnip clip
+```
+
 JSON for scripts:
+
+**Windows**
 
 ```powershell
 .\marksnip.exe clip --json
+```
+
+**macOS/Linux**
+
+```bash
+./marksnip clip --json
 ```
 
 Example PowerShell pipeline:
@@ -109,10 +160,10 @@ Example PowerShell pipeline:
 .\marksnip.exe clip | Set-Clipboard
 ```
 
-Example fresh JSON capture:
+Example fresh JSON capture on macOS/Linux:
 
-```powershell
-.\marksnip.exe clip --json --fresh
+```bash
+./marksnip clip --json --fresh
 ```
 
 ## What To Expect
@@ -129,7 +180,7 @@ If `status` says nothing is connected:
 
 - make sure the browser is open
 - make sure **Agent Bridge** is enabled in MarkSnip Settings
-- rerun `.\marksnip.exe install-host`
+- rerun the install command from the extracted companion folder
 
 If Chrome local development does not connect:
 
@@ -141,7 +192,7 @@ If Chrome local development does not connect:
 
 If you are testing a local unpacked build instead of the store build, Chrome uses your unpacked extension ID, not the stable store ID.
 
-### Fastest way to find your unpacked Chrome ID
+### Fastest way to find your unpacked Chrome ID on Windows
 
 Run this from the repo root:
 
@@ -151,7 +202,7 @@ powershell -ExecutionPolicy Bypass -File .\find-unpacked-chrome-extension-id.ps1
 
 If the script finds your unpacked extension, it prints the Chrome profile and extension ID.
 
-If it does not find a match, use the manual fallback:
+If you are on macOS or Linux, or if the script does not find a match, use the manual fallback:
 
 1. Open `chrome://extensions`
 2. Enable **Developer mode**
@@ -162,9 +213,18 @@ If it does not find a match, use the manual fallback:
 
 Once you have the unpacked extension ID, run:
 
+**Windows**
+
 ```powershell
 cd .\native
 .\marksnip.exe install-host --chrome-extension-id <YOUR_UNPACKED_EXTENSION_ID>
+```
+
+**macOS/Linux**
+
+```bash
+cd ./native
+./marksnip install-host --chrome-extension-id <YOUR_UNPACKED_EXTENSION_ID>
 ```
 
 If the unpacked extension ID changes later, run the same command again with the new ID.
@@ -179,10 +239,20 @@ If the unpacked extension ID changes later, run the same command again with the 
 6. Open a normal web page in Chrome and keep it active
 7. Run:
 
+**Windows**
+
 ```powershell
 cd .\native
 .\marksnip.exe status
 .\marksnip.exe clip --json --fresh
+```
+
+**macOS/Linux**
+
+```bash
+cd ./native
+./marksnip status
+./marksnip clip --json --fresh
 ```
 
 Expected result:
@@ -192,11 +262,21 @@ Expected result:
 
 If you want to remove the companion:
 
+**Windows**
+
 ```powershell
 .\marksnip.exe uninstall-host
 ```
 
+**macOS/Linux**
+
+```bash
+./marksnip uninstall-host
+```
+
 ## Quick Reference
+
+**Windows**
 
 ```powershell
 .\marksnip.exe install-host
@@ -205,4 +285,15 @@ If you want to remove the companion:
 .\marksnip.exe clip --json
 .\marksnip.exe clip --fresh
 .\marksnip.exe uninstall-host
+```
+
+**macOS/Linux**
+
+```bash
+./marksnip install-host
+./marksnip status
+./marksnip clip
+./marksnip clip --json
+./marksnip clip --fresh
+./marksnip uninstall-host
 ```

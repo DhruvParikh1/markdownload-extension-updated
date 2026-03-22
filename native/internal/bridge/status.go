@@ -26,23 +26,7 @@ func StatusPath() (string, error) {
 	return filepath.Join(dir, "status.json"), nil
 }
 
-func ManifestDir(browser Browser) (string, error) {
-	dir, err := baseDir()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(dir, "manifests", string(browser)), nil
-}
-
-func ManifestPath(browser Browser) (string, error) {
-	dir, err := ManifestDir(browser)
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(dir, HostName+".json"), nil
-}
-
-func EnsureBaseDir() (string, error) {
+func EnsureStateBaseDir() (string, error) {
 	dir, err := baseDir()
 	if err != nil {
 		return "", err
@@ -78,7 +62,7 @@ func ReadStatusFile() (StatusFile, error) {
 }
 
 func WriteStatusFile(status StatusFile) error {
-	if _, err := EnsureBaseDir(); err != nil {
+	if _, err := EnsureStateBaseDir(); err != nil {
 		return err
 	}
 

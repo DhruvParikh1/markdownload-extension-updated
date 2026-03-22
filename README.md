@@ -65,22 +65,39 @@ Install from [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/ma
 
 Agent Bridge:
 
-1. Install the Windows companion from GitHub Releases.
-2. Run `marksnip.exe install-host`.
-3. Enable **Agent Bridge** in MarkSnip Settings.
-4. Use `marksnip.exe clip` to print the current page's markdown.
+1. Install the matching companion archive from GitHub Releases.
+2. Run the install command for your OS:
 
-For local unpacked Chrome testing, first look up the unpacked extension ID:
+   Windows: `.\marksnip.exe install-host`
+   macOS/Linux: `./marksnip install-host`
+3. Enable **Agent Bridge** in MarkSnip Settings.
+4. Run the clip command for your OS:
+
+   Windows: `.\marksnip.exe clip`
+   macOS/Linux: `./marksnip clip`
+
+For local unpacked Chrome testing on Windows, you can first look up the unpacked extension ID with:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\find-unpacked-chrome-extension-id.ps1 -ExtensionPath .\src
 ```
 
+On any platform, you can also copy the unpacked extension ID from `chrome://extensions`.
+
 Then install the host against that unpacked ID:
+
+Windows:
 
 ```powershell
 cd .\native
 .\marksnip.exe install-host --chrome-extension-id <YOUR_UNPACKED_EXTENSION_ID>
+```
+
+macOS/Linux:
+
+```bash
+cd ./native
+./marksnip install-host --chrome-extension-id <YOUR_UNPACKED_EXTENSION_ID>
 ```
 
 If the unpacked Chrome extension ID changes later, rerun that command with the new ID.
@@ -147,6 +164,10 @@ GitHub Actions workflow [`.github/workflows/build-release.yml`](.github/workflow
 3. Packages:
    - `marksnip-chrome-<version>.zip`
    - `marksnip-firefox-<version>.xpi`
+   - `marksnip-agent-bridge-windows-amd64.zip`
+   - `marksnip-agent-bridge-macos-amd64.tar.gz`
+   - `marksnip-agent-bridge-macos-arm64.tar.gz`
+   - `marksnip-agent-bridge-linux-amd64.tar.gz`
 4. Publishes a GitHub Release on `v*` tags (or manual `workflow_dispatch`).
 
 To publish:

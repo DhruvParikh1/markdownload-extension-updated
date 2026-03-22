@@ -18,6 +18,7 @@ let agentBridgeStatus = {
     lastError: '',
     updatedAt: ''
 };
+let agentBridgeInstallCommand = 'marksnip install-host';
 let keyupTimeout = null;
 
 function getOptionsStateApi() {
@@ -35,6 +36,32 @@ function getAgentBridgeStateApi() {
 function usesOptionalNativeMessagingPermission() {
     const optionalPermissions = browser.runtime?.getManifest?.().optional_permissions || [];
     return Array.isArray(optionalPermissions) && optionalPermissions.includes('nativeMessaging');
+}
+
+function getAgentBridgeInstallCommandForPlatform(platformOs) {
+    switch (String(platformOs || '').trim().toLowerCase()) {
+        case 'win':
+            return '.\\marksnip.exe install-host';
+        case 'mac':
+        case 'linux':
+            return './marksnip install-host';
+        default:
+            return 'marksnip install-host';
+    }
+}
+
+function renderAgentBridgeInstallCommand() {
+    const commandEl = document.getElementById('agentBridgeInstallCommand');
+    if (commandEl) {
+        commandEl.textContent = agentBridgeInstallCommand;
+    }
+}
+
+async function resolveAgentBridgeInstallCommand() {
+    const platformInfo = await browser.runtime?.getPlatformInfo?.().catch(() => null);
+    agentBridgeInstallCommand = getAgentBridgeInstallCommandForPlatform(platformInfo?.os);
+    renderAgentBridgeInstallCommand();
+    return agentBridgeInstallCommand;
 }
 
 function normalizeLibrarySettingsState(settings) {
@@ -584,6 +611,8 @@ const restoreOptions = () => {
         console.error(error);
     }
 
+    resolveAgentBridgeInstallCommand().catch(onError);
+
     Promise.all([
         browser.storage.sync.get(defaultOptions),
         loadLibrarySettingsState(),
@@ -788,7 +817,7 @@ const buttonClick = (e) => {
             });
     }
     else if (e.target.id == "copyAgentBridgeCommand" || e.target.closest('#copyAgentBridgeCommand')) {
-        const command = 'marksnip install-host';
+        const command = document.getElementById('agentBridgeInstallCommand')?.textContent?.trim() || agentBridgeInstallCommand;
         navigator.clipboard.writeText(command)
             .then(() => {
                 showToast("Install command copied", "success");

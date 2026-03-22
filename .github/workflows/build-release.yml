@@ -60,6 +60,11 @@ jobs:
           cache: "npm"
           cache-dependency-path: "src/package-lock.json"
 
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
       - name: Install dependencies
         working-directory: src
         run: npm ci || npm ci || npm ci
@@ -79,15 +84,44 @@ jobs:
       - name: Create dist directory
         run: mkdir -p dist
 
-      - name: Build Agent Bridge companion
+      - name: Build Agent Bridge companions
         working-directory: native
         run: |
-          mkdir -p ../dist/marksnip-agent-bridge
-          GOOS=windows GOARCH=amd64 go build -o ../dist/marksnip-agent-bridge/marksnip.exe ./cmd/marksnip
-          GOOS=windows GOARCH=amd64 go build -o ../dist/marksnip-agent-bridge/marksnip-native-host.exe ./cmd/marksnip-native-host
-          cp README.md ../dist/marksnip-agent-bridge/README.md
-          cd ../dist/marksnip-agent-bridge
-          zip -r ../marksnip-agent-bridge-windows-amd64.zip .
+          mkdir -p ../dist
+
+          build_bridge() {
+            local goos="$1"
+            local goarch="$2"
+            local archive_name="$3"
+            local stage_dir="../dist/.agent-bridge-${goos}-${goarch}"
+            local cli_name="marksnip"
+            local host_name="marksnip-native-host"
+
+            rm -rf "$stage_dir"
+            mkdir -p "$stage_dir"
+
+            if [ "$goos" = "windows" ]; then
+              cli_name="${cli_name}.exe"
+              host_name="${host_name}.exe"
+            fi
+
+            GOOS="$goos" GOARCH="$goarch" go build -o "${stage_dir}/${cli_name}" ./cmd/marksnip
+            GOOS="$goos" GOARCH="$goarch" go build -o "${stage_dir}/${host_name}" ./cmd/marksnip-native-host
+            cp README.md "${stage_dir}/README.md"
+
+            if [ "$goos" = "windows" ]; then
+              (cd "$stage_dir" && zip -r "../${archive_name}" .)
+            else
+              (cd "$stage_dir" && tar -czf "../${archive_name}" .)
+            fi
+
+            rm -rf "$stage_dir"
+          }
+
+          build_bridge windows amd64 marksnip-agent-bridge-windows-amd64.zip
+          build_bridge darwin amd64 marksnip-agent-bridge-macos-amd64.tar.gz
+          build_bridge darwin arm64 marksnip-agent-bridge-macos-arm64.tar.gz
+          build_bridge linux amd64 marksnip-agent-bridge-linux-amd64.tar.gz
 
       - name: Create Chrome package (.zip)
         working-directory: src/.build/chrome
@@ -119,7 +153,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: marksnip-agent-bridge
-          path: dist/marksnip-agent-bridge-windows-amd64.zip
+          path: |
+            dist/marksnip-agent-bridge-windows-amd64.zip
+            dist/marksnip-agent-bridge-macos-amd64.tar.gz
+            dist/marksnip-agent-bridge-macos-arm64.tar.gz
+            dist/marksnip-agent-bridge-linux-amd64.tar.gz
           retention-days: 30
 
   release:
@@ -191,17 +229,23 @@ jobs:
             2. Open Firefox and drag the .xpi file into the browser
             3. Confirm the installation
 
-            **Agent Bridge (Windows):**
-            1. Download `marksnip-agent-bridge-windows-amd64.zip`
-            2. Extract it anywhere on your machine
-            3. Run `marksnip.exe install-host`
-            4. Enable **Agent Bridge** in the extension settings
+            **Agent Bridge (choose the archive for your OS):**
+            - Windows x64: `marksnip-agent-bridge-windows-amd64.zip`
+            - macOS Intel: `marksnip-agent-bridge-macos-amd64.tar.gz`
+            - macOS Apple Silicon: `marksnip-agent-bridge-macos-arm64.tar.gz`
+            - Linux x64: `marksnip-agent-bridge-linux-amd64.tar.gz`
+
+            After extracting the archive:
+            - Windows: run `.\marksnip.exe install-host`
+            - macOS/Linux: run `./marksnip install-host`
+            - Then enable **Agent Bridge** in the extension settings
 
             ### Changes
             See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details.
 
           files: |
             artifacts/*.zip
+            artifacts/*.tar.gz
             artifacts/*.xpi
           draft: false
           prerelease: false

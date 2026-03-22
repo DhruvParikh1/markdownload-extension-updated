@@ -47,7 +47,7 @@ func main() {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
-		fmt.Println("Removed MarkSnip native host manifests and registry keys.")
+		fmt.Println("Removed MarkSnip native host registration.")
 	default:
 		usage()
 		os.Exit(1)
