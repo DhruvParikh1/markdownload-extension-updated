@@ -10,6 +10,7 @@ let agentBridgeSettings = {
 let agentBridgeStatus = {
     enabled: false,
     permissionGranted: false,
+    connecting: false,
     connected: false,
     hostInstalled: false,
     browser: '',
@@ -125,6 +126,7 @@ function normalizeAgentBridgeStatusState(status) {
     return {
         enabled: status?.enabled === true,
         permissionGranted: status?.permissionGranted === true,
+        connecting: status?.connecting === true,
         connected: status?.connected === true,
         hostInstalled: status?.hostInstalled === true,
         browser: typeof status?.browser === 'string' ? status.browser.trim().toLowerCase() : '',
@@ -524,25 +526,39 @@ const setCurrentAgentBridgeChoice = (settingsResult, statusResult = agentBridgeS
         toggle.checked = agentBridgeSettings.enabled;
     }
 
+    const container = document.getElementById('agent-bridge-container');
     const statusText = document.getElementById('agentBridgeStatusText');
     const statusHint = document.getElementById('agentBridgeStatusHint');
     const versionEl = document.getElementById('agentBridgeHostVersion');
 
     let text = 'Disabled';
     let hint = 'Enable the Agent Bridge to let MarkSnip connect to the local companion.';
+    let state = 'disabled';
 
     if (usesOptionalNativeMessagingPermission() && agentBridgeSettings.enabled && !agentBridgeStatus.permissionGranted) {
         text = 'Permission needed';
         hint = 'Native messaging permission has not been granted yet.';
+        state = 'permission-needed';
+    } else if (agentBridgeSettings.enabled && agentBridgeStatus.connecting) {
+        text = 'Checking connection';
+        hint = 'MarkSnip is waiting for the local companion to respond.';
+        state = 'starting';
     } else if (agentBridgeSettings.enabled && agentBridgeStatus.connected) {
         text = `Connected${agentBridgeStatus.browser ? ` via ${agentBridgeStatus.browser}` : ''}`;
         hint = 'The local CLI can request the current page while this browser is open.';
+        state = 'connected';
     } else if (agentBridgeSettings.enabled && agentBridgeStatus.lastError) {
         text = 'Waiting for companion';
         hint = agentBridgeStatus.lastError;
+        state = 'waiting';
     } else if (agentBridgeSettings.enabled) {
         text = 'Starting';
         hint = 'MarkSnip is trying to connect to the local companion.';
+        state = 'starting';
+    }
+
+    if (container) {
+        container.dataset.bridgeState = state;
     }
 
     if (statusText) {
@@ -551,10 +567,15 @@ const setCurrentAgentBridgeChoice = (settingsResult, statusResult = agentBridgeS
     if (statusHint) {
         statusHint.textContent = hint;
     }
+
     if (versionEl) {
-        versionEl.textContent = agentBridgeStatus.hostVersion
-            ? `Host ${agentBridgeStatus.hostVersion}`
-            : 'Host version unavailable';
+        if (agentBridgeStatus.hostVersion) {
+            versionEl.textContent = `Host ${agentBridgeStatus.hostVersion}`;
+            versionEl.hidden = false;
+        } else {
+            versionEl.textContent = '';
+            versionEl.hidden = true;
+        }
     }
 }
 
@@ -737,6 +758,18 @@ const buttonClick = (e) => {
         clearLibraryItems();
     }
     else if (e.target.id == "refreshAgentBridgeStatus" || e.target.closest('#refreshAgentBridgeStatus')) {
+        const refreshBtn = document.getElementById('refreshAgentBridgeStatus');
+        if (refreshBtn) {
+            refreshBtn.disabled = true;
+            refreshBtn.textContent = 'Checking\u2026';
+        }
+        setCurrentAgentBridgeChoice(agentBridgeSettings, {
+            ...agentBridgeStatus,
+            connecting: true,
+            connected: false,
+            lastError: ''
+        });
+
         refreshAgentBridgeStatusState()
             .then((status) => {
                 setCurrentAgentBridgeChoice(agentBridgeSettings, status);
@@ -744,7 +777,14 @@ const buttonClick = (e) => {
             })
             .catch((error) => {
                 console.error('Failed to refresh Agent Bridge status:', error);
+                setCurrentAgentBridgeChoice(agentBridgeSettings, agentBridgeStatus);
                 showToast(String(error), "error");
+            })
+            .finally(() => {
+                if (refreshBtn) {
+                    refreshBtn.disabled = false;
+                    refreshBtn.textContent = 'Check Connection';
+                }
             });
     }
     else if (e.target.id == "copyAgentBridgeCommand" || e.target.closest('#copyAgentBridgeCommand')) {

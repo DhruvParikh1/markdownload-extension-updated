@@ -538,7 +538,8 @@
                 </div>
 
                 <div class="setting-card" id="agent-bridge-container"
-                    data-search-keywords="agent bridge,cli,native host,native messaging,claude code,coding agent,stdout,bridge">
+                    data-search-keywords="agent bridge,cli,native host,native messaging,claude code,coding agent,stdout,bridge"
+                    data-bridge-state="disabled">
                     <h3 class="card-title">Agent Bridge</h3>
                     <p class="card-desc">Install the local MarkSnip companion once, then let local tools pull the current page's Markdown directly without using downloads.</p>
 
@@ -553,29 +554,38 @@
                         </label>
                     </div>
 
-                    <div class="agent-bridge-status-row">
+                    <div class="agent-bridge-status-row" id="agentBridgeStatusRow">
                         <div class="agent-bridge-status-copy">
                             <span class="agent-bridge-status-label">Status</span>
-                            <strong id="agentBridgeStatusText" class="agent-bridge-status-text">Disabled</strong>
+                            <div class="agent-bridge-status-badge" role="status" aria-live="polite">
+                                <span class="agent-bridge-status-dot" aria-hidden="true"></span>
+                                <strong id="agentBridgeStatusText" class="agent-bridge-status-text">Disabled</strong>
+                            </div>
                             <p id="agentBridgeStatusHint" class="option-note">Enable the Agent Bridge to let MarkSnip connect to the local companion.</p>
-                            <p id="agentBridgeHostVersion" class="option-note">Host version unavailable</p>
+                            <span id="agentBridgeHostVersion" class="agent-bridge-version-tag" hidden></span>
                         </div>
-                        <button id="refreshAgentBridgeStatus" class="btn btn-secondary btn-sm" type="button">Check Connection</button>
+                        <button id="refreshAgentBridgeStatus" class="btn btn-secondary btn-sm" type="button" aria-label="Check Agent Bridge connection status">Check Connection</button>
                     </div>
 
-                    <div class="input-group">
-                        <label class="input-label" for="agentBridgeInstallCommand">Install command</label>
-                        <div class="agent-bridge-command-row">
-                            <code id="agentBridgeInstallCommand">marksnip install-host</code>
-                            <button id="copyAgentBridgeCommand" class="btn btn-secondary btn-sm" type="button">Copy</button>
+                    <details class="info-panel agent-bridge-setup-guide" id="agentBridgeSetupGuide">
+                        <summary>Setup guide</summary>
+                        <div class="info-panel-content">
+                            <p>To connect MarkSnip to local CLI tools, follow these steps:</p>
+                            <ol>
+                                <li>Download the companion binary from the <a href="https://github.com/DhruvParikh1/markdownload-extension-updated/releases" target="_blank" rel="noopener noreferrer">Releases page</a>.</li>
+                                <li>Run the install command to register the native messaging host:</li>
+                            </ol>
+                            <div class="agent-bridge-terminal">
+                                <span class="agent-bridge-terminal-prompt" aria-hidden="true">$</span>
+                                <code id="agentBridgeInstallCommand">marksnip install-host</code>
+                                <button id="copyAgentBridgeCommand" class="btn btn-sm agent-bridge-copy-btn" type="button" aria-label="Copy install command to clipboard">Copy</button>
+                            </div>
+                            <ol start="3">
+                                <li>Enable the toggle above and MarkSnip will connect automatically.</li>
+                            </ol>
+                            <p class="option-note" style="margin-top: var(--space-3)">Local-only feature. Bridge settings are not exported and do not sync between machines.</p>
                         </div>
-                    </div>
-
-                    <p class="option-note">Local-only feature. Bridge settings are not exported and do not sync between machines.</p>
-
-                    <div class="btn-group">
-                        <a class="btn btn-secondary" href="https://github.com/DhruvParikh1/markdownload-extension-updated/releases" target="_blank" rel="noopener noreferrer">Open Releases</a>
-                    </div>
+                    </details>
                 </div>
             </div>
 

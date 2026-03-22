@@ -12,6 +12,7 @@
   const DEFAULT_STATUS = Object.freeze({
     enabled: false,
     permissionGranted: false,
+    connecting: false,
     connected: false,
     hostInstalled: false,
     browser: '',
@@ -53,6 +54,7 @@
     return {
       enabled: status?.enabled === true,
       permissionGranted: status?.permissionGranted === true,
+      connecting: status?.connecting === true,
       connected: status?.connected === true,
       hostInstalled: status?.hostInstalled === true,
       browser: typeof status?.browser === 'string' ? status.browser.trim().toLowerCase() : '',

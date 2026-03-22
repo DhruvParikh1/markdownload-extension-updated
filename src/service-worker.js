@@ -135,6 +135,7 @@ async function loadAgentBridgeStatus() {
     return {
       enabled: false,
       permissionGranted: false,
+      connecting: false,
       connected: false,
       hostInstalled: false,
       browser: '',
@@ -245,6 +246,7 @@ async function disconnectAgentBridge(options = {}) {
   }
 
   await saveAgentBridgeStatus({
+    connecting: false,
     connected: false,
     hostInstalled,
     lastError,
@@ -272,6 +274,7 @@ async function handleAgentBridgeDisconnect() {
   agentBridgePort = null;
 
   await saveAgentBridgeStatus({
+    connecting: false,
     connected: false,
     hostInstalled: !hostMissing && agentBridgeSuccessfulConnect,
     lastError: disconnectMessage
@@ -1951,6 +1954,7 @@ function handleAgentBridgeNativeMessage(message = {}) {
     case 'bridge.ready':
       agentBridgeSuccessfulConnect = true;
       saveAgentBridgeStatus({
+        connecting: false,
         connected: true,
         hostInstalled: true,
         browser: String(message.browser || getCurrentBrowserLabel()).trim().toLowerCase(),
@@ -1995,8 +1999,9 @@ async function initializeAgentBridge(forceReconnect = false) {
 
   if (agentBridgePort && !forceReconnect) {
     await saveAgentBridgeStatus({
-      connected: true,
-      hostInstalled: agentBridgeSuccessfulConnect,
+      connecting: !agentBridgeSuccessfulConnect,
+      connected: agentBridgeSuccessfulConnect,
+      hostInstalled: true,
       lastError: ''
     });
     return agentBridgePort;
@@ -2036,9 +2041,9 @@ async function initializeAgentBridge(forceReconnect = false) {
         connectedAt: new Date().toISOString()
       });
 
-      agentBridgeSuccessfulConnect = true;
       await saveAgentBridgeStatus({
-        connected: true,
+        connecting: true,
+        connected: false,
         hostInstalled: true,
         browser: getCurrentBrowserLabel(),
         lastError: ''
@@ -2053,6 +2058,7 @@ async function initializeAgentBridge(forceReconnect = false) {
       const message = getAgentBridgeErrorMessage(error) || 'Failed to connect to MarkSnip native host';
       const hostMissing = /native messaging host|Specified native messaging host not found|not found/i.test(message);
       await saveAgentBridgeStatus({
+        connecting: false,
         connected: false,
         hostInstalled: hostMissing ? false : agentBridgeSuccessfulConnect,
         browser: hostMissing ? '' : getCurrentBrowserLabel(),

@@ -6,6 +6,42 @@ describe('agent-bridge-state helpers', () => {
     expect(agentBridgeState.normalizeSettings({ enabled: true })).toEqual({ enabled: true });
   });
 
+  test('normalizes status with an explicit connecting state', () => {
+    expect(agentBridgeState.normalizeStatus()).toEqual({
+      enabled: false,
+      permissionGranted: false,
+      connecting: false,
+      connected: false,
+      hostInstalled: false,
+      browser: '',
+      hostVersion: '',
+      lastError: '',
+      updatedAt: ''
+    });
+
+    expect(agentBridgeState.normalizeStatus({
+      enabled: true,
+      permissionGranted: true,
+      connecting: true,
+      connected: false,
+      hostInstalled: true,
+      browser: ' Chrome ',
+      hostVersion: ' 0.1.0 ',
+      lastError: ' waiting ',
+      updatedAt: ' 2026-03-22T00:00:00.000Z '
+    })).toEqual({
+      enabled: true,
+      permissionGranted: true,
+      connecting: true,
+      connected: false,
+      hostInstalled: true,
+      browser: 'chrome',
+      hostVersion: '0.1.0',
+      lastError: 'waiting',
+      updatedAt: '2026-03-22T00:00:00.000Z'
+    });
+  });
+
   test('normalizes latest clip and strips hashes from page urls', () => {
     const clip = agentBridgeState.normalizeLatestClip({
       title: 'Doc',
