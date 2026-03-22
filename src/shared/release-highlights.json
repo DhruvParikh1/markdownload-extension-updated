@@ -1,7 +1,14 @@
 {
-  "generatedAt": "2026-03-17T22:29:51.432Z",
+  "generatedAt": "2026-03-22T02:51:51.042Z",
   "source": "CHANGELOG.md",
   "versions": {
+    "4.2.0": [
+      "MarkSnip now includes a local Library in the popup so you can keep saved clips in the browser and revisit them later.",
+      "The new Library can save clips automatically when the popup opens or manually on demand, and it can export all saved clips as a ZIP.",
+      "A new Agent Bridge lets local tools pull markdown from your current tab through the MarkSnip companion CLI instead of downloads.",
+      "Settings are easier to navigate with a refreshed sidebar, clearer category grouping, and dedicated sections for Library and Agent Bridge controls.",
+      "Popup actions are clearer, with better Library visibility, improved manual-save messaging, and cleaner header controls."
+    ],
     "4.1.4": [
       "MarkSnip now includes a built-in User Guide, so help is available directly inside the extension.",
       "Settings search is more consistent and easier to reuse across the extension's help and configuration experiences.",
