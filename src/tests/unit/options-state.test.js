@@ -3,6 +3,7 @@ const optionsState = require('../../shared/options-state');
 describe('options-state helpers', () => {
 const defaultOptions = {
   contextMenus: true,
+  batchProcessingEnabled: true,
   includeTemplate: false,
   imagePrefix: '{pageTitle}/',
   showUserGuideIcon: true,
@@ -224,6 +225,18 @@ test('resetOptionKeys restores the popup guide icon toggle to its default', () =
   const result = optionsState.resetOptionKeys(current, defaultOptions, ['showUserGuideIcon']);
 
   expect(result.options.showUserGuideIcon).toBe(true);
+  expect(result.contextMenuAction).toBe('none');
+});
+
+test('resetOptionKeys restores the batch processing toggle to its default', () => {
+  const current = {
+    ...defaultOptions,
+    batchProcessingEnabled: false
+  };
+
+  const result = optionsState.resetOptionKeys(current, defaultOptions, ['batchProcessingEnabled']);
+
+  expect(result.options.batchProcessingEnabled).toBe(true);
   expect(result.contextMenuAction).toBe('none');
 });
 

@@ -60,6 +60,7 @@ const baseOptions = {
   turndownEscape: true,
   hashtagHandling: 'keep',
   contextMenus: true,
+  batchProcessingEnabled: true,
   obsidianIntegration: false,
   obsidianVault: '',
   obsidianFolder: '',
@@ -250,6 +251,7 @@ describe('Options search helper', () => {
     expect(getMatchIds(index, 'highlight.js')).toContain('autoDetectCodeLanguage-container');
     expect(getMatchIds(index, 'shortcut')).toContain('linkReferenceStyle');
     expect(getMatchIds(index, 'hashtag')).toContain('hashtagHandling-container');
+    expect(getMatchIds(index, 'batch processing')).toContain('batchProcessingEnabled-container');
     expect(getMatchIds(index, 'obsidian vault')).toContain('obsidianVault');
     expect(getMatchIds(index, 'download images')).toContain('downloadImages-container');
     expect(getMatchIds(index, 'guide icon')).toContain('showUserGuideIcon-container');
@@ -467,6 +469,25 @@ describe('Options page search UI', () => {
 
     expect(browser.storage.sync.set).toHaveBeenCalledWith(expect.objectContaining({
       showUserGuideIcon: true
+    }));
+  });
+
+  test('restores and saves the batch processing toggle', async () => {
+    const { dom, browser } = createOptionsPageDom({ batchProcessingEnabled: false });
+    const { document } = dom.window;
+
+    document.dispatchEvent(new dom.window.Event('DOMContentLoaded', { bubbles: true }));
+    await waitForMicrotasks();
+
+    const toggle = document.getElementById('batchProcessingEnabled');
+    expect(toggle.checked).toBe(false);
+
+    toggle.checked = true;
+    toggle.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
+    await waitForMicrotasks();
+
+    expect(browser.storage.sync.set).toHaveBeenCalledWith(expect.objectContaining({
+      batchProcessingEnabled: true
     }));
   });
 });

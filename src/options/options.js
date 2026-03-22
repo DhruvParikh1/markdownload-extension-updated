@@ -369,6 +369,7 @@ const saveOptions = e => {
         turndownEscape: document.querySelector("[name='turndownEscape']").checked,
         hashtagHandling: getCheckedValue(document.querySelectorAll("input[name='hashtagHandling']")),
         contextMenus: document.querySelector("[name='contextMenus']").checked,
+        batchProcessingEnabled: document.querySelector("[name='batchProcessingEnabled']").checked,
         obsidianIntegration: document.querySelector("[name='obsidianIntegration']").checked,
         obsidianVault: document.querySelector("[name='obsidianVault']").value,
         obsidianFolder: document.querySelector("[name='obsidianFolder']").value,
@@ -498,6 +499,7 @@ const setCurrentChoice = result => {
     document.querySelector("[name='mdClipsFolder']").value = result.mdClipsFolder;
     document.querySelector("[name='turndownEscape']").checked = options.turndownEscape;
     document.querySelector("[name='contextMenus']").checked = options.contextMenus;
+    document.querySelector("[name='batchProcessingEnabled']").checked = options.batchProcessingEnabled !== false;
     document.querySelector("[name='obsidianIntegration']").checked = options.obsidianIntegration;
     document.querySelector("[name='obsidianVault']").value = options.obsidianVault;
     document.querySelector("[name='obsidianFolder']").value = options.obsidianFolder;

@@ -32,6 +32,7 @@ const defaultOptions = {
   turndownEscape: true,
   hashtagHandling: 'keep',
   contextMenus: true,
+  batchProcessingEnabled: true,
   obsidianIntegration: false,
   obsidianVault: "",
   obsidianFolder: "",

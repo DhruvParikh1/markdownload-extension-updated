@@ -1223,6 +1223,11 @@ async function handleBatchConversionInServiceWorker(message) {
     throw new Error('No URLs to process');
   }
 
+  const options = await getOptions();
+  if (options.batchProcessingEnabled === false) {
+    throw new Error('Batch Processing is disabled in Options');
+  }
+
   if (batchConversionInProgress) {
     throw new Error('Batch conversion already in progress');
   }
@@ -1233,7 +1238,6 @@ async function handleBatchConversionInServiceWorker(message) {
   const signal = createBatchCancellationSignal();
   activeBatchSignal = signal;
   const startedAt = Date.now();
-  const options = await getOptions();
 
   // Resolve accent colors for the in-page overlay
   const BATCH_ACCENT_COLORS = {

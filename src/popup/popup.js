@@ -51,6 +51,7 @@ const dom = {
     convertUrlsButton: document.getElementById('convertUrls'),
     pickLinksButton: document.getElementById('pickLinks'),
     batchSaveModeToggle: document.getElementById('batchSaveModeToggle'),
+    batchProcessButton: document.getElementById('batchProcess'),
     openGuideButton: document.getElementById('openGuide'),
     sendToObsidianButton: document.getElementById('sendToObsidian')
 };
@@ -599,6 +600,11 @@ dom.urlList?.addEventListener("input", () => {
 
 async function showBatchProcess(e) {
     e.preventDefault();
+    if (currentOptions?.batchProcessingEnabled === false) {
+        showError("Batch Processing is disabled in Options", false);
+        return;
+    }
+
     showBatchView();
     await ensureBatchSettingsLoaded();
 
@@ -663,6 +669,7 @@ const defaultOptions = {
     clipSelection: true,
     downloadImages: false,
     obsidianIntegration: false,
+    batchProcessingEnabled: true,
     popupTheme: 'system',
     popupAccent: 'sage',
     compactMode: false,
@@ -683,6 +690,19 @@ const updateGuideButtonVisibility = (options) => {
     dom.openGuideButton.hidden = !shouldShowGuideButton;
     dom.openGuideButton.style.display = shouldShowGuideButton ? "" : "none";
     dom.openGuideButton.setAttribute("aria-hidden", String(!shouldShowGuideButton));
+}
+
+const updateBatchProcessButtonVisibility = (options) => {
+    if (!dom.batchProcessButton) return;
+
+    const batchProcessingEnabled = options.batchProcessingEnabled !== false;
+    dom.batchProcessButton.hidden = !batchProcessingEnabled;
+    dom.batchProcessButton.style.display = batchProcessingEnabled ? "" : "none";
+    dom.batchProcessButton.setAttribute("aria-hidden", String(!batchProcessingEnabled));
+
+    if (!batchProcessingEnabled && dom.batchContainer?.style.display === 'flex' && progressUI.container?.style.display !== 'flex') {
+        showMainView();
+    }
 }
 
 function resolveClipPageUrl(article = {}) {
@@ -1496,6 +1516,11 @@ async function clipTabWithRetry(tab, maxAttempts = 2) {
 
 async function handleBatchConversion(e) {
     e.preventDefault();
+
+    if (currentOptions?.batchProcessingEnabled === false) {
+        showError("Batch Processing is disabled in Options", false);
+        return;
+    }
     
     const urlText = dom.urlList?.value || '';
     const urlObjects = processUrlInput(urlText);
@@ -1641,6 +1666,7 @@ const checkInitialSettings = options => {
     }
     updateObsidianButtonVisibility(currentOptions);
     updateGuideButtonVisibility(currentOptions);
+    updateBatchProcessButtonVisibility(currentOptions);
 
     // Set segmented control state
     setClipSelectionState(currentOptions.clipSelection);
@@ -1882,6 +1908,13 @@ browser.runtime.onMessage.addListener(notify);
 
 browser.storage.onChanged.addListener((changes, areaName) => {
     if (areaName === "sync") {
+        if (changes.batchProcessingEnabled) {
+            currentOptions = {
+                ...currentOptions,
+                batchProcessingEnabled: changes.batchProcessingEnabled.newValue !== false
+            };
+            updateBatchProcessButtonVisibility(currentOptions);
+        }
         if (changes.obsidianIntegration) {
             updateObsidianButtonVisibility({ obsidianIntegration: changes.obsidianIntegration.newValue });
         }
