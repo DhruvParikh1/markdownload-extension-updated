@@ -4,15 +4,13 @@ xcode/MarkDownload - Markdown Web Clipper/MarkDownload - Markdown Web Clipper.xc
 xcode/MarkDownload - Markdown Web Clipper/MarkDownload - Markdown Web Clipper.xcodeproj/xcuserdata
 .DS_Store
 node_modules
-TODO.md
+things.md
 .claude/
 src/test-artifacts/
 src/test-results/*
 !src/test-results/.last-run.json
 src/test-results/live-public/
 video/
-COOK.md
-.cook/
 .gocache/
 native/*.exe
 native/*.dll

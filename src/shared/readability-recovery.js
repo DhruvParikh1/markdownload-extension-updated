@@ -154,6 +154,132 @@
     return descriptor.level;
   }
 
+  function restoreMissingPrimaryHeadings(document, articleHtml) {
+    if (!articleHtml) {
+      return null;
+    }
+
+    const extractedDocument = parseArticleHtml(document, articleHtml);
+    let changed = false;
+    const restoredContainerIds = new Set();
+
+    function resolveInsertionTarget(node) {
+      if (!node) {
+        return null;
+      }
+
+      if (WRAPPER_TAGS.has(node.tagName) || node.matches?.('main, blockquote, pre, table, ul, ol')) {
+        return node;
+      }
+
+      return node.parentElement || null;
+    }
+
+    function findRecoveryCandidate(sourceNode) {
+      let current = sourceNode;
+
+      for (let depth = 0; depth < 3 && current; depth += 1) {
+        if (!looksExcludedContainer(current)) {
+          const directDescriptor = primaryHeadingDescriptor(current);
+          if (directDescriptor) {
+            return {
+              container: current,
+              descriptor: directDescriptor
+            };
+          }
+        }
+
+        const parent = current.parentElement;
+        if (!parent) {
+          break;
+        }
+
+        if (!looksExcludedContainer(parent)) {
+          const parentDescriptor = primaryHeadingDescriptor(parent);
+          const dominance = dominantNonHeadingChild(parent);
+          if (
+            parentDescriptor &&
+            dominance?.child &&
+            (dominance.child === current || dominance.child.contains(current))
+          ) {
+            return {
+              container: parent,
+              descriptor: parentDescriptor
+            };
+          }
+        }
+
+        current = parent;
+      }
+
+      return null;
+    }
+
+    extractedDocument.body.querySelectorAll(`[${ANCHOR_ATTRIBUTE}]`).forEach(extractedNode => {
+      const sourceNodeId = extractedNode.getAttribute(ANCHOR_ATTRIBUTE);
+      if (!sourceNodeId) {
+        return;
+      }
+
+      const sourceNode = document.querySelector(`[${ANCHOR_ATTRIBUTE}="${sourceNodeId}"]`);
+      if (!sourceNode || looksExcludedContainer(sourceNode)) {
+        return;
+      }
+
+      const recoveryCandidate = findRecoveryCandidate(sourceNode);
+      if (!recoveryCandidate) {
+        return;
+      }
+
+      const containerId = recoveryCandidate.container.getAttribute(ANCHOR_ATTRIBUTE) || sourceNodeId;
+      if (containerId && restoredContainerIds.has(containerId)) {
+        return;
+      }
+
+      const representedContainer = containerId
+        ? extractedDocument.body.querySelector(`[${ANCHOR_ATTRIBUTE}="${containerId}"]`)
+        : null;
+      const targetNode = resolveInsertionTarget(representedContainer || extractedNode);
+      if (!targetNode || primaryHeadingDescriptor(targetNode)) {
+        return;
+      }
+
+      const headingText = normalizeWhitespace(recoveryCandidate.descriptor.heading.textContent);
+      if (!headingText) {
+        return;
+      }
+
+      const extractedText = normalizeWhitespace(targetNode.textContent);
+      if (extractedText.startsWith(headingText)) {
+        return;
+      }
+
+      const dominance = dominantNonHeadingChild(recoveryCandidate.container);
+      if (dominance?.child) {
+        const witnessId = dominance.child.getAttribute(ANCHOR_ATTRIBUTE);
+        const representsContainer = containerId && (
+          targetNode.getAttribute?.(ANCHOR_ATTRIBUTE) === containerId ||
+          !!targetNode.querySelector(`[${ANCHOR_ATTRIBUTE}="${containerId}"]`)
+        );
+        const representsWitness = witnessId && (
+          targetNode.getAttribute?.(ANCHOR_ATTRIBUTE) === witnessId ||
+          !!targetNode.querySelector(`[${ANCHOR_ATTRIBUTE}="${witnessId}"]`)
+        );
+        if (witnessId && !representsWitness && !representsContainer) {
+          return;
+        }
+      }
+
+      targetNode.insertBefore(recoveryCandidate.descriptor.heading.cloneNode(true), targetNode.firstChild);
+      if (containerId) {
+        restoredContainerIds.add(containerId);
+      }
+      changed = true;
+    });
+
+    return changed ? extractedDocument.body.innerHTML : null;
+  }
+
   function childRole(child) {
     if (!child) {
       return 'other';
@@ -572,6 +698,7 @@
     analyzeNarrowExtraction,
     applyRepeatedSectionPromotion,
     buildRepeatedSectionFragment,
+    restoreMissingPrimaryHeadings,
     stripStructuralAnchorsFromHtml
   };
 

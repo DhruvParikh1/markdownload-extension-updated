@@ -1400,6 +1400,13 @@ function finalizeArticleMetadata(article, dom, pageUrl, math, recoveryApi) {
     throw new Error('Readability failed to extract article');
   }
 
+  const restoredContent = typeof recoveryApi.restoreMissingPrimaryHeadings === 'function'
+    ? recoveryApi.restoreMissingPrimaryHeadings(dom, article.content)
+    : null;
+  if (restoredContent) {
+    Object.assign(article, buildRecoveredArticle(article, restoredContent));
+  }
+
   article.content = recoveryApi.stripStructuralAnchorsFromHtml(article.content);
 
   // Add essential metadata with fallbacks.

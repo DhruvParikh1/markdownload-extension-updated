@@ -204,6 +204,12 @@ function parseArticle(html, url = 'https://example.com') {
   }
 
   if (article?.content) {
+    const restoredContent = typeof recoveryApi.restoreMissingPrimaryHeadings === 'function'
+      ? recoveryApi.restoreMissingPrimaryHeadings(dom.window.document, article.content)
+      : null;
+    if (restoredContent) {
+      article = buildRecoveredArticle(dom.window, article, restoredContent);
+    }
     article.content = recoveryApi.stripStructuralAnchorsFromHtml(article.content);
   }
 

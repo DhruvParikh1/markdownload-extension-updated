@@ -466,6 +466,59 @@ if (!verification.valid) {
       expect((article.content.match(/Example Integration Code/g) || [])).toHaveLength(1);
     });
 
+    test('should preserve FAQ questions when headings are wrapped with decorative controls', () => {
+      const html = `
+        <!DOCTYPE html>
+        <html>
+          <head><title>Color FAQ Guide</title></head>
+          <body>
+            <main class="faq-content">
+              <h1>Color FAQ Guide</h1>
+              <p>
+                This guide explains the primary brand colors and answers common questions about
+                how the palette is used in the product interface.
+              </p>
+
+              <div class="faq-list">
+                <div class="faq-item">
+                  <div class="faq-question">
+                    <h2>What are the main colors in the palette?</h2>
+                    <div class="faq-icon"><svg aria-hidden="true"></svg></div>
+                  </div>
+                  <div class="faq-answer">
+                    <p>
+                      The main colors are ember orange, slate gray, warm ivory, and white.
+                    </p>
+                  </div>
+                </div>
+
+                <div class="faq-item">
+                  <div class="faq-question">
+                    <h2>How are the colors used in the product?</h2>
+                    <div class="faq-icon"><svg aria-hidden="true"></svg></div>
+                  </div>
+                  <div class="faq-answer">
+                    <p>
+                      The palette highlights primary actions, keeps neutral surfaces calm, and
+                      preserves contrast for dense interface layouts.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </main>
+          </body>
+        </html>
+      `;
+
+      const { article } = parseArticle(html, 'https://example.com/color-faq.html');
+
+      expect(article).not.toBeNull();
+      expect(article.content).toContain('What are the main colors in the palette?');
+      expect(article.content).toContain('The main colors are ember orange, slate gray, warm ivory, and white.');
+      expect(article.content).toContain('How are the colors used in the product?');
+      expect(article.content).toContain('The palette highlights primary actions, keeps neutral surfaces calm');
+    });
+
     test('should not trigger recovery on repeated card listings', () => {
       const html = `
         <!DOCTYPE html>
@@ -585,6 +638,80 @@ if (!verification.valid) {
       expect(article.content).toContain('assembler workflow');
       expect(article.content).not.toContain('Linker Maps');
       expect(article.content).not.toContain('Debugger Tips');
+    });
+
+    test('should restore wrapped catalog headings without duplicating catalog entries', () => {
+      const html = `
+        <!DOCTYPE html>
+        <html>
+          <head><title>Design Pattern Catalog</title></head>
+          <body>
+            <main class="catalog-grid">
+              <div class="catalog-card card-1">
+                <div class="catalog-heading">
+                  <div class="catalog-heading-inner">
+                    <h2>Search Patterns</h2>
+                  </div>
+                  <div class="catalog-icon"><svg aria-hidden="true"></svg></div>
+                </div>
+                <div class="catalog-copy copy-1">
+                  <p>
+                    This card summarizes search interfaces, refinement controls, and empty-state
+                    guidance for quick browsing in the catalog.
+                  </p>
+                </div>
+              </div>
+
+              <div class="catalog-card card-2">
+                <div class="catalog-heading">
+                  <div class="catalog-heading-inner">
+                    <h2>Checkout Patterns</h2>
+                  </div>
+                  <div class="catalog-icon"><svg aria-hidden="true"></svg></div>
+                </div>
+                <div class="catalog-copy copy-2">
+                  <p>
+                    This card summarizes checkout flows, field grouping, and payment confirmation
+                    examples for a separate pattern family.
+                  </p>
+                </div>
+              </div>
+
+              <div class="catalog-card card-3">
+                <div class="catalog-heading">
+                  <div class="catalog-heading-inner">
+                    <h2>Onboarding Patterns</h2>
+                  </div>
+                  <div class="catalog-icon"><svg aria-hidden="true"></svg></div>
+                </div>
+                <div class="catalog-copy copy-3">
+                  <p>
+                    This card summarizes onboarding tours, first-run prompts, and education
+                    surfaces for a third pattern family.
+                  </p>
+                </div>
+              </div>
+            </main>
+          </body>
+        </html>
+      `;
+
+      const { article: firstPassArticle, recoveryPlan } = inspectRecoveryPlan(html, 'https://example.com/catalog-faq-like.html');
+      const { article } = parseArticle(html, 'https://example.com/catalog-faq-like.html');
+
+      expect(article).not.toBeNull();
+      expect(firstPassArticle).not.toBeNull();
+      expect(recoveryPlan).toBeNull();
+      expect(article.content).toContain('search interfaces, refinement controls');
+      expect(article.content).toContain('Search Patterns');
+      expect(article.content).toContain('Checkout Patterns');
+      expect(article.content).toContain('Onboarding Patterns');
+      expect((article.content.match(/Search Patterns/g) || [])).toHaveLength(1);
+      expect((article.content.match(/Checkout Patterns/g) || [])).toHaveLength(1);
+      expect((article.content.match(/Onboarding Patterns/g) || [])).toHaveLength(1);
+      expect(firstPassArticle.content).toContain('search interfaces, refinement controls');
+      expect(firstPassArticle.content).toContain('checkout flows, field grouping');
+      expect(firstPassArticle.content).toContain('onboarding tours, first-run prompts');
     });
 
     test('should not trigger recovery on high-link-density accordion sections', () => {
