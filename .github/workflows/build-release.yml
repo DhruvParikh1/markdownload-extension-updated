@@ -207,6 +207,30 @@ jobs:
           fi
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
+      - name: Extract changelog entry
+        id: changelog
+        run: |
+          VERSION="${{ steps.get-tag.outputs.tag }}"
+          VERSION="${VERSION#v}"
+
+          CHANGELOG_ENTRY="$(awk -v version="$VERSION" '
+            $0 == "## " version { found=1; next }
+            found && /^## / { exit }
+            found { print }
+          ' CHANGELOG.md)"
+
+          if [ -n "$CHANGELOG_ENTRY" ]; then
+            CHANGELOG_ENTRY="$(printf '%s\n' "$CHANGELOG_ENTRY" | sed '/./,$!d')"
+          else
+            CHANGELOG_ENTRY="- No changelog entry found for version $VERSION."
+          fi
+
+          {
+            echo "changes<<EOF"
+            printf '%s\n' "$CHANGELOG_ENTRY"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -241,7 +265,9 @@ jobs:
             - Then enable **Agent Bridge** in the extension settings
 
             ### Changes
-            See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details.
+            ${{ steps.changelog.outputs.changes }}
+
+            See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for all version changes.
 
           files: |
             artifacts/*.zip
