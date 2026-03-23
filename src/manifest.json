@@ -3,7 +3,7 @@
   "name": "MarkSnip - Markdown Web Clipper",
   "version": "4.2.1",
   "author": "Dhruv Parikh",
-  "description": "A web clipper to download articles in markdown format. Turndown & Readability are used as core libraries.",
+  "description": "One-click Markdown web clipper. Save articles, docs, code & tables as clean Markdown for AI agents & LLMs. Supports Obsidian & more.",
   "icons": {
     "16": "icons/favicon-16x16.png",
     "32": "icons/favicon-32x32.png",
