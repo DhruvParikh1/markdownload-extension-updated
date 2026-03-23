@@ -519,6 +519,109 @@ if (!verification.valid) {
       expect(article.content).toContain('The palette highlights primary actions, keeps neutral surfaces calm');
     });
 
+    test('should restore semantic tables when extracted markup is downgraded to ARIA table roles', () => {
+      const sourceHtml = `
+        <!DOCTYPE html>
+        <html>
+          <head><title>Brand Palette</title></head>
+          <body>
+            <main>
+              <table>
+                <thead>
+                  <tr>
+                    <th>HEX</th>
+                    <th>RGB</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>#c15f3c</td>
+                    <td>193, 95, 60</td>
+                  </tr>
+                </tbody>
+              </table>
+            </main>
+          </body>
+        </html>
+      `;
+
+      const env = createBrowserEnvironment();
+      const dom = new JSDOM(sourceHtml, { url: 'https://example.com/palette.html' });
+      prepareDocumentForRecoveryTest(dom.window.document, env.ReadabilityRecovery);
+
+      const sourceTable = dom.window.document.querySelector('table');
+      const tableAnchorId = sourceTable.getAttribute(env.ReadabilityRecovery.anchorAttribute);
+      const extractedHtml = `
+        <div role="table" data-marksnip-node-id="${tableAnchorId}">
+          <div role="row">
+            <div role="cell"><p>#c15f3c</p></div>
+            <div role="cell"><p>193, 95, 60</p></div>
+          </div>
+        </div>
+      `;
+
+      const restoredHtml = env.ReadabilityRecovery.restoreSemanticTables(dom.window.document, extractedHtml);
+      const { service } = createTurndownService();
+      const markdown = service.turndown(restoredHtml);
+
+      expect(restoredHtml).toContain('<table');
+      expect(restoredHtml).toContain('HEX');
+      expect(markdown).toContain('| HEX | RGB |');
+      expect(markdown).toContain('#c15f3c');
+      expect(markdown).toContain('193, 95, 60');
+    });
+
+    test('should rebuild semantic tables from role-based source tables with separate header rows', () => {
+      const sourceHtml = `
+        <!DOCTYPE html>
+        <html>
+          <head><title>Brand Palette</title></head>
+          <body>
+            <main>
+              <div role="table" class="palette-grid">
+                <div class="header-strip">
+                  <div role="cell" class="value-box emphasis"><h2>HEX</h2></div>
+                  <div role="cell" class="value-box emphasis"><h2>RGB</h2></div>
+                  <div role="cell" class="value-box emphasis" style="display: none;"><h2>Hidden column</h2></div>
+                </div>
+                <div role="row" class="data-line">
+                  <div role="cell" class="value-box"><div>#c15f3c</div></div>
+                  <div role="cell" class="value-box"><div>193, 95, 60</div></div>
+                </div>
+              </div>
+            </main>
+          </body>
+        </html>
+      `;
+
+      const env = createBrowserEnvironment();
+      const dom = new JSDOM(sourceHtml, { url: 'https://example.com/role-table.html' });
+      prepareDocumentForRecoveryTest(dom.window.document, env.ReadabilityRecovery);
+
+      const sourceTable = dom.window.document.querySelector('[role="table"]');
+      const tableAnchorId = sourceTable.getAttribute(env.ReadabilityRecovery.anchorAttribute);
+      const extractedHtml = `
+        <div role="table" data-marksnip-node-id="${tableAnchorId}">
+          <div role="row">
+            <div role="cell"><p>#c15f3c</p></div>
+            <div role="cell"><p>193, 95, 60</p></div>
+          </div>
+        </div>
+      `;
+
+      const restoredHtml = env.ReadabilityRecovery.restoreSemanticTables(dom.window.document, extractedHtml);
+      const { service } = createTurndownService();
+      const markdown = service.turndown(restoredHtml);
+
+      expect(restoredHtml).toContain('<table');
+      expect(restoredHtml).toContain('HEX');
+      expect(restoredHtml).toContain('RGB');
+      expect(restoredHtml).not.toContain('Hidden column');
+      expect(markdown).toContain('| HEX | RGB |');
+      expect(markdown).toContain('#c15f3c');
+      expect(markdown).toContain('193, 95, 60');
+    });
+
     test('should not trigger recovery on repeated card listings', () => {
       const html = `
         <!DOCTYPE html>

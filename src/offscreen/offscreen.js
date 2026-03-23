@@ -1400,11 +1400,24 @@ function finalizeArticleMetadata(article, dom, pageUrl, math, recoveryApi) {
     throw new Error('Readability failed to extract article');
   }
 
-  const restoredContent = typeof recoveryApi.restoreMissingPrimaryHeadings === 'function'
-    ? recoveryApi.restoreMissingPrimaryHeadings(dom, article.content)
+  let recoveredContent = article.content;
+
+  const restoredTableContent = typeof recoveryApi.restoreSemanticTables === 'function'
+    ? recoveryApi.restoreSemanticTables(dom, recoveredContent)
     : null;
-  if (restoredContent) {
-    Object.assign(article, buildRecoveredArticle(article, restoredContent));
+  if (restoredTableContent) {
+    recoveredContent = restoredTableContent;
+  }
+
+  const restoredHeadingContent = typeof recoveryApi.restoreMissingPrimaryHeadings === 'function'
+    ? recoveryApi.restoreMissingPrimaryHeadings(dom, recoveredContent)
+    : null;
+  if (restoredHeadingContent) {
+    recoveredContent = restoredHeadingContent;
+  }
+
+  if (recoveredContent !== article.content) {
+    Object.assign(article, buildRecoveredArticle(article, recoveredContent));
   }
 
   article.content = recoveryApi.stripStructuralAnchorsFromHtml(article.content);

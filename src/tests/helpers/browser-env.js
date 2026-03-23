@@ -204,11 +204,24 @@ function parseArticle(html, url = 'https://example.com') {
   }
 
   if (article?.content) {
-    const restoredContent = typeof recoveryApi.restoreMissingPrimaryHeadings === 'function'
-      ? recoveryApi.restoreMissingPrimaryHeadings(dom.window.document, article.content)
+    let recoveredContent = article.content;
+
+    const restoredTableContent = typeof recoveryApi.restoreSemanticTables === 'function'
+      ? recoveryApi.restoreSemanticTables(dom.window.document, recoveredContent)
       : null;
-    if (restoredContent) {
-      article = buildRecoveredArticle(dom.window, article, restoredContent);
+    if (restoredTableContent) {
+      recoveredContent = restoredTableContent;
+    }
+
+    const restoredHeadingContent = typeof recoveryApi.restoreMissingPrimaryHeadings === 'function'
+      ? recoveryApi.restoreMissingPrimaryHeadings(dom.window.document, recoveredContent)
+      : null;
+    if (restoredHeadingContent) {
+      recoveredContent = restoredHeadingContent;
+    }
+
+    if (recoveredContent !== article.content) {
+      article = buildRecoveredArticle(dom.window, article, recoveredContent);
     }
     article.content = recoveryApi.stripStructuralAnchorsFromHtml(article.content);
   }

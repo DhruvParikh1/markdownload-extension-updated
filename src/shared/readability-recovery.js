@@ -280,6 +280,192 @@
     return changed ? extractedDocument.body.innerHTML : null;
   }
 
+  function restoreSemanticTables(document, articleHtml) {
+    if (!articleHtml) {
+      return null;
+    }
+
+    const extractedDocument = parseArticleHtml(document, articleHtml);
+    let changed = false;
+
+    function extractRowDescriptors(node) {
+      if (!node?.children) {
+        return [];
+      }
+
+      function isVisuallyHidden(element) {
+        if (!element) {
+          return false;
+        }
+
+        if (element.hidden || element.getAttribute?.('aria-hidden') === 'true') {
+          return true;
+        }
+
+        const styleValue = String(element.getAttribute?.('style') || '').toLowerCase();
+        return styleValue.includes('display: none') || styleValue.includes('visibility: hidden');
+      }
+
+      const rows = [];
+      Array.from(node.children).forEach(child => {
+        const childRole = child.getAttribute?.('role');
+        if (isVisuallyHidden(child)) {
+          return;
+        }
+
+        const childCells = Array.from(child.children || []).filter(cell => {
+          const role = cell.getAttribute?.('role');
+          if (isVisuallyHidden(cell)) {
+            return false;
+          }
+          return role === 'cell' || role === 'columnheader' || role === 'rowheader';
+        });
+
+        if (childRole === 'row' || childCells.length > 0) {
+          rows.push(child);
+          return;
+        }
+
+        if (childRole === 'rowgroup') {
+          Array.from(child.children).forEach(grandchild => {
+            const grandchildRole = grandchild.getAttribute?.('role');
+            if (isVisuallyHidden(grandchild)) {
+              return;
+            }
+
+            const grandchildCells = Array.from(grandchild.children || []).filter(cell => {
+              const role = cell.getAttribute?.('role');
+              if (isVisuallyHidden(cell)) {
+                return false;
+              }
+              return role === 'cell' || role === 'columnheader' || role === 'rowheader';
+            });
+
+            if (grandchildRole === 'row' || grandchildCells.length > 0) {
+              rows.push(grandchild);
+            }
+          });
+        }
+      });
+
+      return rows.map(row => ({
+        row,
+        cells: Array.from(row.children).filter(cell => {
+          const role = cell.getAttribute?.('role');
+          const className = String(cell.className || '').toLowerCase();
+          if (isVisuallyHidden(cell)) {
+            return false;
+          }
+          return role === 'cell' || role === 'columnheader' || role === 'rowheader' || /\bcell\b/.test(className);
+        })
+      })).filter(descriptor => descriptor.cells.length > 0);
+    }
+
+    function isHeaderRow(descriptor) {
+      return descriptor.cells.some(cell => {
+        const role = cell.getAttribute?.('role');
+        return role === 'columnheader' || role === 'rowheader';
+      }) || (
+        descriptor.cells.length > 0 &&
+        descriptor.cells.every(cell => !!cell.querySelector?.('h1, h2, h3, h4, h5, h6'))
+      );
+    }
+
+    function sanitizeCellHtml(cell) {
+      const clone = cell.cloneNode(true);
+      clone.querySelectorAll('script, style, noscript, [hidden], [aria-hidden="true"]').forEach(element => {
+        element.remove();
+      });
+      clone.querySelectorAll('[style]').forEach(element => {
+        const styleValue = String(element.getAttribute('style') || '').toLowerCase();
+        if (styleValue.includes('display: none') || styleValue.includes('visibility: hidden')) {
+          element.remove();
+        }
+      });
+
+      if (
+        clone.children.length === 1 &&
+        clone.firstElementChild?.getAttribute?.('role') === 'cell' &&
+        normalizeWhitespace(clone.firstElementChild.textContent) === normalizeWhitespace(clone.textContent)
+      ) {
+        return clone.firstElementChild.innerHTML;
+      }
+
+      return clone.innerHTML;
+    }
+
+    function buildSemanticTable(sourceNode, extractedTable) {
+      if (sourceNode?.tagName === 'TABLE') {
+        return sourceNode.cloneNode(true);
+      }
+
+      const sourceRows = extractRowDescriptors(sourceNode);
+      const extractedRows = extractRowDescriptors(extractedTable);
+      if (!sourceRows.length && !extractedRows.length) {
+        return null;
+      }
+
+      const sourceHeaderRow = sourceRows.find(isHeaderRow) || null;
+      const extractedHeaderRow = extractedRows.find(isHeaderRow) || null;
+      const headerRow = sourceHeaderRow || extractedHeaderRow;
+      const extractedDataRows = extractedRows.filter(descriptor => descriptor !== extractedHeaderRow);
+      const sourceDataRows = sourceRows.filter(descriptor => descriptor !== sourceHeaderRow);
+      const dataRows = extractedDataRows.length ? extractedDataRows : sourceDataRows;
+
+      const semanticTable = extractedDocument.createElement('table');
+
+      if (headerRow?.cells?.length) {
+        const thead = extractedDocument.createElement('thead');
+        const tr = extractedDocument.createElement('tr');
+        headerRow.cells.forEach(cell => {
+          const th = extractedDocument.createElement('th');
+          th.textContent = normalizeWhitespace(cell.textContent);
+          tr.appendChild(th);
+        });
+        thead.appendChild(tr);
+        semanticTable.appendChild(thead);
+      }
+
+      if (dataRows.length) {
+        const tbody = extractedDocument.createElement('tbody');
+        dataRows.forEach(descriptor => {
+          const tr = extractedDocument.createElement('tr');
+          descriptor.cells.forEach(cell => {
+            const td = extractedDocument.createElement('td');
+            td.innerHTML = sanitizeCellHtml(cell);
+            tr.appendChild(td);
+          });
+          tbody.appendChild(tr);
+        });
+        semanticTable.appendChild(tbody);
+      }
+
+      return semanticTable.children.length ? semanticTable : null;
+    }
+
+    extractedDocument.body.querySelectorAll(`[role="table"][${ANCHOR_ATTRIBUTE}]`).forEach(extractedTable => {
+      const sourceNodeId = extractedTable.getAttribute(ANCHOR_ATTRIBUTE);
+      if (!sourceNodeId) {
+        return;
+      }
+
+      const sourceNode = document.querySelector(`[${ANCHOR_ATTRIBUTE}="${sourceNodeId}"]`);
+      if (!sourceNode) {
+        return;
+      }
+
+      const semanticTable = buildSemanticTable(sourceNode, extractedTable);
+      if (!semanticTable) {
+        return;
+      }
+
+      extractedTable.replaceWith(semanticTable);
+      changed = true;
+    });
+
+    return changed ? extractedDocument.body.innerHTML : null;
+  }
+
   function childRole(child) {
     if (!child) {
       return 'other';
@@ -698,6 +884,7 @@
     analyzeNarrowExtraction,
     applyRepeatedSectionPromotion,
     buildRepeatedSectionFragment,
+    restoreSemanticTables,
     restoreMissingPrimaryHeadings,
     stripStructuralAnchorsFromHtml
   };
