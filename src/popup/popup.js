@@ -28,6 +28,8 @@ let activeTabCache = null;
 let currentOptions = null;
 let deferredStartupScheduled = false;
 let deferredLibraryWarmupScheduled = false;
+let previewActive = false;
+let markedLoadPromise = null;
 const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
 const dom = {
     root: document.documentElement,
@@ -53,7 +55,9 @@ const dom = {
     batchSaveModeToggle: document.getElementById('batchSaveModeToggle'),
     batchProcessButton: document.getElementById('batchProcess'),
     openGuideButton: document.getElementById('openGuide'),
-    sendToObsidianButton: document.getElementById('sendToObsidian')
+    sendToObsidianButton: document.getElementById('sendToObsidian'),
+    previewToggle: document.getElementById('previewToggle'),
+    editorPreview: document.getElementById('editorPreview')
 };
 
 globalThis.cm = null;
@@ -305,6 +309,9 @@ function initializeEditor() {
             updateSaveLibraryButtonState();
             updateCharCount(nextValue);
             queuePersistAgentBridgeClip();
+            if (previewActive) {
+                renderPreviewContent();
+            }
         });
 
         cm.on('cursorActivity', (instance) => {
@@ -352,6 +359,155 @@ function loadScriptOnce(src, id) {
         document.body.appendChild(script);
     });
 }
+
+function loadStylesheetOnce(href, id) {
+    if (id) {
+        const existingById = document.getElementById(id);
+        if (existingById) {
+            return Promise.resolve(existingById);
+        }
+    }
+
+    const existing = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
+        .find((link) => link.getAttribute('href') === href);
+    if (existing) {
+        return Promise.resolve(existing);
+    }
+
+    return new Promise((resolve, reject) => {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = href;
+        if (id) {
+            link.id = id;
+        }
+        link.addEventListener('load', () => resolve(link), { once: true });
+        link.addEventListener('error', () => reject(new Error(`Failed to load stylesheet: ${href}`)), { once: true });
+        document.head.appendChild(link);
+    });
+}
+
+// --- Markdown Preview ---
+
+const UNSAFE_LINK_RE = /^\s*javascript\s*:/i;
+
+function escapeHtml(str) {
+    return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function escapeRawHtml(markdown) {
+    // Escape fenced HTML blocks (lines that start with < and are not markdown)
+    // and inline HTML tags so they display literally in preview
+    return markdown
+        .replace(/<\/?[a-zA-Z][^>]*>/g, (match) => escapeHtml(match));
+}
+
+function ensureMarkedLoaded() {
+    if (markedLoadPromise) {
+        return markedLoadPromise;
+    }
+    markedLoadPromise = Promise.all([
+        loadScriptOnce('lib/marked.min.js', 'marked-script'),
+        loadStylesheetOnce('lib/github-markdown.css', 'github-markdown-css')
+    ]).then(() => {
+        if (typeof marked === 'undefined' || !marked.parse) {
+            throw new Error('marked library failed to initialize');
+        }
+
+        const renderer = new marked.Renderer();
+
+        // Images: render as a text placeholder, never load remote resources
+        renderer.image = function ({ href, title, text }) {
+            const alt = escapeHtml(text || '');
+            const safeHref = escapeHtml(href || '');
+            const titleAttr = title ? ` title="${escapeHtml(title)}"` : '';
+            return `<span class="preview-image-placeholder">[image: <a href="${safeHref}" target="_blank" rel="noopener noreferrer"${titleAttr}>${alt || safeHref}</a>]</span>`;
+        };
+
+        // Links: force safe attributes, reject javascript: scheme
+        renderer.link = function ({ href, title, tokens }) {
+            const text = this.parser.parseInline(tokens);
+            if (!href || UNSAFE_LINK_RE.test(href)) {
+                return text;
+            }
+            const safeHref = escapeHtml(href);
+            const titleAttr = title ? ` title="${escapeHtml(title)}"` : '';
+            return `<a href="${safeHref}" target="_blank" rel="noopener noreferrer"${titleAttr}>${text}</a>`;
+        };
+
+        marked.setOptions({ renderer });
+    });
+    return markedLoadPromise;
+}
+
+function renderPreviewContent() {
+    if (!previewActive || !dom.editorPreview) {
+        return;
+    }
+
+    const raw = getEditorValue();
+    const escaped = escapeRawHtml(raw);
+
+    const body = dom.editorPreview.querySelector('.markdown-body');
+    if (!body) {
+        return;
+    }
+
+    try {
+        body.innerHTML = marked.parse(escaped);
+    } catch (err) {
+        body.textContent = 'Preview rendering failed: ' + err.message;
+    }
+}
+
+async function togglePreview() {
+    previewActive = !previewActive;
+
+    if (dom.previewToggle) {
+        dom.previewToggle.setAttribute('aria-pressed', String(previewActive));
+        dom.previewToggle.classList.toggle('active', previewActive);
+    }
+
+    if (previewActive) {
+        try {
+            await ensureMarkedLoaded();
+        } catch (err) {
+            console.error('Failed to load preview dependencies:', err);
+            previewActive = false;
+            if (dom.previewToggle) {
+                dom.previewToggle.setAttribute('aria-pressed', 'false');
+                dom.previewToggle.classList.remove('active');
+            }
+            return;
+        }
+        renderPreviewContent();
+    }
+
+    // Toggle visibility: hide editor, show preview (or vice versa)
+    const cmWrapper = document.querySelector('.editor-section .CodeMirror');
+    const textarea = dom.editorTextarea;
+
+    if (previewActive) {
+        if (cmWrapper) cmWrapper.style.display = 'none';
+        else if (textarea) textarea.style.display = 'none';
+        if (dom.editorPreview) dom.editorPreview.hidden = false;
+    } else {
+        if (cmWrapper) cmWrapper.style.display = '';
+        else if (textarea) textarea.style.display = '';
+        if (dom.editorPreview) dom.editorPreview.hidden = true;
+        // Refresh CodeMirror after re-showing to fix layout
+        if (cm?.refresh) {
+            requestAnimationFrame(() => cm.refresh());
+        }
+    }
+}
+
+dom.previewToggle?.addEventListener('click', togglePreview);
 
 function loadNotificationHostDeferred() {
     if (notificationHostLoadPromise) {
@@ -419,6 +575,11 @@ function applyThemeSettings(options) {
     ensureEditorThemeStylesheet(themeName);
     if (typeof cm !== 'undefined' && cm) {
         cm.setOption('theme', themeName);
+    }
+
+    // Re-render preview if active (theme classes affect preview styling)
+    if (previewActive) {
+        renderPreviewContent();
     }
 }
 

@@ -656,6 +656,138 @@ body {
     background: transparent;
 }
 
+/* Editor Body — wraps CodeMirror/textarea + preview as siblings */
+.editor-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* Preview toggle button active state */
+.editor-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--text-inverse);
+}
+
+/* Editor Preview */
+.editor-preview {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    background: var(--bg-primary);
+}
+
+.editor-preview .markdown-body {
+    padding: var(--space-3) var(--space-4);
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    line-height: 1.6;
+    color: var(--text-primary);
+
+    /* Override GitHub CSS page-level defaults */
+    max-width: none;
+    background: transparent;
+
+    /* Map github-markdown-css variables to popup theme variables so they
+       follow our class-based theme (theme-dark / theme-light / theme-system)
+       instead of relying on @media (prefers-color-scheme) queries. */
+    --fgColor-default: var(--text-primary);
+    --fgColor-muted: var(--text-secondary);
+    --fgColor-accent: var(--accent);
+    --bgColor-default: var(--bg-primary);
+    --bgColor-muted: var(--bg-secondary);
+    --bgColor-neutral-muted: var(--bg-tertiary);
+    --borderColor-default: var(--border-medium);
+    --borderColor-muted: var(--border-light);
+    --borderColor-neutral-muted: var(--border-light);
+}
+
+/* Map GitHub Markdown CSS colors to popup theme variables */
+.editor-preview .markdown-body h1,
+.editor-preview .markdown-body h2,
+.editor-preview .markdown-body h3,
+.editor-preview .markdown-body h4,
+.editor-preview .markdown-body h5,
+.editor-preview .markdown-body h6 {
+    color: var(--text-primary);
+    border-bottom-color: var(--border-light);
+}
+
+.editor-preview .markdown-body a {
+    color: var(--accent);
+}
+
+.editor-preview .markdown-body a:hover {
+    color: var(--accent-dark);
+}
+
+.editor-preview .markdown-body code {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    padding: 0.2em 0.4em;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+}
+
+.editor-preview .markdown-body pre {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+    overflow-x: auto;
+}
+
+.editor-preview .markdown-body pre code {
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+}
+
+.editor-preview .markdown-body blockquote {
+    border-left: 3px solid var(--accent);
+    color: var(--text-secondary);
+    padding-left: var(--space-3);
+    margin-left: 0;
+}
+
+.editor-preview .markdown-body hr {
+    border-color: var(--border-light);
+}
+
+.editor-preview .markdown-body table {
+    border-color: var(--border-light);
+}
+
+.editor-preview .markdown-body th,
+.editor-preview .markdown-body td {
+    border-color: var(--border-light);
+    padding: var(--space-2) var(--space-3);
+}
+
+.editor-preview .markdown-body th {
+    background: var(--bg-secondary);
+}
+
+.editor-preview .markdown-body img {
+    display: none;
+}
+
+/* Image placeholder styling */
+.preview-image-placeholder {
+    display: inline;
+    color: var(--text-tertiary);
+    font-style: italic;
+    font-size: var(--text-xs);
+}
+
+.preview-image-placeholder a {
+    color: var(--accent);
+}
+
 /* Action Section */
 .action-section {
     flex-shrink: 0;

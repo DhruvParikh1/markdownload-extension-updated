@@ -27,10 +27,14 @@ describe('Popup startup assets', () => {
     expect(stylesheetHrefs).not.toContain('lib/solarized.css');
     expect(stylesheetHrefs).not.toContain('lib/twilight.css');
 
+    // marked must not be eagerly loaded — it is lazy-loaded on first Preview toggle
+    expect(stylesheetHrefs).not.toContain('lib/github-markdown.css');
+
     const scriptHrefs = Array.from(document.querySelectorAll('script[src]'))
       .map((script) => script.getAttribute('src'));
 
     expect(scriptHrefs).toContain('popup.js');
     expect(scriptHrefs).not.toContain('../notifications/notification-host.js');
+    expect(scriptHrefs).not.toContain('lib/marked.min.js');
   });
 });
