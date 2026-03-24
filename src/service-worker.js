@@ -714,6 +714,8 @@ async function handleMessages(message, sender, sendResponse) {
       break;
     case "export-library-items":
       return await handleLibraryExportRequest(message, sender);
+    case "export-library-items-individual":
+      return await handleLibraryExportIndividualRequest(message, sender);
     case "get-agent-bridge-status":
       return await loadAgentBridgeStatus();
     case "refresh-agent-bridge-status":
@@ -955,6 +957,43 @@ async function handleLibraryExportRequest(message, sender) {
     exportedCount: files.length,
     zipFilename
   };
+}
+
+async function handleLibraryExportIndividualRequest(message, sender) {
+  const items = Array.isArray(message?.items) ? message.items : [];
+  if (items.length === 0) {
+    return { exportedCount: 0 };
+  }
+
+  const options = await getOptions();
+  const libraryExportApi = getLibraryExportApi();
+  const usedPaths = new Set();
+  const files = libraryExportApi?.createLibraryExportFiles
+    ? libraryExportApi.createLibraryExportFiles(items, {
+      disallowedChars: options.disallowedChars,
+      generateValidFileName,
+      ensureUniquePath: ensureUniqueBatchEntryPath,
+      usedPaths
+    })
+    : items.map((item) => ({
+      filename: ensureUniqueBatchEntryPath(`${String(generateValidFileName(String(item?.title || '').trim() || 'Untitled', options.disallowedChars) || 'Untitled').trim() || 'Untitled'}.md`, usedPaths),
+      content: String(item?.markdown || '')
+    }));
+
+  const fallbackTabId = await resolveLibraryExportTabId(message, sender);
+  let exported = 0;
+
+  for (const file of files) {
+    try {
+      const title = file.filename.replace(/\.md$/i, '');
+      await downloadMarkdown(file.content, title, fallbackTabId, {}, options.mdClipsFolder || '');
+      exported++;
+    } catch (err) {
+      console.error(`[Library] Failed to export individual file "${file.filename}":`, err);
+    }
+  }
+
+  return { exportedCount: exported };
 }
 
 // ===== In-page batch progress overlay =====

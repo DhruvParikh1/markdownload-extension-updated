@@ -73,6 +73,8 @@ const libraryUI = {
     countBadge: document.getElementById('libraryCountBadge'),
     saveButton: document.getElementById('saveLibraryClip'),
     exportButton: document.getElementById('exportLibraryAll'),
+    exportDropdown: document.getElementById('exportLibraryAll')?.closest('.export-dropdown'),
+    exportDropdownMenu: document.getElementById('exportDropdownMenu'),
     toolbarNote: document.getElementById('libraryToolbarNote'),
     status: document.getElementById('libraryStatus'),
     emptyState: document.getElementById('libraryEmptyState'),
@@ -897,7 +899,9 @@ document.getElementById("cancelBatch").addEventListener("click", hideBatchProces
 libraryUI.toggle?.addEventListener("click", showLibraryView);
 libraryUI.close?.addEventListener("click", hideLibraryView);
 libraryUI.saveButton?.addEventListener("click", handleManualLibrarySave);
-libraryUI.exportButton?.addEventListener("click", handleLibraryExportAll);
+libraryUI.exportButton?.addEventListener("click", toggleExportDropdown);
+libraryUI.exportDropdownMenu?.addEventListener("click", handleExportDropdownChoice);
+document.addEventListener("click", closeExportDropdownOnOutsideClick);
 dom.pickLinksButton?.addEventListener("click", activateLinkPicker);
 dom.batchSaveModeToggle?.addEventListener("change", saveBatchSettings);
 progressUI.cancelBtn?.addEventListener("click", () => {
@@ -1130,7 +1134,14 @@ function updateLibraryExportButtonState() {
             <line x1="12" y1="15" x2="12" y2="3"/>
         </svg>
         ${libraryExportInProgress ? 'Exporting...' : 'Export All'}
+        <svg class="export-dropdown-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="6 9 12 15 18 9"/>
+        </svg>
     `;
+
+    if (libraryExportInProgress) {
+        closeExportDropdown();
+    }
 }
 
 function setLibraryStatus(message = '', isError = false) {
@@ -1438,6 +1449,7 @@ function hideLibraryView(e) {
         e.preventDefault();
     }
 
+    closeExportDropdown();
     return setPopupView(lastNonLibraryView);
 }
 
@@ -1520,16 +1532,62 @@ async function resolveLibraryExportTabId() {
     return await getActiveTabId();
 }
 
-async function handleLibraryExportAll(e) {
+function toggleExportDropdown(e) {
     e.preventDefault();
+    e.stopPropagation();
+    if (libraryExportInProgress || libraryItems.length === 0) return;
 
-    if (libraryExportInProgress || libraryItems.length === 0) {
+    const dropdown = libraryUI.exportDropdown;
+    const menu = libraryUI.exportDropdownMenu;
+    if (!dropdown || !menu) return;
+
+    const isOpen = !menu.hidden;
+    if (isOpen) {
+        closeExportDropdown();
+    } else {
+        menu.hidden = false;
+        dropdown.classList.add('open');
+    }
+}
+
+function closeExportDropdown() {
+    const dropdown = libraryUI.exportDropdown;
+    const menu = libraryUI.exportDropdownMenu;
+    if (menu) menu.hidden = true;
+    if (dropdown) dropdown.classList.remove('open');
+}
+
+function closeExportDropdownOnOutsideClick(e) {
+    if (!libraryUI.exportDropdown?.contains(e.target)) {
+        closeExportDropdown();
+    }
+}
+
+async function handleExportDropdownChoice(e) {
+    const item = e.target.closest('[data-export]');
+    if (!item) return;
+
+    closeExportDropdown();
+    const mode = item.dataset.export;
+
+    if (mode === 'links') {
+        handleLibraryExportLinks();
         return;
     }
 
+    if (mode === 'zip') {
+        await handleLibraryExportZip();
+    } else if (mode === 'individual') {
+        await handleLibraryExportIndividual();
+    }
+}
+
+async function handleLibraryExportZip() {
+    if (libraryExportInProgress || libraryItems.length === 0) return;
+
     libraryExportInProgress = true;
     updateLibraryExportButtonState();
-    setLibraryStatus('Exporting library...');
+    setLibraryStatus('Exporting library as ZIP...');
 
     try {
         const tabId = await resolveLibraryExportTabId();
@@ -1557,6 +1615,61 @@ async function handleLibraryExportAll(e) {
         libraryExportInProgress = false;
         updateLibraryExportButtonState();
     }
+}
+
+async function handleLibraryExportIndividual() {
+    if (libraryExportInProgress || libraryItems.length === 0) return;
+
+    libraryExportInProgress = true;
+    updateLibraryExportButtonState();
+    setLibraryStatus('Exporting individual files...');
+
+    try {
+        const tabId = await resolveLibraryExportTabId();
+        const result = await browser.runtime.sendMessage({
+            type: 'export-library-items-individual',
+            items: libraryItems.map((item) => ({
+                title: item?.title || '',
+                markdown: item?.markdown || '',
+                savedAt: item?.savedAt || '',
+                pageUrl: item?.pageUrl || ''
+            })),
+            tabId
+        });
+
+        const exportedCount = Number(result?.exportedCount || 0);
+        if (exportedCount > 0) {
+            setLibraryStatus(`Exported ${exportedCount} individual file${exportedCount === 1 ? '' : 's'}`);
+        } else {
+            setLibraryStatus('No saved clips to export', true);
+        }
+    } catch (error) {
+        console.error('Failed to export individual files:', error);
+        setLibraryStatus('Failed to export files', true);
+    } finally {
+        libraryExportInProgress = false;
+        updateLibraryExportButtonState();
+    }
+}
+
+function handleLibraryExportLinks() {
+    if (libraryItems.length === 0) return;
+
+    const links = libraryItems
+        .map((item) => item?.pageUrl || '')
+        .filter(Boolean);
+
+    if (links.length === 0) {
+        setLibraryStatus('No links found in library clips', true);
+        return;
+    }
+
+    const text = links.join('\n');
+    navigator.clipboard.writeText(text).then(() => {
+        setLibraryStatus(`Copied ${links.length} link${links.length === 1 ? '' : 's'} to clipboard`);
+    }).catch(() => {
+        setLibraryStatus('Failed to copy links to clipboard', true);
+    });
 }
 
 async function maybeAutoSaveCurrentClip() {
