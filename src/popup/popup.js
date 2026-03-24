@@ -12,6 +12,7 @@ let currentClipState = {
     pageUrl: ''
 };
 let libraryExportInProgress = false;
+let libraryCardCountMode = 'words';
 const autoSavedLibraryUrls = new Set();
 let agentBridgeClipPersistTimeout = null;
 let cm = null;
@@ -709,6 +710,25 @@ dom.charCount?.addEventListener('click', () => {
     updateCharCount(_lastCounterText);
     browser.storage.local.set({ countMode });
 });
+
+function getCardCountDisplay(markdown, mode) {
+    if (!markdown) return '0 ' + (mode === 'chars' ? 'chars' : mode === 'tokens' ? 'tokens' : 'words');
+    if (mode === 'chars') return markdown.length.toLocaleString() + ' chars';
+    if (mode === 'tokens') return estimateTokens(markdown).toLocaleString() + ' tokens';
+    const words = markdown.trim() === '' ? 0 : markdown.trim().split(/\s+/).length;
+    return words.toLocaleString() + ' words';
+}
+
+function updateAllCardCountBadges() {
+    if (!libraryUI.list) return;
+    libraryUI.list.querySelectorAll('.library-card-count-badge').forEach((badge) => {
+        const id = badge.dataset.itemId;
+        const entry = libraryItems.find((i) => i.id === id);
+        if (entry !== undefined) {
+            badge.textContent = getCardCountDisplay(entry.markdown || '', libraryCardCountMode);
+        }
+    });
+}
 dom.downloadButton?.addEventListener("click", download);
 dom.downloadSelectionButton?.addEventListener("click", downloadSelection);
 dom.titleInput?.addEventListener("input", (event) => {
@@ -1056,6 +1076,18 @@ async function deleteLibraryItem(itemId) {
     }
 }
 
+function animateDeleteLibraryItem(itemId, cardEl) {
+    cardEl.classList.add('library-card--removing');
+    let settled = false;
+    function proceed() {
+        if (settled) return;
+        settled = true;
+        deleteLibraryItem(itemId);
+    }
+    cardEl.addEventListener('animationend', proceed, { once: true });
+    setTimeout(proceed, 400);
+}
+
 function syncLibrarySummaryUi() {
     if (libraryUI.countBadge) {
         libraryUI.countBadge.textContent = String(libraryItems.length);
@@ -1140,13 +1172,28 @@ function renderLibraryItems() {
             Delete
         `;
         deleteButton.addEventListener('click', () => {
-            deleteLibraryItem(item.id);
+            animateDeleteLibraryItem(item.id, card);
         });
 
         actions.appendChild(deleteButton);
         actions.appendChild(copyButton);
 
+        const metaRow = document.createElement('div');
+        metaRow.className = 'library-card-meta';
+        const countBadge = document.createElement('button');
+        countBadge.type = 'button';
+        countBadge.className = 'library-card-count-badge';
+        countBadge.dataset.itemId = item.id;
+        countBadge.textContent = getCardCountDisplay(item.markdown || '', libraryCardCountMode);
+        countBadge.addEventListener('click', () => {
+            const idx = COUNT_MODES.indexOf(libraryCardCountMode);
+            libraryCardCountMode = COUNT_MODES[(idx + 1) % COUNT_MODES.length];
+            updateAllCardCountBadges();
+        });
+        metaRow.appendChild(countBadge);
+
         card.appendChild(header);
+        card.appendChild(metaRow);
         if (card.classList.contains('library-card--current')) {
             const badge = document.createElement('span');
             badge.className = 'library-card-current-badge';

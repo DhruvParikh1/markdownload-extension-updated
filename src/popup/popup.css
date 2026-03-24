@@ -1180,6 +1180,34 @@ body {
     border-color: var(--error);
 }
 
+.library-card-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+}
+
+.library-card-count-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 6px;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    border: 1px solid transparent;
+    font-size: var(--text-xs);
+    font-family: var(--font-mono);
+    color: var(--text-tertiary);
+    cursor: pointer;
+    transition: background var(--transition-base), color var(--transition-base), border-color var(--transition-base);
+    line-height: 1.6;
+}
+
+.library-card-count-badge:hover {
+    background: var(--bg-hover);
+    color: var(--text-secondary);
+    border-color: var(--border-light);
+}
+
 .url-textarea {
     flex: 1;
     min-height: 0;
@@ -1283,12 +1311,28 @@ body {
     }
 }
 
+@keyframes cardSlideOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(-16px);
+    }
+}
+
 .fade-in {
     animation: fadeIn 200ms ease-out;
 }
 
 .library-card {
     animation: fadeIn 200ms ease-out backwards;
+}
+
+.library-card--removing {
+    animation: cardSlideOut 200ms ease-in forwards;
+    pointer-events: none;
 }
 
 /* Responsive */
