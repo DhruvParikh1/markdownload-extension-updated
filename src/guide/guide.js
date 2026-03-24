@@ -12,18 +12,26 @@
   'use strict';
 
   const core = globalThis.markSnipSearchCore;
+  const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude'];
+  const ACCENT_CLASS_NAMES = ['accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber'];
 
   /* ════════════════════════════════════════
      Theme & Accent
      ════════════════════════════════════════ */
   function applyThemeSettings(opts) {
     const root = document.documentElement;
+    const specialTheme = opts.specialTheme || 'none';
     root.classList.remove('theme-light', 'theme-dark', 'theme-system');
     root.classList.add('theme-' + (opts.popupTheme || 'system'));
 
-    root.classList.remove('accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber');
+    root.classList.remove(...SPECIAL_THEME_CLASS_NAMES);
+    if (specialTheme === 'claude') {
+      root.classList.add('special-theme-claude');
+    }
+
+    root.classList.remove(...ACCENT_CLASS_NAMES);
     const accent = opts.popupAccent || 'sage';
-    if (accent !== 'sage') root.classList.add('accent-' + accent);
+    if (specialTheme === 'none' && accent !== 'sage') root.classList.add('accent-' + accent);
   }
 
   function loadSettings() {

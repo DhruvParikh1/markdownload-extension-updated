@@ -35,6 +35,8 @@ const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const POPUP_VIEW_TRANSITION_MS = 180;
 let lastRenderedLibraryStateKey = '';
+const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude'];
+const ACCENT_CLASS_NAMES = ['accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber'];
 const dom = {
     root: document.documentElement,
     body: document.body,
@@ -316,6 +318,7 @@ function queuePersistAgentBridgeClip(snapshot = currentClipState) {
 // Theme application
 const EDITOR_THEME_MAP = {
     default:   { dark: 'xq-dark',        light: 'xq-light' },
+    claude:    { dark: 'claude-dark',    light: 'claude-light' },
     dracula:   { dark: 'dracula',         light: 'dracula' },
     material:  { dark: 'material-darker', light: 'material' },
     monokai:   { dark: 'monokai',         light: 'xq-light' },
@@ -326,6 +329,8 @@ const EDITOR_THEME_MAP = {
 const EDITOR_THEME_STYLESHEET_MAP = Object.freeze({
     'xq-dark': 'lib/xq-dark.css',
     'xq-light': 'lib/xq-light.css',
+    'claude-dark': 'lib/claude-dark.css',
+    'claude-light': 'lib/claude-light.css',
     'dracula': 'lib/dracula.css',
     'material': 'lib/material.css',
     'material-darker': 'lib/material-darker.css',
@@ -449,7 +454,11 @@ function initializeEditor() {
         }
 
         cm = CodeMirror.fromTextArea(dom.editorTextarea, {
-            theme: resolveEditorTheme(currentOptions?.editorTheme || 'default', darkMode),
+            theme: resolveEditorTheme(
+                currentOptions?.editorTheme || 'default',
+                darkMode,
+                currentOptions?.specialTheme || 'none'
+            ),
             mode: 'markdown',
             lineWrapping: true
         });
@@ -735,20 +744,32 @@ async function getActiveTabId(forceRefresh = false) {
     return (await getActiveTab(forceRefresh))?.id ?? null;
 }
 
-function resolveEditorTheme(editorTheme, isDark) {
+function resolveEditorTheme(editorTheme, isDark, specialTheme = 'none') {
+    if (specialTheme === 'claude') {
+        const claudeEntry = EDITOR_THEME_MAP.claude;
+        return isDark ? claudeEntry.dark : claudeEntry.light;
+    }
+
     const entry = EDITOR_THEME_MAP[editorTheme] || EDITOR_THEME_MAP.default;
     return isDark ? entry.dark : entry.light;
 }
 
 function applyThemeSettings(options) {
+    const specialTheme = options.specialTheme || 'none';
+
     // Apply theme mode
     dom.root.classList.remove('theme-light', 'theme-dark', 'theme-system');
     dom.root.classList.add('theme-' + (options.popupTheme || 'system'));
 
+    dom.root.classList.remove(...SPECIAL_THEME_CLASS_NAMES);
+    if (specialTheme === 'claude') {
+        dom.root.classList.add('special-theme-claude');
+    }
+
     // Apply accent color
-    dom.root.classList.remove('accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber');
+    dom.root.classList.remove(...ACCENT_CLASS_NAMES);
     const accent = options.popupAccent || 'sage';
-    if (accent !== 'sage') {
+    if (specialTheme === 'none' && accent !== 'sage') {
         dom.root.classList.add('accent-' + accent);
     }
 
@@ -759,7 +780,7 @@ function applyThemeSettings(options) {
     const isDark = options.popupTheme === 'dark' ||
         (options.popupTheme !== 'light' && prefersDarkScheme.matches);
     darkMode = isDark;
-    const themeName = resolveEditorTheme(options.editorTheme || 'default', isDark);
+    const themeName = resolveEditorTheme(options.editorTheme || 'default', isDark, specialTheme);
     ensureEditorThemeStylesheet(themeName);
     if (typeof cm !== 'undefined' && cm) {
         cm.setOption('theme', themeName);
@@ -1041,6 +1062,7 @@ const defaultOptions = {
     obsidianIntegration: false,
     batchProcessingEnabled: true,
     popupTheme: 'system',
+    specialTheme: 'none',
     popupAccent: 'sage',
     compactMode: false,
     showUserGuideIcon: true,

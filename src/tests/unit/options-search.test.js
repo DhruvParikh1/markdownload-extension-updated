@@ -65,6 +65,7 @@ const baseOptions = {
   obsidianVault: '',
   obsidianFolder: '',
   popupTheme: 'system',
+  specialTheme: 'none',
   popupAccent: 'sage',
   compactMode: false,
   showUserGuideIcon: true,
@@ -489,5 +490,31 @@ describe('Options page search UI', () => {
     expect(browser.storage.sync.set).toHaveBeenCalledWith(expect.objectContaining({
       batchProcessingEnabled: true
     }));
+  });
+
+  test('Claude special theme restores root classes and locks accent and editor theme controls', async () => {
+    const { dom } = createOptionsPageDom({
+      popupTheme: 'dark',
+      popupAccent: 'ocean',
+      specialTheme: 'claude',
+      editorTheme: 'nord'
+    });
+    const { document } = dom.window;
+
+    document.dispatchEvent(new dom.window.Event('DOMContentLoaded', { bubbles: true }));
+    await waitForMicrotasks();
+    await waitFor(dom.window, 50);
+
+    const root = document.documentElement;
+    expect(root.classList.contains('theme-dark')).toBe(true);
+    expect(root.classList.contains('special-theme-claude')).toBe(true);
+    expect(root.classList.contains('accent-ocean')).toBe(false);
+    expect(document.getElementById('special-theme-claude').checked).toBe(true);
+    expect(document.getElementById('popupAccentGroup').classList.contains('is-disabled')).toBe(true);
+    expect(document.getElementById('editorThemeGroup').classList.contains('is-disabled')).toBe(true);
+    expect(document.getElementById('popupAccentThemeNote').hidden).toBe(false);
+    expect(document.getElementById('editorThemeLockNote').hidden).toBe(false);
+    expect(Array.from(document.querySelectorAll("input[name='popupAccent']")).every((input) => input.disabled)).toBe(true);
+    expect(Array.from(document.querySelectorAll("input[name='editorTheme']")).every((input) => input.disabled)).toBe(true);
   });
 });

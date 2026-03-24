@@ -6,6 +6,7 @@ const defaultOptions = {
   batchProcessingEnabled: true,
   includeTemplate: false,
   imagePrefix: '{pageTitle}/',
+  specialTheme: 'none',
   showUserGuideIcon: true,
   tableFormatting: {
     stripLinks: true,
@@ -23,6 +24,7 @@ const defaultOptions = {
   test('normalizeImportedOptions merges defaults and nested tableFormatting', () => {
     const importedOptions = {
       includeTemplate: true,
+      specialTheme: 'claude',
       tableFormatting: {
         stripLinks: false
       }
@@ -32,6 +34,7 @@ const defaultOptions = {
 
     expect(normalized.includeTemplate).toBe(true);
     expect(normalized.imagePrefix).toBe('{pageTitle}/');
+    expect(normalized.specialTheme).toBe('claude');
     expect(normalized.tableFormatting).toEqual({
       stripLinks: false,
       stripFormatting: false,
@@ -53,6 +56,11 @@ const defaultOptions = {
 
     expect(importedOptions).toEqual(importedSnapshot);
     expect(defaultOptions).toEqual(defaultsSnapshot);
+  });
+
+  test('normalizeImportedOptions preserves specialTheme default when omitted', () => {
+    const normalized = optionsState.normalizeImportedOptions({}, defaultOptions);
+    expect(normalized.specialTheme).toBe('none');
   });
 
   test('resetOptionKeys resets top-level and tableFormatting keys', () => {

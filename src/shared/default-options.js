@@ -37,6 +37,7 @@ const defaultOptions = {
   obsidianVault: "",
   obsidianFolder: "",
   popupTheme: 'system',
+  specialTheme: 'none',
   popupAccent: 'sage',
   compactMode: false,
   showUserGuideIcon: true,

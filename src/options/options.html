@@ -318,9 +318,26 @@
                     </div>
                 </div>
 
+                <div class="setting-card" id="specialThemeGroup" data-setting-key="specialTheme"
+                    data-search-keywords="special theme,claude,brand theme,appearance skin">
+                    <h3 class="card-title">Special Themes</h3>
+                    <p class="card-desc">Apply a branded look across the popup, options page, guide, and editor.</p>
+                    <div class="radio-group">
+                        <div class="radio-pill">
+                            <input type="radio" name="specialTheme" id="special-theme-none" value="none" />
+                            <label for="special-theme-none">None</label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="specialTheme" id="special-theme-claude" value="claude" />
+                            <label for="special-theme-claude">Claude</label>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Accent Color -->
                 <div class="setting-card" id="popupAccentGroup" data-setting-key="popupAccent">
                     <h3 class="card-title">Accent Color</h3>
+                    <p class="card-desc special-theme-lock-note" id="popupAccentThemeNote" hidden>Claude controls accent color while active.</p>
                     <div class="radio-group">
                         <div class="radio-pill">
                             <input type="radio" name="popupAccent" id="accent-sage" value="sage" />
@@ -349,6 +366,7 @@
                 <div class="setting-card" id="editorThemeGroup" data-setting-key="editorTheme">
                     <h3 class="card-title">Editor Theme</h3>
                     <p class="card-desc">Choose a syntax highlighting theme for the Markdown editor in the popup.</p>
+                    <p class="card-desc special-theme-lock-note" id="editorThemeLockNote" hidden>Claude provides its own light and dark editor themes while active.</p>
                     <div class="radio-group">
                         <div class="radio-pill">
                             <input type="radio" name="editorTheme" id="editor-default" value="default" />

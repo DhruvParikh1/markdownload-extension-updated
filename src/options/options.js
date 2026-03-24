@@ -20,6 +20,8 @@ let agentBridgeStatus = {
 };
 let agentBridgeInstallCommand = 'marksnip install-host';
 let keyupTimeout = null;
+const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude'];
+const ACCENT_CLASS_NAMES = ['accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber'];
 
 function getOptionsStateApi() {
     return globalThis.markSnipOptionsState || null;
@@ -327,17 +329,53 @@ function applyContextMenuTransition(action) {
 // Apply theme mode and accent color to the Options page itself
 function applyThemeSettings() {
     const root = document.documentElement;
+    const specialTheme = options.specialTheme || 'none';
 
     // Apply theme mode
     root.classList.remove('theme-light', 'theme-dark', 'theme-system');
     root.classList.add('theme-' + (options.popupTheme || 'system'));
 
+    root.classList.remove(...SPECIAL_THEME_CLASS_NAMES);
+    if (specialTheme === 'claude') {
+        root.classList.add('special-theme-claude');
+    }
+
     // Apply accent color
-    root.classList.remove('accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber');
+    root.classList.remove(...ACCENT_CLASS_NAMES);
     const accent = options.popupAccent || 'sage';
-    if (accent !== 'sage') {
+    if (specialTheme === 'none' && accent !== 'sage') {
         root.classList.add('accent-' + accent);
     }
+}
+
+function updateSpecialThemeControlState() {
+    const specialTheme = options.specialTheme || 'none';
+    const claudeActive = specialTheme === 'claude';
+    const accentGroup = document.getElementById('popupAccentGroup');
+    const editorThemeGroup = document.getElementById('editorThemeGroup');
+    const accentNote = document.getElementById('popupAccentThemeNote');
+    const editorThemeNote = document.getElementById('editorThemeLockNote');
+
+    [accentGroup, editorThemeGroup].forEach((group) => {
+        group?.classList.toggle('is-disabled', claudeActive);
+        group?.setAttribute('aria-disabled', String(claudeActive));
+    });
+
+    if (accentNote) {
+        accentNote.hidden = !claudeActive;
+    }
+
+    if (editorThemeNote) {
+        editorThemeNote.hidden = !claudeActive;
+    }
+
+    document.querySelectorAll("input[name='popupAccent']").forEach((input) => {
+        input.disabled = claudeActive;
+    });
+
+    document.querySelectorAll("input[name='editorTheme']").forEach((input) => {
+        input.disabled = claudeActive;
+    });
 }
 
 function configureReviewLink() {
@@ -398,6 +436,7 @@ const saveOptions = e => {
         imageRefStyle: getCheckedValue(document.querySelectorAll("input[name='imageRefStyle']")),
         downloadMode: getCheckedValue(document.querySelectorAll("input[name='downloadMode']")),
         popupTheme: getCheckedValue(document.querySelectorAll("input[name='popupTheme']")),
+        specialTheme: getCheckedValue(document.querySelectorAll("input[name='specialTheme']")) || 'none',
         popupAccent: getCheckedValue(document.querySelectorAll("input[name='popupAccent']")),
         compactMode: document.querySelector("[name='compactMode']").checked,
         showUserGuideIcon: document.querySelector("[name='showUserGuideIcon']").checked,
@@ -529,11 +568,13 @@ const setCurrentChoice = result => {
     setCheckedValue(document.querySelectorAll("[name='downloadMode']"), options.downloadMode);
 
     setCheckedValue(document.querySelectorAll("[name='popupTheme']"), options.popupTheme || 'system');
+    setCheckedValue(document.querySelectorAll("[name='specialTheme']"), options.specialTheme || 'none');
     setCheckedValue(document.querySelectorAll("[name='popupAccent']"), options.popupAccent || 'sage');
     document.querySelector("[name='compactMode']").checked = options.compactMode || false;
     document.querySelector("[name='showUserGuideIcon']").checked = options.showUserGuideIcon !== false;
     setCheckedValue(document.querySelectorAll("[name='editorTheme']"), options.editorTheme || 'default');
 
+    updateSpecialThemeControlState();
     refreshElements();
     applyThemeSettings();
 }
@@ -639,6 +680,7 @@ const show = (el, visible) => {
 const refreshElements = () => {
     // Apply theme/accent to Options page live
     applyThemeSettings();
+    updateSpecialThemeControlState();
 
     document.getElementById("downloadModeGroup").querySelectorAll('.setting-card').forEach(container => {
         show(container, options.downloadMode == 'downloadsApi')
