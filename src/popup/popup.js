@@ -390,6 +390,7 @@ function loadStylesheetOnce(href, id) {
 // --- Markdown Preview ---
 
 const UNSAFE_LINK_RE = /^\s*javascript\s*:/i;
+const SAFE_PREVIEW_PROTOCOLS = new Set(['http:', 'https:', 'mailto:']);
 
 function escapeHtml(str) {
     return str
@@ -400,17 +401,37 @@ function escapeHtml(str) {
         .replace(/'/g, '&#39;');
 }
 
-function escapeRawHtml(markdown) {
-    // Escape fenced HTML blocks (lines that start with < and are not markdown)
-    // and inline HTML tags so they display literally in preview
-    return markdown
-        .replace(/<\/?[a-zA-Z][^>]*>/g, (match) => escapeHtml(match));
+function getPreviewBaseUrl() {
+    if (currentClipState?.pageUrl) {
+        return currentClipState.pageUrl;
+    }
+
+    return window.location.href;
+}
+
+function resolveSafePreviewHref(href) {
+    const nextHref = String(href || '').trim();
+    if (!nextHref || UNSAFE_LINK_RE.test(nextHref)) {
+        return null;
+    }
+
+    try {
+        const resolved = new URL(nextHref, getPreviewBaseUrl());
+        if (!SAFE_PREVIEW_PROTOCOLS.has(resolved.protocol)) {
+            return null;
+        }
+
+        return resolved.href;
+    } catch (_error) {
+        return null;
+    }
 }
 
 function ensureMarkedLoaded() {
     if (markedLoadPromise) {
         return markedLoadPromise;
     }
+
     markedLoadPromise = Promise.all([
         loadScriptOnce('lib/marked.min.js', 'marked-script'),
         loadStylesheetOnce('lib/github-markdown.css', 'github-markdown-css')
@@ -421,27 +442,42 @@ function ensureMarkedLoaded() {
 
         const renderer = new marked.Renderer();
 
+        // Raw HTML: render literal escaped text instead of executable HTML.
+        renderer.html = function ({ text }) {
+            return escapeHtml(text || '');
+        };
+
         // Images: render as a text placeholder, never load remote resources
         renderer.image = function ({ href, title, text }) {
             const alt = escapeHtml(text || '');
-            const safeHref = escapeHtml(href || '');
+            const safeHref = resolveSafePreviewHref(href);
             const titleAttr = title ? ` title="${escapeHtml(title)}"` : '';
-            return `<span class="preview-image-placeholder">[image: <a href="${safeHref}" target="_blank" rel="noopener noreferrer"${titleAttr}>${alt || safeHref}</a>]</span>`;
+
+            if (!safeHref) {
+                return `<span class="preview-image-placeholder">[image: ${alt || 'image'}]</span>`;
+            }
+
+            return `<span class="preview-image-placeholder">[image: <a href="${escapeHtml(safeHref)}" target="_blank" rel="noopener noreferrer"${titleAttr}>${alt || escapeHtml(safeHref)}</a>]</span>`;
         };
 
         // Links: force safe attributes, reject javascript: scheme
         renderer.link = function ({ href, title, tokens }) {
             const text = this.parser.parseInline(tokens);
-            if (!href || UNSAFE_LINK_RE.test(href)) {
+            const safeHref = resolveSafePreviewHref(href);
+            if (!safeHref) {
                 return text;
             }
-            const safeHref = escapeHtml(href);
+
             const titleAttr = title ? ` title="${escapeHtml(title)}"` : '';
-            return `<a href="${safeHref}" target="_blank" rel="noopener noreferrer"${titleAttr}>${text}</a>`;
+            return `<a href="${escapeHtml(safeHref)}" target="_blank" rel="noopener noreferrer"${titleAttr}>${text}</a>`;
         };
 
         marked.setOptions({ renderer });
+    }).catch((error) => {
+        markedLoadPromise = null;
+        throw error;
     });
+
     return markedLoadPromise;
 }
 
@@ -451,7 +487,6 @@ function renderPreviewContent() {
     }
 
     const raw = getEditorValue();
-    const escaped = escapeRawHtml(raw);
 
     const body = dom.editorPreview.querySelector('.markdown-body');
     if (!body) {
@@ -459,7 +494,7 @@ function renderPreviewContent() {
     }
 
     try {
-        body.innerHTML = marked.parse(escaped);
+        body.innerHTML = marked.parse(raw);
     } catch (err) {
         body.textContent = 'Preview rendering failed: ' + err.message;
     }

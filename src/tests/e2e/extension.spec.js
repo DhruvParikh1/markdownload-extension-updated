@@ -303,6 +303,88 @@ test.describe('MarkSnip Extension E2E', () => {
     }
   });
 
+  test('popup preview renders raw HTML safely without breaking code or linking unsafe images', async () => {
+    const fixturePage = await context.newPage();
+    const popupPage = await context.newPage();
+
+    try {
+      await fixturePage.goto(`${fixtureHost}/extension/deterministic-article.html`);
+      await fixturePage.waitForLoadState('networkidle');
+      await fixturePage.bringToFront();
+
+      await popupPage.goto(`chrome-extension://${extensionId}/popup/popup.html`);
+
+      await expect.poll(async () => {
+        return await popupPage.evaluate(() => Boolean(window.cm && document.querySelector('.CodeMirror')));
+      }, { timeout: 15000 }).toBe(true);
+
+      await expect.poll(async () => {
+        return await popupPage.locator('#title').inputValue();
+      }, { timeout: 15000 }).toContain('Deterministic Markdown Fixture');
+
+      await popupPage.evaluate(() => {
+        window.cm.setValue([
+          '# Preview test',
+          '',
+          '`<span>`',
+          '',
+          '```html',
+          '<div class="x">hi</div>',
+          '```',
+          '',
+          '<script>alert(1)</script>',
+          '',
+          '![bad](javascript:alert(1))',
+          '',
+          '[good](https://example.com/docs/page)'
+        ].join('\n'));
+      });
+
+      await popupPage.locator('#previewToggle').click();
+
+      await expect(popupPage.locator('#editorPreview')).toBeVisible();
+      await expect.poll(async () => {
+        return await popupPage.evaluate(() => {
+          return document.querySelector('#editorPreview .markdown-body')?.innerHTML || '';
+        });
+      }, { timeout: 10000 }).toContain('<pre><code class="language-html">');
+
+      const previewState = await popupPage.evaluate(() => {
+        const preview = document.getElementById('editorPreview');
+        const codeHtml = preview.querySelector('pre code')?.innerHTML || '';
+        const inlineCodeHtml = preview.querySelector('p code')?.innerHTML || '';
+        const scriptCount = preview.querySelectorAll('script').length;
+        const imageLink = preview.querySelector('.preview-image-placeholder a');
+        const normalLink = preview.querySelector('.markdown-body a[href="https://example.com/docs/page"]');
+
+        return {
+          codeHtml,
+          inlineCodeHtml,
+          scriptCount,
+          unsafeImageLinkHref: imageLink?.getAttribute('href') || null,
+          normalLinkHref: normalLink?.getAttribute('href') || null,
+          normalLinkTarget: normalLink?.getAttribute('target') || null,
+          normalLinkRel: normalLink?.getAttribute('rel') || null,
+          previewText: preview.textContent || ''
+        };
+      });
+
+      expect(previewState.codeHtml).toContain('&lt;div class="x"&gt;hi&lt;/div&gt;');
+      expect(previewState.codeHtml).not.toContain('&amp;lt;');
+      expect(previewState.inlineCodeHtml).toContain('&lt;span&gt;');
+      expect(previewState.inlineCodeHtml).not.toContain('&amp;lt;');
+      expect(previewState.scriptCount).toBe(0);
+      expect(previewState.previewText).toContain('<script>alert(1)</script>');
+      expect(previewState.unsafeImageLinkHref).toBeNull();
+      expect(previewState.normalLinkHref).toBe('https://example.com/docs/page');
+      expect(previewState.normalLinkTarget).toBe('_blank');
+      expect(previewState.normalLinkRel).toBe('noopener noreferrer');
+    } finally {
+      await popupPage.close().catch(() => {});
+      await fixturePage.close().catch(() => {});
+    }
+  });
+
   test('library items stay unrendered until the Library view opens', async () => {
     await setLibraryStorage(serviceWorker, {
       librarySettings: {
