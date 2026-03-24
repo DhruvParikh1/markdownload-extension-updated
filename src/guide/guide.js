@@ -12,7 +12,7 @@
   'use strict';
 
   const core = globalThis.markSnipSearchCore;
-  const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude'];
+  const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude', 'special-theme-perplexity'];
   const ACCENT_CLASS_NAMES = ['accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber'];
 
   /* ════════════════════════════════════════
@@ -25,8 +25,8 @@
     root.classList.add('theme-' + (opts.popupTheme || 'system'));
 
     root.classList.remove(...SPECIAL_THEME_CLASS_NAMES);
-    if (specialTheme === 'claude') {
-      root.classList.add('special-theme-claude');
+    if (specialTheme !== 'none') {
+      root.classList.add('special-theme-' + specialTheme);
     }
 
     root.classList.remove(...ACCENT_CLASS_NAMES);

@@ -324,6 +324,82 @@
     }
 }
 
+/* Perplexity special theme */
+:root.special-theme-perplexity {
+    --accent-rgb: 32, 128, 141;
+    --accent-light: #DCEEF0;
+    --accent: #20808D;
+    --accent-dark: #196772;
+    --accent-darker: #124C54;
+    --success: #20808D;
+    --warning: #A9713F;
+    --error: #C05A49;
+    --bg-base: #FBFAF4;
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #FBFAF4;
+    --bg-tertiary: #F0F1EC;
+    --bg-hover: #E4E9E6;
+    --text-primary: #091717;
+    --text-secondary: #355254;
+    --text-tertiary: #6C8483;
+    --border-light: #DCE3DE;
+    --border-medium: #C5D2CE;
+    --border-dark: #9BB0AD;
+    --shadow-sm: 0 1px 3px rgba(9,23,23,0.08);
+    --shadow-md: 0 10px 26px rgba(9,23,23,0.11);
+    --shadow-lg: 0 18px 42px rgba(9,23,23,0.16);
+}
+
+:root.theme-dark.special-theme-perplexity {
+    --accent-light: rgba(32,128,141,0.18);
+    --accent: #2E9CAB;
+    --accent-dark: #238594;
+    --accent-darker: #175C66;
+    --success: #2E9CAB;
+    --warning: #BE8E52;
+    --error: #D16F58;
+    --bg-base: #061111;
+    --bg-primary: #091717;
+    --bg-secondary: #0D1F20;
+    --bg-tertiary: #143235;
+    --bg-hover: #1B4348;
+    --text-primary: #FBFAF4;
+    --text-secondary: #B5CCCA;
+    --text-tertiary: #7C9998;
+    --border-light: #163336;
+    --border-medium: #245055;
+    --border-dark: #32727A;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.34);
+    --shadow-md: 0 10px 28px rgba(0,0,0,0.42);
+    --shadow-lg: 0 18px 48px rgba(0,0,0,0.5);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root.theme-system.special-theme-perplexity {
+        --accent-light: rgba(32,128,141,0.18);
+        --accent: #2E9CAB;
+        --accent-dark: #238594;
+        --accent-darker: #175C66;
+        --success: #2E9CAB;
+        --warning: #BE8E52;
+        --error: #D16F58;
+        --bg-base: #061111;
+        --bg-primary: #091717;
+        --bg-secondary: #0D1F20;
+        --bg-tertiary: #143235;
+        --bg-hover: #1B4348;
+        --text-primary: #FBFAF4;
+        --text-secondary: #B5CCCA;
+        --text-tertiary: #7C9998;
+        --border-light: #163336;
+        --border-medium: #245055;
+        --border-dark: #32727A;
+        --shadow-sm: 0 1px 2px rgba(0,0,0,0.34);
+        --shadow-md: 0 10px 28px rgba(0,0,0,0.42);
+        --shadow-lg: 0 18px 48px rgba(0,0,0,0.5);
+    }
+}
+
 
 /* ── Reset & Base ── */
 *, *::before, *::after {

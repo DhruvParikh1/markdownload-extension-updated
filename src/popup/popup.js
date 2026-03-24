@@ -35,7 +35,7 @@ const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const POPUP_VIEW_TRANSITION_MS = 180;
 let lastRenderedLibraryStateKey = '';
-const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude'];
+const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude', 'special-theme-perplexity'];
 const ACCENT_CLASS_NAMES = ['accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber'];
 const dom = {
     root: document.documentElement,
@@ -319,6 +319,7 @@ function queuePersistAgentBridgeClip(snapshot = currentClipState) {
 const EDITOR_THEME_MAP = {
     default:   { dark: 'xq-dark',        light: 'xq-light' },
     claude:    { dark: 'claude-dark',    light: 'claude-light' },
+    perplexity:{ dark: 'perplexity-dark',light: 'perplexity-light' },
     dracula:   { dark: 'dracula',         light: 'dracula' },
     material:  { dark: 'material-darker', light: 'material' },
     monokai:   { dark: 'monokai',         light: 'xq-light' },
@@ -331,6 +332,8 @@ const EDITOR_THEME_STYLESHEET_MAP = Object.freeze({
     'xq-light': 'lib/xq-light.css',
     'claude-dark': 'lib/claude-dark.css',
     'claude-light': 'lib/claude-light.css',
+    'perplexity-dark': 'lib/perplexity-dark.css',
+    'perplexity-light': 'lib/perplexity-light.css',
     'dracula': 'lib/dracula.css',
     'material': 'lib/material.css',
     'material-darker': 'lib/material-darker.css',
@@ -745,9 +748,9 @@ async function getActiveTabId(forceRefresh = false) {
 }
 
 function resolveEditorTheme(editorTheme, isDark, specialTheme = 'none') {
-    if (specialTheme === 'claude') {
-        const claudeEntry = EDITOR_THEME_MAP.claude;
-        return isDark ? claudeEntry.dark : claudeEntry.light;
+    if (specialTheme !== 'none' && EDITOR_THEME_MAP[specialTheme]) {
+        const specialEntry = EDITOR_THEME_MAP[specialTheme];
+        return isDark ? specialEntry.dark : specialEntry.light;
     }
 
     const entry = EDITOR_THEME_MAP[editorTheme] || EDITOR_THEME_MAP.default;
@@ -762,8 +765,8 @@ function applyThemeSettings(options) {
     dom.root.classList.add('theme-' + (options.popupTheme || 'system'));
 
     dom.root.classList.remove(...SPECIAL_THEME_CLASS_NAMES);
-    if (specialTheme === 'claude') {
-        dom.root.classList.add('special-theme-claude');
+    if (specialTheme !== 'none') {
+        dom.root.classList.add('special-theme-' + specialTheme);
     }
 
     // Apply accent color

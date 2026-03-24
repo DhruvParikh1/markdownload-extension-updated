@@ -20,7 +20,7 @@ let agentBridgeStatus = {
 };
 let agentBridgeInstallCommand = 'marksnip install-host';
 let keyupTimeout = null;
-const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude'];
+const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude', 'special-theme-perplexity'];
 const ACCENT_CLASS_NAMES = ['accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber'];
 
 function getOptionsStateApi() {
@@ -336,8 +336,8 @@ function applyThemeSettings() {
     root.classList.add('theme-' + (options.popupTheme || 'system'));
 
     root.classList.remove(...SPECIAL_THEME_CLASS_NAMES);
-    if (specialTheme === 'claude') {
-        root.classList.add('special-theme-claude');
+    if (specialTheme !== 'none') {
+        root.classList.add('special-theme-' + specialTheme);
     }
 
     // Apply accent color
@@ -350,31 +350,31 @@ function applyThemeSettings() {
 
 function updateSpecialThemeControlState() {
     const specialTheme = options.specialTheme || 'none';
-    const claudeActive = specialTheme === 'claude';
+    const specialThemeActive = specialTheme !== 'none';
     const accentGroup = document.getElementById('popupAccentGroup');
     const editorThemeGroup = document.getElementById('editorThemeGroup');
     const accentNote = document.getElementById('popupAccentThemeNote');
     const editorThemeNote = document.getElementById('editorThemeLockNote');
 
     [accentGroup, editorThemeGroup].forEach((group) => {
-        group?.classList.toggle('is-disabled', claudeActive);
-        group?.setAttribute('aria-disabled', String(claudeActive));
+        group?.classList.toggle('is-disabled', specialThemeActive);
+        group?.setAttribute('aria-disabled', String(specialThemeActive));
     });
 
     if (accentNote) {
-        accentNote.hidden = !claudeActive;
+        accentNote.hidden = !specialThemeActive;
     }
 
     if (editorThemeNote) {
-        editorThemeNote.hidden = !claudeActive;
+        editorThemeNote.hidden = !specialThemeActive;
     }
 
     document.querySelectorAll("input[name='popupAccent']").forEach((input) => {
-        input.disabled = claudeActive;
+        input.disabled = specialThemeActive;
     });
 
     document.querySelectorAll("input[name='editorTheme']").forEach((input) => {
-        input.disabled = claudeActive;
+        input.disabled = specialThemeActive;
     });
 }
 

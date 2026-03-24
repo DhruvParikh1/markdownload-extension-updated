@@ -305,7 +305,7 @@ describe('Guide theme application', () => {
       runScripts: 'dangerously'
     });
 
-    const opts = { popupTheme: 'dark', specialTheme: 'claude', popupAccent: 'ocean' };
+    const opts = { popupTheme: 'dark', specialTheme: 'perplexity', popupAccent: 'ocean' };
     dom.window.eval(`var defaultOptions = ${JSON.stringify(opts)};`);
     dom.window.browser = {
       storage: { sync: { get: () => Promise.resolve(opts) } },
@@ -319,7 +319,7 @@ describe('Guide theme application', () => {
 
     const root = dom.window.document.documentElement;
     expect(root.classList.contains('theme-dark')).toBe(true);
-    expect(root.classList.contains('special-theme-claude')).toBe(true);
+    expect(root.classList.contains('special-theme-perplexity')).toBe(true);
     expect(root.classList.contains('accent-ocean')).toBe(false);
 
     dom.window.close();
