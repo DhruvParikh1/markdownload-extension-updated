@@ -533,6 +533,8 @@ test.describe('MarkSnip Extension E2E', () => {
       await popupPage.locator('#libraryViewToggle').click();
       await expect(popupPage.locator('#exportLibraryAll')).toBeEnabled();
       await popupPage.locator('#exportLibraryAll').click();
+      await expect(popupPage.locator('#exportDropdownMenu')).toBeVisible();
+      await popupPage.locator('[data-export="zip"]').click();
 
       await expect(popupPage.locator('#libraryStatus')).toContainText('Exported 4 clips to ZIP');
 

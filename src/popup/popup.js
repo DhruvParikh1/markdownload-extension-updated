@@ -1441,7 +1441,7 @@ async function showLibraryView(e) {
 
     await ensureLibraryStateLoaded();
     await setPopupView('library');
-    renderLibraryItems({ force: true });
+    renderLibraryItems();
 }
 
 function hideLibraryView(e) {

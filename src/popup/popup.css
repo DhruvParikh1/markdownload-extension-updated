@@ -1116,6 +1116,7 @@ body {
 .popup-view.is-entering {
     z-index: 2;
     opacity: 1;
+    pointer-events: auto;
     transform: translateY(0);
 }
 
