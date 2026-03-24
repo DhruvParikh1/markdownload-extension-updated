@@ -61,6 +61,19 @@ async function setLocalStorage(serviceWorker, payload) {
   }, { nextState: payload });
 }
 
+async function setBatchWorkerState(serviceWorker, payload) {
+  await serviceWorker.evaluate(({ nextState }) => {
+    batchState = nextState ? JSON.parse(JSON.stringify(nextState)) : null;
+  }, { nextState: payload });
+}
+
+async function clearBatchRestoreState(serviceWorker) {
+  await serviceWorker.evaluate(async () => {
+    batchState = null;
+    await browser.storage.local.remove(['batchUrlList', 'batchSaveMode']);
+  });
+}
+
 async function installLibraryExportHarness(serviceWorker) {
   await serviceWorker.evaluate(() => {
     if (!self.__markSnipLibraryExportHarnessInstalled) {
@@ -416,6 +429,51 @@ test.describe('MarkSnip Extension E2E', () => {
       }, { timeout: 10000 }).toBe(2);
     } finally {
       await popupPage.close().catch(() => {});
+    }
+  });
+
+  test('batch restore opens the Batch view on popup startup without being overridden', async () => {
+    const fixturePage = await context.newPage();
+    const popupPage = await context.newPage();
+
+    try {
+      await fixturePage.goto(`${fixtureHost}/extension/deterministic-article.html`);
+      await fixturePage.waitForLoadState('networkidle');
+      await fixturePage.bringToFront();
+
+      await setLocalStorage(serviceWorker, {
+        batchUrlList: [
+          `${fixtureHost}/extension/deterministic-article.html`,
+          'https://example.com/queued'
+        ].join('\n'),
+        batchSaveMode: 'zip'
+      });
+      await setBatchWorkerState(serviceWorker, {
+        status: 'loading',
+        current: 1,
+        total: 2,
+        url: `${fixtureHost}/extension/deterministic-article.html`,
+        pageTitle: 'Deterministic Markdown Fixture',
+        batchSaveMode: 'zip'
+      });
+
+      await popupPage.goto(`chrome-extension://${extensionId}/popup/popup.html`);
+
+      await expect(popupPage.locator('#batchContainer')).toBeVisible({ timeout: 10000 });
+      await expect(popupPage.locator('#progressContainer')).toBeVisible({ timeout: 10000 });
+      await expect(popupPage.locator('#container')).toBeHidden();
+      await expect(popupPage.locator('#urlList')).toHaveValue([
+        `${fixtureHost}/extension/deterministic-article.html`,
+        'https://example.com/queued'
+      ].join('\n'));
+
+      await expect.poll(async () => {
+        return await popupPage.evaluate(() => document.activeElement?.id || '');
+      }, { timeout: 10000 }).toMatch(/^(urlList|convertUrls)$/);
+    } finally {
+      await clearBatchRestoreState(serviceWorker);
+      await popupPage.close().catch(() => {});
+      await fixturePage.close().catch(() => {});
     }
   });
 

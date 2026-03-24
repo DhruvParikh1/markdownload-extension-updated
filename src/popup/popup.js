@@ -32,6 +32,9 @@ let deferredLibraryWarmupScheduled = false;
 let previewActive = false;
 let markedLoadPromise = null;
 const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+const POPUP_VIEW_TRANSITION_MS = 180;
+let lastRenderedLibraryStateKey = '';
 const dom = {
     root: document.documentElement,
     body: document.body,
@@ -75,6 +78,12 @@ const libraryUI = {
     emptyState: document.getElementById('libraryEmptyState'),
     emptyText: document.getElementById('libraryEmptyText'),
     list: document.getElementById('libraryList')
+};
+
+const popupViews = {
+    main: dom.container,
+    batch: dom.batchContainer,
+    library: libraryUI.container
 };
 
 const progressUI = {
@@ -123,7 +132,148 @@ const progressUI = {
     }
 };
 
+let popupViewsInitialized = false;
+let activePopupView = null;
+let lastNonLibraryView = 'main';
+let popupViewTransitionToken = 0;
+
 let darkMode = prefersDarkScheme.matches;
+
+function initializePopupViews() {
+    if (popupViewsInitialized) {
+        return;
+    }
+
+    Object.values(popupViews).forEach((viewEl) => {
+        if (!viewEl) {
+            return;
+        }
+        viewEl.classList.add('popup-view');
+        viewEl.classList.remove('is-active', 'is-entering', 'is-exiting');
+    });
+
+    if (libraryUI.container) {
+        libraryUI.container.setAttribute('aria-hidden', 'true');
+    }
+
+    popupViewsInitialized = true;
+}
+
+function syncPopupViewUi(nextView) {
+    if (libraryUI.container) {
+        libraryUI.container.setAttribute('aria-hidden', String(nextView !== 'library'));
+    }
+
+    libraryUI.toggle?.classList.toggle('active', nextView === 'library');
+}
+
+function getPopupViewFocusTarget(viewName) {
+    switch (viewName) {
+        case 'main':
+            return dom.downloadButton;
+        case 'batch':
+            return dom.urlList || dom.convertUrlsButton;
+        case 'library':
+            return libraryUI.close;
+        default:
+            return null;
+    }
+}
+
+function canFocusPopupTarget(target) {
+    if (!target || target.disabled) {
+        return false;
+    }
+
+    const style = window.getComputedStyle(target);
+    return style.display !== 'none' &&
+        style.visibility !== 'hidden' &&
+        target.getClientRects().length > 0;
+}
+
+async function focusPopupView(viewName) {
+    const target = getPopupViewFocusTarget(viewName);
+    await afterNextPaint();
+    if (canFocusPopupTarget(target)) {
+        target.focus({ preventScroll: true });
+    }
+}
+
+async function setPopupView(nextView, options = {}) {
+    const { immediate = false, focus = true } = options;
+    const targetView = popupViews[nextView];
+    if (!targetView) {
+        return;
+    }
+
+    initializePopupViews();
+
+    if (nextView !== 'library') {
+        lastNonLibraryView = nextView;
+    }
+
+    const previousView = activePopupView;
+    activePopupView = nextView;
+    const transitionToken = ++popupViewTransitionToken;
+    const shouldSkipAnimation = immediate || prefersReducedMotion.matches || !previousView || previousView === nextView;
+
+    if (shouldSkipAnimation) {
+        Object.entries(popupViews).forEach(([viewName, viewEl]) => {
+            if (!viewEl) {
+                return;
+            }
+
+            viewEl.classList.remove('is-entering', 'is-exiting');
+            viewEl.classList.toggle('is-active', viewName === nextView);
+        });
+
+        syncPopupViewUi(nextView);
+
+        if (focus) {
+            await focusPopupView(nextView);
+        }
+        return;
+    }
+
+    Object.entries(popupViews).forEach(([viewName, viewEl]) => {
+        if (!viewEl) {
+            return;
+        }
+
+        viewEl.classList.remove('is-active', 'is-entering', 'is-exiting');
+
+        if (viewName === previousView) {
+            viewEl.classList.add('is-exiting');
+        } else if (viewName === nextView) {
+            viewEl.classList.add('is-entering');
+        }
+    });
+
+    syncPopupViewUi(nextView);
+
+    await new Promise((resolve) => {
+        window.setTimeout(resolve, POPUP_VIEW_TRANSITION_MS);
+    });
+
+    if (transitionToken !== popupViewTransitionToken || activePopupView !== nextView) {
+        return;
+    }
+
+    Object.entries(popupViews).forEach(([viewName, viewEl]) => {
+        if (!viewEl) {
+            return;
+        }
+
+        viewEl.classList.remove('is-entering', 'is-exiting');
+        viewEl.classList.toggle('is-active', viewName === nextView);
+    });
+
+    syncPopupViewUi(nextView);
+
+    if (focus) {
+        await focusPopupView(nextView);
+    }
+}
 
 function getLibraryStateApi() {
     return globalThis.markSnipLibraryState || null;
@@ -916,7 +1066,7 @@ const updateBatchProcessButtonVisibility = (options) => {
     dom.batchProcessButton.style.display = batchProcessingEnabled ? "" : "none";
     dom.batchProcessButton.setAttribute("aria-hidden", String(!batchProcessingEnabled));
 
-    if (!batchProcessingEnabled && dom.batchContainer?.style.display === 'flex' && progressUI.container?.style.display !== 'flex') {
+    if (!batchProcessingEnabled && activePopupView === 'batch' && progressUI.container?.style.display !== 'flex') {
         showMainView();
     }
 }
@@ -1095,19 +1245,43 @@ function syncLibrarySummaryUi() {
     updateLibraryExportButtonState();
 }
 
-function renderLibraryItems() {
+function getLibraryRenderStateKey() {
+    return JSON.stringify({
+        items: libraryItems.map((item) => ({
+            id: item.id,
+            title: item.title,
+            markdown: item.markdown,
+            pageUrl: item.pageUrl,
+            previewText: item.previewText,
+            savedAt: item.savedAt
+        })),
+        autoSaveEnabled: librarySettings?.autoSaveOnPopupOpen !== false,
+        currentPageUrl: currentClipState.pageUrl,
+        countMode: libraryCardCountMode
+    });
+}
+
+function renderLibraryItems(options = {}) {
+    const { force = false } = options;
     if (!libraryUI.list || !libraryUI.emptyState || !libraryUI.emptyText || !libraryUI.countBadge) {
         return;
     }
 
     syncLibrarySummaryUi();
-    libraryUI.list.innerHTML = '';
 
     const autoSaveEnabled = librarySettings?.autoSaveOnPopupOpen !== false;
     libraryUI.emptyText.textContent = autoSaveEnabled
         ? 'Open the popup on any page and the current clip will be saved here automatically.'
         : 'Manual mode is on. Use "Save Clip" to add the current page to your local library.';
     libraryUI.emptyState.hidden = libraryItems.length > 0;
+
+    const nextRenderStateKey = getLibraryRenderStateKey();
+    if (!force && nextRenderStateKey === lastRenderedLibraryStateKey) {
+        return;
+    }
+
+    lastRenderedLibraryStateKey = nextRenderStateKey;
+    libraryUI.list.innerHTML = '';
 
     const api = getLibraryStateApi();
     const currentNormalized = api?.normalizePageUrl(currentClipState.pageUrl) || '';
@@ -1235,27 +1409,15 @@ function updateLibraryUIState() {
 }
 
 function showMainView() {
-    dom.container.style.display = 'flex';
-    dom.batchContainer.style.display = 'none';
-    if (libraryUI.container) {
-        libraryUI.container.style.display = 'none';
-        libraryUI.container.setAttribute('aria-hidden', 'true');
-    }
-    libraryUI.toggle?.classList.remove('active');
+    return setPopupView('main');
 }
 
 function isLibraryViewVisible() {
-    return libraryUI.container?.style.display === 'flex';
+    return activePopupView === 'library';
 }
 
 function showBatchView() {
-    dom.container.style.display = 'none';
-    dom.batchContainer.style.display = 'flex';
-    if (libraryUI.container) {
-        libraryUI.container.style.display = 'none';
-        libraryUI.container.setAttribute('aria-hidden', 'true');
-    }
-    libraryUI.toggle?.classList.remove('active');
+    return setPopupView('batch');
 }
 
 async function showLibraryView(e) {
@@ -1266,14 +1428,9 @@ async function showLibraryView(e) {
         return;
     }
 
-    await ensureLibraryStateLoaded({ renderIfVisible: true });
-
-    dom.container.style.display = 'none';
-    dom.batchContainer.style.display = 'none';
-    libraryUI.container.style.display = 'flex';
-    libraryUI.container.setAttribute('aria-hidden', 'false');
-    libraryUI.toggle?.classList.add('active');
-    renderLibraryItems();
+    await ensureLibraryStateLoaded();
+    await setPopupView('library');
+    renderLibraryItems({ force: true });
 }
 
 function hideLibraryView(e) {
@@ -1281,19 +1438,7 @@ function hideLibraryView(e) {
         e.preventDefault();
     }
 
-    if (libraryUI.container) {
-        libraryUI.container.style.display = 'none';
-        libraryUI.container.setAttribute('aria-hidden', 'true');
-    }
-    libraryUI.toggle?.classList.remove('active');
-
-    if (dom.batchContainer.style.display === 'flex') {
-        return;
-    }
-
-    if (dom.spinner.style.display !== 'flex') {
-        dom.container.style.display = 'flex';
-    }
+    return setPopupView(lastNonLibraryView);
 }
 
 async function loadLibraryState() {
@@ -1317,11 +1462,8 @@ async function loadLibraryState() {
     }
 }
 
-function ensureLibraryStateLoaded({ renderIfVisible = false } = {}) {
+function ensureLibraryStateLoaded() {
     if (libraryStateLoaded) {
-        if (renderIfVisible && isLibraryViewVisible()) {
-            renderLibraryItems();
-        }
         return Promise.resolve();
     }
 
@@ -1331,9 +1473,6 @@ function ensureLibraryStateLoaded({ renderIfVisible = false } = {}) {
 
     libraryStateLoadPromise = loadLibraryState().finally(() => {
         libraryStateLoadPromise = null;
-        if (renderIfVisible && isLibraryViewVisible()) {
-            renderLibraryItems();
-        }
     });
     return libraryStateLoadPromise;
 }
@@ -2077,7 +2216,7 @@ async function restoreBatchState() {
     }
 
     await ensureBatchSettingsLoaded();
-    showBatchView();
+    await setPopupView('batch', { immediate: true });
     dom.spinner.style.display = 'none';
     progressUI.show();
     progressUI.showCancelButton();
@@ -2479,8 +2618,11 @@ function notify(message) {
         }
         setEditorValue(message.markdown);
 
-        if (!isLibraryViewVisible()) {
-            dom.container.style.display = 'flex';
+        const shouldRevealMainView = activePopupView === null;
+        if (shouldRevealMainView) {
+            setPopupView('main', { immediate: true }).catch((error) => {
+                console.error('Failed to show main popup view:', error);
+            });
         }
         dom.spinner.style.display = 'none';
         maybeAutoSaveCurrentClip().catch((error) => {
@@ -2488,7 +2630,7 @@ function notify(message) {
         });
         scheduleDeferredLibraryWarmup();
 
-        if (!isLibraryViewVisible()) {
+        if (!shouldRevealMainView && activePopupView === 'main') {
             dom.downloadButton?.focus();
         }
         refreshEditor();
@@ -2555,8 +2697,9 @@ function notify(message) {
 }
 
 function showError(err, useEditor = true) {
-    // show the hidden elements
-    dom.container.style.display = 'flex';
+    setPopupView('main', { immediate: true }).catch((error) => {
+        console.error('Failed to show main popup view after error:', error);
+    });
     dom.spinner.style.display = 'none';
     
     if (useEditor) {
