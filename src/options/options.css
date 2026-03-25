@@ -749,6 +749,10 @@ a:hover {
     display: none;
 }
 
+.ben10-mascot {
+    display: none;
+}
+
 /* Appa mascot animations – ATLA theme only */
 @keyframes appa-float {
     0%   { transform: translateY(-2px) rotate(-1deg); }
@@ -823,6 +827,21 @@ a:hover {
     :root.theme-system.special-theme-atla .appa-mascot {
         color: #F5C030;
     }
+}
+
+/* Ben 10 Omnitrix mascot animations */
+@keyframes omnitrix-pulse {
+    0%   { transform: scale(1);    filter: drop-shadow(0 0 2px rgba(159, 243, 55, 0.4)); }
+    50%  { transform: scale(1.08); filter: drop-shadow(0 0 7px rgba(159, 243, 55, 0.85)); }
+    100% { transform: scale(1);    filter: drop-shadow(0 0 2px rgba(159, 243, 55, 0.4)); }
+}
+
+:root.special-theme-ben10 .ben10-mascot {
+    display: block;
+    height: 28px;
+    width: 28px;
+    flex-shrink: 0;
+    animation: omnitrix-pulse 7.5s ease-in-out infinite;
 }
 
 /* Ben 10 header overrides */

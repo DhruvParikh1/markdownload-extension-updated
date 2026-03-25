@@ -767,6 +767,10 @@ body {
     display: none;
 }
 
+.ben10-mascot {
+    display: none;
+}
+
 .app-subtitle {
     font-size: var(--text-xs);
     color: rgba(255, 255, 255, 0.75);
@@ -1902,6 +1906,21 @@ body {
     transform-origin: 0% 50%;
     animation: appa-wag 2s ease-in-out infinite alternate;
     animation-delay: var(--appa-delay, 0s);
+}
+
+/* Ben 10 Omnitrix mascot animations */
+@keyframes omnitrix-pulse {
+    0%   { transform: scale(1);    filter: drop-shadow(0 0 2px rgba(159, 243, 55, 0.4)); }
+    50%  { transform: scale(1.08); filter: drop-shadow(0 0 7px rgba(159, 243, 55, 0.85)); }
+    100% { transform: scale(1);    filter: drop-shadow(0 0 2px rgba(159, 243, 55, 0.4)); }
+}
+
+:root.special-theme-ben10 .ben10-mascot {
+    display: block;
+    height: 28px;
+    width: 28px;
+    flex-shrink: 0;
+    animation: omnitrix-pulse 7.5s ease-in-out infinite;
 }
 
 :root.special-theme-atla .header .icon-btn {
