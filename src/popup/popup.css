@@ -688,6 +688,10 @@ body {
     text-shadow: 0 0 12px rgba(255, 255, 255, 0.45), 0 0 4px rgba(255, 255, 255, 0.25);
 }
 
+.appa-mascot {
+    display: none;
+}
+
 .app-subtitle {
     font-size: var(--text-xs);
     color: rgba(255, 255, 255, 0.75);
@@ -1783,6 +1787,46 @@ body {
 :root.special-theme-atla .app-title {
     color: #F4EDD8;
     text-shadow: none;
+}
+
+/* Appa mascot animations – ATLA theme only */
+@keyframes appa-float {
+    0%   { transform: translateY(-2px) rotate(-1deg); }
+    100% { transform: translateY(2px) rotate(1deg); }
+}
+
+@keyframes appa-swing {
+    0%   { transform: rotate(-18deg); }
+    100% { transform: rotate(18deg); }
+}
+
+@keyframes appa-wag {
+    0%   { transform: rotate(-12deg); }
+    100% { transform: rotate(12deg); }
+}
+
+:root.special-theme-atla .appa-mascot {
+    display: block;
+    height: 32px;
+    flex-shrink: 0;
+    overflow: visible;
+    color: #F4EDD8;
+    animation: appa-float 3.5s ease-in-out infinite alternate;
+    filter: drop-shadow(0 0 3px rgba(244, 237, 216, 0.3));
+}
+
+:root.special-theme-atla .appa-leg {
+    transform-box: fill-box;
+    transform-origin: center bottom;
+    animation: appa-swing 1.8s ease-in-out infinite alternate;
+    animation-delay: var(--appa-delay, 0s);
+}
+
+:root.special-theme-atla .appa-tail {
+    transform-box: fill-box;
+    transform-origin: 0% 50%;
+    animation: appa-wag 2s ease-in-out infinite alternate;
+    animation-delay: var(--appa-delay, 0s);
 }
 
 :root.special-theme-atla .header .icon-btn {
