@@ -35,7 +35,7 @@ const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const POPUP_VIEW_TRANSITION_MS = 180;
 let lastRenderedLibraryStateKey = '';
-const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude', 'special-theme-perplexity', 'special-theme-atla'];
+const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude', 'special-theme-perplexity', 'special-theme-atla', 'special-theme-ben10'];
 const ACCENT_CLASS_NAMES = ['accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber'];
 const dom = {
     root: document.documentElement,
@@ -321,6 +321,7 @@ const EDITOR_THEME_MAP = {
     claude:    { dark: 'claude-dark',    light: 'claude-light' },
     perplexity:{ dark: 'perplexity-dark',light: 'perplexity-light' },
     atla:      { dark: 'atla-dark',      light: 'atla-light' },
+    ben10:     { dark: 'ben10-dark',     light: 'ben10-light' },
     dracula:   { dark: 'dracula',         light: 'dracula' },
     material:  { dark: 'material-darker', light: 'material' },
     monokai:   { dark: 'monokai',         light: 'xq-light' },
@@ -337,6 +338,8 @@ const EDITOR_THEME_STYLESHEET_MAP = Object.freeze({
     'perplexity-light': 'lib/perplexity-light.css',
     'atla-dark': 'lib/atla-dark.css',
     'atla-light': 'lib/atla-light.css',
+    'ben10-dark': 'lib/ben10-dark.css',
+    'ben10-light': 'lib/ben10-light.css',
     'dracula': 'lib/dracula.css',
     'material': 'lib/material.css',
     'material-darker': 'lib/material-darker.css',

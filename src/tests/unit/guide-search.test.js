@@ -298,14 +298,17 @@ describe('Guide keyboard shortcuts', () => {
 });
 
 describe('Guide theme application', () => {
-  test('theme classes are applied from settings', async () => {
+  test.each([
+    { slug: 'atla' },
+    { slug: 'ben10' }
+  ])('theme classes are applied from settings for $slug', async ({ slug }) => {
     const dom = new JSDOM(guideHtml, {
       url: 'https://example.com/guide/guide.html',
       pretendToBeVisual: true,
       runScripts: 'dangerously'
     });
 
-    const opts = { popupTheme: 'dark', specialTheme: 'atla', popupAccent: 'ocean' };
+    const opts = { popupTheme: 'dark', specialTheme: slug, popupAccent: 'ocean' };
     dom.window.eval(`var defaultOptions = ${JSON.stringify(opts)};`);
     dom.window.browser = {
       storage: { sync: { get: () => Promise.resolve(opts) } },
@@ -319,7 +322,7 @@ describe('Guide theme application', () => {
 
     const root = dom.window.document.documentElement;
     expect(root.classList.contains('theme-dark')).toBe(true);
-    expect(root.classList.contains('special-theme-atla')).toBe(true);
+    expect(root.classList.contains(`special-theme-${slug}`)).toBe(true);
     expect(root.classList.contains('accent-ocean')).toBe(false);
 
     dom.window.close();

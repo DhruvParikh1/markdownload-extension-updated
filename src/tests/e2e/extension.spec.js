@@ -287,65 +287,70 @@ test.describe('MarkSnip Extension E2E', () => {
     }
   });
 
-  test('popup startup loads ATLA dark stylesheet when the ATLA special theme is active', async () => {
-    await setSyncStorage(serviceWorker, {
-      popupTheme: 'dark',
-      specialTheme: 'atla',
-      editorTheme: 'nord'
-    });
-
-    const popupPage = await context.newPage();
-
-    try {
-      await popupPage.goto(`chrome-extension://${extensionId}/popup/popup.html`);
-
-      await expect.poll(async () => {
-        return await popupPage.evaluate(() => {
-          return document.getElementById('cm-theme-stylesheet')?.getAttribute('href') || null;
-        });
-      }, { timeout: 10000 }).toBe('lib/atla-dark.css');
-
-      const themeLinks = await popupPage.evaluate(() => {
-        return Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
-          .map((link) => link.getAttribute('href'))
-          .filter((href) => href && href.startsWith('lib/') && href !== 'lib/codemirror.css');
+  for (const { label, slug } of [
+    { label: 'ATLA', slug: 'atla' },
+    { label: 'Ben 10', slug: 'ben10' }
+  ]) {
+    test(`popup startup loads ${label} dark stylesheet when the special theme is active`, async () => {
+      await setSyncStorage(serviceWorker, {
+        popupTheme: 'dark',
+        specialTheme: slug,
+        editorTheme: 'nord'
       });
 
-      expect(themeLinks).toEqual(['lib/atla-dark.css']);
-    } finally {
-      await popupPage.close().catch(() => {});
-    }
-  });
+      const popupPage = await context.newPage();
 
-  test('popup startup loads ATLA light stylesheet when the ATLA special theme is active in light mode', async () => {
-    await setSyncStorage(serviceWorker, {
-      popupTheme: 'light',
-      specialTheme: 'atla',
-      editorTheme: 'nord'
+      try {
+        await popupPage.goto(`chrome-extension://${extensionId}/popup/popup.html`);
+
+        await expect.poll(async () => {
+          return await popupPage.evaluate(() => {
+            return document.getElementById('cm-theme-stylesheet')?.getAttribute('href') || null;
+          });
+        }, { timeout: 10000 }).toBe(`lib/${slug}-dark.css`);
+
+        const themeLinks = await popupPage.evaluate(() => {
+          return Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
+            .map((link) => link.getAttribute('href'))
+            .filter((href) => href && href.startsWith('lib/') && href !== 'lib/codemirror.css');
+        });
+
+        expect(themeLinks).toEqual([`lib/${slug}-dark.css`]);
+      } finally {
+        await popupPage.close().catch(() => {});
+      }
     });
 
-    const popupPage = await context.newPage();
-
-    try {
-      await popupPage.goto(`chrome-extension://${extensionId}/popup/popup.html`);
-
-      await expect.poll(async () => {
-        return await popupPage.evaluate(() => {
-          return document.getElementById('cm-theme-stylesheet')?.getAttribute('href') || null;
-        });
-      }, { timeout: 10000 }).toBe('lib/atla-light.css');
-
-      const themeLinks = await popupPage.evaluate(() => {
-        return Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
-          .map((link) => link.getAttribute('href'))
-          .filter((href) => href && href.startsWith('lib/') && href !== 'lib/codemirror.css');
+    test(`popup startup loads ${label} light stylesheet when the special theme is active in light mode`, async () => {
+      await setSyncStorage(serviceWorker, {
+        popupTheme: 'light',
+        specialTheme: slug,
+        editorTheme: 'nord'
       });
 
-      expect(themeLinks).toEqual(['lib/atla-light.css']);
-    } finally {
-      await popupPage.close().catch(() => {});
-    }
-  });
+      const popupPage = await context.newPage();
+
+      try {
+        await popupPage.goto(`chrome-extension://${extensionId}/popup/popup.html`);
+
+        await expect.poll(async () => {
+          return await popupPage.evaluate(() => {
+            return document.getElementById('cm-theme-stylesheet')?.getAttribute('href') || null;
+          });
+        }, { timeout: 10000 }).toBe(`lib/${slug}-light.css`);
+
+        const themeLinks = await popupPage.evaluate(() => {
+          return Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
+            .map((link) => link.getAttribute('href'))
+            .filter((href) => href && href.startsWith('lib/') && href !== 'lib/codemirror.css');
+        });
+
+        expect(themeLinks).toEqual([`lib/${slug}-light.css`]);
+      } finally {
+        await popupPage.close().catch(() => {});
+      }
+    });
+  }
 
   test('popup startup preserves non-Claude theme resolution when no special theme is active', async () => {
     await setSyncStorage(serviceWorker, {

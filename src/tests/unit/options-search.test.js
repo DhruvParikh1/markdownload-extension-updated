@@ -107,6 +107,11 @@ function getMatchLabels(index, query) {
   return optionsSearch.searchSettings(index, query).matches.map(result => getCardLabel(result.card));
 }
 
+const specialThemeCases = [
+  { label: 'ATLA', slug: 'atla', keyword: 'avatar' },
+  { label: 'Ben 10', slug: 'ben10', keyword: 'omnitrix' }
+];
+
 async function waitFor(windowObject, ms) {
   await new Promise(resolve => windowObject.setTimeout(resolve, ms));
 }
@@ -492,11 +497,11 @@ describe('Options page search UI', () => {
     }));
   });
 
-  test('ATLA special theme restores root classes and locks accent and editor theme controls', async () => {
+  test.each(specialThemeCases)('$label special theme restores root classes and locks accent and editor theme controls', async ({ slug }) => {
     const { dom } = createOptionsPageDom({
       popupTheme: 'dark',
       popupAccent: 'ocean',
-      specialTheme: 'atla',
+      specialTheme: slug,
       editorTheme: 'nord'
     });
     const { document } = dom.window;
@@ -507,14 +512,19 @@ describe('Options page search UI', () => {
 
     const root = document.documentElement;
     expect(root.classList.contains('theme-dark')).toBe(true);
-    expect(root.classList.contains('special-theme-atla')).toBe(true);
+    expect(root.classList.contains(`special-theme-${slug}`)).toBe(true);
     expect(root.classList.contains('accent-ocean')).toBe(false);
-    expect(document.getElementById('special-theme-atla').checked).toBe(true);
+    expect(document.getElementById(`special-theme-${slug}`).checked).toBe(true);
     expect(document.getElementById('popupAccentGroup').classList.contains('is-disabled')).toBe(true);
     expect(document.getElementById('editorThemeGroup').classList.contains('is-disabled')).toBe(true);
     expect(document.getElementById('popupAccentThemeNote').hidden).toBe(false);
     expect(document.getElementById('editorThemeLockNote').hidden).toBe(false);
     expect(Array.from(document.querySelectorAll("input[name='popupAccent']")).every((input) => input.disabled)).toBe(true);
     expect(Array.from(document.querySelectorAll("input[name='editorTheme']")).every((input) => input.disabled)).toBe(true);
+  });
+
+  test.each(specialThemeCases)('special theme keywords surface the Special Themes card for $label queries', ({ keyword }) => {
+    const index = optionsSearch.buildSearchIndex(loadOptionsDocument().window.document);
+    expect(getMatchIds(index, keyword)).toContain('specialThemeGroup');
   });
 });

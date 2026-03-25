@@ -411,6 +411,81 @@
     }
 }
 
+/* Ben 10 special theme */
+:root.special-theme-ben10 {
+    --accent-light: #d8edcc;
+    --accent: #328336;
+    --accent-dark: #2a6f2d;
+    --accent-darker: #222222;
+    --success: #64cc4f;
+    --warning: #b2e05b;
+    --error: #6d8f4b;
+    --bg-base: #f5faf0;
+    --bg-primary: #ffffff;
+    --bg-secondary: #eaf4e0;
+    --bg-tertiary: #d8edcc;
+    --bg-hover: #edf6e6;
+    --text-primary: #1a2e1a;
+    --text-secondary: #328336;
+    --text-tertiary: #4a6e4a;
+    --border-light: #c8ddb8;
+    --border-medium: #b8d4a8;
+    --border-dark: #a8c490;
+    --shadow-sm: 0 1px 3px rgba(26,46,26,0.07);
+    --shadow-md: 0 10px 28px rgba(26,46,26,0.1);
+    --shadow-lg: 0 18px 44px rgba(26,46,26,0.14);
+}
+
+:root.theme-dark.special-theme-ben10 {
+    --accent-light: rgba(100,204,79,0.18);
+    --accent: #328336;
+    --accent-dark: #64cc4f;
+    --accent-darker: #222222;
+    --success: #64cc4f;
+    --warning: #b2e05b;
+    --error: #7aaa7a;
+    --bg-base: #1a1f1a;
+    --bg-primary: #1a1f1a;
+    --bg-secondary: #212821;
+    --bg-tertiary: #252c25;
+    --bg-hover: #2e382e;
+    --text-primary: #fbfbfd;
+    --text-secondary: #d4ecd4;
+    --text-tertiary: #7aaa7a;
+    --border-light: #2e382e;
+    --border-medium: #3a4a3a;
+    --border-dark: #4a5e4a;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.34);
+    --shadow-md: 0 10px 28px rgba(0,0,0,0.42);
+    --shadow-lg: 0 18px 48px rgba(0,0,0,0.52);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root.theme-system.special-theme-ben10 {
+        --accent-light: rgba(100,204,79,0.18);
+        --accent: #328336;
+        --accent-dark: #64cc4f;
+        --accent-darker: #222222;
+        --success: #64cc4f;
+        --warning: #b2e05b;
+        --error: #7aaa7a;
+        --bg-base: #1a1f1a;
+        --bg-primary: #1a1f1a;
+        --bg-secondary: #212821;
+        --bg-tertiary: #252c25;
+        --bg-hover: #2e382e;
+        --text-primary: #fbfbfd;
+        --text-secondary: #d4ecd4;
+        --text-tertiary: #7aaa7a;
+        --border-light: #2e382e;
+        --border-medium: #3a4a3a;
+        --border-dark: #4a5e4a;
+        --shadow-sm: 0 1px 2px rgba(0,0,0,0.34);
+        --shadow-md: 0 10px 28px rgba(0,0,0,0.42);
+        --shadow-lg: 0 18px 48px rgba(0,0,0,0.52);
+    }
+}
+
 
 /* ── Reset & Base ── */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -641,6 +716,141 @@ a:hover { text-decoration: underline; }
 
     :root.theme-system.special-theme-atla .header-subtitle {
         color: #E8A020;
+    }
+}
+
+/* Ben 10 header overrides */
+:root.special-theme-ben10 .guide-header,
+:root.theme-dark.special-theme-ben10 .guide-header {
+    background: #222222;
+    border-bottom: 2px solid #328336;
+}
+
+:root.special-theme-ben10 .header-brand,
+:root.theme-dark.special-theme-ben10 .header-brand {
+    gap: 12px;
+}
+
+:root.special-theme-ben10 .header-logo,
+:root.theme-dark.special-theme-ben10 .header-logo {
+    display: block;
+}
+
+:root.special-theme-ben10 .header-title,
+:root.theme-dark.special-theme-ben10 .header-title {
+    color: #64cc4f;
+    text-shadow: none;
+}
+
+:root.special-theme-ben10 .header-subtitle,
+:root.theme-dark.special-theme-ben10 .header-subtitle {
+    color: #7aaa7a;
+}
+
+:root.special-theme-ben10 .search-input,
+:root.theme-dark.special-theme-ben10 .search-input {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.15);
+    color: #d4ecd4;
+}
+
+:root.special-theme-ben10 .search-input::placeholder,
+:root.theme-dark.special-theme-ben10 .search-input::placeholder {
+    color: #7aaa7a;
+}
+
+:root.special-theme-ben10 .search-input:focus,
+:root.theme-dark.special-theme-ben10 .search-input:focus {
+    background: rgba(255,255,255,0.12);
+    border-color: #64cc4f;
+    box-shadow: 0 0 0 3px rgba(100,204,79,0.18);
+}
+
+:root.special-theme-ben10 .search-icon,
+:root.theme-dark.special-theme-ben10 .search-icon {
+    color: #7aaa7a;
+}
+
+:root.special-theme-ben10 .search-shortcut,
+:root.theme-dark.special-theme-ben10 .search-shortcut {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.14);
+    color: #7aaa7a;
+}
+
+:root.special-theme-ben10 .header-btn,
+:root.theme-dark.special-theme-ben10 .header-btn {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.15);
+    color: #d4ecd4;
+}
+
+:root.special-theme-ben10 .header-btn:hover,
+:root.theme-dark.special-theme-ben10 .header-btn:hover {
+    background: #328336;
+    border-color: #328336;
+    color: #fbfbfd;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root.theme-system.special-theme-ben10 .guide-header {
+        background: #222222;
+        border-bottom: 2px solid #328336;
+    }
+
+    :root.theme-system.special-theme-ben10 .header-brand {
+        gap: 12px;
+    }
+
+    :root.theme-system.special-theme-ben10 .header-logo {
+        display: block;
+    }
+
+    :root.theme-system.special-theme-ben10 .header-title {
+        color: #64cc4f;
+        text-shadow: none;
+    }
+
+    :root.theme-system.special-theme-ben10 .header-subtitle {
+        color: #7aaa7a;
+    }
+
+    :root.theme-system.special-theme-ben10 .search-input {
+        background: rgba(255,255,255,0.08);
+        border-color: rgba(255,255,255,0.15);
+        color: #d4ecd4;
+    }
+
+    :root.theme-system.special-theme-ben10 .search-input::placeholder {
+        color: #7aaa7a;
+    }
+
+    :root.theme-system.special-theme-ben10 .search-input:focus {
+        background: rgba(255,255,255,0.12);
+        border-color: #64cc4f;
+        box-shadow: 0 0 0 3px rgba(100,204,79,0.18);
+    }
+
+    :root.theme-system.special-theme-ben10 .search-icon {
+        color: #7aaa7a;
+    }
+
+    :root.theme-system.special-theme-ben10 .search-shortcut {
+        background: rgba(255,255,255,0.08);
+        border-color: rgba(255,255,255,0.14);
+        color: #7aaa7a;
+    }
+
+    :root.theme-system.special-theme-ben10 .header-btn {
+        background: rgba(255,255,255,0.08);
+        border-color: rgba(255,255,255,0.15);
+        color: #d4ecd4;
+    }
+
+    :root.theme-system.special-theme-ben10 .header-btn:hover {
+        background: #328336;
+        border-color: #328336;
+        color: #fbfbfd;
     }
 }
 

@@ -24,7 +24,7 @@ const defaultOptions = {
   test('normalizeImportedOptions merges defaults and nested tableFormatting', () => {
     const importedOptions = {
       includeTemplate: true,
-      specialTheme: 'claude',
+      specialTheme: 'ben10',
       tableFormatting: {
         stripLinks: false
       }
@@ -34,7 +34,7 @@ const defaultOptions = {
 
     expect(normalized.includeTemplate).toBe(true);
     expect(normalized.imagePrefix).toBe('{pageTitle}/');
-    expect(normalized.specialTheme).toBe('claude');
+    expect(normalized.specialTheme).toBe('ben10');
     expect(normalized.tableFormatting).toEqual({
       stripLinks: false,
       stripFormatting: false,
