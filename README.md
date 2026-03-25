@@ -70,7 +70,7 @@ Agent Bridge:
 
    Windows: `.\marksnip.exe install-host`
    macOS/Linux: `./marksnip install-host`
-3. Enable **Agent Bridge** in MarkSnip Settings.
+3. Enable **Agent Bridge** in MarkSnip Settings and approve the native messaging prompt if it appears.
 4. Run the clip command for your OS:
 
    Windows: `.\marksnip.exe clip`

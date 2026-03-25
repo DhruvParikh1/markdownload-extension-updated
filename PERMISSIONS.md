@@ -43,14 +43,20 @@ This document explains every permission declared in `src/manifest.json`, why it 
 
 ---
 
+## Optional Permissions
+
 ### `nativeMessaging`
 **Why it's needed:** Enables communication with the optional **Agent Bridge CLI** — a locally installed helper program that lets AI agents and automation scripts request Markdown clipping programmatically. The CLI runs entirely on the user's own machine; no data leaves the device.
 
+**How it's granted:** MarkSnip requests this permission only when the user turns on **Agent Bridge** in Settings.
+
 **Without it:** The Agent Bridge feature (programmatic/API access for AI agents) would not function. All other clipping features remain unaffected.
 
-**Privacy note:** This permission is only active when the user has installed and configured the Agent Bridge CLI. No external servers are contacted.
+**Privacy note:** This permission is only active after the user opts into Agent Bridge and has installed the local CLI. No external servers are contacted.
 
 ---
+
+## Core Permissions
 
 ### `scripting`
 **Why it's needed:** Injects the content script (`contentScript/pageContext.js`) into web pages at clip time to extract the page's DOM, selected text, and metadata (title, author, date, etc.) for Markdown conversion.
@@ -96,7 +102,7 @@ The in-extension guide/help page. It must be web-accessible so it can be opened 
 | `storage` | No (browser local storage) | Yes |
 | `contextMenus` | No | Yes |
 | `clipboardWrite` | No (local clipboard) | Yes |
-| `nativeMessaging` | No (local CLI only) | Yes (opt-in feature) |
+| `nativeMessaging` | No (local CLI only) | Yes (opt-in feature, requested on enable) |
 | `scripting` | No | Yes |
 | `offscreen` | No | Yes |
 | `<all_urls>` | No | Yes |

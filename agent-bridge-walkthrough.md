@@ -45,9 +45,9 @@ The CLI only talks to the local browser on your machine. Nothing is sent to a re
 4. Open MarkSnip Settings.
 5. Open the **Downloads** section.
 6. Turn on **Agent Bridge**.
-7. Wait for the status line to show that the bridge is connected.
-
-If the browser asks you to review new extension permissions after installing or updating MarkSnip, accept them before using the bridge.
+7. If MarkSnip asks for native messaging permission, approve it. The extension may reload.
+8. Go back to options and navigate to the Agent Bridge section to verify it's on.
+9. Wait for the status line to show that the bridge is connected.
 
 If you use a local unpacked Chrome build during development, install the host with the current unpacked extension ID:
 
@@ -55,6 +55,12 @@ If you use a local unpacked Chrome build during development, install the host wi
 
 ```powershell
 .\marksnip.exe install-host --chrome-extension-id <your-unpacked-id>
+```
+
+Example:
+
+```powershell
+.\marksnip.exe install-host --chrome-extension-id jfmmhkkjnbhkkjnbhkkjnbhkkjnbhkkj
 ```
 
 **macOS/Linux**
@@ -180,6 +186,7 @@ If `status` says nothing is connected:
 
 - make sure the browser is open
 - make sure **Agent Bridge** is enabled in MarkSnip Settings
+- if Settings shows **Permission needed**, click **Grant Permission**
 - rerun the install command from the extracted companion folder
 
 If Chrome local development does not connect:

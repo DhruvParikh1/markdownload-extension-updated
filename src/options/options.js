@@ -40,6 +40,13 @@ function usesOptionalNativeMessagingPermission() {
     return Array.isArray(optionalPermissions) && optionalPermissions.includes('nativeMessaging');
 }
 
+function isNativeMessagingApiAvailable() {
+    return Boolean(
+        browser.runtime?.connectNative ||
+        (typeof chrome !== 'undefined' && chrome.runtime?.connectNative)
+    );
+}
+
 function getAgentBridgeInstallCommandForPlatform(platformOs) {
     switch (String(platformOs || '').trim().toLowerCase()) {
         case 'win':
@@ -57,6 +64,22 @@ function renderAgentBridgeInstallCommand() {
     if (commandEl) {
         commandEl.textContent = agentBridgeInstallCommand;
     }
+}
+
+function updateAgentBridgeActionButton(state = 'disabled') {
+    const button = document.getElementById('refreshAgentBridgeStatus');
+    if (!button) {
+        return;
+    }
+
+    if (state === 'permission-needed') {
+        button.textContent = 'Grant Permission';
+        button.setAttribute('aria-label', 'Grant native messaging permission for Agent Bridge');
+        return;
+    }
+
+    button.textContent = 'Check Connection';
+    button.setAttribute('aria-label', 'Check Agent Bridge connection status');
 }
 
 async function resolveAgentBridgeInstallCommand() {
@@ -219,6 +242,54 @@ async function refreshAgentBridgeStatusState() {
     }
 
     return agentBridgeStatus;
+}
+
+async function requestAgentBridgePermission() {
+    if (!browser.permissions?.request) {
+        showToast("This browser cannot request native messaging permission here", "error");
+        return { granted: false, reloadRequired: false };
+    }
+
+    const granted = await browser.permissions.request({
+        permissions: ['nativeMessaging']
+    }).catch((error) => {
+        console.error('Failed to request native messaging permission:', error);
+        return false;
+    });
+
+    if (!granted) {
+        showToast("Agent Bridge permission was not granted", "error");
+        return { granted: false, reloadRequired: false };
+    }
+
+    return {
+        granted: true,
+        reloadRequired: usesOptionalNativeMessagingPermission() && !isNativeMessagingApiAvailable()
+    };
+}
+
+async function reloadExtensionForAgentBridgePermissionGrant() {
+    const container = document.getElementById('agent-bridge-container');
+    const statusHint = document.getElementById('agentBridgeStatusHint');
+    const statusText = document.getElementById('agentBridgeStatusText');
+    const refreshBtn = document.getElementById('refreshAgentBridgeStatus');
+
+    if (container) {
+        container.dataset.bridgeState = 'starting';
+    }
+    if (statusText) {
+        statusText.textContent = 'Reloading extension';
+    }
+    if (statusHint) {
+        statusHint.textContent = 'Permission granted. MarkSnip is reloading once to finish enabling the Agent Bridge.';
+    }
+    if (refreshBtn) {
+        refreshBtn.disabled = true;
+        refreshBtn.textContent = 'Reloading...';
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    browser.runtime?.reload?.();
 }
 
 function normalizeImportedOptionsState(importedOptions) {
@@ -607,7 +678,7 @@ const setCurrentAgentBridgeChoice = (settingsResult, statusResult = agentBridgeS
 
     if (usesOptionalNativeMessagingPermission() && agentBridgeSettings.enabled && !agentBridgeStatus.permissionGranted) {
         text = 'Permission needed';
-        hint = 'Native messaging permission has not been granted yet.';
+        hint = 'Grant native messaging permission to let MarkSnip connect to the local companion.';
         state = 'permission-needed';
     } else if (agentBridgeSettings.enabled && agentBridgeStatus.connecting) {
         text = 'Checking connection';
@@ -630,6 +701,7 @@ const setCurrentAgentBridgeChoice = (settingsResult, statusResult = agentBridgeS
     if (container) {
         container.dataset.bridgeState = state;
     }
+    updateAgentBridgeActionButton(state);
 
     if (statusText) {
         statusText.textContent = text;
@@ -755,31 +827,25 @@ const inputChange = async (e) => {
         }
         else if (key === 'agentBridgeEnabled') {
             const nextEnabled = Boolean(e.target.checked);
+            let reloadRequired = false;
 
-            if (nextEnabled && usesOptionalNativeMessagingPermission()) {
-                if (!browser.permissions?.request) {
+            if (nextEnabled && usesOptionalNativeMessagingPermission() && !agentBridgeStatus.permissionGranted) {
+                const permissionResult = await requestAgentBridgePermission();
+                if (!permissionResult.granted) {
                     e.target.checked = false;
-                    showToast("This browser cannot request native messaging permission here", "error");
-                    return;
-                }
-
-                const granted = await browser.permissions.request({
-                    permissions: ['nativeMessaging']
-                }).catch((error) => {
-                    console.error('Failed to request native messaging permission:', error);
-                    return false;
-                });
-
-                if (!granted) {
                     agentBridgeSettings.enabled = false;
                     setCurrentAgentBridgeChoice(agentBridgeSettings, agentBridgeStatus);
-                    showToast("Agent Bridge permission was not granted", "error");
                     return;
                 }
+                reloadRequired = permissionResult.reloadRequired;
             }
 
             agentBridgeSettings.enabled = nextEnabled;
             await saveAgentBridgeSettingsState(agentBridgeSettings);
+            if (reloadRequired) {
+                await reloadExtensionForAgentBridgePermissionGrant();
+                return;
+            }
             const refreshedStatus = await refreshAgentBridgeStatusState();
             setCurrentAgentBridgeChoice(agentBridgeSettings, refreshedStatus);
             showToast(nextEnabled ? "Agent Bridge enabled" : "Agent Bridge disabled", "success");
@@ -812,7 +878,7 @@ const inputKeyup = (e) => {
     keyupTimeout = setTimeout(inputChange, 500, e);
 }
 
-const buttonClick = (e) => {
+const buttonClick = async (e) => {
     if (e.target.id == "import" || e.target.closest('#import')) {
         document.getElementById("import-file").click();
     }
@@ -832,9 +898,45 @@ const buttonClick = (e) => {
     }
     else if (e.target.id == "refreshAgentBridgeStatus" || e.target.closest('#refreshAgentBridgeStatus')) {
         const refreshBtn = document.getElementById('refreshAgentBridgeStatus');
+        const needsPermission = usesOptionalNativeMessagingPermission() && agentBridgeSettings.enabled && !agentBridgeStatus.permissionGranted;
+
+        if (needsPermission) {
+            if (refreshBtn) {
+                refreshBtn.disabled = true;
+                refreshBtn.textContent = 'Granting...';
+            }
+
+            try {
+                const permissionResult = await requestAgentBridgePermission();
+                if (!permissionResult.granted) {
+                    setCurrentAgentBridgeChoice(agentBridgeSettings, agentBridgeStatus);
+                    return;
+                }
+
+                if (permissionResult.reloadRequired) {
+                    await reloadExtensionForAgentBridgePermissionGrant();
+                    return;
+                }
+
+                const status = await refreshAgentBridgeStatusState();
+                setCurrentAgentBridgeChoice(agentBridgeSettings, status);
+                showToast("Agent Bridge permission granted", "success");
+            } catch (error) {
+                console.error('Failed to request Agent Bridge permission:', error);
+                setCurrentAgentBridgeChoice(agentBridgeSettings, agentBridgeStatus);
+                showToast(String(error), "error");
+            } finally {
+                if (refreshBtn) {
+                    refreshBtn.disabled = false;
+                }
+                updateAgentBridgeActionButton(document.getElementById('agent-bridge-container')?.dataset.bridgeState || 'disabled');
+            }
+            return;
+        }
+
         if (refreshBtn) {
             refreshBtn.disabled = true;
-            refreshBtn.textContent = 'Checking\u2026';
+            refreshBtn.textContent = 'Checking...';
         }
         setCurrentAgentBridgeChoice(agentBridgeSettings, {
             ...agentBridgeStatus,
@@ -856,8 +958,8 @@ const buttonClick = (e) => {
             .finally(() => {
                 if (refreshBtn) {
                     refreshBtn.disabled = false;
-                    refreshBtn.textContent = 'Check Connection';
                 }
+                updateAgentBridgeActionButton(document.getElementById('agent-bridge-container')?.dataset.bridgeState || 'disabled');
             });
     }
     else if (e.target.id == "copyAgentBridgeCommand" || e.target.closest('#copyAgentBridgeCommand')) {

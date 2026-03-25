@@ -18,9 +18,11 @@
     "storage",
     "contextMenus",
     "clipboardWrite",
-    "nativeMessaging",
     "scripting",
     "offscreen"
+  ],
+  "optional_permissions": [
+    "nativeMessaging"
   ],
   "host_permissions": [
     "<all_urls>"

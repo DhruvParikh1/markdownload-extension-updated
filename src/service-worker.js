@@ -168,6 +168,18 @@ async function getAgentBridgePermissionGranted() {
   }
 }
 
+function usesOptionalNativeMessagingPermission() {
+  const optionalPermissions = browser.runtime.getManifest?.().optional_permissions || [];
+  return Array.isArray(optionalPermissions) && optionalPermissions.includes('nativeMessaging');
+}
+
+function isNativeMessagingApiAvailable() {
+  return Boolean(
+    browser.runtime?.connectNative ||
+    (typeof chrome !== 'undefined' && chrome.runtime?.connectNative)
+  );
+}
+
 async function ensureAgentBridgeOffscreenReady(force = false) {
   if (agentBridgeOffscreenReady && !force) {
     return;
@@ -2035,6 +2047,16 @@ async function initializeAgentBridge(forceReconnect = false) {
   if (!permissionGranted) {
     await disconnectAgentBridge({
       lastError: 'Enable native messaging permission to use the Agent Bridge',
+      hostInstalled: agentBridgeSuccessfulConnect
+    });
+    return null;
+  }
+
+  if (!isNativeMessagingApiAvailable()) {
+    await disconnectAgentBridge({
+      lastError: usesOptionalNativeMessagingPermission()
+        ? 'Native messaging permission was granted, but MarkSnip needs one extension reload before Agent Bridge can connect.'
+        : 'Native messaging is unavailable in this browser context',
       hostInstalled: agentBridgeSuccessfulConnect
     });
     return null;
