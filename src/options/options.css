@@ -745,6 +745,50 @@ a:hover {
     color: #D9C9A8;
 }
 
+.appa-mascot {
+    display: none;
+}
+
+/* Appa mascot animations – ATLA theme only */
+@keyframes appa-float {
+    0%   { transform: translateY(-2px) rotate(-1deg); }
+    100% { transform: translateY(2px) rotate(1deg); }
+}
+
+@keyframes appa-swing {
+    0%   { transform: rotate(-18deg); }
+    100% { transform: rotate(18deg); }
+}
+
+@keyframes appa-wag {
+    0%   { transform: rotate(-12deg); }
+    100% { transform: rotate(12deg); }
+}
+
+:root.special-theme-atla .appa-mascot {
+    display: block;
+    height: 32px;
+    flex-shrink: 0;
+    overflow: visible;
+    color: #F4EDD8;
+    animation: appa-float 3.5s ease-in-out infinite alternate;
+    filter: drop-shadow(0 0 3px rgba(244, 237, 216, 0.3));
+}
+
+:root.special-theme-atla .appa-leg {
+    transform-box: fill-box;
+    transform-origin: center bottom;
+    animation: appa-swing 1.8s ease-in-out infinite alternate;
+    animation-delay: var(--appa-delay, 0s);
+}
+
+:root.special-theme-atla .appa-tail {
+    transform-box: fill-box;
+    transform-origin: 0% 50%;
+    animation: appa-wag 2s ease-in-out infinite alternate;
+    animation-delay: var(--appa-delay, 0s);
+}
+
 :root.theme-dark.special-theme-atla .options-header {
     background: #7A1A12;
     border-bottom-color: #7A1A12;
@@ -756,6 +800,10 @@ a:hover {
 
 :root.theme-dark.special-theme-atla .header-subtitle {
     color: #E8A020;
+}
+
+:root.theme-dark.special-theme-atla .appa-mascot {
+    color: #F5C030;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -770,6 +818,10 @@ a:hover {
 
     :root.theme-system.special-theme-atla .header-subtitle {
         color: #E8A020;
+    }
+
+    :root.theme-system.special-theme-atla .appa-mascot {
+        color: #F5C030;
     }
 }
 
