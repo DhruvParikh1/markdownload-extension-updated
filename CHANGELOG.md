@@ -1,5 +1,24 @@
 # Changelog
 
+## 4.3.0
+
+### User Highlights
+
+- The popup now has a Markdown Preview toggle, so you can switch from editing to a rendered preview without leaving MarkSnip.
+- MarkSnip now includes special Claude, Perplexity, Avatar: The Last Airbender, and Ben 10 themes across the popup, settings, and guide.
+- The Library feels more polished, with skeleton loading, smoother transitions, richer clip metadata, delete animations, and more export options.
+- Clipping is more reliable on tricky pages, including wrapped FAQ layouts, repeated-section docs, and ARIA-based tables that previously lost structure.
+- Agent Bridge setup is smoother in Chrome: native messaging is requested only when you enable the feature, with a one-time reload when Chrome needs it.
+
+### Technical Notes
+
+- **Popup Preview Mode**: Added a lazy-loaded Markdown preview renderer in the popup with safe link handling, GitHub-style preview assets, and theme-aware rendering.
+- **Theme Expansion**: Added app-wide special theme support for Claude, Perplexity, ATLA, and Ben 10, including coordinated popup/options/guide styling and mascot header treatments.
+- **Popup UX Polish**: Reworked popup loading and navigation with skeleton states, shared view transitions, metadata badges, delete animations, and a Library export dropdown for ZIP, individual files, or copied links.
+- **Extraction Recovery**: Restored wrapped FAQ headings, rebuilt semantic tables from ARIA table markup, and expanded regression coverage for repeated-section recovery edge cases.
+- **Agent Bridge Permission Flow**: Moved `nativeMessaging` to `optional_permissions`, added runtime permission requests with clearer settings states, and reload the extension once after grant when Chrome needs to rebind native messaging.
+- **Release Tooling**: Automated changelog extraction for GitHub releases and updated release prep coverage around manifest permission handling and popup startup assets.
+
 ## 4.2.1
 
 ### User Highlights

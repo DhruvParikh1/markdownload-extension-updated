@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "MarkSnip - Markdown Web Clipper",
-  "version": "4.2.1",
+  "version": "4.3.0",
   "author": "Dhruv Parikh",
   "description": "One-click Markdown web clipper. Save articles, docs, code & tables as clean Markdown for AI agents & LLMs. Supports Obsidian & more.",
   "icons": {

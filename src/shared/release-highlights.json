@@ -1,7 +1,14 @@
 {
-  "generatedAt": "2026-03-25T15:32:22.180Z",
+  "generatedAt": "2026-03-25T19:35:10.921Z",
   "source": "CHANGELOG.md",
   "versions": {
+    "4.3.0": [
+      "The popup now has a Markdown Preview toggle, so you can switch from editing to a rendered preview without leaving MarkSnip.",
+      "MarkSnip now includes special Claude, Perplexity, Avatar: The Last Airbender, and Ben 10 themes across the popup, settings, and guide.",
+      "The Library feels more polished, with skeleton loading, smoother transitions, richer clip metadata, delete animations, and more export options.",
+      "Clipping is more reliable on tricky pages, including wrapped FAQ layouts, repeated-section docs, and ARIA-based tables that previously lost structure.",
+      "Agent Bridge setup is smoother in Chrome: native messaging is requested only when you enable the feature, with a one-time reload when Chrome needs it."
+    ],
     "4.2.1": [
       "Agent Bridge companion downloads are now available for Windows, macOS, and Linux instead of Windows only.",
       "Agent Bridge setup is clearer in Settings, with a built-in setup guide, platform-specific install commands, and clearer connection states.",
