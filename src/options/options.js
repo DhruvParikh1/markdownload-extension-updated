@@ -20,7 +20,7 @@ let agentBridgeStatus = {
 };
 let agentBridgeInstallCommand = 'marksnip install-host';
 let keyupTimeout = null;
-const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude', 'special-theme-perplexity'];
+const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude', 'special-theme-perplexity', 'special-theme-atla'];
 const ACCENT_CLASS_NAMES = ['accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber'];
 
 function getOptionsStateApi() {

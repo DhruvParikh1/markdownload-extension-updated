@@ -287,10 +287,10 @@ test.describe('MarkSnip Extension E2E', () => {
     }
   });
 
-  test('popup startup loads Perplexity dark stylesheet when Perplexity special theme is active', async () => {
+  test('popup startup loads ATLA dark stylesheet when the ATLA special theme is active', async () => {
     await setSyncStorage(serviceWorker, {
       popupTheme: 'dark',
-      specialTheme: 'perplexity',
+      specialTheme: 'atla',
       editorTheme: 'nord'
     });
 
@@ -303,7 +303,7 @@ test.describe('MarkSnip Extension E2E', () => {
         return await popupPage.evaluate(() => {
           return document.getElementById('cm-theme-stylesheet')?.getAttribute('href') || null;
         });
-      }, { timeout: 10000 }).toBe('lib/perplexity-dark.css');
+      }, { timeout: 10000 }).toBe('lib/atla-dark.css');
 
       const themeLinks = await popupPage.evaluate(() => {
         return Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
@@ -311,16 +311,16 @@ test.describe('MarkSnip Extension E2E', () => {
           .filter((href) => href && href.startsWith('lib/') && href !== 'lib/codemirror.css');
       });
 
-      expect(themeLinks).toEqual(['lib/perplexity-dark.css']);
+      expect(themeLinks).toEqual(['lib/atla-dark.css']);
     } finally {
       await popupPage.close().catch(() => {});
     }
   });
 
-  test('popup startup loads Perplexity light stylesheet when Perplexity special theme is active in light mode', async () => {
+  test('popup startup loads ATLA light stylesheet when the ATLA special theme is active in light mode', async () => {
     await setSyncStorage(serviceWorker, {
       popupTheme: 'light',
-      specialTheme: 'perplexity',
+      specialTheme: 'atla',
       editorTheme: 'nord'
     });
 
@@ -333,7 +333,7 @@ test.describe('MarkSnip Extension E2E', () => {
         return await popupPage.evaluate(() => {
           return document.getElementById('cm-theme-stylesheet')?.getAttribute('href') || null;
         });
-      }, { timeout: 10000 }).toBe('lib/perplexity-light.css');
+      }, { timeout: 10000 }).toBe('lib/atla-light.css');
 
       const themeLinks = await popupPage.evaluate(() => {
         return Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
@@ -341,7 +341,7 @@ test.describe('MarkSnip Extension E2E', () => {
           .filter((href) => href && href.startsWith('lib/') && href !== 'lib/codemirror.css');
       });
 
-      expect(themeLinks).toEqual(['lib/perplexity-light.css']);
+      expect(themeLinks).toEqual(['lib/atla-light.css']);
     } finally {
       await popupPage.close().catch(() => {});
     }
