@@ -220,14 +220,55 @@
         </svg>
         Send to Obsidian
       </button>
-      <button id="download" class="btn btn-primary">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-          <polyline points="7 10 12 15 17 10"/>
-          <line x1="12" y1="15" x2="12" y2="3"/>
-        </svg>
-        Download
-      </button>
+      <div class="split-export" id="splitExport">
+        <div class="split-btn-wrap" id="splitBtnWrap">
+          <div class="split-btn" id="splitBtn">
+            <button id="download" class="split-btn__main" type="button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Download
+            </button>
+            <div class="split-btn__divider" aria-hidden="true"></div>
+            <button
+              id="splitArrow"
+              class="split-btn__arrow"
+              type="button"
+              aria-haspopup="menu"
+              aria-expanded="false"
+              aria-controls="splitDropdown"
+              title="More export options"
+            >
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div id="splitDropdown" class="split-dropdown" role="menu" hidden>
+          <div class="dd-section-label">Export As</div>
+          <button id="ddPrint" class="dd-item" type="button" role="menuitem">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 6 2 18 2 18 9"/>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+              <rect x="6" y="14" width="12" height="8"/>
+            </svg>
+            <span class="dd-item__label">Print</span>
+          </button>
+          <button id="ddPdf" class="dd-item" type="button" role="menuitem">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="9" y1="13" x2="15" y2="13"/>
+              <line x1="9" y1="17" x2="15" y2="17"/>
+            </svg>
+            <span class="dd-item__label">Save as PDF</span>
+            <span class="dd-item__note">via print</span>
+          </button>
+        </div>
+      </div>
     </section>
   </div>
 

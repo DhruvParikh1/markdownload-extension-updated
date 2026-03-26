@@ -31,6 +31,7 @@ let deferredStartupScheduled = false;
 let deferredLibraryWarmupScheduled = false;
 let previewActive = false;
 let markedLoadPromise = null;
+let printStylesPromise = null;
 const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const POPUP_VIEW_TRANSITION_MS = 180;
@@ -63,7 +64,13 @@ const dom = {
     openGuideButton: document.getElementById('openGuide'),
     sendToObsidianButton: document.getElementById('sendToObsidian'),
     previewToggle: document.getElementById('previewToggle'),
-    editorPreview: document.getElementById('editorPreview')
+    editorPreview: document.getElementById('editorPreview'),
+    splitExport: document.getElementById('splitExport'),
+    splitButtonWrap: document.getElementById('splitBtnWrap'),
+    splitButtonArrow: document.getElementById('splitArrow'),
+    splitDropdown: document.getElementById('splitDropdown'),
+    printButton: document.getElementById('ddPrint'),
+    pdfButton: document.getElementById('ddPdf')
 };
 
 globalThis.cm = null;
@@ -610,46 +617,73 @@ function ensureMarkedLoaded() {
         if (typeof marked === 'undefined' || !marked.parse) {
             throw new Error('marked library failed to initialize');
         }
-
-        const renderer = new marked.Renderer();
-
-        // Raw HTML: render literal escaped text instead of executable HTML.
-        renderer.html = function ({ text }) {
-            return escapeHtml(text || '');
-        };
-
-        // Images: render as a text placeholder, never load remote resources
-        renderer.image = function ({ href, title, text }) {
-            const alt = escapeHtml(text || '');
-            const safeHref = resolveSafePreviewHref(href);
-            const titleAttr = title ? ` title="${escapeHtml(title)}"` : '';
-
-            if (!safeHref) {
-                return `<span class="preview-image-placeholder">[image: ${alt || 'image'}]</span>`;
-            }
-
-            return `<span class="preview-image-placeholder">[image: <a href="${escapeHtml(safeHref)}" target="_blank" rel="noopener noreferrer"${titleAttr}>${alt || escapeHtml(safeHref)}</a>]</span>`;
-        };
-
-        // Links: force safe attributes, reject javascript: scheme
-        renderer.link = function ({ href, title, tokens }) {
-            const text = this.parser.parseInline(tokens);
-            const safeHref = resolveSafePreviewHref(href);
-            if (!safeHref) {
-                return text;
-            }
-
-            const titleAttr = title ? ` title="${escapeHtml(title)}"` : '';
-            return `<a href="${escapeHtml(safeHref)}" target="_blank" rel="noopener noreferrer"${titleAttr}>${text}</a>`;
-        };
-
-        marked.setOptions({ renderer });
     }).catch((error) => {
         markedLoadPromise = null;
         throw error;
     });
 
     return markedLoadPromise;
+}
+
+function resolveSafePrintAssetHref(href) {
+    const nextHref = String(href || '').trim();
+    if (!nextHref || UNSAFE_LINK_RE.test(nextHref)) {
+        return null;
+    }
+
+    try {
+        const resolved = new URL(nextHref, getPreviewBaseUrl());
+        if (!['http:', 'https:', 'data:'].includes(resolved.protocol)) {
+            return null;
+        }
+
+        return resolved.href;
+    } catch (_error) {
+        return null;
+    }
+}
+
+function buildMarkedRenderer({ renderImages = false } = {}) {
+    const renderer = new marked.Renderer();
+
+    renderer.html = function ({ text }) {
+        return escapeHtml(text || '');
+    };
+
+    renderer.image = function ({ href, title, text }) {
+        const alt = escapeHtml(text || '');
+        const safeSrc = resolveSafePrintAssetHref(href);
+        const titleAttr = title ? ` title="${escapeHtml(title)}"` : '';
+
+        if (!safeSrc) {
+            return `<span class="preview-image-placeholder">[image: ${alt || 'image'}]</span>`;
+        }
+
+        if (!renderImages) {
+            return `<span class="preview-image-placeholder">[image: <a href="${escapeHtml(safeSrc)}" target="_blank" rel="noopener noreferrer"${titleAttr}>${alt || escapeHtml(safeSrc)}</a>]</span>`;
+        }
+
+        return `<img src="${escapeHtml(safeSrc)}" alt="${alt}" loading="eager"${titleAttr}>`;
+    };
+
+    renderer.link = function ({ href, title, tokens }) {
+        const text = this.parser.parseInline(tokens);
+        const safeHref = resolveSafePreviewHref(href);
+        if (!safeHref) {
+            return text;
+        }
+
+        const titleAttr = title ? ` title="${escapeHtml(title)}"` : '';
+        return `<a href="${escapeHtml(safeHref)}" target="_blank" rel="noopener noreferrer"${titleAttr}>${text}</a>`;
+    };
+
+    return renderer;
+}
+
+function renderMarkdownToHtml(raw, options = {}) {
+    return marked.parse(raw, {
+        renderer: buildMarkedRenderer(options)
+    });
 }
 
 function renderPreviewContent() {
@@ -665,7 +699,7 @@ function renderPreviewContent() {
     }
 
     try {
-        body.innerHTML = marked.parse(raw);
+        body.innerHTML = renderMarkdownToHtml(raw);
     } catch (err) {
         body.textContent = 'Preview rendering failed: ' + err.message;
     }
@@ -714,6 +748,155 @@ async function togglePreview() {
 }
 
 dom.previewToggle?.addEventListener('click', togglePreview);
+
+async function getPrintStyles() {
+    if (printStylesPromise) {
+        return printStylesPromise;
+    }
+
+    const assetPaths = ['popup/lib/github-markdown.css', 'print/print.css'];
+    printStylesPromise = Promise.all(assetPaths.map(async (assetPath) => {
+        const response = await fetch(browser.runtime.getURL(assetPath));
+        if (!response.ok) {
+            throw new Error(`Failed to load print asset: ${assetPath}`);
+        }
+
+        return await response.text();
+    })).then((parts) => parts.join('\n\n')).catch((error) => {
+        printStylesPromise = null;
+        throw error;
+    });
+
+    return printStylesPromise;
+}
+
+function buildPrintableDocument({ title, bodyHtml, styles }) {
+    const safeTitle = escapeHtml(title || 'Untitled');
+    return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${safeTitle}</title>
+  <style>${styles}</style>
+</head>
+<body>
+  <main class="print-shell">
+    <article class="markdown-body">
+      ${bodyHtml}
+    </article>
+  </main>
+</body>
+</html>`;
+}
+
+async function executePrintDocument(tabId, htmlDocument, kind) {
+    return browser.scripting.executeScript({
+        target: { tabId },
+        func: async ({ htmlDocument: nextHtmlDocument, kind: nextKind }) => {
+            const cleanupExisting = () => {
+                document.getElementById('__marksnip-print-frame__')?.remove();
+            };
+
+            cleanupExisting();
+
+            const iframe = document.createElement('iframe');
+            iframe.id = '__marksnip-print-frame__';
+            iframe.setAttribute('aria-hidden', 'true');
+            iframe.style.position = 'fixed';
+            iframe.style.width = '0';
+            iframe.style.height = '0';
+            iframe.style.opacity = '0';
+            iframe.style.pointerEvents = 'none';
+            iframe.style.border = '0';
+            iframe.style.right = '0';
+            iframe.style.bottom = '0';
+            iframe.dataset.printKind = nextKind || 'print';
+            iframe.srcdoc = nextHtmlDocument;
+            document.documentElement.appendChild(iframe);
+
+            const waitForFrameLoad = () => new Promise((resolve, reject) => {
+                const timeout = setTimeout(() => reject(new Error('Timed out while preparing print document')), 10000);
+                iframe.addEventListener('load', () => {
+                    clearTimeout(timeout);
+                    resolve();
+                }, { once: true });
+            });
+
+            const waitForImages = async (frameDocument) => {
+                const images = Array.from(frameDocument.images || []).filter((image) => !image.complete);
+                if (images.length === 0) {
+                    return;
+                }
+
+                await Promise.race([
+                    Promise.all(images.map((image) => new Promise((resolve) => {
+                        image.addEventListener('load', resolve, { once: true });
+                        image.addEventListener('error', resolve, { once: true });
+                    }))),
+                    new Promise((resolve) => setTimeout(resolve, 1500))
+                ]);
+            };
+
+            try {
+                await waitForFrameLoad();
+                const frameWindow = iframe.contentWindow;
+                const frameDocument = frameWindow?.document;
+                if (!frameWindow || !frameDocument) {
+                    throw new Error('Print frame is unavailable');
+                }
+
+                await waitForImages(frameDocument);
+                await new Promise((resolve) => setTimeout(resolve, 100));
+
+                const cleanup = () => {
+                    setTimeout(cleanupExisting, 250);
+                };
+
+                frameWindow.addEventListener('afterprint', cleanup, { once: true });
+                setTimeout(cleanup, 10000);
+                frameWindow.focus();
+                frameWindow.print();
+                return { ok: true };
+            } catch (error) {
+                cleanupExisting();
+                throw error;
+            }
+        },
+        args: [{
+            htmlDocument,
+            kind
+        }]
+    });
+}
+
+async function handlePrintExport(kind = 'print') {
+    closeSplitDropdown();
+
+    const markdown = getEditorValue().trim();
+    if (!markdown) {
+        throw new Error('No Markdown content available to print');
+    }
+
+    await ensureMarkedLoaded();
+    const [styles, activeTab] = await Promise.all([
+        getPrintStyles(),
+        getActiveTab()
+    ]);
+
+    if (!activeTab?.id) {
+        throw new Error('No active tab found');
+    }
+
+    const bodyHtml = renderMarkdownToHtml(markdown, { renderImages: true });
+    const htmlDocument = buildPrintableDocument({
+        title: dom.titleInput?.value || currentClipState.title || 'Untitled',
+        bodyHtml,
+        styles
+    });
+
+    await executePrintDocument(activeTab.id, htmlDocument, kind);
+}
 
 function loadNotificationHostDeferred() {
     if (notificationHostLoadPromise) {
@@ -922,6 +1105,23 @@ dom.copyButton?.addEventListener("click", copyToClipboard);
 dom.copySelectionButton?.addEventListener("click", copySelectionToClipboard);
 
 dom.sendToObsidianButton?.addEventListener("click", sendToObsidian);
+dom.splitButtonArrow?.addEventListener("click", toggleSplitDropdown);
+dom.printButton?.addEventListener("click", async (event) => {
+    event.preventDefault();
+    try {
+        await handlePrintExport('print');
+    } catch (error) {
+        console.error('Error starting print flow:', error);
+    }
+});
+dom.pdfButton?.addEventListener("click", async (event) => {
+    event.preventDefault();
+    try {
+        await handlePrintExport('pdf');
+    } catch (error) {
+        console.error('Error starting PDF flow:', error);
+    }
+});
 
 document.getElementById("batchProcess").addEventListener("click", showBatchProcess);
 dom.convertUrlsButton?.addEventListener("click", handleBatchConversion);
@@ -932,6 +1132,7 @@ libraryUI.saveButton?.addEventListener("click", handleManualLibrarySave);
 libraryUI.exportButton?.addEventListener("click", toggleExportDropdown);
 libraryUI.exportDropdownMenu?.addEventListener("click", handleExportDropdownChoice);
 document.addEventListener("click", closeExportDropdownOnOutsideClick);
+document.addEventListener("keydown", handlePopupKeydown);
 dom.pickLinksButton?.addEventListener("click", activateLinkPicker);
 dom.batchSaveModeToggle?.addEventListener("change", saveBatchSettings);
 progressUI.cancelBtn?.addEventListener("click", () => {
@@ -1591,6 +1792,47 @@ function closeExportDropdown() {
 function closeExportDropdownOnOutsideClick(e) {
     if (!libraryUI.exportDropdown?.contains(e.target)) {
         closeExportDropdown();
+    }
+
+    if (!dom.splitButtonWrap?.contains(e.target)) {
+        closeSplitDropdown();
+    }
+}
+
+function toggleSplitDropdown(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!dom.splitDropdown || !dom.splitButtonArrow) {
+        return;
+    }
+
+    const isOpen = !dom.splitDropdown.hidden;
+    if (isOpen) {
+        closeSplitDropdown();
+        return;
+    }
+
+    closeExportDropdown();
+    dom.splitDropdown.hidden = false;
+    dom.splitButtonArrow.setAttribute('aria-expanded', 'true');
+    dom.splitExport?.classList.add('open');
+}
+
+function closeSplitDropdown() {
+    if (dom.splitDropdown) {
+        dom.splitDropdown.hidden = true;
+    }
+    if (dom.splitButtonArrow) {
+        dom.splitButtonArrow.setAttribute('aria-expanded', 'false');
+    }
+    dom.splitExport?.classList.remove('open');
+}
+
+function handlePopupKeydown(event) {
+    if (event.key === 'Escape') {
+        closeExportDropdown();
+        closeSplitDropdown();
     }
 }
 

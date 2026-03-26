@@ -36,5 +36,14 @@ describe('Popup startup assets', () => {
     expect(scriptHrefs).toContain('popup.js');
     expect(scriptHrefs).not.toContain('../notifications/notification-host.js');
     expect(scriptHrefs).not.toContain('lib/marked.min.js');
+
+    const splitButton = document.getElementById('splitBtnWrap');
+    expect(splitButton).not.toBeNull();
+    expect(document.getElementById('download')).not.toBeNull();
+    expect(document.getElementById('splitArrow')).not.toBeNull();
+    expect(document.getElementById('splitDropdown')).not.toBeNull();
+    expect(document.getElementById('ddPrint')).not.toBeNull();
+    expect(document.getElementById('ddPdf')).not.toBeNull();
+    expect(document.getElementById('splitDropdown').hasAttribute('hidden')).toBe(true);
   });
 });

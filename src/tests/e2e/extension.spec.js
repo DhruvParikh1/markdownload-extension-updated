@@ -620,6 +620,78 @@ test.describe('MarkSnip Extension E2E', () => {
     }
   });
 
+  test('popup split export menu exposes print and save as PDF and routes both through the print path', async () => {
+    const fixturePage = await context.newPage();
+    const popupPage = await context.newPage();
+
+    try {
+      await fixturePage.goto(`${fixtureHost}/extension/deterministic-article.html`);
+      await fixturePage.waitForLoadState('networkidle');
+      await fixturePage.bringToFront();
+
+      await popupPage.goto(`chrome-extension://${extensionId}/popup/popup.html`);
+      await expect(popupPage.locator('#container')).toBeVisible();
+
+      await expect.poll(async () => popupPage.inputValue('#title'), { timeout: 10000 })
+        .toContain('Deterministic Markdown Fixture');
+
+      await popupPage.evaluate(() => {
+        const original = browser.scripting.executeScript.bind(browser.scripting);
+        const calls = [];
+
+        browser.scripting.executeScript = async (options) => {
+          const payload = options?.args?.[0] || {};
+          calls.push({
+            target: options?.target || null,
+            kind: payload.kind || null,
+            hasHtmlDocument: typeof payload.htmlDocument === 'string' && payload.htmlDocument.includes('markdown-body')
+          });
+          return [];
+        };
+
+        window.__markSnipPrintHarness = {
+          calls,
+          restore() {
+            browser.scripting.executeScript = original;
+          }
+        };
+      });
+
+      await popupPage.locator('#splitArrow').click();
+      await expect(popupPage.locator('#splitDropdown')).toBeVisible();
+      await expect(popupPage.locator('#ddPrint')).toBeVisible();
+      await expect(popupPage.locator('#ddPdf')).toBeVisible();
+      await popupPage.locator('#ddPrint').click();
+
+      await expect.poll(async () => {
+        return await popupPage.evaluate(() => window.__markSnipPrintHarness.calls.length);
+      }).toBe(1);
+
+      let harnessState = await popupPage.evaluate(() => window.__markSnipPrintHarness.calls.slice());
+      expect(harnessState[0].kind).toBe('print');
+      expect(harnessState[0].hasHtmlDocument).toBe(true);
+
+      await popupPage.locator('#splitArrow').click();
+      await popupPage.locator('#ddPdf').click();
+
+      await expect.poll(async () => {
+        return await popupPage.evaluate(() => window.__markSnipPrintHarness.calls.length);
+      }).toBe(2);
+
+      harnessState = await popupPage.evaluate(() => {
+        const result = window.__markSnipPrintHarness.calls.slice();
+        window.__markSnipPrintHarness.restore();
+        return result;
+      });
+
+      expect(harnessState[1].kind).toBe('pdf');
+      expect(harnessState[1].hasHtmlDocument).toBe(true);
+    } finally {
+      await popupPage.close().catch(() => {});
+      await fixturePage.close().catch(() => {});
+    }
+  });
+
   test('disabling the library hides the popup entry point and prevents auto-save', async () => {
     await setLibraryStorage(serviceWorker, {
       librarySettings: {
