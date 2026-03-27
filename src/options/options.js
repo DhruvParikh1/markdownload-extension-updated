@@ -411,6 +411,8 @@ function applyThemeSettings() {
         root.classList.add('special-theme-' + specialTheme);
     }
 
+    root.classList.toggle('hide-theme-icon', options.specialThemeIcon === false);
+
     // Apply accent color
     root.classList.remove(...ACCENT_CLASS_NAMES);
     const accent = options.popupAccent || 'sage';
@@ -422,10 +424,16 @@ function applyThemeSettings() {
 function updateSpecialThemeControlState() {
     const specialTheme = options.specialTheme || 'none';
     const specialThemeActive = specialTheme !== 'none';
+    const themeHasIcon = specialTheme === 'atla' || specialTheme === 'ben10';
     const accentGroup = document.getElementById('popupAccentGroup');
     const editorThemeGroup = document.getElementById('editorThemeGroup');
     const accentNote = document.getElementById('popupAccentThemeNote');
     const editorThemeNote = document.getElementById('editorThemeLockNote');
+    const iconRow = document.getElementById('specialThemeIconRow');
+    const iconInput = document.querySelector("[name='specialThemeIcon']");
+
+    if (iconRow) iconRow.classList.toggle('is-disabled', !themeHasIcon);
+    if (iconInput) iconInput.disabled = !themeHasIcon;
 
     [accentGroup, editorThemeGroup].forEach((group) => {
         group?.classList.toggle('is-disabled', specialThemeActive);
@@ -508,6 +516,7 @@ const saveOptions = e => {
         downloadMode: getCheckedValue(document.querySelectorAll("input[name='downloadMode']")),
         popupTheme: getCheckedValue(document.querySelectorAll("input[name='popupTheme']")),
         specialTheme: getCheckedValue(document.querySelectorAll("input[name='specialTheme']")) || 'none',
+        specialThemeIcon: document.querySelector("[name='specialThemeIcon']").checked,
         popupAccent: getCheckedValue(document.querySelectorAll("input[name='popupAccent']")),
         compactMode: document.querySelector("[name='compactMode']").checked,
         showUserGuideIcon: document.querySelector("[name='showUserGuideIcon']").checked,
@@ -640,6 +649,7 @@ const setCurrentChoice = result => {
 
     setCheckedValue(document.querySelectorAll("[name='popupTheme']"), options.popupTheme || 'system');
     setCheckedValue(document.querySelectorAll("[name='specialTheme']"), options.specialTheme || 'none');
+    document.querySelector("[name='specialThemeIcon']").checked = options.specialThemeIcon !== false;
     setCheckedValue(document.querySelectorAll("[name='popupAccent']"), options.popupAccent || 'sage');
     document.querySelector("[name='compactMode']").checked = options.compactMode || false;
     document.querySelector("[name='showUserGuideIcon']").checked = options.showUserGuideIcon !== false;

@@ -958,6 +958,8 @@ function applyThemeSettings(options) {
         dom.root.classList.add('special-theme-' + specialTheme);
     }
 
+    dom.root.classList.toggle('hide-theme-icon', options.specialThemeIcon === false);
+
     // Apply accent color
     dom.root.classList.remove(...ACCENT_CLASS_NAMES);
     const accent = options.popupAccent || 'sage';

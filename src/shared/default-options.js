@@ -38,6 +38,7 @@ const defaultOptions = {
   obsidianFolder: "",
   popupTheme: 'system',
   specialTheme: 'none',
+  specialThemeIcon: true,
   popupAccent: 'sage',
   compactMode: false,
   showUserGuideIcon: true,

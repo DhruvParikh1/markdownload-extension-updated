@@ -1375,7 +1375,7 @@ body {
 }
 
 .split-btn__main {
-    flex: 3 1 0;
+    flex: 13 1 0;
     min-width: 0;
     padding: var(--space-3) var(--space-4);
     border-right: none;
@@ -1383,8 +1383,8 @@ body {
 }
 
 .split-btn__arrow {
-    flex: 1 1 0;
-    min-width: 44px;
+    flex: 3 1 0;
+    min-width: 0;
     padding: 0;
     border-left: none;
     border-radius: 0 var(--radius-md) var(--radius-md) 0;
@@ -1393,7 +1393,7 @@ body {
 .split-btn__divider {
     width: 1px;
     background: rgba(255, 255, 255, 0.22);
-    flex: 0 0 1px;
+    flex: 0 0 0px;
 }
 
 .split-dropdown {
@@ -2069,6 +2069,11 @@ body {
     width: 28px;
     flex-shrink: 0;
     animation: omnitrix-pulse 7.5s ease-in-out infinite;
+}
+
+:root.hide-theme-icon.special-theme-atla .appa-mascot,
+:root.hide-theme-icon.special-theme-ben10 .ben10-mascot {
+    display: none;
 }
 
 :root.special-theme-atla .header .icon-btn {
