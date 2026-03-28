@@ -35,9 +35,59 @@ let printStylesPromise = null;
 const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const POPUP_VIEW_TRANSITION_MS = 180;
+const POPUP_THEME_CACHE_KEY = 'marksnip-popup-theme-cache-v1';
 let lastRenderedLibraryStateKey = '';
 const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude', 'special-theme-perplexity', 'special-theme-atla', 'special-theme-ben10'];
 const ACCENT_CLASS_NAMES = ['accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber'];
+const EXPORT_TYPE_ORDER = ['markdown', 'text', 'html', 'pdf'];
+const EXPORT_TYPE_SET = new Set(EXPORT_TYPE_ORDER);
+const EXPORT_BUTTON_ICONS = {
+    download: `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+    `,
+    file: `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="9" y1="13" x2="15" y2="13"/>
+            <line x1="9" y1="17" x2="15" y2="17"/>
+        </svg>
+    `
+};
+const EXPORT_TYPE_CONFIG = {
+    markdown: {
+        mainLabel: 'Download',
+        selectionLabel: 'Download Selection',
+        dropdownLabel: 'Markdown (.md)',
+        icon: 'download'
+    },
+    text: {
+        mainLabel: 'Download TXT',
+        selectionLabel: 'Download Selection as TXT',
+        dropdownLabel: 'Plain Text (.txt)',
+        icon: 'download',
+        fileExtension: 'txt',
+        mimeType: 'text/plain;charset=utf-8'
+    },
+    html: {
+        mainLabel: 'Download HTML',
+        selectionLabel: 'Download Selection as HTML',
+        dropdownLabel: 'HTML (.html)',
+        icon: 'download',
+        fileExtension: 'html',
+        mimeType: 'text/html;charset=utf-8'
+    },
+    pdf: {
+        mainLabel: 'Save as PDF',
+        selectionLabel: 'Save Selection as PDF',
+        dropdownLabel: 'Save as PDF',
+        icon: 'file'
+    }
+};
 const dom = {
     root: document.documentElement,
     body: document.body,
@@ -77,6 +127,9 @@ const dom = {
     splitButtonWrap: document.getElementById('splitBtnWrap'),
     splitButtonArrow: document.getElementById('splitArrow'),
     splitDropdown: document.getElementById('splitDropdown'),
+    markdownButton: document.getElementById('ddMarkdown'),
+    textButton: document.getElementById('ddText'),
+    htmlButton: document.getElementById('ddHtml'),
     printButton: document.getElementById('ddPrint'),
     pdfButton: document.getElementById('ddPdf')
 };
@@ -150,6 +203,61 @@ const progressUI = {
         this.status.textContent = status;
     }
 };
+
+function resolveDefaultExportType(options = currentOptions) {
+    const exportType = String(options?.defaultExportType || '').trim().toLowerCase();
+    return EXPORT_TYPE_SET.has(exportType) ? exportType : 'markdown';
+}
+
+function getExportTypeConfig(exportType) {
+    return EXPORT_TYPE_CONFIG[resolveDefaultExportType({ defaultExportType: exportType })] || EXPORT_TYPE_CONFIG.markdown;
+}
+
+function getDropdownExportButtons() {
+    return {
+        markdown: dom.markdownButton,
+        text: dom.textButton,
+        html: dom.htmlButton,
+        pdf: dom.pdfButton
+    };
+}
+
+function setExportButtonContent(button, label, iconKey = 'download') {
+    if (!button) {
+        return;
+    }
+
+    const iconMarkup = EXPORT_BUTTON_ICONS[iconKey] || EXPORT_BUTTON_ICONS.download;
+    button.innerHTML = `${iconMarkup}${label}`;
+}
+
+function updatePopupExportControls(options = currentOptions) {
+    const exportType = resolveDefaultExportType(options);
+    const config = getExportTypeConfig(exportType);
+
+    setExportButtonContent(dom.downloadButton, config.mainLabel, config.icon);
+    setExportButtonContent(dom.downloadSelectionButton, config.selectionLabel, config.icon);
+
+    if (dom.downloadButton) {
+        dom.downloadButton.setAttribute('aria-label', config.mainLabel);
+        dom.downloadButton.title = config.mainLabel;
+    }
+
+    if (dom.downloadSelectionButton) {
+        dom.downloadSelectionButton.setAttribute('aria-label', config.selectionLabel);
+        dom.downloadSelectionButton.title = config.selectionLabel;
+    }
+
+    const dropdownButtons = getDropdownExportButtons();
+    EXPORT_TYPE_ORDER.forEach((kind) => {
+        const button = dropdownButtons[kind];
+        if (!button) {
+            return;
+        }
+
+        button.hidden = kind === exportType;
+    });
+}
 
 let popupViewsInitialized = false;
 let activePopupView = null;
@@ -798,6 +906,72 @@ function buildPrintableDocument({ title, bodyHtml, styles }) {
 </html>`;
 }
 
+function getCurrentExportTitle() {
+    return String(dom.titleInput?.value || currentClipState.title || 'Untitled').trim() || 'Untitled';
+}
+
+function renderHtmlToPlainText(bodyHtml) {
+    const parser = new DOMParser();
+    const parsedDocument = parser.parseFromString(`<body>${bodyHtml}</body>`, 'text/html');
+    const rawText = typeof parsedDocument.body.innerText === 'string'
+        ? parsedDocument.body.innerText
+        : (parsedDocument.body.textContent || '');
+
+    return rawText
+        .replace(/\r\n/g, '\n')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim();
+}
+
+async function buildHtmlExportDocument(markdown, title) {
+    const nextMarkdown = String(markdown || '').trim();
+    if (!nextMarkdown) {
+        throw new Error('No Markdown content available to export');
+    }
+
+    await ensureMarkedLoaded();
+    const [styles] = await Promise.all([
+        getPrintStyles()
+    ]);
+    const bodyHtml = renderMarkdownToHtml(nextMarkdown, { renderImages: true });
+
+    return buildPrintableDocument({
+        title,
+        bodyHtml,
+        styles
+    });
+}
+
+async function buildGeneratedExport(kind, markdown, title) {
+    const nextMarkdown = String(markdown || '').trim();
+    if (!nextMarkdown) {
+        throw new Error('No Markdown content available to export');
+    }
+
+    const exportType = resolveDefaultExportType({ defaultExportType: kind });
+    const config = getExportTypeConfig(exportType);
+
+    if (exportType === 'text') {
+        await ensureMarkedLoaded();
+        const bodyHtml = renderMarkdownToHtml(nextMarkdown, { renderImages: false });
+        return {
+            content: renderHtmlToPlainText(bodyHtml),
+            fileExtension: config.fileExtension,
+            mimeType: config.mimeType
+        };
+    }
+
+    if (exportType === 'html') {
+        return {
+            content: await buildHtmlExportDocument(nextMarkdown, title),
+            fileExtension: config.fileExtension,
+            mimeType: config.mimeType
+        };
+    }
+
+    throw new Error(`Unsupported generated export type: ${kind}`);
+}
+
 async function executePrintDocument(tabId, htmlDocument, kind) {
     return browser.scripting.executeScript({
         target: { tabId },
@@ -878,30 +1052,23 @@ async function executePrintDocument(tabId, htmlDocument, kind) {
     });
 }
 
-async function handlePrintExport(kind = 'print') {
+async function handlePrintExport(kind = 'print', { markdown = getEditorValue(), title = getCurrentExportTitle() } = {}) {
     closeSplitDropdown();
 
-    const markdown = getEditorValue().trim();
-    if (!markdown) {
+    const nextMarkdown = String(markdown || '').trim();
+    if (!nextMarkdown) {
         throw new Error('No Markdown content available to print');
     }
 
-    await ensureMarkedLoaded();
-    const [styles, activeTab] = await Promise.all([
-        getPrintStyles(),
+    const nextTitle = String(title || '').trim() || 'Untitled';
+    const [htmlDocument, activeTab] = await Promise.all([
+        buildHtmlExportDocument(nextMarkdown, nextTitle),
         getActiveTab()
     ]);
 
     if (!activeTab?.id) {
         throw new Error('No active tab found');
     }
-
-    const bodyHtml = renderMarkdownToHtml(markdown, { renderImages: true });
-    const htmlDocument = buildPrintableDocument({
-        title: dom.titleInput?.value || currentClipState.title || 'Untitled',
-        bodyHtml,
-        styles
-    });
 
     await executePrintDocument(activeTab.id, htmlDocument, kind);
 }
@@ -954,6 +1121,24 @@ function resolveEditorTheme(editorTheme, isDark, specialTheme = 'none') {
     return isDark ? entry.dark : entry.light;
 }
 
+function buildPopupThemeCacheSnapshot(options = currentOptions || defaultOptions) {
+    return {
+        popupTheme: options?.popupTheme || 'system',
+        specialTheme: options?.specialTheme || 'none',
+        specialThemeIcon: options?.specialThemeIcon !== false,
+        popupAccent: options?.popupAccent || 'sage',
+        editorTheme: options?.editorTheme || 'default'
+    };
+}
+
+function persistPopupThemeCache(options = currentOptions || defaultOptions) {
+    try {
+        localStorage.setItem(POPUP_THEME_CACHE_KEY, JSON.stringify(buildPopupThemeCacheSnapshot(options)));
+    } catch (error) {
+        console.debug('Unable to persist popup theme cache:', error);
+    }
+}
+
 function applyThemeSettings(options) {
     const specialTheme = options.specialTheme || 'none';
 
@@ -992,6 +1177,8 @@ function applyThemeSettings(options) {
     if (previewActive) {
         renderPreviewContent();
     }
+
+    persistPopupThemeCache(options);
 }
 
 // Char/word/token counter
@@ -1116,10 +1303,34 @@ dom.copySelectionButton?.addEventListener("click", copySelectionToClipboard);
 
 dom.sendToObsidianButton?.addEventListener("click", sendToObsidian);
 dom.splitButtonArrow?.addEventListener("click", toggleSplitDropdown);
+dom.markdownButton?.addEventListener("click", async (event) => {
+    event.preventDefault();
+    try {
+        await handleExplicitExport('markdown');
+    } catch (error) {
+        console.error('Error exporting Markdown:', error);
+    }
+});
+dom.textButton?.addEventListener("click", async (event) => {
+    event.preventDefault();
+    try {
+        await handleExplicitExport('text');
+    } catch (error) {
+        console.error('Error exporting plain text:', error);
+    }
+});
+dom.htmlButton?.addEventListener("click", async (event) => {
+    event.preventDefault();
+    try {
+        await handleExplicitExport('html');
+    } catch (error) {
+        console.error('Error exporting HTML:', error);
+    }
+});
 dom.printButton?.addEventListener("click", async (event) => {
     event.preventDefault();
     try {
-        await handlePrintExport('print');
+        await handleExplicitExport('print');
     } catch (error) {
         console.error('Error starting print flow:', error);
     }
@@ -1127,7 +1338,7 @@ dom.printButton?.addEventListener("click", async (event) => {
 dom.pdfButton?.addEventListener("click", async (event) => {
     event.preventDefault();
     try {
-        await handlePrintExport('pdf');
+        await handleExplicitExport('pdf');
     } catch (error) {
         console.error('Error starting PDF flow:', error);
     }
@@ -1289,6 +1500,7 @@ const defaultOptions = {
     includeTemplate: false,
     clipSelection: true,
     downloadImages: false,
+    defaultExportType: 'markdown',
     obsidianIntegration: false,
     batchProcessingEnabled: true,
     popupTheme: 'system',
@@ -2538,6 +2750,7 @@ const checkInitialSettings = options => {
     updateObsidianButtonVisibility(currentOptions);
     updateGuideButtonVisibility(currentOptions);
     updateBatchProcessButtonVisibility(currentOptions);
+    updatePopupExportControls(currentOptions);
 
     // Set segmented control state
     setClipSelectionState(currentOptions.clipSelection);
@@ -2779,12 +2992,33 @@ browser.runtime.onMessage.addListener(notify);
 
 browser.storage.onChanged.addListener((changes, areaName) => {
     if (areaName === "sync") {
+        const themeSettingKeys = ['popupTheme', 'specialTheme', 'specialThemeIcon', 'popupAccent', 'compactMode', 'editorTheme'];
+        if (themeSettingKeys.some((key) => Object.prototype.hasOwnProperty.call(changes, key))) {
+            currentOptions = {
+                ...defaultOptions,
+                ...currentOptions,
+                ...themeSettingKeys.reduce((nextOptions, key) => {
+                    if (Object.prototype.hasOwnProperty.call(changes, key)) {
+                        nextOptions[key] = changes[key].newValue;
+                    }
+                    return nextOptions;
+                }, {})
+            };
+            applyThemeSettings(currentOptions);
+        }
         if (changes.batchProcessingEnabled) {
             currentOptions = {
                 ...currentOptions,
                 batchProcessingEnabled: changes.batchProcessingEnabled.newValue !== false
             };
             updateBatchProcessButtonVisibility(currentOptions);
+        }
+        if (changes.defaultExportType) {
+            currentOptions = {
+                ...currentOptions,
+                defaultExportType: changes.defaultExportType.newValue || 'markdown'
+            };
+            updatePopupExportControls(currentOptions);
         }
         if (changes.obsidianIntegration) {
             updateObsidianButtonVisibility({ obsidianIntegration: changes.obsidianIntegration.newValue });
@@ -2869,16 +3103,16 @@ function handleLinkPickerComplete(links) {
 }
 
 //function to send the download message to the background page
-function sendDownloadMessage(text) {
+function sendDownloadMessage(text, title = dom.titleInput?.value || '') {
     if (text != null) {
         return getActiveTab().then(tab => {
             if (!tab?.id) {
                 throw new Error('No active tab found');
             }
-            var message = {
+            const message = {
                 type: "download",
                 markdown: text,
-                title: dom.titleInput?.value || '',
+                title,
                 tab,
                 imageList: imageList,
                 mdClipsFolder: mdClipsFolder
@@ -2888,26 +3122,96 @@ function sendDownloadMessage(text) {
     }
 }
 
+function shouldClosePopupAfterExport(kind) {
+    return kind === 'markdown' || kind === 'text' || kind === 'html';
+}
+
+async function sendGeneratedDownloadMessage(kind, markdown, title = getCurrentExportTitle()) {
+    const nextTitle = String(title || '').trim() || 'Untitled';
+    const exportType = resolveDefaultExportType({ defaultExportType: kind });
+    const config = getExportTypeConfig(exportType);
+    const { content, fileExtension, mimeType } = await buildGeneratedExport(exportType, markdown, nextTitle);
+    const activeTab = await getActiveTab();
+
+    if (!activeTab?.id) {
+        throw new Error('No active tab found');
+    }
+
+    return browser.runtime.sendMessage({
+        type: 'download-generated-file',
+        content,
+        title: nextTitle,
+        tabId: activeTab.id,
+        mdClipsFolder: mdClipsFolder,
+        fileExtension: fileExtension || config.fileExtension,
+        mimeType: mimeType || config.mimeType,
+        notificationDelta: {
+            downloads: 1,
+            exports: 1
+        }
+    });
+}
+
+async function exportCurrentContent(kind, { selectionOnly = false, closeAfter = false } = {}) {
+    if (selectionOnly && !editorHasSelection()) {
+        return;
+    }
+
+    const exportKind = kind === 'print'
+        ? 'print'
+        : resolveDefaultExportType({ defaultExportType: kind });
+    const markdown = selectionOnly ? getEditorSelection() : getEditorValue();
+    const title = getCurrentExportTitle();
+
+    if (exportKind === 'markdown') {
+        await sendDownloadMessage(markdown, dom.titleInput?.value || '');
+        if (closeAfter) {
+            window.close();
+        }
+        return;
+    }
+
+    if (exportKind === 'pdf' || exportKind === 'print') {
+        await handlePrintExport(exportKind, { markdown, title });
+        return;
+    }
+
+    await sendGeneratedDownloadMessage(exportKind, markdown, title);
+    if (closeAfter) {
+        window.close();
+    }
+}
+
+async function handleExplicitExport(kind) {
+    closeSplitDropdown();
+    await exportCurrentContent(kind, {
+        closeAfter: shouldClosePopupAfterExport(kind)
+    });
+}
+
 // Download event handler - updated to use promises
 async function download(e) {
     e.preventDefault();
+    const exportKind = resolveDefaultExportType(currentOptions);
     try {
-        await sendDownloadMessage(getEditorValue());
-        window.close();
+        await exportCurrentContent(exportKind, {
+            closeAfter: shouldClosePopupAfterExport(exportKind)
+        });
     } catch (error) {
-        console.error("Error sending download message:", error);
+        console.error("Error exporting content:", error);
     }
 }
 
 // Download selection handler - updated to use promises
 async function downloadSelection(e) {
     e.preventDefault();
-    if (editorHasSelection()) {
-        try {
-            await sendDownloadMessage(getEditorSelection());
-        } catch (error) {
-            console.error("Error sending selection download message:", error);
-        }
+    const exportKind = resolveDefaultExportType(currentOptions);
+    try {
+        await exportCurrentContent(exportKind, {
+            selectionOnly: true
+        });
+    } catch (error) {
+        console.error("Error exporting selected content:", error);
     }
 }
 

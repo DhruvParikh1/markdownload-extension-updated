@@ -29,6 +29,7 @@ const defaultOptions = {
   mdClipsFolder: null,
   disallowedChars: '[]#^',
   downloadMode: 'downloadsApi',
+  defaultExportType: 'markdown',
   turndownEscape: true,
   hashtagHandling: 'keep',
   contextMenus: true,

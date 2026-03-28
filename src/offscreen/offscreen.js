@@ -116,6 +116,16 @@ function handleMessages(message, sender) {
         message.notificationDelta
       );
       break;
+    case 'download-generated-file':
+      await downloadGeneratedFileExport(
+        message.content,
+        message.filename,
+        message.tabId,
+        message.options,
+        message.mimeType,
+        message.notificationDelta
+      );
+      break;
     case 'process-context-menu':
       await processContextMenu(message);
       break;
@@ -2013,6 +2023,66 @@ async function downloadMarkdown(markdown, title, tabId, imageList = {}, mdClipsF
     console.log(`🔗 [Offscreen] Using content script method (downloadMode: ${options.downloadMode})`);
     await downloadViaContentScript(markdown, title, tabId, imageList, mdClipsFolder, options);
   }
+}
+
+async function downloadGeneratedFileExport(content, filename, tabId, providedOptions = null, mimeType = 'application/octet-stream', notificationDelta = null) {
+  const options = providedOptions || defaultOptions;
+  const downloadsAPI = browser.downloads || (typeof chrome !== 'undefined' ? chrome.downloads : null);
+  const hasDownloadsAPI = !!downloadsAPI;
+  const nextFilename = String(filename || '').trim() || `Untitled-${Date.now()}.bin`;
+  const nextMimeType = String(mimeType || 'application/octet-stream');
+  const nextContent = String(content || '');
+
+  console.log(`ðŸ“„ [Offscreen] Downloading generated file: filename="${nextFilename}", mimeType="${nextMimeType}"`);
+
+  if (options.downloadMode === 'downloadsApi' && hasDownloadsAPI) {
+    try {
+      const blob = new Blob([nextContent], { type: nextMimeType });
+      const url = URL.createObjectURL(blob);
+
+      await browser.runtime.sendMessage({
+        type: 'track-download-url',
+        url: url,
+        filename: nextFilename,
+        isMarkdown: false,
+        notificationDelta: notificationDelta,
+        tabId: tabId
+      });
+
+      const id = await downloadsAPI.download({
+        url: url,
+        filename: nextFilename,
+        saveAs: options.saveAs
+      });
+
+      browser.runtime.sendMessage({
+        type: 'download-complete',
+        downloadId: id,
+        url: url,
+        filename: nextFilename
+      });
+      return;
+    } catch (err) {
+      console.error('âŒ [Offscreen] Generated file download via Downloads API failed, delegating to service worker:', err);
+    }
+  }
+
+  const blob = new Blob([nextContent], { type: nextMimeType });
+  const url = URL.createObjectURL(blob);
+
+  await browser.runtime.sendMessage({
+    type: 'service-worker-download',
+    blobUrl: url,
+    filename: nextFilename,
+    tabId: tabId,
+    imageList: {},
+    mdClipsFolder: '',
+    options: {
+      ...options,
+      downloadImages: false
+    },
+    notificationDelta: notificationDelta
+  });
 }
 
 /**

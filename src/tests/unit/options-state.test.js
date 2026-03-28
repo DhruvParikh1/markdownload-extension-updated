@@ -6,6 +6,7 @@ const defaultOptions = {
   batchProcessingEnabled: true,
   includeTemplate: false,
   imagePrefix: '{pageTitle}/',
+  defaultExportType: 'markdown',
   specialTheme: 'none',
   showUserGuideIcon: true,
   tableFormatting: {
@@ -61,6 +62,11 @@ const defaultOptions = {
   test('normalizeImportedOptions preserves specialTheme default when omitted', () => {
     const normalized = optionsState.normalizeImportedOptions({}, defaultOptions);
     expect(normalized.specialTheme).toBe('none');
+  });
+
+  test('normalizeImportedOptions preserves default export type when omitted', () => {
+    const normalized = optionsState.normalizeImportedOptions({}, defaultOptions);
+    expect(normalized.defaultExportType).toBe('markdown');
   });
 
   test('resetOptionKeys resets top-level and tableFormatting keys', () => {

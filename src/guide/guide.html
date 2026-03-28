@@ -206,12 +206,13 @@
                         <table class="ref-table">
                             <thead><tr><th>Button</th><th>Action</th></tr></thead>
                             <tbody>
-                                <tr><td><strong>Download</strong></td><td>Downloads the Markdown as a <code>.md</code> file.</td></tr>
-                                <tr><td><strong>Download Selection</strong></td><td>Appears when text is selected inside the editor; downloads only the selection.</td></tr>
+                                <tr><td><strong>Download</strong></td><td>Exports the popup clip using your configured default format: Markdown (<code>.md</code>), Plain text (<code>.txt</code>), HTML (<code>.html</code>), or PDF.</td></tr>
+                                <tr><td><strong>Download Selection</strong></td><td>Appears when text is selected inside the editor; exports only the selected text using the same popup default format.</td></tr>
                                 <tr><td><strong>Send to Obsidian</strong></td><td>Copies Markdown to clipboard and opens Obsidian via the Advanced URI plugin to create a new note (only visible when Obsidian integration is enabled).</td></tr>
                             </tbody>
                         </table>
                     </div>
+                    <p><strong>Note:</strong> This popup export format setting only affects popup exports. Context menus, keyboard download shortcuts, batch exports, Library exports, Agent Bridge, and Obsidian actions remain Markdown-based.</p>
                 </div>
             </section>
 
@@ -387,6 +388,8 @@ author: {byline}
                     <h3 class="subsection-heading"><a href="#download-settings" class="anchor-link">#</a>Downloads</h3>
                     <h4>Context Menus</h4>
                     <p>Toggles the right-click context menu items on and off. Default: <strong>On</strong>.</p>
+                    <h4>Default Popup Export Format</h4>
+                    <p>Controls the popup's primary export buttons. Choose <strong>Markdown</strong>, <strong>Plain text</strong>, <strong>HTML</strong>, or <strong>PDF</strong>. This does not change context-menu downloads, keyboard download shortcuts, batch output, Library exports, Agent Bridge output, or Obsidian sends.</p>
                 </div>
 
                 <div id="markdown-options" class="guide-subsection"

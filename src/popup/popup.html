@@ -1,50 +1,137 @@
 <!DOCTYPE html>
-<html>
+<html class="theme-system">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MarkSnip</title>
   <link rel="stylesheet" href="../shared/fonts.css">
   <link rel="stylesheet" href="lib/codemirror.css">
+  <script>
+    (function () {
+      const CACHE_KEY = 'marksnip-popup-theme-cache-v1';
+      const root = document.documentElement;
+      const specialThemeClassNames = ['special-theme-claude', 'special-theme-perplexity', 'special-theme-atla', 'special-theme-ben10'];
+      const accentClassNames = ['accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber'];
+      const editorThemeMap = {
+        default:   { dark: 'xq-dark', light: 'xq-light' },
+        claude:    { dark: 'claude-dark', light: 'claude-light' },
+        perplexity:{ dark: 'perplexity-dark', light: 'perplexity-light' },
+        atla:      { dark: 'atla-dark', light: 'atla-light' },
+        ben10:     { dark: 'ben10-dark', light: 'ben10-light' },
+        dracula:   { dark: 'dracula', light: 'dracula' },
+        material:  { dark: 'material-darker', light: 'material' },
+        monokai:   { dark: 'monokai', light: 'xq-light' },
+        nord:      { dark: 'nord', light: 'xq-light' },
+        solarized: { dark: 'solarized dark', light: 'solarized light' },
+        twilight:  { dark: 'twilight', light: 'xq-light' }
+      };
+      const editorThemeStylesheetMap = {
+        'xq-dark': 'lib/xq-dark.css',
+        'xq-light': 'lib/xq-light.css',
+        'claude-dark': 'lib/claude-dark.css',
+        'claude-light': 'lib/claude-light.css',
+        'perplexity-dark': 'lib/perplexity-dark.css',
+        'perplexity-light': 'lib/perplexity-light.css',
+        'atla-dark': 'lib/atla-dark.css',
+        'atla-light': 'lib/atla-light.css',
+        'ben10-dark': 'lib/ben10-dark.css',
+        'ben10-light': 'lib/ben10-light.css',
+        'dracula': 'lib/dracula.css',
+        'material': 'lib/material.css',
+        'material-darker': 'lib/material-darker.css',
+        'monokai': 'lib/monokai.css',
+        'nord': 'lib/nord.css',
+        'solarized dark': 'lib/solarized.css',
+        'solarized light': 'lib/solarized.css',
+        'twilight': 'lib/twilight.css'
+      };
+
+      try {
+        const raw = localStorage.getItem(CACHE_KEY);
+        const cached = raw ? JSON.parse(raw) : null;
+        const popupTheme = typeof cached?.popupTheme === 'string' ? cached.popupTheme : 'system';
+        const specialTheme = typeof cached?.specialTheme === 'string' ? cached.specialTheme : 'none';
+        const popupAccent = typeof cached?.popupAccent === 'string' ? cached.popupAccent : 'sage';
+        const editorTheme = typeof cached?.editorTheme === 'string' ? cached.editorTheme : 'default';
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const isDark = popupTheme === 'dark' || (popupTheme !== 'light' && prefersDark);
+        const themeEntry = editorThemeMap[specialTheme !== 'none' ? specialTheme : editorTheme] || editorThemeMap.default;
+        const themeName = isDark ? themeEntry.dark : themeEntry.light;
+        const themeHref = editorThemeStylesheetMap[themeName];
+
+        root.classList.remove('theme-light', 'theme-dark', 'theme-system');
+        root.classList.add('theme-' + popupTheme);
+
+        root.classList.remove(...specialThemeClassNames);
+        if (specialTheme !== 'none') {
+          root.classList.add('special-theme-' + specialTheme);
+        }
+
+        root.classList.toggle('hide-theme-icon', cached?.specialThemeIcon === false);
+
+        root.classList.remove(...accentClassNames);
+        if (specialTheme === 'none' && popupAccent !== 'sage') {
+          root.classList.add('accent-' + popupAccent);
+        }
+
+        if (themeHref) {
+          const link = document.createElement('link');
+          link.id = 'cm-theme-stylesheet';
+          link.rel = 'stylesheet';
+          link.href = themeHref;
+          link.setAttribute('data-theme-name', themeName);
+          document.head.appendChild(link);
+        }
+      } catch (error) {
+        root.classList.remove('theme-light', 'theme-dark', 'theme-system');
+        root.classList.add('theme-system');
+      }
+    })();
+  </script>
   <link rel="stylesheet" href="popup.css">
 </head>
 
 <body>
   <!-- Loading Skeleton -->
   <div id="spinner" class="loading-state">
-    <div class="skel-header">
-      <div class="skel-brand">
-        <div class="skel-block skel-logo"></div>
-        <div class="skel-block skel-title"></div>
+    <div class="loading-shell" aria-hidden="true">
+      <div class="skel-header">
+        <div class="skel-brand">
+          <div class="skel-block skel-logo"></div>
+          <div class="skel-block skel-title"></div>
+        </div>
+        <div class="skel-header-actions">
+          <div class="skel-block skel-icon"></div>
+          <div class="skel-block skel-icon"></div>
+          <div class="skel-block skel-icon"></div>
+        </div>
       </div>
-      <div class="skel-header-actions">
-        <div class="skel-block skel-icon"></div>
-        <div class="skel-block skel-icon"></div>
-        <div class="skel-block skel-icon"></div>
+      <div class="skel-settings">
+        <div class="skel-block skel-toggle"></div>
+        <div class="skel-block skel-toggle"></div>
+        <div class="skel-block skel-segment"></div>
       </div>
-    </div>
-    <div class="skel-settings">
-      <div class="skel-block skel-toggle"></div>
-      <div class="skel-block skel-toggle"></div>
-      <div class="skel-block skel-segment"></div>
-    </div>
-    <div class="skel-title-section">
-      <div class="skel-block skel-label"></div>
-      <div class="skel-block skel-input"></div>
-    </div>
-    <div class="skel-editor">
-      <div class="skel-editor-bar">
+      <div class="skel-title-section">
         <div class="skel-block skel-label"></div>
-        <div class="skel-block skel-btn"></div>
-        <div class="skel-block skel-btn"></div>
+        <div class="skel-block skel-input"></div>
       </div>
-      <div class="skel-block skel-textarea"></div>
+      <div class="skel-editor">
+        <div class="skel-editor-bar">
+          <div class="skel-block skel-label"></div>
+          <div class="skel-block skel-btn"></div>
+          <div class="skel-block skel-btn"></div>
+        </div>
+        <div class="skel-block skel-textarea"></div>
+      </div>
+      <div class="skel-actions-row">
+        <div class="skel-block skel-action-btn"></div>
+        <div class="skel-block skel-action-btn-primary"></div>
+      </div>
     </div>
-    <div class="skel-actions-row">
-      <div class="skel-block skel-action-btn"></div>
-      <div class="skel-block skel-action-btn-primary"></div>
+    <div class="loading-indicator" role="status" aria-live="polite">
+      <div class="loading-indicator__spinner" aria-hidden="true"></div>
+      <p class="loading-text">Processing page...</p>
     </div>
-    <p class="loading-text">Processing page...</p>
   </div>
 
   <!-- Main Container -->
@@ -268,13 +355,32 @@
         </div>
         <div id="splitDropdown" class="split-dropdown" role="menu" hidden>
           <div class="dd-section-label">Export As</div>
-          <button id="ddPrint" class="dd-item" type="button" role="menuitem">
+          <button id="ddMarkdown" class="dd-item" type="button" role="menuitem">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="6 9 6 2 18 2 18 9"/>
-              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-              <rect x="6" y="14" width="12" height="8"/>
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <path d="M8 13v4"/>
+              <path d="M12 13v4"/>
+              <path d="M8 13l2 2 2-2"/>
+              <path d="M16 17v-4l2 2 2-2"/>
             </svg>
-            <span class="dd-item__label">Print</span>
+            <span class="dd-item__label">Markdown (.md)</span>
+          </button>
+          <button id="ddText" class="dd-item" type="button" role="menuitem">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 7V4h16v3"/>
+              <path d="M9 20h6"/>
+              <path d="M12 4v16"/>
+            </svg>
+            <span class="dd-item__label">Plain Text (.txt)</span>
+          </button>
+          <button id="ddHtml" class="dd-item" type="button" role="menuitem">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m8 9-4 3 4 3"/>
+              <path d="m16 9 4 3-4 3"/>
+              <path d="m14 5-4 14"/>
+            </svg>
+            <span class="dd-item__label">HTML (.html)</span>
           </button>
           <button id="ddPdf" class="dd-item" type="button" role="menuitem">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -285,6 +391,14 @@
             </svg>
             <span class="dd-item__label">Save as PDF</span>
             <span class="dd-item__note">via print</span>
+          </button>
+          <button id="ddPrint" class="dd-item" type="button" role="menuitem">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 6 2 18 2 18 9"/>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+              <rect x="6" y="14" width="12" height="8"/>
+            </svg>
+            <span class="dd-item__label">Print</span>
           </button>
         </div>
       </div>

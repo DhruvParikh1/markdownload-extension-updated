@@ -620,7 +620,83 @@ test.describe('MarkSnip Extension E2E', () => {
     }
   });
 
-  test('popup split export menu exposes print and save as PDF and routes both through the print path', async () => {
+  test('popup default Markdown export keeps the main action on the markdown download path', async () => {
+    await setSyncStorage(serviceWorker, {
+      defaultExportType: 'markdown'
+    });
+
+    const fixturePage = await context.newPage();
+    const popupPage = await context.newPage();
+
+    try {
+      await fixturePage.goto(`${fixtureHost}/extension/deterministic-article.html`);
+      await fixturePage.waitForLoadState('networkidle');
+      await fixturePage.bringToFront();
+
+      await popupPage.goto(`chrome-extension://${extensionId}/popup/popup.html`);
+      await expect(popupPage.locator('#container')).toBeVisible();
+
+      await expect.poll(async () => popupPage.inputValue('#title'), { timeout: 10000 })
+        .toContain('Deterministic Markdown Fixture');
+
+      await expect(popupPage.locator('#download')).toContainText('Download Markdown');
+
+      await popupPage.evaluate(() => {
+        const originalSendMessage = browser.runtime.sendMessage.bind(browser.runtime);
+        const originalClose = window.close.bind(window);
+        const calls = [];
+
+        browser.runtime.sendMessage = async (message) => {
+          if (message?.type === 'download') {
+            calls.push({
+              type: message.type,
+              title: message.title,
+              markdownSnippet: String(message.markdown || '').slice(0, 80)
+            });
+            return null;
+          }
+
+          return originalSendMessage(message);
+        };
+
+        window.close = () => {};
+        window.__markSnipPopupDownloadHarness = {
+          calls,
+          restore() {
+            browser.runtime.sendMessage = originalSendMessage;
+            window.close = originalClose;
+          }
+        };
+      });
+
+      await popupPage.locator('#download').click();
+
+      await expect.poll(async () => {
+        return await popupPage.evaluate(() => window.__markSnipPopupDownloadHarness.calls.length);
+      }).toBe(1);
+
+      const harnessState = await popupPage.evaluate(() => {
+        const result = window.__markSnipPopupDownloadHarness.calls.slice();
+        window.__markSnipPopupDownloadHarness.restore();
+        return result;
+      });
+
+      expect(harnessState[0]).toMatchObject({
+        type: 'download',
+        title: 'Deterministic Markdown Fixture'
+      });
+      expect(harnessState[0].markdownSnippet).toContain('Deterministic Markdown Fixture');
+    } finally {
+      await popupPage.close().catch(() => {});
+      await fixturePage.close().catch(() => {});
+    }
+  });
+
+  test('popup default PDF export updates labels and routes both main and selection exports through the print path', async () => {
+    await setSyncStorage(serviceWorker, {
+      defaultExportType: 'pdf'
+    });
+
     const fixturePage = await context.newPage();
     const popupPage = await context.newPage();
 
@@ -657,26 +733,55 @@ test.describe('MarkSnip Extension E2E', () => {
         };
       });
 
+      await expect(popupPage.locator('#download')).toContainText('Save as PDF');
+
+      await popupPage.evaluate(() => {
+        const lineIndex = (cm.getLine(0) || '').length > 0 ? 0 : Math.min(1, Math.max(0, cm.lineCount() - 1));
+        const lineText = cm.getLine(lineIndex) || '';
+        cm.focus();
+        cm.setSelection(
+          { line: lineIndex, ch: 0 },
+          { line: lineIndex, ch: Math.max(1, Math.min(24, lineText.length || 1)) }
+        );
+      });
+      await expect(popupPage.locator('#downloadSelection')).toBeVisible();
+      await expect(popupPage.locator('#downloadSelection')).toContainText('Save Selection as PDF');
+
       await popupPage.locator('#splitArrow').click();
       await expect(popupPage.locator('#splitDropdown')).toBeVisible();
+      await expect(popupPage.locator('#ddMarkdown')).toBeVisible();
+      await expect(popupPage.locator('#ddText')).toBeVisible();
+      await expect(popupPage.locator('#ddHtml')).toBeVisible();
       await expect(popupPage.locator('#ddPrint')).toBeVisible();
-      await expect(popupPage.locator('#ddPdf')).toBeVisible();
-      await popupPage.locator('#ddPrint').click();
+      await expect.poll(async () => {
+        return await popupPage.locator('#ddPdf').evaluate((element) => element.hidden);
+      }).toBe(true);
+      await popupPage.locator('#download').click();
 
       await expect.poll(async () => {
         return await popupPage.evaluate(() => window.__markSnipPrintHarness.calls.length);
       }).toBe(1);
 
       let harnessState = await popupPage.evaluate(() => window.__markSnipPrintHarness.calls.slice());
-      expect(harnessState[0].kind).toBe('print');
+      expect(harnessState[0].kind).toBe('pdf');
       expect(harnessState[0].hasHtmlDocument).toBe(true);
 
-      await popupPage.locator('#splitArrow').click();
-      await popupPage.locator('#ddPdf').click();
+      await popupPage.locator('#downloadSelection').click();
 
       await expect.poll(async () => {
         return await popupPage.evaluate(() => window.__markSnipPrintHarness.calls.length);
       }).toBe(2);
+
+      harnessState = await popupPage.evaluate(() => window.__markSnipPrintHarness.calls.slice());
+      expect(harnessState[1].kind).toBe('pdf');
+      expect(harnessState[1].hasHtmlDocument).toBe(true);
+
+      await popupPage.locator('#splitArrow').click();
+      await popupPage.locator('#ddPrint').click();
+
+      await expect.poll(async () => {
+        return await popupPage.evaluate(() => window.__markSnipPrintHarness.calls.length);
+      }).toBe(3);
 
       harnessState = await popupPage.evaluate(() => {
         const result = window.__markSnipPrintHarness.calls.slice();
@@ -684,13 +789,128 @@ test.describe('MarkSnip Extension E2E', () => {
         return result;
       });
 
-      expect(harnessState[1].kind).toBe('pdf');
-      expect(harnessState[1].hasHtmlDocument).toBe(true);
+      expect(harnessState[2].kind).toBe('print');
+      expect(harnessState[2].hasHtmlDocument).toBe(true);
     } finally {
       await popupPage.close().catch(() => {});
       await fixturePage.close().catch(() => {});
     }
   });
+
+  for (const { exportType, buttonLabel, selectionLabel, fileExtension, mimeType } of [
+    {
+      exportType: 'text',
+      buttonLabel: 'Download TXT',
+      selectionLabel: 'Download Selection as TXT',
+      fileExtension: 'txt',
+      mimeType: 'text/plain;charset=utf-8'
+    },
+    {
+      exportType: 'html',
+      buttonLabel: 'Download HTML',
+      selectionLabel: 'Download Selection as HTML',
+      fileExtension: 'html',
+      mimeType: 'text/html;charset=utf-8'
+    }
+  ]) {
+    test(`popup default ${exportType} export routes full and selection downloads through the generated-file message path`, async () => {
+      await setSyncStorage(serviceWorker, {
+        defaultExportType: exportType,
+        downloadMode: 'downloadsApi',
+        saveAs: false
+      });
+
+      const fixturePage = await context.newPage();
+      const popupPage = await context.newPage();
+
+      try {
+        await fixturePage.goto(`${fixtureHost}/extension/deterministic-article.html`);
+        await fixturePage.waitForLoadState('networkidle');
+        await fixturePage.bringToFront();
+
+        await popupPage.goto(`chrome-extension://${extensionId}/popup/popup.html`);
+        await expect(popupPage.locator('#container')).toBeVisible();
+
+        await expect.poll(async () => popupPage.inputValue('#title'), { timeout: 10000 })
+          .toContain('Deterministic Markdown Fixture');
+
+        await popupPage.evaluate(() => {
+          const originalSendMessage = browser.runtime.sendMessage.bind(browser.runtime);
+          window.__markSnipGeneratedMessageHarness = {
+            calls: [],
+            errors: [],
+            restore() {
+              browser.runtime.sendMessage = originalSendMessage;
+            }
+          };
+          browser.runtime.sendMessage = async (message) => {
+            if (message?.type === 'download-generated-file') {
+              window.__markSnipGeneratedMessageHarness.calls.push({
+                type: message.type,
+                title: message.title || '',
+                fileExtension: message.fileExtension || '',
+                mimeType: message.mimeType || '',
+                contentLength: String(message.content || '').length
+              });
+            }
+            try {
+              return await originalSendMessage(message);
+            } catch (error) {
+              window.__markSnipGeneratedMessageHarness.errors.push(String(error?.message || error));
+              throw error;
+            }
+          };
+          window.close = () => {};
+        });
+
+        await expect(popupPage.locator('#download')).toContainText(buttonLabel);
+        await popupPage.locator('#download').click();
+
+        await expect.poll(async () => {
+          return await popupPage.evaluate(() => window.__markSnipGeneratedMessageHarness.calls.length);
+        }, { timeout: 10000 }).toBe(1);
+
+        await popupPage.evaluate(() => {
+          const lineIndex = (cm.getLine(0) || '').length > 0 ? 0 : Math.min(1, Math.max(0, cm.lineCount() - 1));
+          const lineText = cm.getLine(lineIndex) || '';
+          cm.focus();
+          cm.setSelection(
+            { line: lineIndex, ch: 0 },
+            { line: lineIndex, ch: Math.max(1, Math.min(24, lineText.length || 1)) }
+          );
+        });
+        await expect(popupPage.locator('#downloadSelection')).toBeVisible();
+        await expect(popupPage.locator('#downloadSelection')).toContainText(selectionLabel);
+        await popupPage.locator('#downloadSelection').click();
+
+        await expect.poll(async () => {
+          return await popupPage.evaluate(() => window.__markSnipGeneratedMessageHarness.calls.length);
+        }, { timeout: 10000 }).toBe(2);
+
+        const harnessState = await popupPage.evaluate(() => {
+          const result = {
+            calls: window.__markSnipGeneratedMessageHarness.calls.slice(),
+            errors: window.__markSnipGeneratedMessageHarness.errors.slice()
+          };
+          window.__markSnipGeneratedMessageHarness.restore();
+          return result;
+        });
+
+        expect(harnessState.errors).toEqual([]);
+        expect(harnessState.calls).toHaveLength(2);
+        harnessState.calls.forEach((call) => {
+          expect(call.type).toBe('download-generated-file');
+          expect(call.title).toContain('Deterministic Markdown Fixture');
+          expect(call.fileExtension).toBe(fileExtension);
+          expect(call.mimeType).toBe(mimeType);
+          expect(call.contentLength).toBeGreaterThan(0);
+        });
+      } finally {
+        await popupPage.close().catch(() => {});
+        await fixturePage.close().catch(() => {});
+      }
+    });
+  }
 
   test('disabling the library hides the popup entry point and prevents auto-save', async () => {
     await setLibraryStorage(serviceWorker, {

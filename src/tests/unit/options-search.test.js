@@ -57,6 +57,7 @@ const baseOptions = {
   mdClipsFolder: '',
   disallowedChars: '[]#^',
   downloadMode: 'downloadsApi',
+  defaultExportType: 'markdown',
   turndownEscape: true,
   hashtagHandling: 'keep',
   contextMenus: true,
@@ -249,6 +250,11 @@ describe('Options search helper', () => {
 
   test('exact searches still resolve expected settings', () => {
     expect(getMatchIds(index, 'save as')).toContain('saveAs-container');
+    expect(getMatchIds(index, 'default export')).toContain('defaultExportTypeGroup');
+    expect(getMatchIds(index, 'plain text')).toContain('defaultExportTypeGroup');
+    expect(getMatchIds(index, 'txt')).toContain('defaultExportTypeGroup');
+    expect(getMatchIds(index, 'html')).toContain('defaultExportTypeGroup');
+    expect(getMatchIds(index, 'pdf')).toContain('defaultExportTypeGroup');
     expect(getMatchLabels(index, 'frontmatter')).toContain('Front-matter template');
     expect(getMatchLabels(index, 'backmatter')).toContain('Back-matter template');
     expect(getMatchIds(index, 'base64')).toContain('imageOptions');
@@ -387,7 +393,7 @@ describe('Options page search UI', () => {
   });
 
   test('export payload includes library settings but excludes library items', async () => {
-    const { dom } = createOptionsPageDom({}, {
+    const { dom } = createOptionsPageDom({ defaultExportType: 'html' }, {
       settings: {
         enabled: false,
         autoSaveOnPopupOpen: false,
@@ -408,6 +414,7 @@ describe('Options page search UI', () => {
       autoSaveOnPopupOpen: false,
       itemsToKeep: 4
     });
+    expect(payload.defaultExportType).toBe('html');
     expect(payload.libraryItems).toBeUndefined();
   });
 
@@ -420,7 +427,7 @@ describe('Options page search UI', () => {
         this.onload({
           target: {
             result: JSON.stringify({
-              ...mergeOptions({ popupTheme: 'dark' }),
+              ...mergeOptions({ popupTheme: 'dark', defaultExportType: 'text' }),
               librarySettings: {
                 enabled: false,
                 autoSaveOnPopupOpen: false,
@@ -436,6 +443,7 @@ describe('Options page search UI', () => {
     dom.window.FileReader = MockFileReader;
     document.dispatchEvent(new dom.window.Event('DOMContentLoaded', { bubbles: true }));
     await waitForMicrotasks();
+    await waitFor(dom.window, 50);
 
     const importInput = document.getElementById('import-file');
     Object.defineProperty(importInput, 'files', {
@@ -457,6 +465,27 @@ describe('Options page search UI', () => {
     expect(document.getElementById('libraryEnabled').checked).toBe(false);
     expect(document.getElementById('libraryAutoSaveOnPopupOpen').checked).toBe(false);
     expect(document.getElementById('libraryItemsToKeep').value).toBe('4');
+    expect(document.getElementById('export-text').checked).toBe(true);
+  });
+
+  test('restores and saves the popup default export format', async () => {
+    const { dom, browser } = createOptionsPageDom({ defaultExportType: 'pdf' });
+    const { document } = dom.window;
+
+    document.dispatchEvent(new dom.window.Event('DOMContentLoaded', { bubbles: true }));
+    await waitForMicrotasks();
+    await waitFor(dom.window, 50);
+
+    expect(document.getElementById('export-pdf').checked).toBe(true);
+
+    const htmlOption = document.getElementById('export-html');
+    htmlOption.checked = true;
+    htmlOption.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
+    await waitForMicrotasks();
+
+    expect(browser.storage.sync.set).toHaveBeenCalledWith(expect.objectContaining({
+      defaultExportType: 'html'
+    }));
   });
 
   test('restores and saves the popup guide icon toggle', async () => {

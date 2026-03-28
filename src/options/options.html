@@ -554,6 +554,31 @@
                     </div>
                 </div>
 
+                <div class="setting-card" id="defaultExportTypeGroup"
+                    data-search-keywords="default export,popup export,export format,plain text,txt,html,pdf,markdown"
+                    data-setting-key="defaultExportType">
+                    <h3 class="card-title">Default Popup Export Format</h3>
+                    <p class="card-desc">Controls the popup's main export button and selection export button only. Context menus, shortcuts, batch exports, library exports, Agent Bridge, and Obsidian remain Markdown-based.</p>
+                    <div class="radio-group">
+                        <div class="radio-pill">
+                            <input type="radio" name="defaultExportType" id="export-markdown" value="markdown" />
+                            <label for="export-markdown">Markdown (.md)</label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="defaultExportType" id="export-text" value="text" />
+                            <label for="export-text">Plain text (.txt)</label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="defaultExportType" id="export-html" value="html" />
+                            <label for="export-html">HTML (.html)</label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="defaultExportType" id="export-pdf" value="pdf" />
+                            <label for="export-pdf">PDF</label>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Downloads API sub-options -->
                 <div id="downloadModeGroup">
                     <div class="setting-card" id="saveAs-container" data-setting-key="saveAs">

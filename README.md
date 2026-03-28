@@ -20,6 +20,7 @@ Core pipeline:
 
 - Clip full page or selected text
 - Edit markdown before saving
+- Export popup clips as Markdown, plain text, HTML, or PDF
 - Batch conversion from URL lists or markdown links
 - Save batch output as ZIP or individual files
 - Context menu actions for page, selection, links, images, and tabs
@@ -61,7 +62,7 @@ Install from [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/ma
 1. Click the extension icon to open the popup.
 2. Choose **Selection** or **Document**.
 3. Review/edit markdown.
-4. Use **Download**, **Copy All**, or **Send to Obsidian**.
+4. Use the popup export button to save the clip as Markdown, plain text, HTML, or PDF, or use **Copy All** / **Send to Obsidian** for Markdown-based workflows.
 
 Agent Bridge:
 
@@ -117,6 +118,7 @@ Batch mode:
 - `Alt+Shift+L`: Copy current tab URL as markdown link
 
 Additional commands (selection, selected tabs, Obsidian actions) are available in browser shortcut settings.
+Popup export format settings do not change these shortcut or context-menu actions; they remain Markdown-based.
 
 ## Development
 

@@ -37,9 +37,11 @@ At the bottom of the popup:
 
 | Button                 | Action                                                                                                                                                                    |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Download**           | Downloads the Markdown as a `.md` file.                                                                                                                                   |
-| **Download Selection** | Appears when text is selected inside the editor; downloads only the selection.                                                                                            |
+| **Download**           | Exports the popup clip using your configured default format: Markdown (`.md`), Plain text (`.txt`), HTML (`.html`), or PDF.                                            |
+| **Download Selection** | Appears when text is selected inside the editor; exports only the selected text using the same popup default format.                                                     |
 | **Send to Obsidian**   | Copies the Markdown to the clipboard and opens Obsidian via the Advanced URI plugin to create a new note (only visible when Obsidian integration is enabled in settings). Images remain remote links; attachment files are not copied into the vault. |
+
+The popup export format setting only affects popup exports. Context menus, keyboard download shortcuts, batch exports, Library exports, Agent Bridge, and Obsidian actions remain Markdown-based.
 
 ---
 
@@ -186,6 +188,17 @@ author: {byline}
 Toggles the right-click context menu items on and off.
 
 **Default:** On
+
+### Default Popup Export Format
+
+Controls the popup's primary export buttons.
+
+- **Markdown** â€” downloads the current popup clip as `.md`
+- **Plain text** â€” downloads rendered plain text as `.txt`
+- **HTML** â€” downloads a styled rendered HTML document as `.html`
+- **PDF** â€” opens the existing print-to-PDF flow
+
+This setting does **not** change context-menu downloads, keyboard download shortcuts, batch output, Library exports, Agent Bridge output, or Obsidian sends.
 
 ---
 

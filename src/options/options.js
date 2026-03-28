@@ -22,6 +22,7 @@ let agentBridgeInstallCommand = 'marksnip install-host';
 let keyupTimeout = null;
 const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude', 'special-theme-perplexity', 'special-theme-atla', 'special-theme-ben10'];
 const ACCENT_CLASS_NAMES = ['accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber'];
+const POPUP_THEME_CACHE_KEY = 'marksnip-popup-theme-cache-v1';
 
 function getOptionsStateApi() {
     return globalThis.markSnipOptionsState || null;
@@ -493,6 +494,24 @@ function applyContextMenuTransition(action) {
     }
 }
 
+function buildPopupThemeCacheSnapshot(source = options || defaultOptions) {
+    return {
+        popupTheme: source?.popupTheme || 'system',
+        specialTheme: source?.specialTheme || 'none',
+        specialThemeIcon: source?.specialThemeIcon !== false,
+        popupAccent: source?.popupAccent || 'sage',
+        editorTheme: source?.editorTheme || 'default'
+    };
+}
+
+function persistPopupThemeCache(source = options || defaultOptions) {
+    try {
+        localStorage.setItem(POPUP_THEME_CACHE_KEY, JSON.stringify(buildPopupThemeCacheSnapshot(source)));
+    } catch (error) {
+        console.debug('Unable to persist popup theme cache:', error);
+    }
+}
+
 // Apply theme mode and accent color to the Options page itself
 function applyThemeSettings() {
     const root = document.documentElement;
@@ -515,6 +534,8 @@ function applyThemeSettings() {
     if (specialTheme === 'none' && accent !== 'sage') {
         root.classList.add('accent-' + accent);
     }
+
+    persistPopupThemeCache(options);
 }
 
 function updateSpecialThemeControlState() {
@@ -579,6 +600,7 @@ const saveOptions = e => {
         downloadImages: document.querySelector("[name='downloadImages']").checked,
         imagePrefix: document.querySelector("[name='imagePrefix']").value,
         mdClipsFolder: document.querySelector("[name='mdClipsFolder']").value,
+        defaultExportType: getCheckedValue(document.querySelectorAll("input[name='defaultExportType']")) || 'markdown',
         turndownEscape: document.querySelector("[name='turndownEscape']").checked,
         hashtagHandling: getCheckedValue(document.querySelectorAll("input[name='hashtagHandling']")),
         contextMenus: document.querySelector("[name='contextMenus']").checked,
@@ -742,6 +764,7 @@ const setCurrentChoice = result => {
     setCheckedValue(document.querySelectorAll("[name='imageRefStyle']"), options.imageRefStyle);
     setCheckedValue(document.querySelectorAll("[name='hashtagHandling']"), options.hashtagHandling || 'keep');
     setCheckedValue(document.querySelectorAll("[name='downloadMode']"), options.downloadMode);
+    setCheckedValue(document.querySelectorAll("[name='defaultExportType']"), options.defaultExportType || 'markdown');
 
     setCheckedValue(document.querySelectorAll("[name='popupTheme']"), options.popupTheme || 'system');
     setCheckedValue(document.querySelectorAll("[name='specialTheme']"), options.specialTheme || 'none');

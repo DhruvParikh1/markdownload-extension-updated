@@ -645,6 +645,9 @@ async function handleMessages(message, sender, sendResponse) {
     case "download":
       await handleDownloadRequest(message);
       break;
+    case "download-generated-file":
+      await downloadGeneratedFile(message);
+      break;
     case "download-images":
       await handleImageDownloads(message);
       break;
@@ -2915,6 +2918,124 @@ async function handleDownloadDirectly(markdown, title, tabId, imageList = {}, md
       args: [filename, base64Content]
     });
   }
+}
+
+function normalizeGeneratedFileExtension(extension, fallback = 'bin') {
+  const normalized = String(extension || fallback)
+    .trim()
+    .replace(/^\.+/, '')
+    .replace(/[^a-z0-9_-]/gi, '')
+    .toLowerCase();
+
+  return normalized || fallback;
+}
+
+function buildGeneratedDownloadFilename(title, mdClipsFolder = '', options = null, extension = 'bin') {
+  const effectiveOptions = options || defaultOptions;
+  let safeTitle = String(title || '').trim() || `Untitled-${Date.now()}`;
+
+  safeTitle = safeTitle
+    .split('/')
+    .map((segment) => generateValidFileName(segment, effectiveOptions.disallowedChars))
+    .join('/');
+
+  if (!safeTitle || safeTitle.replace(/\//g, '').trim() === '') {
+    safeTitle = `Untitled-${Date.now()}`;
+  }
+
+  let safeFolder = String(mdClipsFolder || '').trim();
+  if (safeFolder) {
+    safeFolder = safeFolder
+      .split('/')
+      .map((segment) => generateValidFileName(segment, effectiveOptions.disallowedChars))
+      .join('/');
+
+    if (safeFolder && !safeFolder.endsWith('/')) {
+      safeFolder += '/';
+    }
+  }
+
+  return `${safeFolder}${safeTitle}.${normalizeGeneratedFileExtension(extension)}`;
+}
+
+async function downloadGeneratedFile(message = {}) {
+  const options = await getOptions();
+  const tabId = Number.isInteger(message.tabId) ? message.tabId : null;
+
+  if (!tabId) {
+    throw new Error('No target tab provided for generated file download');
+  }
+
+  const mimeType = String(message.mimeType || 'application/octet-stream');
+  const content = String(message.content || '');
+  const mdClipsFolder = String(message.mdClipsFolder || '');
+  const filename = buildGeneratedDownloadFilename(
+    message.title,
+    mdClipsFolder,
+    options,
+    message.fileExtension
+  );
+  const notificationDelta = message.notificationDelta || SINGLE_DOWNLOAD_NOTIFICATION_DELTA;
+
+  console.log(`📄 [Service Worker] Downloading generated file: filename="${filename}", mimeType="${mimeType}"`);
+
+  if (typeof chrome !== 'undefined' && chrome.offscreen && options.downloadMode === 'downloadsApi') {
+    await ensureOffscreenDocumentExists();
+
+    await browser.runtime.sendMessage({
+      target: 'offscreen',
+      type: 'download-generated-file',
+      content,
+      filename,
+      tabId,
+      mimeType,
+      options: {
+        ...options,
+        downloadImages: false
+      },
+      notificationDelta
+    });
+    return;
+  }
+
+  if (
+    options.downloadMode === 'downloadsApi' &&
+    (browser.downloads || (typeof chrome !== 'undefined' && chrome.downloads)) &&
+    typeof URL?.createObjectURL === 'function'
+  ) {
+    const blobUrl = URL.createObjectURL(new Blob([content], { type: mimeType }));
+    await handleDownloadWithBlobUrl(
+      blobUrl,
+      filename,
+      tabId,
+      {},
+      mdClipsFolder,
+      {
+        ...options,
+        downloadImages: false
+      },
+      notificationDelta
+    );
+    return;
+  }
+
+  if (options.downloadMode === 'downloadsApi') {
+    console.warn('âš ï¸ [Service Worker] Blob downloads unavailable for generated file, falling back to content-script download');
+  }
+
+  await ensureScripts(tabId);
+  const base64Content = base64EncodeUnicode(content);
+
+  await browser.scripting.executeScript({
+    target: { tabId },
+    func: (nextFilename, nextContent, nextMimeType) => {
+      const link = document.createElement('a');
+      link.download = nextFilename;
+      link.href = `data:${nextMimeType};base64,${nextContent}`;
+      link.click();
+    },
+    args: [filename, base64Content, mimeType]
+  });
 }
 
 /**
