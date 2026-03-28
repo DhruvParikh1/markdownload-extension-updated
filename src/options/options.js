@@ -1364,6 +1364,8 @@ function initSearch() {
             card.classList.remove('search-hidden', 'search-match');
             card.style.removeProperty('display');
             card.style.removeProperty('opacity');
+            delete card.dataset.searchBreadcrumb;
+            delete card.dataset.searchAlias;
         });
 
         document.querySelectorAll('[data-search-force-shown]').forEach(el => {
@@ -1409,14 +1411,38 @@ function initSearch() {
         const searchResults = searchApi.searchSettings(searchIndex, normalizedQuery);
         let totalMatches = 0;
 
-        searchResults.results.forEach(({ card, matches }) => {
+        searchResults.results.forEach(({ card, section, matches, tokenMatches }) => {
             card.classList.toggle('search-hidden', !matches);
             card.classList.toggle('search-match', matches);
+
+            // Always clear previous annotations so stale data doesn't linger on non-matches
+            delete card.dataset.searchBreadcrumb;
+            delete card.dataset.searchAlias;
 
             if (matches) {
                 totalMatches++;
                 card.style.display = '';
                 card.style.opacity = '1';
+
+                const sectionLabel = section.querySelector('.section-title')?.textContent?.trim()
+                    || section.dataset.sectionLabel || '';
+                const cardTitle = card.querySelector('.card-title')?.textContent?.trim() || '';
+                if (sectionLabel) {
+                    card.dataset.searchBreadcrumb = sectionLabel + (cardTitle ? ' \u203a ' + cardTitle : '');
+                }
+
+                const aliasSources = tokenMatches.filter(m => m.fieldSource === 'alias');
+                if (aliasSources.length > 0) {
+                    const rawKeywords = card.dataset.searchKeywords || '';
+                    const keywords = rawKeywords.split(',').map(k => k.trim()).filter(Boolean);
+                    const matchedKeywords = keywords.filter(kw => {
+                        const normKw = searchApi.normalizeSearchText(kw);
+                        return aliasSources.some(m => normKw.includes(m.token) || normKw.startsWith(m.token));
+                    });
+                    if (matchedKeywords.length > 0) {
+                        card.dataset.searchAlias = 'matched via: ' + matchedKeywords.slice(0, 2).join(', ');
+                    }
+                }
 
                 let parent = card.parentElement;
                 while (parent && parent !== contentPanel) {
