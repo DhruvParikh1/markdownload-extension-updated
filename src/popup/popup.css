@@ -1341,7 +1341,7 @@ body {
 
 .split-export {
     position: relative;
-    flex: 1 1 0;
+    flex: 1 1 32px;
     min-width: 110px;
 }
 
@@ -1391,7 +1391,7 @@ body {
 }
 
 .split-btn__main {
-    flex: 13 1 0;
+    flex: 1 1 0;
     min-width: 0;
     padding: var(--space-3) var(--space-4);
     border-right: none;
@@ -1399,17 +1399,15 @@ body {
 }
 
 .split-btn__arrow {
-    flex: 3 1 0;
-    min-width: 0;
+    flex: 0 0 32px;
+    width: 32px;
     padding: 0;
     border-left: none;
     border-radius: 0 var(--radius-md) var(--radius-md) 0;
 }
 
 .split-btn__divider {
-    width: 1px;
-    background: rgba(255, 255, 255, 0.22);
-    flex: 0 0 0px;
+    display: none;
 }
 
 .split-dropdown {
