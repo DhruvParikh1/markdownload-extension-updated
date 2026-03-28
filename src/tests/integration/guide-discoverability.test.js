@@ -26,16 +26,43 @@ describe('Guide discoverability — popup', () => {
 
   afterEach(() => dom.window.close());
 
-  test('popup has a help/guide button that links to guide.html', () => {
-    const guideLink = dom.window.document.getElementById('openGuide');
-    expect(guideLink).not.toBeNull();
-    expect(guideLink.getAttribute('href')).toBe('/guide/guide.html');
-    expect(guideLink.getAttribute('target')).toBe('_blank');
+  test('popup has a guide dropdown button', () => {
+    const btn = dom.window.document.getElementById('openGuide');
+    expect(btn).not.toBeNull();
+    expect(btn.tagName).toBe('BUTTON');
+    expect(btn.getAttribute('aria-haspopup')).toBe('true');
   });
 
-  test('guide button has accessible title', () => {
-    const guideLink = dom.window.document.getElementById('openGuide');
-    expect(guideLink.getAttribute('title')).toMatch(/guide/i);
+  test('guide dropdown button has accessible title', () => {
+    const btn = dom.window.document.getElementById('openGuide');
+    expect(btn.getAttribute('title')).toMatch(/guide/i);
+  });
+
+  test('guide dropdown contains a User Guide link', () => {
+    const link = dom.window.document.getElementById('guideLink');
+    expect(link).not.toBeNull();
+    expect(link.getAttribute('href')).toBe('/guide/guide.html');
+    expect(link.getAttribute('target')).toBe('_blank');
+  });
+
+  test('guide dropdown contains a Keyboard Shortcuts button', () => {
+    const btn = dom.window.document.getElementById('showShortcuts');
+    expect(btn).not.toBeNull();
+    expect(btn.tagName).toBe('BUTTON');
+  });
+
+  test('shortcuts modal exists with correct ARIA attributes', () => {
+    const modal = dom.window.document.getElementById('shortcutsModal');
+    expect(modal).not.toBeNull();
+    expect(modal.getAttribute('role')).toBe('dialog');
+    expect(modal.getAttribute('aria-modal')).toBe('true');
+    expect(modal.getAttribute('aria-labelledby')).toBe('shortcutsModalTitle');
+  });
+
+  test('shortcuts modal has a close button', () => {
+    const btn = dom.window.document.getElementById('closeShortcutsModal');
+    expect(btn).not.toBeNull();
+    expect(btn.getAttribute('aria-label')).toMatch(/close/i);
   });
 });
 

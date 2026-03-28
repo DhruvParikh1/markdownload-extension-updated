@@ -62,6 +62,14 @@ const dom = {
     batchSaveModeToggle: document.getElementById('batchSaveModeToggle'),
     batchProcessButton: document.getElementById('batchProcess'),
     openGuideButton: document.getElementById('openGuide'),
+    guideDropdownWrap:      document.getElementById('guideDropdownWrap'),
+    guideDropdown:          document.getElementById('guideDropdown'),
+    guideLink:              document.getElementById('guideLink'),
+    showShortcutsBtn:       document.getElementById('showShortcuts'),
+    shortcutsModal:         document.getElementById('shortcutsModal'),
+    shortcutsModalBackdrop: document.getElementById('shortcutsModalBackdrop'),
+    shortcutsModalBody:     document.getElementById('shortcutsModalBody'),
+    closeShortcutsModalBtn: document.getElementById('closeShortcutsModal'),
     sendToObsidianButton: document.getElementById('sendToObsidian'),
     previewToggle: document.getElementById('previewToggle'),
     editorPreview: document.getElementById('editorPreview'),
@@ -1135,6 +1143,16 @@ libraryUI.exportButton?.addEventListener("click", toggleExportDropdown);
 libraryUI.exportDropdownMenu?.addEventListener("click", handleExportDropdownChoice);
 document.addEventListener("click", closeExportDropdownOnOutsideClick);
 document.addEventListener("keydown", handlePopupKeydown);
+dom.openGuideButton?.addEventListener('click', toggleGuideDropdown);
+dom.guideLink?.addEventListener('click', closeGuideDropdown);
+dom.showShortcutsBtn?.addEventListener('click', showShortcutsModal);
+dom.closeShortcutsModalBtn?.addEventListener('click', closeShortcutsModal);
+dom.shortcutsModalBackdrop?.addEventListener('click', closeShortcutsModal);
+dom.shortcutsModalBody?.addEventListener('click', (e) => {
+    if (e.target.closest('[data-action="open-shortcut-settings"]')) {
+        browser.tabs.create({ url: 'chrome://extensions/shortcuts' });
+    }
+});
 dom.pickLinksButton?.addEventListener("click", activateLinkPicker);
 dom.batchSaveModeToggle?.addEventListener("change", saveBatchSettings);
 progressUI.cancelBtn?.addEventListener("click", () => {
@@ -1288,12 +1306,11 @@ const updateObsidianButtonVisibility = (options) => {
 }
 
 const updateGuideButtonVisibility = (options) => {
-    if (!dom.openGuideButton) return;
-
-    const shouldShowGuideButton = options.showUserGuideIcon !== false;
-    dom.openGuideButton.hidden = !shouldShowGuideButton;
-    dom.openGuideButton.style.display = shouldShowGuideButton ? "" : "none";
-    dom.openGuideButton.setAttribute("aria-hidden", String(!shouldShowGuideButton));
+    if (!dom.guideDropdownWrap) return;
+    const shouldShow = options.showUserGuideIcon !== false;
+    dom.guideDropdownWrap.hidden = !shouldShow;
+    dom.guideDropdownWrap.style.display = shouldShow ? "" : "none";
+    dom.guideDropdownWrap.setAttribute("aria-hidden", String(!shouldShow));
 }
 
 const updateBatchProcessButtonVisibility = (options) => {
@@ -1799,6 +1816,10 @@ function closeExportDropdownOnOutsideClick(e) {
     if (!dom.splitButtonWrap?.contains(e.target)) {
         closeSplitDropdown();
     }
+
+    if (!dom.guideDropdownWrap?.contains(e.target)) {
+        closeGuideDropdown();
+    }
 }
 
 function toggleSplitDropdown(e) {
@@ -1831,10 +1852,90 @@ function closeSplitDropdown() {
     dom.splitExport?.classList.remove('open');
 }
 
-function handlePopupKeydown(event) {
-    if (event.key === 'Escape') {
+function toggleGuideDropdown(e) {
+    e.stopPropagation();
+    if (!dom.guideDropdown) return;
+    if (!dom.guideDropdown.hidden) {
+        closeGuideDropdown();
+    } else {
         closeExportDropdown();
         closeSplitDropdown();
+        dom.guideDropdown.hidden = false;
+        dom.openGuideButton?.setAttribute('aria-expanded', 'true');
+    }
+}
+
+function closeGuideDropdown() {
+    if (dom.guideDropdown) dom.guideDropdown.hidden = true;
+    dom.openGuideButton?.setAttribute('aria-expanded', 'false');
+}
+
+async function showShortcutsModal() {
+    closeGuideDropdown();
+    if (!dom.shortcutsModal || !dom.shortcutsModalBody) return;
+
+    const loading = document.createElement('p');
+    loading.className = 'shortcuts-loading';
+    loading.textContent = 'Loading\u2026';
+    dom.shortcutsModalBody.replaceChildren(loading);
+
+    dom.shortcutsModal.hidden = false;
+    document.querySelectorAll('body > :not(#shortcutsModal)').forEach(el => { el.inert = true; });
+    dom.closeShortcutsModalBtn?.focus();
+
+    try {
+        const commands = await browser.commands.getAll();
+        const fragment = globalThis.markSnipPopupShortcuts.buildShortcutsFragment(document, commands);
+        dom.shortcutsModalBody.replaceChildren(fragment);
+    } catch {
+        const err = document.createElement('p');
+        err.className = 'shortcuts-modal__error';
+        err.textContent = 'Could not load shortcuts.';
+        dom.shortcutsModalBody.replaceChildren(err);
+    }
+}
+
+function closeShortcutsModal() {
+    if (!dom.shortcutsModal || dom.shortcutsModal.hidden) return;
+    dom.shortcutsModal.hidden = true;
+    document.querySelectorAll('body > :not(#shortcutsModal)').forEach(el => { el.inert = false; });
+    dom.openGuideButton?.focus();
+}
+
+function trapShortcutsModalTab(event) {
+    if (!dom.shortcutsModal || dom.shortcutsModal.hidden) return;
+    const focusable = Array.from(
+        dom.shortcutsModal.querySelectorAll(
+            'button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])'
+        )
+    );
+    if (!focusable.length) { event.preventDefault(); return; }
+    const first = focusable[0], last = focusable[focusable.length - 1];
+    const active = document.activeElement;
+    if (event.shiftKey) {
+        if (active === first || !dom.shortcutsModal.contains(active)) {
+            event.preventDefault(); last.focus();
+        }
+    } else {
+        if (active === last || !dom.shortcutsModal.contains(active)) {
+            event.preventDefault(); first.focus();
+        }
+    }
+}
+
+function handlePopupKeydown(event) {
+    if (event.key === 'Escape') {
+        if (!dom.shortcutsModal?.hidden) {
+            closeShortcutsModal();
+        } else {
+            closeExportDropdown();
+            closeSplitDropdown();
+            closeGuideDropdown();
+        }
+        return;
+    }
+    if (event.key === 'Tab') {
+        trapShortcutsModalTab(event);
     }
 }
 

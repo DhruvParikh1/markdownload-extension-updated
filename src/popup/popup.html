@@ -91,13 +91,32 @@
         </div>
       </div>
       <div class="header-actions">
-        <a href="/guide/guide.html" id="openGuide" target="_blank" class="icon-btn" title="User Guide">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"/>
-            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-            <line x1="12" y1="17" x2="12.01" y2="17"/>
-          </svg>
-        </a>
+        <div class="guide-dropdown-wrap" id="guideDropdownWrap">
+          <button id="openGuide" class="icon-btn" title="User Guide"
+                  aria-haspopup="true" aria-expanded="false">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </button>
+          <div class="guide-dropdown" id="guideDropdown" hidden>
+            <a href="/guide/guide.html" target="_blank" id="guideLink" class="dd-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+              </svg>
+              <span class="dd-item__label">User Guide</span>
+            </a>
+            <button id="showShortcuts" class="dd-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="2" y="4" width="20" height="16" rx="2"/>
+                <path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M7 16h10"/>
+              </svg>
+              <span class="dd-item__label">Keyboard Shortcuts</span>
+            </button>
+          </div>
+        </div>
         <a href="#" id="batchProcess" class="icon-btn" title="Batch Processing">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polygon points="12 2 2 7 12 12 22 7 12 2"/>
@@ -416,6 +435,23 @@
     </div>
   </div>
 
+  <div id="shortcutsModal" class="shortcuts-modal" hidden
+       role="dialog" aria-modal="true" aria-labelledby="shortcutsModalTitle">
+    <div class="shortcuts-modal__backdrop" id="shortcutsModalBackdrop"></div>
+    <div class="shortcuts-modal__card">
+      <div class="shortcuts-modal__header">
+        <span class="shortcuts-modal__title" id="shortcutsModalTitle">Keyboard Shortcuts</span>
+        <button class="shortcuts-modal__close" id="closeShortcutsModal" aria-label="Close shortcuts">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="shortcuts-modal__body" id="shortcutsModalBody"></div>
+    </div>
+  </div>
+
   <script type="application/javascript" src="../browser-polyfill.min.js"></script>
   <script type="application/javascript" src="lib/codemirror.js"></script>
   <script type="application/javascript" src="lib/modes/markdown/markdown.js"></script>
@@ -423,6 +459,7 @@
   <script type="application/javascript" src="../shared/agent-bridge-state.js"></script>
   <script type="application/javascript" src="../shared/library-state.js"></script>
   <script type="application/javascript" src="../shared/popup-batch-utils.js"></script>
+  <script type="application/javascript" src="../shared/popup-shortcuts.js"></script>
   <script type="application/javascript" src="popup.js"></script>
 </body>
 </html>

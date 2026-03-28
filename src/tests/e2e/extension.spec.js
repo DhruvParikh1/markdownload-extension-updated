@@ -751,4 +751,115 @@ test.describe('MarkSnip Extension E2E', () => {
       await optionsPage.close().catch(() => {});
     }
   });
+
+  test.describe('shortcuts cheatsheet modal', () => {
+    let popupPage;
+
+    test.beforeEach(async () => {
+      popupPage = await context.newPage();
+      await popupPage.goto(`chrome-extension://${extensionId}/popup/popup.html`);
+      await expect(popupPage.locator('#container')).toBeVisible();
+    });
+
+    test.afterEach(async () => {
+      await popupPage?.close().catch(() => {});
+    });
+
+    test('info button opens guide dropdown', async () => {
+      await popupPage.locator('#openGuide').click();
+      await expect(popupPage.locator('#guideDropdown')).toBeVisible();
+      await expect(popupPage.locator('#guideLink')).toBeVisible();
+      await expect(popupPage.locator('#showShortcuts')).toBeVisible();
+    });
+
+    test('clicking user guide item closes dropdown', async () => {
+      await popupPage.locator('#openGuide').click();
+      await expect(popupPage.locator('#guideDropdown')).toBeVisible();
+      await popupPage.locator('#guideLink').click();
+      await expect(popupPage.locator('#guideDropdown')).toBeHidden();
+    });
+
+    test('shortcuts modal opens and renders commands from mocked getAll()', async () => {
+      await popupPage.evaluate(() => {
+        browser.commands.getAll = async () => [
+          { name: '_execute_action',          shortcut: 'Alt+Shift+M', description: '' },
+          { name: 'download_tab_as_markdown', shortcut: 'Alt+Shift+D', description: 'Save tab' },
+          { name: 'copy_selection_as_markdown', shortcut: '',          description: 'Copy sel' },
+        ];
+      });
+      await popupPage.locator('#openGuide').click();
+      await popupPage.locator('#showShortcuts').click();
+
+      await expect(popupPage.locator('#shortcutsModal')).toBeVisible();
+      await expect(popupPage.locator('#shortcutsModalBody kbd').first()).toBeVisible();
+      await expect(popupPage.locator('#shortcutsModalBody')).toContainText('Open MarkSnip popup');
+      await expect(popupPage.locator('#shortcutsModalBody')).toContainText('Download tab as Markdown');
+      await expect(popupPage.locator('#shortcutsModalBody')).toContainText('Copy selection as Markdown');
+      await expect(popupPage.locator('.shortcuts-section-label')).toBeVisible();
+    });
+
+    test('Escape closes modal and returns focus to guide button', async () => {
+      await popupPage.evaluate(() => {
+        browser.commands.getAll = async () => [
+          { name: '_execute_action', shortcut: 'Alt+Shift+M', description: '' },
+        ];
+      });
+      await popupPage.locator('#openGuide').click();
+      await popupPage.locator('#showShortcuts').click();
+      await expect(popupPage.locator('#shortcutsModal')).toBeVisible();
+
+      await popupPage.keyboard.press('Escape');
+      await expect(popupPage.locator('#shortcutsModal')).toBeHidden();
+      const focusedId = await popupPage.evaluate(() => document.activeElement?.id);
+      expect(focusedId).toBe('openGuide');
+    });
+
+    test('backdrop click closes modal', async () => {
+      await popupPage.evaluate(() => {
+        browser.commands.getAll = async () => [];
+      });
+      await popupPage.locator('#openGuide').click();
+      await popupPage.locator('#showShortcuts').click();
+      await expect(popupPage.locator('#shortcutsModal')).toBeVisible();
+
+      await popupPage.locator('#shortcutsModalBackdrop').click();
+      await expect(popupPage.locator('#shortcutsModal')).toBeHidden();
+    });
+
+    test('Tab stays inside modal', async () => {
+      await popupPage.evaluate(() => {
+        browser.commands.getAll = async () => [];
+      });
+      await popupPage.locator('#openGuide').click();
+      await popupPage.locator('#showShortcuts').click();
+      await expect(popupPage.locator('#shortcutsModal')).toBeVisible();
+
+      await popupPage.keyboard.press('Tab');
+      const focusedId = await popupPage.evaluate(() => document.activeElement?.id);
+      expect(focusedId).toBe('closeShortcutsModal');
+    });
+
+    test('Shift+Tab stays inside modal', async () => {
+      await popupPage.evaluate(() => {
+        browser.commands.getAll = async () => [];
+      });
+      await popupPage.locator('#openGuide').click();
+      await popupPage.locator('#showShortcuts').click();
+      await expect(popupPage.locator('#shortcutsModal')).toBeVisible();
+
+      await popupPage.keyboard.press('Shift+Tab');
+      const focusedId = await popupPage.evaluate(() => document.activeElement?.id);
+      expect(focusedId).toBe('closeShortcutsModal');
+    });
+
+    test('API rejection shows error message', async () => {
+      await popupPage.evaluate(() => {
+        browser.commands.getAll = async () => { throw new Error('API unavailable'); };
+      });
+      await popupPage.locator('#openGuide').click();
+      await popupPage.locator('#showShortcuts').click();
+      await expect(popupPage.locator('#shortcutsModal')).toBeVisible();
+      await expect(popupPage.locator('#shortcutsModalBody')).toContainText('Could not load shortcuts');
+    });
+  });
 });
