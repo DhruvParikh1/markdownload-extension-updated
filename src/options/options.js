@@ -276,7 +276,9 @@ async function reloadExtensionForAgentBridgePermissionGrant() {
 
     if (container) {
         container.dataset.bridgeState = 'starting';
+        container.dataset.permissionState = 'idle';
     }
+    hidePermissionPanel();
     if (statusText) {
         statusText.textContent = 'Reloading extension';
     }
@@ -290,6 +292,100 @@ async function reloadExtensionForAgentBridgePermissionGrant() {
 
     await new Promise((resolve) => setTimeout(resolve, 150));
     browser.runtime?.reload?.();
+}
+
+/* ── Permission Panel Management ── */
+
+function showPermissionPanel(panelState) {
+    const panel = document.getElementById('agentBridgePermissionPanel');
+    const container = document.getElementById('agent-bridge-container');
+    if (!panel) return;
+
+    panel.hidden = false;
+    panel.querySelectorAll('.permission-panel-state').forEach(el => {
+        el.classList.toggle('is-active', el.dataset.panelState === panelState);
+    });
+
+    if (container) {
+        container.dataset.permissionState = panelState;
+    }
+}
+
+function hidePermissionPanel() {
+    const panel = document.getElementById('agentBridgePermissionPanel');
+    const container = document.getElementById('agent-bridge-container');
+    if (panel) {
+        panel.hidden = true;
+        panel.querySelectorAll('.permission-panel-state').forEach(el => {
+            el.classList.remove('is-active');
+        });
+    }
+    if (container) {
+        container.dataset.permissionState = 'idle';
+    }
+}
+
+async function handlePermissionContinue() {
+    const continueBtn = document.getElementById('agentBridgePermContinue');
+    if (continueBtn) {
+        continueBtn.disabled = true;
+        continueBtn.textContent = 'Requesting...';
+    }
+
+    try {
+        const permissionResult = await requestAgentBridgePermission();
+
+        if (!permissionResult.granted) {
+            // Show denied state
+            showPermissionPanel('denied');
+            return;
+        }
+
+        // Permission granted
+        hidePermissionPanel();
+        agentBridgeSettings.enabled = true;
+        await saveAgentBridgeSettingsState(agentBridgeSettings);
+
+        if (permissionResult.reloadRequired) {
+            await reloadExtensionForAgentBridgePermissionGrant();
+            return;
+        }
+
+        const toggle = document.querySelector("[name='agentBridgeEnabled']");
+        if (toggle) toggle.checked = true;
+
+        const refreshedStatus = await refreshAgentBridgeStatusState();
+        setCurrentAgentBridgeChoice(agentBridgeSettings, refreshedStatus);
+        showToast("Agent Bridge enabled", "success");
+    } catch (error) {
+        console.error('Failed to request Agent Bridge permission:', error);
+        showPermissionPanel('denied');
+    } finally {
+        if (continueBtn) {
+            continueBtn.disabled = false;
+            continueBtn.textContent = 'Continue';
+        }
+    }
+}
+
+function handlePermissionCancel() {
+    hidePermissionPanel();
+    const toggle = document.querySelector("[name='agentBridgeEnabled']");
+    if (toggle) toggle.checked = false;
+    agentBridgeSettings.enabled = false;
+    setCurrentAgentBridgeChoice(agentBridgeSettings, agentBridgeStatus);
+}
+
+async function handlePermissionRetry() {
+    showPermissionPanel('preflight');
+}
+
+function handlePermissionDismiss() {
+    hidePermissionPanel();
+    const toggle = document.querySelector("[name='agentBridgeEnabled']");
+    if (toggle) toggle.checked = false;
+    agentBridgeSettings.enabled = false;
+    setCurrentAgentBridgeChoice(agentBridgeSettings, agentBridgeStatus);
 }
 
 function normalizeImportedOptionsState(importedOptions) {
@@ -680,6 +776,7 @@ const setCurrentAgentBridgeChoice = (settingsResult, statusResult = agentBridgeS
     const container = document.getElementById('agent-bridge-container');
     const statusText = document.getElementById('agentBridgeStatusText');
     const statusHint = document.getElementById('agentBridgeStatusHint');
+    const toggleHint = document.getElementById('agentBridgeToggleHint');
     const versionEl = document.getElementById('agentBridgeHostVersion');
 
     let text = 'Disabled';
@@ -700,12 +797,15 @@ const setCurrentAgentBridgeChoice = (settingsResult, statusResult = agentBridgeS
         state = 'connected';
     } else if (agentBridgeSettings.enabled && agentBridgeStatus.lastError) {
         text = 'Waiting for companion';
-        hint = agentBridgeStatus.lastError;
+        hint = 'The local companion could not be reached. Check the setup guide and try again.';
         state = 'waiting';
     } else if (agentBridgeSettings.enabled) {
         text = 'Starting';
         hint = 'MarkSnip is trying to connect to the local companion.';
         state = 'starting';
+    } else if (!agentBridgeSettings.enabled && agentBridgeStatus.permissionGranted) {
+        // Disabled after prior grant
+        hint = 'MarkSnip will not use the local connection while disabled, even if the browser-level permission remains granted.';
     }
 
     if (container) {
@@ -718,6 +818,15 @@ const setCurrentAgentBridgeChoice = (settingsResult, statusResult = agentBridgeS
     }
     if (statusHint) {
         statusHint.textContent = hint;
+    }
+
+    // Update toggle hint based on enabled state
+    if (toggleHint) {
+        if (agentBridgeSettings.enabled) {
+            toggleHint.textContent = 'MarkSnip opens a native messaging connection while this toggle is on.';
+        } else {
+            toggleHint.textContent = 'When off, MarkSnip will not open a local companion connection.';
+        }
     }
 
     if (versionEl) {
@@ -840,17 +949,14 @@ const inputChange = async (e) => {
             let reloadRequired = false;
 
             if (nextEnabled && usesOptionalNativeMessagingPermission() && !agentBridgeStatus.permissionGranted) {
-                const permissionResult = await requestAgentBridgePermission();
-                if (!permissionResult.granted) {
-                    e.target.checked = false;
-                    agentBridgeSettings.enabled = false;
-                    setCurrentAgentBridgeChoice(agentBridgeSettings, agentBridgeStatus);
-                    return;
-                }
-                reloadRequired = permissionResult.reloadRequired;
+                // Don't immediately request permission — show the preflight panel
+                e.target.checked = false;
+                showPermissionPanel('preflight');
+                return;
             }
 
             agentBridgeSettings.enabled = nextEnabled;
+            hidePermissionPanel();
             await saveAgentBridgeSettingsState(agentBridgeSettings);
             if (reloadRequired) {
                 await reloadExtensionForAgentBridgePermissionGrant();
@@ -1196,6 +1302,8 @@ const loaded = () => {
     // Attach event listeners (skip the search input)
     document.querySelectorAll('input,textarea,button').forEach(input => {
         if (input.id === 'settings-search') return;
+        // Skip permission panel buttons (they have their own handlers)
+        if (['agentBridgePermContinue', 'agentBridgePermCancel', 'agentBridgePermRetry', 'agentBridgePermDismiss'].includes(input.id)) return;
         if (input.tagName == "TEXTAREA" || input.type == "text") {
             input.addEventListener('keyup', inputKeyup);
         }
@@ -1208,6 +1316,28 @@ const loaded = () => {
         }
         else input.addEventListener('change', inputChange);
     })
+
+    // Wire up permission panel buttons
+    const permContinue = document.getElementById('agentBridgePermContinue');
+    const permCancel = document.getElementById('agentBridgePermCancel');
+    const permRetry = document.getElementById('agentBridgePermRetry');
+    const permDismiss = document.getElementById('agentBridgePermDismiss');
+    const permGuideLink = document.getElementById('agentBridgePermGuideLink');
+
+    if (permContinue) permContinue.addEventListener('click', handlePermissionContinue);
+    if (permCancel) permCancel.addEventListener('click', handlePermissionCancel);
+    if (permRetry) permRetry.addEventListener('click', handlePermissionRetry);
+    if (permDismiss) permDismiss.addEventListener('click', handlePermissionDismiss);
+    if (permGuideLink) {
+        permGuideLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            const setupGuide = document.getElementById('agentBridgeSetupGuide');
+            if (setupGuide) {
+                setupGuide.open = true;
+                setupGuide.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        });
+    }
 }
 
 // ── Settings Search ──

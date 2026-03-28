@@ -90,6 +90,12 @@
                         <li><a href="#image-downloads" class="toc-link">Image Downloads</a></li>
                     </ul>
                 </li>
+                <li><a href="#permissions-privacy" class="toc-link">Permissions &amp; Privacy</a>
+                    <ul class="toc-sublist">
+                        <li><a href="#site-access-permission" class="toc-link">Site Access</a></li>
+                        <li><a href="#agent-bridge-permission" class="toc-link">Agent Bridge Permission</a></li>
+                    </ul>
+                </li>
                 <li><a href="#troubleshooting" class="toc-link">Troubleshooting / FAQ</a></li>
                 <li><a href="#text-substitutions" class="toc-link">Text Substitutions</a></li>
             </ul>
@@ -512,6 +518,48 @@ author: {byline}
                     <p>When enabled (Downloads API mode only), images are downloaded alongside the Markdown file with local references.</p>
                     <h4>Image Filename Prefix</h4>
                     <p>A prefix or subfolder for downloaded images. Uses <a href="#text-substitutions">text substitutions</a>. Including a <code>/</code> creates a subfolder. Default: <code>{pageTitle}/</code>.</p>
+                </div>
+            </section>
+
+            <!-- ────────────────────────────────────────────
+                 SECTION: Permissions & Privacy
+                 ──────────────────────────────────────────── -->
+            <section id="permissions-privacy" class="guide-section"
+                data-guide-section="Permissions and Privacy"
+                data-guide-summary="What permissions MarkSnip uses and why"
+                data-search-keywords="permissions,privacy,site access,all urls,native messaging,local companion,data,security,nativeMessaging,what does marksnip access,agent bridge permission">
+                <h2 class="section-heading"><a href="#permissions-privacy" class="anchor-link">#</a>Permissions &amp; Privacy</h2>
+                <p>MarkSnip processes pages entirely within your browser. It does not send page content to any external server. This section explains what browser permissions MarkSnip uses and why.</p>
+
+                <div id="site-access-permission" class="guide-subsection"
+                    data-guide-section="Site Access Permission"
+                    data-guide-summary="Why MarkSnip requests access to all sites"
+                    data-search-keywords="site access,all urls,host permission,content script,clip any page,browsing data">
+                    <h3 class="subsection-heading"><a href="#site-access-permission" class="anchor-link">#</a>Site Access</h3>
+                    <p>MarkSnip requests access to web pages so it can read the current page when you trigger a clip. This permission is part of the extension install.</p>
+                    <ul>
+                        <li><strong>Only active when you clip</strong> &mdash; MarkSnip does not monitor browsing activity or read pages in the background.</li>
+                        <li><strong>Processed locally</strong> &mdash; page content is converted to Markdown inside your browser and is never sent to a remote service.</li>
+                        <li><strong>Managed by the browser</strong> &mdash; you can review this permission in your browser&rsquo;s extension settings at any time.</li>
+                    </ul>
+                </div>
+
+                <div id="agent-bridge-permission" class="guide-subsection"
+                    data-guide-section="Agent Bridge Permission"
+                    data-guide-summary="Optional native messaging permission for Agent Bridge"
+                    data-search-keywords="native messaging,agent bridge permission,local companion,optional permission,nativeMessaging,grant permission,revoke permission">
+                    <h3 class="subsection-heading"><a href="#agent-bridge-permission" class="anchor-link">#</a>Agent Bridge Permission</h3>
+                    <p>The Agent Bridge feature requires an additional browser permission called <strong>Native Messaging</strong>. This is an <em>optional</em> permission &mdash; MarkSnip works perfectly without it.</p>
+                    <ul>
+                        <li><strong>What it does</strong> &mdash; lets MarkSnip talk to a small local companion program installed on your machine.</li>
+                        <li><strong>Local only</strong> &mdash; communication stays on your computer. No data leaves your machine.</li>
+                        <li><strong>When it&rsquo;s used</strong> &mdash; only while Agent Bridge is enabled. Turning the toggle off stops all native messaging activity.</li>
+                        <li><strong>How to grant</strong> &mdash; enable the Agent Bridge toggle in Settings. MarkSnip will show an explanation before the browser&rsquo;s permission prompt appears.</li>
+                        <li><strong>How to revoke</strong> &mdash; once granted, this permission cannot be selectively removed. To fully revoke it, you must reinstall the extension. Turning off the Agent Bridge toggle stops all native messaging activity without needing to revoke the permission.</li>
+                    </ul>
+                    <div class="tip-box">
+                        <strong>Note:</strong> If you deny the permission, regular clipping is completely unaffected. You can always try again later.
+                    </div>
                 </div>
             </section>
 

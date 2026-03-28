@@ -2044,6 +2044,234 @@ code {
     color: var(--text-secondary);
 }
 
+/* ── Permissions & Privacy Card ── */
+.permissions-privacy-card .card-title svg {
+    color: var(--accent);
+}
+
+/* Permission expandable rows */
+.permission-row {
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    margin-top: var(--space-3);
+    overflow: hidden;
+    transition: border-color var(--transition);
+}
+
+.permission-row:hover {
+    border-color: var(--border-medium);
+}
+
+.permission-row + .permission-row {
+    margin-top: var(--space-2);
+}
+
+.permission-row-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+    transition: background var(--transition);
+}
+
+.permission-row-header::-webkit-details-marker {
+    display: none;
+}
+
+.permission-row-header:hover {
+    background: var(--bg-secondary);
+}
+
+.permission-row[open] .permission-row-header {
+    border-bottom: 1px solid var(--border-light);
+}
+
+.permission-row-title {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    color: var(--text-primary);
+}
+
+.permission-badge {
+    font-size: 10px;
+    font-weight: var(--weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.permission-badge--included {
+    background: var(--accent-light);
+    color: var(--accent-dark);
+}
+
+.permission-badge--optional {
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+}
+
+.permission-row-body {
+    padding: var(--space-3) var(--space-4) var(--space-4);
+    animation: permRowOpen 200ms ease-out;
+}
+
+@keyframes permRowOpen {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.permission-explainer-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.permission-explainer-list li {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    line-height: 1.5;
+    padding-left: var(--space-5);
+    position: relative;
+}
+
+.permission-explainer-list li::before {
+    content: '';
+    position: absolute;
+    left: var(--space-2);
+    top: 7px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--border-medium);
+}
+
+
+/* ── Agent Bridge Permission Panel ── */
+.agent-bridge-permission-panel {
+    margin-top: var(--space-4);
+    padding: var(--space-4);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-lg);
+    background: var(--accent-light);
+    animation: permPanelSlideDown 250ms ease-out;
+}
+
+@keyframes permPanelSlideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        max-height: 400px;
+        transform: translateY(0);
+    }
+}
+
+.agent-bridge-permission-panel[hidden] {
+    display: none;
+}
+
+/* Show/hide sub-states */
+.permission-panel-state {
+    display: none;
+}
+
+.permission-panel-state.is-active {
+    display: block;
+}
+
+.permission-panel-title {
+    font-family: var(--font-display);
+    font-size: var(--text-base);
+    font-weight: var(--weight-semibold);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+}
+
+.permission-panel-title svg {
+    color: var(--accent);
+    flex-shrink: 0;
+}
+
+.permission-panel-desc {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: var(--space-3);
+}
+
+.permission-panel-bullets {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--space-4) 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.permission-panel-bullets li {
+    font-size: var(--text-sm);
+    color: var(--text-primary);
+    font-weight: var(--weight-medium);
+    padding-left: var(--space-5);
+    position: relative;
+}
+
+.permission-panel-bullets li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-weight: var(--weight-bold);
+    font-size: var(--text-sm);
+}
+
+.permission-panel-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+}
+
+.permission-panel-link {
+    font-size: var(--text-sm);
+    color: var(--accent);
+    text-decoration: none;
+    margin-left: auto;
+}
+
+.permission-panel-link:hover {
+    text-decoration: underline;
+}
+
+/* Denied state uses neutral border */
+[data-permission-state="denied"] .agent-bridge-permission-panel {
+    border-color: var(--border-medium);
+    background: var(--bg-secondary);
+}
+
+
 /* --- Status row --- */
 .agent-bridge-status-row {
     display: flex;

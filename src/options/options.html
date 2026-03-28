@@ -625,21 +625,100 @@
                     </div>
                 </div>
 
+                <!-- Permissions & Privacy (read-only info card) -->
+                <div class="setting-card permissions-privacy-card" id="permissions-privacy-container"
+                    data-search-keywords="permissions,privacy,site access,all urls,native messaging,local companion,data,security,what does marksnip access">
+                    <h3 class="card-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                        Permissions &amp; Privacy
+                    </h3>
+                    <p class="card-desc">MarkSnip processes pages locally and only accesses page content when you trigger a clip.</p>
+
+                    <details class="permission-row" id="permissionRowSiteAccess">
+                        <summary class="permission-row-header">
+                            <span class="permission-row-title">Site access for clipping</span>
+                            <span class="permission-badge permission-badge--included">Included with extension</span>
+                        </summary>
+                        <div class="permission-row-body">
+                            <ul class="permission-explainer-list">
+                                <li>Needed so MarkSnip can clip any page you ask it to clip.</li>
+                                <li>Not used for passive browsing monitoring.</li>
+                                <li>Page content is not sent to external servers.</li>
+                                <li>This is managed by the browser as part of the extension install.</li>
+                            </ul>
+                        </div>
+                    </details>
+
+                    <details class="permission-row" id="permissionRowLocalCompanion">
+                        <summary class="permission-row-header">
+                            <span class="permission-row-title">Local companion access</span>
+                            <span class="permission-badge permission-badge--optional">Optional</span>
+                        </summary>
+                        <div class="permission-row-body">
+                            <ul class="permission-explainer-list">
+                                <li>Only used for Agent Bridge.</li>
+                                <li>Only talks to the local MarkSnip companion installed on this machine.</li>
+                                <li>Regular clipping works without it.</li>
+                                <li>Can be stopped by turning Agent Bridge off.</li>
+                            </ul>
+                        </div>
+                    </details>
+                </div>
+
+                <!-- Agent Bridge -->
                 <div class="setting-card" id="agent-bridge-container"
                     data-search-keywords="agent bridge,cli,native host,native messaging,claude code,coding agent,stdout,bridge"
-                    data-bridge-state="disabled">
+                    data-bridge-state="disabled"
+                    data-permission-state="idle">
                     <h3 class="card-title">Agent Bridge</h3>
                     <p class="card-desc">Install the local MarkSnip companion once, then let local tools pull the current page's Markdown directly without using downloads.</p>
 
                     <div class="toggle-row">
                         <div class="toggle-info">
                             <label class="toggle-label-text" for="agentBridgeEnabled">Enable Agent Bridge</label>
-                            <p class="toggle-hint">MarkSnip opens a native messaging connection only while this toggle is on.</p>
+                            <p class="toggle-hint" id="agentBridgeToggleHint">When off, MarkSnip will not open a local companion connection.</p>
                         </div>
                         <label class="toggle-switch">
                             <input name="agentBridgeEnabled" id="agentBridgeEnabled" type="checkbox" />
                             <span class="toggle-slider"></span>
                         </label>
+                    </div>
+
+                    <!-- Inline permission panel (preflight / denied / explanatory) -->
+                    <div class="agent-bridge-permission-panel" id="agentBridgePermissionPanel" hidden>
+                        <!-- Preflight state -->
+                        <div class="permission-panel-state" data-panel-state="preflight">
+                            <h4 class="permission-panel-title">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                </svg>
+                                Enable local companion access?
+                            </h4>
+                            <p class="permission-panel-desc">MarkSnip is about to ask the browser for permission to talk to the local MarkSnip companion.</p>
+                            <ul class="permission-panel-bullets">
+                                <li>Only for Agent Bridge</li>
+                                <li>Local machine only</li>
+                                <li>Regular clipping still works without this</li>
+                            </ul>
+                            <div class="permission-panel-actions">
+                                <button id="agentBridgePermContinue" class="btn btn-primary btn-sm" type="button">Continue</button>
+                                <button id="agentBridgePermCancel" class="btn btn-secondary btn-sm" type="button">Cancel</button>
+                                <a href="#" id="agentBridgePermGuideLink" class="permission-panel-link">View setup guide</a>
+                            </div>
+                        </div>
+
+                        <!-- Denied state -->
+                        <div class="permission-panel-state" data-panel-state="denied">
+                            <p class="permission-panel-desc">Permission wasn't granted. Agent Bridge stays off. Regular clipping is unchanged.</p>
+                            <div class="permission-panel-actions">
+                                <button id="agentBridgePermRetry" class="btn btn-secondary btn-sm" type="button">Try again</button>
+                                <button id="agentBridgePermDismiss" class="btn btn-secondary btn-sm" type="button">Cancel</button>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="agent-bridge-status-row" id="agentBridgeStatusRow">
