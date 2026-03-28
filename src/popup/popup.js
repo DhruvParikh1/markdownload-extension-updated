@@ -36,6 +36,10 @@ const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const POPUP_VIEW_TRANSITION_MS = 180;
 const POPUP_THEME_CACHE_KEY = 'marksnip-popup-theme-cache-v1';
+const countUtils = globalThis.markSnipCountUtils;
+const COUNT_MODES = Array.isArray(countUtils?.COUNT_MODES) && countUtils.COUNT_MODES.length > 0
+    ? countUtils.COUNT_MODES
+    : ['chars', 'words', 'minRead', 'tokens'];
 let lastRenderedLibraryStateKey = '';
 const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude', 'special-theme-perplexity', 'special-theme-atla', 'special-theme-ben10'];
 const ACCENT_CLASS_NAMES = ['accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber'];
@@ -472,6 +476,35 @@ const EDITOR_THEME_STYLESHEET_MAP = Object.freeze({
     'solarized light': 'lib/solarized.css',
     'twilight': 'lib/twilight.css'
 });
+
+function getFallbackWordCount(text) {
+    const normalized = String(text || '').trim();
+    return normalized === '' ? 0 : normalized.split(/\s+/).length;
+}
+
+function formatCounterDisplay(text, mode) {
+    if (typeof countUtils?.formatCountDisplay === 'function') {
+        return countUtils.formatCountDisplay(text, mode);
+    }
+
+    const normalized = String(text || '');
+    if (mode === 'words') {
+        return getFallbackWordCount(normalized).toLocaleString() + ' words';
+    }
+
+    if (mode === 'minRead') {
+        const words = getFallbackWordCount(normalized);
+        const minutes = words === 0 ? 0 : Math.max(1, Math.ceil(words / 200));
+        return minutes.toLocaleString() + ' min read';
+    }
+
+    if (mode === 'tokens') {
+        const remaining = normalized.replace(/\s+/g, ' ').trim();
+        return Math.ceil((remaining.length || 0) / 4).toLocaleString() + ' tokens';
+    }
+
+    return normalized.length.toLocaleString() + ' chars';
+}
 
 function afterNextPaint() {
     return new Promise((resolve) => {
@@ -1182,88 +1215,13 @@ function applyThemeSettings(options) {
 }
 
 // Char/word/token counter
-const COUNT_MODES = ['chars', 'words', 'tokens'];
 let countMode = 'chars';
 let _lastCounterText = '';
-
-function estimateTokens(text) {
-    if (!text) return 0;
-
-    let total = 0;
-
-    // 1. Markdown links & images: [text](url) — count URL part at URL rate
-    text = text.replace(/!?\[([^\]]*)\]\((https?:\/\/[^\s\)]+)\)/g, (_, label, url) => {
-        total += Math.ceil(url.length / 2.5);  // URL tokens
-        total += 2;                             // [] () syntax tokens
-        return label;                           // label counted as prose later
-    });
-
-    // 2. Standalone URLs (~2.5 chars/token — paths & domains split into many pieces)
-    text = text.replace(/https?:\/\/[^\s\)>\]]+/g, (url) => {
-        total += Math.ceil(url.length / 2.5);
-        return '';
-    });
-
-    // 3. Fenced code blocks (~3 chars/token — symbols & short identifiers tokenize densely)
-    text = text.replace(/```[\s\S]*?```/g, (block) => {
-        total += Math.ceil(block.length / 3);
-        return '';
-    });
-
-    // 4. Inline code (~3.5 chars/token)
-    text = text.replace(/`[^`\n]+`/g, (code) => {
-        total += Math.ceil(code.length / 3.5);
-        return '';
-    });
-
-    // 5. HTML entities (&amp; &lt; &#123; etc.) — each is typically 1 token
-    text = text.replace(/&(?:#\d+|#x[\da-fA-F]+|[a-zA-Z]+);/g, () => {
-        total += 1;
-        return '';
-    });
-
-    // 6. Non-ASCII / Unicode (CJK, emoji, accented chars — often 1-3 tokens per character)
-    text = text.replace(/[^\x00-\x7F]+/g, (chunk) => {
-        total += Math.ceil(chunk.length * 1.5);
-        return '';
-    });
-
-    // 7. Standalone numbers & dates (each digit group ≈ 1-2 tokens)
-    text = text.replace(/\b\d[\d.,:\-\/]*\b/g, (num) => {
-        total += Math.ceil(num.length / 2);
-        return '';
-    });
-
-    // 8. Markdown heading markers, bold/italic, list bullets, blockquote markers
-    //    (##, **, __, *, -, >) — each marker is ~1 token
-    text = text.replace(/^#{1,6}\s/gm, () => { total += 1; return ''; });
-    text = text.replace(/(\*{1,3}|_{1,3})/g, () => { total += 1; return ''; });
-    text = text.replace(/^[\-\*\+]\s/gm, () => { total += 1; return ''; });
-    text = text.replace(/^\d+\.\s/gm, () => { total += 1; return ''; });
-    text = text.replace(/^>\s?/gm, () => { total += 1; return ''; });
-
-    // 9. Remaining prose (~4 chars/token)
-    const remaining = text.replace(/\s+/g, ' ').trim();
-    if (remaining.length > 0) {
-        total += Math.ceil(remaining.length / 4);
-    }
-
-    return total;
-}
 
 function updateCharCount(value) {
     _lastCounterText = value;
     if (!dom.charCount) return;
-    let display;
-    if (countMode === 'chars') {
-        display = value.length.toLocaleString() + ' chars';
-    } else if (countMode === 'words') {
-        const words = value.trim() === '' ? 0 : value.trim().split(/\s+/).length;
-        display = words.toLocaleString() + ' words';
-    } else {
-        display = estimateTokens(value).toLocaleString() + ' tokens';
-    }
-    dom.charCount.textContent = display;
+    dom.charCount.textContent = formatCounterDisplay(value, countMode);
 }
 
 dom.charCount?.addEventListener('click', () => {
@@ -1274,11 +1232,7 @@ dom.charCount?.addEventListener('click', () => {
 });
 
 function getCardCountDisplay(markdown, mode) {
-    if (!markdown) return '0 ' + (mode === 'chars' ? 'chars' : mode === 'tokens' ? 'tokens' : 'words');
-    if (mode === 'chars') return markdown.length.toLocaleString() + ' chars';
-    if (mode === 'tokens') return estimateTokens(markdown).toLocaleString() + ' tokens';
-    const words = markdown.trim() === '' ? 0 : markdown.trim().split(/\s+/).length;
-    return words.toLocaleString() + ' words';
+    return formatCounterDisplay(markdown, mode);
 }
 
 function updateAllCardCountBadges() {
