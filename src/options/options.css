@@ -2065,6 +2065,7 @@ code {
     font-weight: var(--weight-normal);
     margin-top: var(--space-1);
     line-height: 1.5;
+    margin-bottom: var(--space-3);
 }
 
 .option-note strong {
