@@ -308,6 +308,18 @@
                     <div class="input-group">
                         <label class="input-label" for="frontmatter">Text that appears at the top of the output file</label>
                         <textarea name="frontmatter" id="frontmatter" class="textarea-input" role="textbox"></textarea>
+                        <details class="template-preview" id="frontmatter-preview" data-search-exclude>
+                            <summary class="template-preview-summary">
+                                <span class="template-preview-header">
+                                    <span class="template-preview-label">Live preview</span>
+                                    <span class="template-preview-meta">Raw output</span>
+                                </span>
+                            </summary>
+                            <div class="template-preview-body">
+                                <p class="toggle-hint template-preview-hint">Preview uses example metadata and the current date/time.</p>
+                                <pre class="template-preview-output" id="frontmatter-preview-output" aria-live="polite" aria-atomic="true"></pre>
+                            </div>
+                        </details>
                     </div>
                 </div>
 
@@ -317,6 +329,18 @@
                     <div class="input-group">
                         <label class="input-label" for="backmatter">Text that appears at the bottom of the output file</label>
                         <textarea name="backmatter" id="backmatter" class="textarea-input" role="textbox"></textarea>
+                        <details class="template-preview" id="backmatter-preview" data-search-exclude>
+                            <summary class="template-preview-summary">
+                                <span class="template-preview-header">
+                                    <span class="template-preview-label">Live preview</span>
+                                    <span class="template-preview-meta">Raw output</span>
+                                </span>
+                            </summary>
+                            <div class="template-preview-body">
+                                <p class="toggle-hint template-preview-hint">Preview uses example metadata and the current date/time.</p>
+                                <pre class="template-preview-output" id="backmatter-preview-output" aria-live="polite" aria-atomic="true"></pre>
+                            </div>
+                        </details>
                     </div>
                 </div>
 
@@ -1601,6 +1625,8 @@ const helloWorld = () => {
 	    <script src="../shared/site-rules.js"></script>
 	    <script src="../shared/default-options.js"></script>
 	    <script src="../shared/context-menus.js"></script>
+    <script src="../background/moment.min.js"></script>
+    <script src="../shared/template-utils.js"></script>
     <script src="../shared/agent-bridge-state.js"></script>
     <script src="../shared/library-state.js"></script>
     <script src="../shared/search-core.js"></script>

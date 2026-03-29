@@ -20,6 +20,7 @@ let agentBridgeStatus = {
 };
 let agentBridgeInstallCommand = 'marksnip install-host';
 let keyupTimeout = null;
+let templatePreviewListenersBound = false;
 	const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude', 'special-theme-perplexity', 'special-theme-atla', 'special-theme-ben10'];
 	const ACCENT_CLASS_NAMES = ['accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber'];
 	const POPUP_THEME_CACHE_KEY = 'marksnip-popup-theme-cache-v1';
@@ -78,6 +79,10 @@ function getLibraryStateApi() {
 
 	function getSiteRulesApi() {
 	    return globalThis.markSnipSiteRules || null;
+	}
+
+	function getTemplateUtils() {
+	    return globalThis.markSnipTemplateUtils || null;
 	}
 
 	function normalizeSiteRulesState(rules) {
@@ -1182,6 +1187,90 @@ function hideToast() {
     this.classList.remove("visible");
 }
 
+function buildTemplatePreviewSampleArticle() {
+    const sampleUrl = new URL('https://example.com/article');
+    const samplePageUrl = new URL('https://example.com/article');
+
+    return {
+        title: 'Example Article',
+        pageTitle: 'Example Article',
+        length: '1842',
+        excerpt: 'A compact sample summary for template preview output.',
+        description: 'A compact sample summary for template preview output.',
+        byline: 'Jane Doe',
+        author: 'Jane Doe',
+        dir: 'ltr',
+        keywords: ['example', 'markdown', 'templates'],
+        siteName: 'Example Site',
+        baseURI: sampleUrl.href,
+        pageURL: samplePageUrl.href,
+        tabURL: samplePageUrl.href,
+        origin: sampleUrl.origin,
+        host: sampleUrl.host,
+        hostname: sampleUrl.hostname,
+        port: sampleUrl.port,
+        protocol: sampleUrl.protocol,
+        pathname: sampleUrl.pathname,
+        search: sampleUrl.search,
+        hash: sampleUrl.hash,
+        pageOrigin: samplePageUrl.origin,
+        pageHost: samplePageUrl.host,
+        pageHostname: samplePageUrl.hostname,
+        pagePort: samplePageUrl.port,
+        pageProtocol: samplePageUrl.protocol,
+        pagePathname: samplePageUrl.pathname,
+        pageSearch: samplePageUrl.search,
+        pageHash: samplePageUrl.hash
+    };
+}
+
+function renderTemplatePreviewOutput(outputId, templateValue) {
+    const output = document.getElementById(outputId);
+    if (!output) {
+        return;
+    }
+
+    const normalizedTemplate = String(templateValue || '');
+    if (!normalizedTemplate.trim()) {
+        output.textContent = 'Nothing to preview yet.';
+        output.classList.add('is-empty');
+        return;
+    }
+
+    const templateUtils = getTemplateUtils();
+    const renderedText = typeof templateUtils?.textReplace === 'function'
+        ? templateUtils.textReplace(normalizedTemplate, buildTemplatePreviewSampleArticle())
+        : normalizedTemplate;
+
+    output.textContent = renderedText;
+    output.classList.toggle('is-empty', !renderedText.trim());
+}
+
+function renderTemplatePreviews() {
+    const frontmatterInput = document.getElementById('frontmatter');
+    const backmatterInput = document.getElementById('backmatter');
+
+    renderTemplatePreviewOutput('frontmatter-preview-output', frontmatterInput?.value || '');
+    renderTemplatePreviewOutput('backmatter-preview-output', backmatterInput?.value || '');
+}
+
+function bindTemplatePreviewListeners() {
+    if (templatePreviewListenersBound) {
+        return;
+    }
+
+    ['frontmatter', 'backmatter'].forEach((id) => {
+        const input = document.getElementById(id);
+        if (!input) {
+            return;
+        }
+
+        input.addEventListener('input', renderTemplatePreviews);
+    });
+
+    templatePreviewListenersBound = true;
+}
+
 const setCurrentChoice = result => {
     options = normalizeImportedOptionsState(result);
 
@@ -1255,6 +1344,7 @@ const setCurrentChoice = result => {
 	    refreshElements();
 	    applyThemeSettings();
 	    renderSiteRules();
+        renderTemplatePreviews();
 	}
 
 const setCurrentLibraryChoice = (result) => {
@@ -1767,6 +1857,8 @@ const loaded = () => {
     initSidebar();
     initSearch();
     configureReviewLink();
+    bindTemplatePreviewListeners();
+    renderTemplatePreviews();
 
 	    // Restore saved options
 	    restoreOptions();

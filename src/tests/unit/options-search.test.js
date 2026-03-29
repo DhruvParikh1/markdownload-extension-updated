@@ -18,6 +18,10 @@ const optionsSearchSource = fs.readFileSync(
   path.join(__dirname, '../../options/options-search.js'),
   'utf8'
 );
+const templateUtilsSource = fs.readFileSync(
+  path.join(__dirname, '../../shared/template-utils.js'),
+  'utf8'
+);
 const optionsSource = fs.readFileSync(
   path.join(__dirname, '../../options/options.js'),
   'utf8'
@@ -26,6 +30,7 @@ const libraryStateSource = fs.readFileSync(
   path.join(__dirname, '../../shared/library-state.js'),
   'utf8'
 );
+const moment = require('../../background/moment.min.js');
 
 const baseOptions = {
   headingStyle: 'atx',
@@ -184,11 +189,13 @@ function createOptionsPageDom(optionOverrides = {}, libraryOverrides = {}) {
 
   dom.window.browser = browser;
   dom.window.chrome = browser;
+  dom.window.moment = moment;
   dom.window.createMenus = jest.fn();
   dom.window.eval(`var defaultOptions = ${JSON.stringify(storedOptions)};`);
   dom.window.eval(searchCoreSource);
   dom.window.eval(libraryStateSource);
   dom.window.eval(optionsSearchSource);
+  dom.window.eval(templateUtilsSource);
   dom.window.eval(optionsSource);
 
   return {
@@ -283,6 +290,7 @@ describe('Options search helper', () => {
   test('excluded examples and reference details do not affect search results', () => {
     expect(getMatchIds(index, 'google')).toEqual([]);
     expect(getMatchIds(index, 'format reference')).toEqual([]);
+    expect(getMatchIds(index, 'preview uses example metadata')).toEqual([]);
   });
 });
 
@@ -556,5 +564,88 @@ describe('Options page search UI', () => {
   test.each(specialThemeCases)('special theme keywords surface the Special Themes card for $label queries', ({ keyword }) => {
     const index = optionsSearch.buildSearchIndex(loadOptionsDocument().window.document);
     expect(getMatchIds(index, keyword)).toContain('specialThemeGroup');
+  });
+});
+
+describe('Options page template preview', () => {
+  test('renders stored frontmatter and backmatter templates on initial load', async () => {
+    const { dom } = createOptionsPageDom({
+      frontmatter: 'title: {pageTitle}\nsource: {pageURL}',
+      backmatter: 'captured: {date:YYYY-MM-DD}\nhost: {pageHost}'
+    });
+    const { document } = dom.window;
+
+    document.dispatchEvent(new dom.window.Event('DOMContentLoaded', { bubbles: true }));
+    await waitForMicrotasks();
+    await waitFor(dom.window, 50);
+
+    expect(document.getElementById('frontmatter-preview').open).toBe(false);
+    expect(document.getElementById('backmatter-preview').open).toBe(false);
+    expect(document.getElementById('frontmatter-preview-output').textContent).toBe(
+      'title: Example Article\nsource: https://example.com/article'
+    );
+    expect(document.getElementById('backmatter-preview-output').textContent).toBe(
+      `captured: ${moment().format('YYYY-MM-DD')}\nhost: example.com`
+    );
+  });
+
+  test('updates the preview immediately on input without waiting for autosave debounce', async () => {
+    const { dom, browser } = createOptionsPageDom({
+      frontmatter: 'title: {pageTitle}'
+    });
+    const { document } = dom.window;
+
+    document.dispatchEvent(new dom.window.Event('DOMContentLoaded', { bubbles: true }));
+    await waitForMicrotasks();
+    await waitFor(dom.window, 50);
+
+    const textarea = document.getElementById('frontmatter');
+    const output = document.getElementById('frontmatter-preview-output');
+
+    textarea.value = 'path: {pagePathname}\nexcerpt: {excerpt}';
+    textarea.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
+
+    expect(output.textContent).toBe(
+      'path: /article\nexcerpt: A compact sample summary for template preview output.'
+    );
+    expect(browser.storage.sync.set).not.toHaveBeenCalled();
+  });
+
+  test('shows an empty placeholder instead of stale preview content', async () => {
+    const { dom } = createOptionsPageDom({
+      backmatter: 'source: {pageURL}'
+    });
+    const { document } = dom.window;
+
+    document.dispatchEvent(new dom.window.Event('DOMContentLoaded', { bubbles: true }));
+    await waitForMicrotasks();
+    await waitFor(dom.window, 50);
+
+    const textarea = document.getElementById('backmatter');
+    const output = document.getElementById('backmatter-preview-output');
+
+    expect(output.textContent).toBe('source: https://example.com/article');
+
+    textarea.value = '';
+    textarea.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
+
+    expect(output.textContent).toBe('Nothing to preview yet.');
+    expect(output.classList.contains('is-empty')).toBe(true);
+  });
+
+  test('excludes preview hint text from search indexing', async () => {
+    const { dom } = createOptionsPageDom({
+      frontmatter: 'title: {pageTitle}'
+    });
+    const { document } = dom.window;
+
+    document.dispatchEvent(new dom.window.Event('DOMContentLoaded', { bubbles: true }));
+    await waitForMicrotasks();
+    await waitFor(dom.window, 50);
+
+    const index = dom.window.markSnipOptionsSearch.buildSearchIndex(document);
+    const search = dom.window.markSnipOptionsSearch.searchSettings(index, 'preview uses example metadata');
+
+    expect(search.matches).toEqual([]);
   });
 });
