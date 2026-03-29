@@ -27,6 +27,11 @@ let batchSettingsLoaded = false;
 let activeTabPromise = null;
 let activeTabCache = null;
 let currentOptions = null;
+let activeSiteRuleState = {
+    matchedRule: null,
+    overriddenKeys: [],
+    effectiveOptions: null
+};
 let deferredStartupScheduled = false;
 let deferredLibraryWarmupScheduled = false;
 let previewActive = false;
@@ -107,6 +112,8 @@ const dom = {
     copySelectionButton: document.getElementById('copySelection'),
     includeTemplate: document.getElementById('includeTemplate'),
     downloadImages: document.getElementById('downloadImages'),
+    includeTemplateRuleHint: document.getElementById('includeTemplateRuleHint'),
+    downloadImagesRuleHint: document.getElementById('downloadImagesRuleHint'),
     selectedButton: document.getElementById('selected'),
     documentButton: document.getElementById('document'),
     clipOption: document.getElementById('clipOption'),
@@ -1522,6 +1529,83 @@ function updateCurrentClipState(nextState = {}) {
     queuePersistAgentBridgeClip(currentClipState);
 }
 
+function clonePopupOptionsSnapshot(source = currentOptions || defaultOptions) {
+    const nextOptions = {
+        ...(source || {})
+    };
+    if (source?.tableFormatting && typeof source.tableFormatting === 'object') {
+        nextOptions.tableFormatting = {
+            ...source.tableFormatting
+        };
+    }
+    if (Array.isArray(source?.siteRules)) {
+        nextOptions.siteRules = source.siteRules.map((rule) => ({ ...rule }));
+    }
+    return nextOptions;
+}
+
+function isActiveRuleOverriding(fieldName) {
+    return Array.isArray(activeSiteRuleState.overriddenKeys) &&
+        activeSiteRuleState.overriddenKeys.includes(fieldName);
+}
+
+function getPopupExportOptions() {
+    const base = activeSiteRuleState.effectiveOptions || currentOptions || defaultOptions;
+    const nextOptions = clonePopupOptionsSnapshot(base);
+
+    if (dom.includeTemplate) {
+        nextOptions.includeTemplate = dom.includeTemplate.checked;
+    }
+    if (dom.downloadImages) {
+        nextOptions.downloadImages = dom.downloadImages.checked;
+    }
+
+    return nextOptions;
+}
+
+function updateRuleOverrideHint(fieldName, hintEl, inputEl) {
+    if (!hintEl || !inputEl) {
+        return;
+    }
+
+    const overridden = isActiveRuleOverriding(fieldName);
+    const ruleName = activeSiteRuleState.matchedRule?.name || 'Site Rule';
+    hintEl.hidden = !overridden;
+    hintEl.textContent = overridden ? `Overridden by ${ruleName}` : '';
+    inputEl.disabled = overridden;
+    inputEl.closest('.toggle-label')?.classList.toggle('is-locked', overridden);
+}
+
+function applyActiveSiteRuleUi(sourceOptions = currentOptions || defaultOptions) {
+    const effectiveOptions = activeSiteRuleState.effectiveOptions || sourceOptions || defaultOptions;
+
+    if (dom.includeTemplate) {
+        dom.includeTemplate.checked = Boolean(effectiveOptions.includeTemplate);
+    }
+    if (dom.downloadImages) {
+        dom.downloadImages.checked = Boolean(effectiveOptions.downloadImages);
+    }
+
+    updateRuleOverrideHint('includeTemplate', dom.includeTemplateRuleHint, dom.includeTemplate);
+    updateRuleOverrideHint('downloadImages', dom.downloadImagesRuleHint, dom.downloadImages);
+}
+
+function setActiveSiteRuleState(matchedRule = null, overriddenKeys = [], effectiveOptions = null) {
+    activeSiteRuleState = {
+        matchedRule: matchedRule && typeof matchedRule === 'object'
+            ? {
+                id: matchedRule.id || '',
+                name: matchedRule.name || '',
+                pattern: matchedRule.pattern || ''
+            }
+            : null,
+        overriddenKeys: Array.isArray(overriddenKeys) ? overriddenKeys.slice() : [],
+        effectiveOptions: effectiveOptions ? clonePopupOptionsSnapshot(effectiveOptions) : null
+    };
+
+    applyActiveSiteRuleUi(currentOptions || defaultOptions);
+}
+
 function hasSavableClip() {
     return Boolean(currentClipState.pageUrl && currentClipState.markdown.trim());
 }
@@ -2694,13 +2778,8 @@ const checkInitialSettings = options => {
     // Apply theme settings
     applyThemeSettings(currentOptions);
 
-    // Set checkbox states
-    if (dom.includeTemplate) {
-        dom.includeTemplate.checked = currentOptions.includeTemplate || false;
-    }
-    if (dom.downloadImages) {
-        dom.downloadImages.checked = currentOptions.downloadImages || false;
-    }
+    setActiveSiteRuleState(null, [], null);
+    applyActiveSiteRuleUi(currentOptions);
     updateObsidianButtonVisibility(currentOptions);
     updateGuideButtonVisibility(currentOptions);
     updateBatchProcessButtonVisibility(currentOptions);
@@ -3069,7 +3148,8 @@ function sendDownloadMessage(text, title = dom.titleInput?.value || '') {
                 title,
                 tab,
                 imageList: imageList,
-                mdClipsFolder: mdClipsFolder
+                mdClipsFolder: mdClipsFolder,
+                options: getPopupExportOptions()
             };
             return browser.runtime.sendMessage(message);
         });
@@ -3352,6 +3432,7 @@ async function sendToObsidian(e) {
 function notify(message) {
     // message for displaying markdown
     if (message.type == "display.md") {
+        setActiveSiteRuleState(message.matchedSiteRule, message.overriddenKeys, message.effectiveOptions || message.options);
         imageList = message.imageList;
         sourceImageMap = message.sourceImageMap;
         mdClipsFolder = message.mdClipsFolder;
@@ -3364,6 +3445,7 @@ function notify(message) {
             dom.titleInput.value = message.article.title;
         }
         setEditorValue(message.markdown);
+        applyActiveSiteRuleUi(message.effectiveOptions || currentOptions);
 
         const shouldRevealMainView = activePopupView === null;
         if (shouldRevealMainView) {

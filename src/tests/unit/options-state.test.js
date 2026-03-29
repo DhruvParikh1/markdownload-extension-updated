@@ -9,6 +9,7 @@ const defaultOptions = {
   defaultExportType: 'markdown',
   specialTheme: 'none',
   showUserGuideIcon: true,
+  siteRules: [],
   tableFormatting: {
     stripLinks: true,
     stripFormatting: false,
@@ -125,7 +126,7 @@ const defaultOptions = {
 
 test('normalizeImportedOptions ignores non-plain option inputs', () => {
   const normalized = optionsState.normalizeImportedOptions('text', 123);
-  expect(normalized).toEqual({ tableFormatting: {} });
+  expect(normalized).toEqual({ tableFormatting: {}, siteRules: [] });
 });
 
 test('buildExportFilename handles invalid date values', () => {
@@ -150,7 +151,7 @@ test('resetOptionKeys clears tableFormatting when defaults lack that object', ()
 
 test('resetAllOptions handles non-plain defaults without blowing up', () => {
   const result = optionsState.resetAllOptions({ contextMenus: true }, null);
-  expect(result.options).toEqual({ tableFormatting: {} });
+  expect(result.options).toEqual({ tableFormatting: {}, siteRules: [] });
   expect(result.contextMenuAction).toBe('remove');
 });
 
@@ -273,4 +274,48 @@ test('normalizeImportedOptions clones array fields', () => {
   normalized.list.push(5);
   expect(defaults.list).toEqual([1, 2]);
 });
+
+test('normalizeImportedOptions sanitizes and clones siteRules', () => {
+  const normalized = optionsState.normalizeImportedOptions({
+    siteRules: [
+      {
+        pattern: 'example.com/*',
+        overrides: {
+          includeTemplate: true,
+          rogue: true
+        }
+      }
+    ]
+  }, defaultOptions);
+
+  expect(normalized.siteRules).toHaveLength(1);
+  expect(normalized.siteRules[0].overrides).toEqual({
+    includeTemplate: true
+  });
+
+  normalized.siteRules[0].name = 'changed';
+  expect(defaultOptions.siteRules).toEqual([]);
 });
+
+test('resetOptionKeys restores siteRules to defaults', () => {
+  const current = {
+    ...defaultOptions,
+    siteRules: [
+      {
+        id: 'rule-1',
+        name: 'Docs',
+        enabled: true,
+        pattern: 'docs.example.com/*',
+        overrides: {
+          title: 'Docs/{pageTitle}'
+        }
+      }
+    ]
+  };
+
+  const result = optionsState.resetOptionKeys(current, defaultOptions, ['siteRules']);
+
+  expect(result.options.siteRules).toEqual([]);
+  expect(result.contextMenuAction).toBe('none');
+});
+	});

@@ -226,24 +226,30 @@
       </div>
     </header>
 
-    <!-- Quick Settings -->
-    <section class="settings-panel">
-      <div class="toggle-row">
-        <label class="toggle-label" for="downloadImages">
-          <span class="toggle-text">Images</span>
-          <div class="toggle-switch">
-            <input type="checkbox" id="downloadImages" class="toggle-input">
-            <span class="toggle-slider"></span>
-          </div>
-        </label>
-        <label class="toggle-label" for="includeTemplate">
-          <span class="toggle-text">Template</span>
-          <div class="toggle-switch">
-            <input type="checkbox" id="includeTemplate" class="toggle-input">
-            <span class="toggle-slider"></span>
-          </div>
-        </label>
-      </div>
+	    <!-- Quick Settings -->
+	    <section class="settings-panel">
+	      <div class="toggle-row">
+	        <div class="toggle-setting">
+	          <label class="toggle-label" for="downloadImages">
+	            <span class="toggle-text">Images</span>
+	            <div class="toggle-switch">
+	              <input type="checkbox" id="downloadImages" class="toggle-input">
+	              <span class="toggle-slider"></span>
+	            </div>
+	          </label>
+	          <p class="toggle-override-note" id="downloadImagesRuleHint" hidden></p>
+	        </div>
+	        <div class="toggle-setting">
+	          <label class="toggle-label" for="includeTemplate">
+	            <span class="toggle-text">Template</span>
+	            <div class="toggle-switch">
+	              <input type="checkbox" id="includeTemplate" class="toggle-input">
+	              <span class="toggle-slider"></span>
+	            </div>
+	          </label>
+	          <p class="toggle-override-note" id="includeTemplateRuleHint" hidden></p>
+	        </div>
+	      </div>
 
       <div class="setting-row" id="clipOption">
         <span class="setting-text-static">Content:</span>

@@ -37,8 +37,61 @@ function getMarkdownOptionsApi() {
   return globalThis.markSnipMarkdownOptions || null;
 }
 
+function getSiteRulesApi() {
+  return globalThis.markSnipSiteRules || null;
+}
+
 function getCodeBlockUtilsApi() {
   return globalThis.markSnipCodeBlockUtils || null;
+}
+
+function cloneRuntimeOptions(source = {}) {
+  const nextOptions = {
+    ...(source || {})
+  };
+
+  if (source?.tableFormatting && typeof source.tableFormatting === 'object') {
+    nextOptions.tableFormatting = {
+      ...source.tableFormatting
+    };
+  }
+
+  delete nextOptions.siteRules;
+  return nextOptions;
+}
+
+function getArticleSiteRuleUrl(article = {}) {
+  const candidates = [
+    article?.pageURL,
+    article?.tabURL,
+    article?.pageUrl,
+    article?.baseURI
+  ];
+
+  for (const candidate of candidates) {
+    const value = String(candidate || '').trim();
+    if (value) {
+      return value;
+    }
+  }
+
+  return '';
+}
+
+function resolveOptionsForArticle(article = {}, providedOptions = null) {
+  const baseOptions = providedOptions || defaultOptions;
+  const pageUrl = getArticleSiteRuleUrl(article);
+  const siteRulesApi = getSiteRulesApi();
+
+  if (pageUrl && siteRulesApi?.resolveSiteRuleOptions) {
+    return siteRulesApi.resolveSiteRuleOptions(pageUrl, baseOptions);
+  }
+
+  return {
+    options: cloneRuntimeOptions(baseOptions),
+    matchedRule: null,
+    overriddenKeys: []
+  };
 }
 
 function buildDomWithSelection(domString, selectionHtml, shouldUseSelection = true) {
@@ -163,13 +216,14 @@ async function processContent(message) {
     
     const domForArticle = buildDomWithSelection(data.dom, data.selection, !!data.clipSelection);
     const article = await getArticleFromDom(domForArticle, options, data.pageUrl);
+    const resolved = resolveOptionsForArticle(article, options);
     
     // Convert to markdown using passed options
-    const { markdown, imageList, sourceImageMap } = await convertArticleToMarkdown(article, null, options);
+    const { markdown, imageList, sourceImageMap } = await convertArticleToMarkdown(article, null, resolved.options);
     
     // Format title and folder using passed options
-    article.title = await formatTitle(article, options);
-    const mdClipsFolder = await formatMdClipsFolder(article, options);
+    article.title = await formatTitle(article, resolved.options);
+    const mdClipsFolder = await formatMdClipsFolder(article, resolved.options);
     
     // Send results back to service worker
     await browser.runtime.sendMessage({
@@ -180,7 +234,10 @@ async function processContent(message) {
         article,
         imageList,
         sourceImageMap,
-        mdClipsFolder
+        mdClipsFolder,
+        effectiveOptions: resolved.options,
+        matchedSiteRule: resolved.matchedRule,
+        overriddenKeys: resolved.overriddenKeys
       }
     });
   } catch (error) {
@@ -219,8 +276,9 @@ async function handleBridgeCapture(message) {
       throw new Error(`Failed to get valid article content from tab ${tabId}`);
     }
 
-    const title = await formatTitle(article, options || defaultOptions);
-    const { markdown } = await convertArticleToMarkdown(article, false, options || defaultOptions);
+    const resolved = resolveOptionsForArticle(article, options || defaultOptions);
+    const title = await formatTitle(article, resolved.options);
+    const { markdown } = await convertArticleToMarkdown(article, false, resolved.options);
     const pageUrl = String(
       article?.pageURL ||
       article?.tabURL ||
@@ -295,10 +353,18 @@ async function handleContextMenuDownload(info, tabId, providedOptions = null, cu
       article.pageTitle = customTitle.trim();
     }
 
+    const resolved = resolveOptionsForArticle(article, options);
+    const effectiveOptions = collectOnly
+      ? {
+        ...resolved.options,
+        downloadImages: false
+      }
+      : resolved.options;
+
     console.log(`Got article for tab ${tabId}, processing...`);
-    const title = await formatTitle(article, options);
-    const { markdown, imageList } = await convertArticleToMarkdown(article, null, options);
-    const mdClipsFolder = await formatMdClipsFolder(article, options);
+    const title = await formatTitle(article, effectiveOptions);
+    const { markdown, imageList } = await convertArticleToMarkdown(article, null, effectiveOptions);
+    const mdClipsFolder = await formatMdClipsFolder(article, effectiveOptions);
     let fullFilename = mdClipsFolder;
     if (fullFilename && !fullFilename.endsWith('/')) fullFilename += '/';
     fullFilename = (fullFilename || '') + title + '.md';
@@ -306,7 +372,7 @@ async function handleContextMenuDownload(info, tabId, providedOptions = null, cu
 
     if (!collectOnly) {
       console.log(`Downloading markdown for tab ${tabId}`);
-      await downloadMarkdown(markdown, title, tabId, imageList, mdClipsFolder, options, notificationDelta);
+      await downloadMarkdown(markdown, title, tabId, imageList, mdClipsFolder, effectiveOptions, notificationDelta);
     }
     
     // Signal completion
@@ -339,10 +405,10 @@ async function handleContextMenuCopy(info, tabId, providedOptions = null) {
   const options = providedOptions || defaultOptions;
 
   if (info.menuItemId === "copy-markdown-link") {
-    // Don't call getOptions() - use the passed options
-    const localOptions = {...options};
+    const article = await getArticleFromContent(tabId, false, options);
+    const resolved = resolveOptionsForArticle(article, options);
+    const localOptions = { ...resolved.options };
     localOptions.frontmatter = localOptions.backmatter = '';
-    const article = await getArticleFromContent(tabId, false, options);  // Added options
     const { markdown } = turndown(
       `<a href="${info.linkUrl}">${info.linkText || info.selectionText}</a>`,
       { ...localOptions, downloadImages: false },
@@ -354,12 +420,12 @@ async function handleContextMenuCopy(info, tabId, providedOptions = null) {
     await copyToClipboard(`![](${info.srcUrl})`);
   }
   else if (info.menuItemId === "copy-markdown-obsidian") {
-    const article = await getArticleFromContent(tabId, true, options);  // Added options
+    const article = await getArticleFromContent(tabId, true, options);
+    const resolved = resolveOptionsForArticle(article, options);
     const title = article.title;
-    // Don't call getOptions()
-    const obsidianVault = options.obsidianVault;
-    const obsidianFolder = await formatObsidianFolder(article, options);
-    const obsidianOptions = markSnipObsidian.getObsidianTransportOptions(options);
+    const obsidianVault = resolved.options.obsidianVault;
+    const obsidianFolder = await formatObsidianFolder(article, resolved.options);
+    const obsidianOptions = markSnipObsidian.getObsidianTransportOptions(resolved.options);
     const { markdown } = await convertArticleToMarkdown(article, null, obsidianOptions);
 
     console.log('[Offscreen] Sending markdown to service worker for Obsidian integration...');
@@ -370,16 +436,16 @@ async function handleContextMenuCopy(info, tabId, providedOptions = null) {
       tabId: tabId,
       vault: obsidianVault,
       folder: obsidianFolder,
-      title: generateValidFileName(title, options.disallowedChars)
+      title: generateValidFileName(title, resolved.options.disallowedChars)
     });
   }
   else if (info.menuItemId === "copy-markdown-obsall") {
-    const article = await getArticleFromContent(tabId, false, options);  // Added options
+    const article = await getArticleFromContent(tabId, false, options);
+    const resolved = resolveOptionsForArticle(article, options);
     const title = article.title;
-    // Don't call getOptions()
-    const obsidianVault = options.obsidianVault;
-    const obsidianFolder = await formatObsidianFolder(article, options);
-    const obsidianOptions = markSnipObsidian.getObsidianTransportOptions(options);
+    const obsidianVault = resolved.options.obsidianVault;
+    const obsidianFolder = await formatObsidianFolder(article, resolved.options);
+    const obsidianOptions = markSnipObsidian.getObsidianTransportOptions(resolved.options);
     const { markdown } = await convertArticleToMarkdown(article, null, obsidianOptions);
 
     console.log('[Offscreen] Sending markdown to service worker for Obsidian integration...');
@@ -390,12 +456,13 @@ async function handleContextMenuCopy(info, tabId, providedOptions = null) {
       tabId: tabId,
       vault: obsidianVault,
       folder: obsidianFolder,
-      title: generateValidFileName(title, options.disallowedChars)
+      title: generateValidFileName(title, resolved.options.disallowedChars)
     });
   }
   else {
-    const article = await getArticleFromContent(tabId, info.menuItemId === "copy-markdown-selection", options);  // Added options
-    const { markdown } = await convertArticleToMarkdown(article, false, options);
+    const article = await getArticleFromContent(tabId, info.menuItemId === "copy-markdown-selection", options);
+    const resolved = resolveOptionsForArticle(article, options);
+    const { markdown } = await convertArticleToMarkdown(article, false, resolved.options);
     await copyToClipboard(markdown);
   }
 }

@@ -39,14 +39,20 @@
     entry.fields.push(field);
   }
 
+  function isSearchExcluded(node) {
+    return !!node?.closest?.('[data-search-exclude]');
+  }
+
   function addFieldsFromNodeList(entry, nodes, options) {
-    nodes.forEach(node =>
-      addField(entry, options.clean ? options.clean(node) : node.textContent, options)
-    );
+    nodes.forEach(node => {
+      if (isSearchExcluded(node)) return;
+      addField(entry, options.clean ? options.clean(node) : node.textContent, options);
+    });
   }
 
   function addControlFields(entry, card) {
     card.querySelectorAll('input, textarea, select').forEach(control => {
+      if (isSearchExcluded(control)) return;
       addField(entry, control.name, { source: 'control-name', primary: true, qualifies: true, allowFuzzy: true });
       addField(entry, control.id,   { source: 'control-id',   primary: true, qualifies: true, allowFuzzy: true });
     });

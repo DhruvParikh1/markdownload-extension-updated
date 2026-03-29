@@ -1,4 +1,20 @@
 (function (root) {
+  function getSiteRulesApi() {
+    if (root.markSnipSiteRules) {
+      return root.markSnipSiteRules;
+    }
+
+    if (typeof require === 'function') {
+      try {
+        return require('./site-rules');
+      } catch {
+        return null;
+      }
+    }
+
+    return null;
+  }
+
   function isPlainObject(value) {
     return Object.prototype.toString.call(value) === '[object Object]';
   }
@@ -30,6 +46,7 @@
   function normalizeImportedOptions(importedOptions = {}, defaultOptions = {}) {
     const safeImported = isPlainObject(importedOptions) ? importedOptions : {};
     const safeDefaults = isPlainObject(defaultOptions) ? defaultOptions : {};
+    const siteRulesApi = getSiteRulesApi();
 
     const normalized = {
       ...deepClone(safeDefaults),
@@ -47,6 +64,12 @@
       ...defaultTableFormatting,
       ...importedTableFormatting
     };
+
+    if (siteRulesApi?.normalizeSiteRules) {
+      normalized.siteRules = siteRulesApi.normalizeSiteRules(normalized.siteRules);
+    } else if (!Array.isArray(normalized.siteRules)) {
+      normalized.siteRules = [];
+    }
 
     return normalized;
   }

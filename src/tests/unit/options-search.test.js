@@ -67,11 +67,12 @@ const baseOptions = {
   obsidianFolder: '',
   popupTheme: 'system',
   specialTheme: 'none',
-  popupAccent: 'sage',
-  compactMode: false,
-  showUserGuideIcon: true,
-  editorTheme: 'default'
-};
+	  popupAccent: 'sage',
+	  compactMode: false,
+	  showUserGuideIcon: true,
+	  editorTheme: 'default',
+	  siteRules: []
+	};
 
 function mergeOptions(overrides = {}) {
   return {

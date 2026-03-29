@@ -20,21 +20,496 @@ let agentBridgeStatus = {
 };
 let agentBridgeInstallCommand = 'marksnip install-host';
 let keyupTimeout = null;
-const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude', 'special-theme-perplexity', 'special-theme-atla', 'special-theme-ben10'];
-const ACCENT_CLASS_NAMES = ['accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber'];
-const POPUP_THEME_CACHE_KEY = 'marksnip-popup-theme-cache-v1';
+	const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude', 'special-theme-perplexity', 'special-theme-atla', 'special-theme-ben10'];
+	const ACCENT_CLASS_NAMES = ['accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber'];
+	const POPUP_THEME_CACHE_KEY = 'marksnip-popup-theme-cache-v1';
+	const SITE_RULE_BOOLEAN_FIELD_IDS = {
+	    includeTemplate: 'siteRuleIncludeTemplate',
+	    downloadImages: 'siteRuleDownloadImages'
+	};
+	const SITE_RULE_ENUM_FIELD_IDS = {
+	    imageStyle: 'siteRuleImageStyle',
+	    imageRefStyle: 'siteRuleImageRefStyle'
+	};
+	const SITE_RULE_TEXT_FIELD_IDS = {
+	    frontmatter: { toggleId: 'siteRuleFrontmatterEnabled', inputId: 'siteRuleFrontmatter' },
+	    backmatter: { toggleId: 'siteRuleBackmatterEnabled', inputId: 'siteRuleBackmatter' },
+	    title: { toggleId: 'siteRuleTitleEnabled', inputId: 'siteRuleTitle' },
+	    imagePrefix: { toggleId: 'siteRuleImagePrefixEnabled', inputId: 'siteRuleImagePrefix' },
+	    mdClipsFolder: { toggleId: 'siteRuleMdClipsFolderEnabled', inputId: 'siteRuleMdClipsFolder' }
+	};
+	const SITE_RULE_TABLE_FIELD_IDS = {
+	    stripLinks: 'siteRuleTableStripLinks',
+	    stripFormatting: 'siteRuleTableStripFormatting',
+	    prettyPrint: 'siteRuleTablePrettyPrint',
+	    centerText: 'siteRuleTableCenterText'
+	};
+	const SITE_RULE_OVERRIDE_LABELS = {
+	    includeTemplate: 'Template',
+	    downloadImages: 'Download Images',
+	    frontmatter: 'Frontmatter',
+	    backmatter: 'Backmatter',
+	    title: 'Title',
+	    imagePrefix: 'Image Prefix',
+	    mdClipsFolder: 'Downloads Folder',
+	    imageStyle: 'Image Style',
+	    imageRefStyle: 'Image Refs',
+	    'tableFormatting.stripLinks': 'Strip Links',
+	    'tableFormatting.stripFormatting': 'Strip Formatting',
+	    'tableFormatting.prettyPrint': 'Pretty Print',
+	    'tableFormatting.centerText': 'Center Text'
+	};
+	let siteRuleEditorState = {
+	    mode: 'create',
+	    ruleId: null
+	};
 
-function getOptionsStateApi() {
-    return globalThis.markSnipOptionsState || null;
-}
+	function getOptionsStateApi() {
+	    return globalThis.markSnipOptionsState || null;
+	}
 
 function getLibraryStateApi() {
     return globalThis.markSnipLibraryState || null;
 }
 
-function getAgentBridgeStateApi() {
-    return globalThis.markSnipAgentBridgeState || null;
-}
+	function getAgentBridgeStateApi() {
+	    return globalThis.markSnipAgentBridgeState || null;
+	}
+
+	function getSiteRulesApi() {
+	    return globalThis.markSnipSiteRules || null;
+	}
+
+	function normalizeSiteRulesState(rules) {
+	    const siteRulesApi = getSiteRulesApi();
+	    if (siteRulesApi?.normalizeSiteRules) {
+	        return siteRulesApi.normalizeSiteRules(rules);
+	    }
+
+	    return Array.isArray(rules) ? rules.slice() : [];
+	}
+
+	function normalizeSiteRuleOverridesState(overrides) {
+	    const siteRulesApi = getSiteRulesApi();
+	    if (siteRulesApi?.normalizeSiteRuleOverrides) {
+	        return siteRulesApi.normalizeSiteRuleOverrides(overrides);
+	    }
+
+	    return overrides && typeof overrides === 'object' ? { ...overrides } : {};
+	}
+
+	function validateSiteRulePatternState(pattern) {
+	    const siteRulesApi = getSiteRulesApi();
+	    if (siteRulesApi?.validateSiteRulePattern) {
+	        return siteRulesApi.validateSiteRulePattern(pattern);
+	    }
+
+	    const normalizedPattern = String(pattern || '').trim();
+	    return {
+	        valid: Boolean(normalizedPattern),
+	        error: normalizedPattern ? '' : 'Pattern is required',
+	        normalizedPattern
+	    };
+	}
+
+	function buildSiteRuleIdState() {
+	    return `site-rule-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
+	}
+
+	function escapeHtml(value) {
+	    return String(value || '')
+	        .replace(/&/g, '&amp;')
+	        .replace(/</g, '&lt;')
+	        .replace(/>/g, '&gt;')
+	        .replace(/"/g, '&quot;')
+	        .replace(/'/g, '&#39;');
+	}
+
+	function getSiteRulesList() {
+	    return normalizeSiteRulesState(options?.siteRules);
+	}
+
+	function setSiteRules(nextRules) {
+	    options.siteRules = normalizeSiteRulesState(nextRules);
+	}
+
+	function findSiteRule(ruleId) {
+	    return getSiteRulesList().find((rule) => rule.id === ruleId) || null;
+	}
+
+	function readTriStateBoolean(id) {
+	    const value = document.getElementById(id)?.value || 'inherit';
+	    if (value === 'true') return true;
+	    if (value === 'false') return false;
+	    return undefined;
+	}
+
+	function setTriStateBoolean(id, value) {
+	    const input = document.getElementById(id);
+	    if (!input) return;
+	    input.value = value === true ? 'true' : value === false ? 'false' : 'inherit';
+	}
+
+	function setTextOverrideControl(toggleId, inputId, value) {
+	    const toggle = document.getElementById(toggleId);
+	    const input = document.getElementById(inputId);
+	    const enabled = value !== undefined;
+	    if (toggle) {
+	        toggle.checked = enabled;
+	    }
+	    if (input) {
+	        input.value = enabled ? String(value) : '';
+	        input.disabled = !enabled;
+	    }
+	}
+
+	function refreshSiteRuleTextOverrideStates() {
+	    Object.values(SITE_RULE_TEXT_FIELD_IDS).forEach(({ toggleId, inputId }) => {
+	        const toggle = document.getElementById(toggleId);
+	        const input = document.getElementById(inputId);
+	        if (!toggle || !input) return;
+	        input.disabled = !toggle.checked;
+	        input.closest('.site-rule-text-override')?.classList.toggle('is-disabled', !toggle.checked);
+	    });
+	}
+
+	function clearSiteRuleEditorFeedback() {
+	    const feedback = document.getElementById('siteRulePatternFeedback');
+	    const patternInput = document.getElementById('siteRulePattern');
+	    if (feedback) {
+	        feedback.textContent = '';
+	        feedback.classList.remove('is-error', 'is-success');
+	    }
+	    if (patternInput) {
+	        patternInput.classList.remove('is-invalid');
+	    }
+	}
+
+	function resetSiteRuleEditor() {
+	    siteRuleEditorState = { mode: 'create', ruleId: null };
+	    document.getElementById('siteRuleEditorTitle').textContent = 'Add Site Rule';
+	    document.getElementById('siteRuleName').value = '';
+	    document.getElementById('siteRulePattern').value = '';
+	    document.getElementById('siteRuleEnabled').checked = true;
+
+	    Object.values(SITE_RULE_BOOLEAN_FIELD_IDS).forEach((id) => setTriStateBoolean(id, undefined));
+	    Object.values(SITE_RULE_ENUM_FIELD_IDS).forEach((id) => {
+	        const input = document.getElementById(id);
+	        if (input) input.value = 'inherit';
+	    });
+	    Object.values(SITE_RULE_TABLE_FIELD_IDS).forEach((id) => setTriStateBoolean(id, undefined));
+	    Object.values(SITE_RULE_TEXT_FIELD_IDS).forEach(({ toggleId, inputId }) => {
+	        setTextOverrideControl(toggleId, inputId, undefined);
+	    });
+
+	    clearSiteRuleEditorFeedback();
+	    refreshSiteRuleTextOverrideStates();
+	}
+
+	function openSiteRuleEditor(ruleId = null) {
+	    resetSiteRuleEditor();
+	    const editor = document.getElementById('siteRuleEditor');
+	    if (!editor) {
+	        return;
+	    }
+
+	    if (ruleId) {
+	        const rule = findSiteRule(ruleId);
+	        if (rule) {
+	            siteRuleEditorState = { mode: 'edit', ruleId };
+	            document.getElementById('siteRuleEditorTitle').textContent = 'Edit Site Rule';
+	            document.getElementById('siteRuleName').value = rule.name || '';
+	            document.getElementById('siteRulePattern').value = rule.pattern || '';
+	            document.getElementById('siteRuleEnabled').checked = rule.enabled !== false;
+
+	            Object.keys(SITE_RULE_BOOLEAN_FIELD_IDS).forEach((key) => {
+	                setTriStateBoolean(SITE_RULE_BOOLEAN_FIELD_IDS[key], rule.overrides?.[key]);
+	            });
+	            Object.keys(SITE_RULE_ENUM_FIELD_IDS).forEach((key) => {
+	                const input = document.getElementById(SITE_RULE_ENUM_FIELD_IDS[key]);
+	                if (input) {
+	                    input.value = rule.overrides?.[key] || 'inherit';
+	                }
+	            });
+	            Object.keys(SITE_RULE_TABLE_FIELD_IDS).forEach((key) => {
+	                setTriStateBoolean(SITE_RULE_TABLE_FIELD_IDS[key], rule.overrides?.tableFormatting?.[key]);
+	            });
+	            Object.keys(SITE_RULE_TEXT_FIELD_IDS).forEach((key) => {
+	                const config = SITE_RULE_TEXT_FIELD_IDS[key];
+	                setTextOverrideControl(config.toggleId, config.inputId, rule.overrides?.[key]);
+	            });
+	        }
+	    }
+
+	    editor.hidden = false;
+	    refreshSiteRuleTextOverrideStates();
+	    document.getElementById('siteRuleName')?.focus();
+	}
+
+	function closeSiteRuleEditor() {
+	    document.getElementById('siteRuleEditor')?.setAttribute('hidden', '');
+	    const editor = document.getElementById('siteRuleEditor');
+	    if (editor) {
+	        editor.hidden = true;
+	    }
+	    resetSiteRuleEditor();
+	}
+
+	function buildSiteRuleOverridesFromEditor() {
+	    const overrides = {};
+
+	    Object.keys(SITE_RULE_BOOLEAN_FIELD_IDS).forEach((key) => {
+	        const value = readTriStateBoolean(SITE_RULE_BOOLEAN_FIELD_IDS[key]);
+	        if (value !== undefined) {
+	            overrides[key] = value;
+	        }
+	    });
+
+	    Object.keys(SITE_RULE_ENUM_FIELD_IDS).forEach((key) => {
+	        const value = document.getElementById(SITE_RULE_ENUM_FIELD_IDS[key])?.value || 'inherit';
+	        if (value !== 'inherit') {
+	            overrides[key] = value;
+	        }
+	    });
+
+	    Object.keys(SITE_RULE_TEXT_FIELD_IDS).forEach((key) => {
+	        const { toggleId, inputId } = SITE_RULE_TEXT_FIELD_IDS[key];
+	        if (document.getElementById(toggleId)?.checked) {
+	            overrides[key] = document.getElementById(inputId)?.value ?? '';
+	        }
+	    });
+
+	    const tableFormatting = {};
+	    Object.keys(SITE_RULE_TABLE_FIELD_IDS).forEach((key) => {
+	        const value = readTriStateBoolean(SITE_RULE_TABLE_FIELD_IDS[key]);
+	        if (value !== undefined) {
+	            tableFormatting[key] = value;
+	        }
+	    });
+	    if (Object.keys(tableFormatting).length > 0) {
+	        overrides.tableFormatting = tableFormatting;
+	    }
+
+	    return normalizeSiteRuleOverridesState(overrides);
+	}
+
+	function getSiteRuleOverrideLabels(rule) {
+	    const siteRulesApi = getSiteRulesApi();
+	    const overrideKeys = siteRulesApi?.collectOverrideKeys
+	        ? siteRulesApi.collectOverrideKeys(rule?.overrides)
+	        : [];
+
+	    return overrideKeys.map((key) => SITE_RULE_OVERRIDE_LABELS[key] || key);
+	}
+
+	function updateSiteRulesSummary(rules) {
+	    const summary = document.getElementById('siteRulesSummary');
+	    if (!summary) {
+	        return;
+	    }
+
+	    const enabledCount = rules.filter((rule) => rule.enabled !== false).length;
+	    summary.textContent = `${rules.length} rule${rules.length === 1 ? '' : 's'} • ${enabledCount} enabled`;
+	}
+
+	function renderSiteRules() {
+	    const rules = getSiteRulesList();
+	    const list = document.getElementById('siteRulesList');
+	    const empty = document.getElementById('siteRulesEmpty');
+	    if (!list || !empty) {
+	        return;
+	    }
+
+	    updateSiteRulesSummary(rules);
+	    empty.hidden = rules.length > 0;
+	    list.innerHTML = rules.map((rule, index) => {
+	        const validation = validateSiteRulePatternState(rule.pattern);
+	        const overrideLabels = getSiteRuleOverrideLabels(rule);
+	        const chips = overrideLabels.length > 0
+	            ? overrideLabels.map((label) => `<span class="site-rule-chip">${escapeHtml(label)}</span>`).join('')
+	            : '<span class="site-rule-chip site-rule-chip--muted">No overrides</span>';
+
+	        return `
+	            <article class="site-rule-item${rule.enabled === false ? ' is-disabled' : ''}">
+	                <div class="site-rule-item__body">
+	                    <div class="site-rule-item__header">
+	                        <div>
+	                            <h4 class="site-rule-item__title">${index + 1}. ${escapeHtml(rule.name)}</h4>
+	                            <code class="site-rule-item__pattern">${escapeHtml(rule.pattern)}</code>
+	                        </div>
+	                        <label class="site-rule-toggle-inline">
+	                            <input type="checkbox" data-site-rule-toggle="${escapeHtml(rule.id)}" ${rule.enabled === false ? '' : 'checked'} />
+	                            <span>Enabled</span>
+	                        </label>
+	                    </div>
+	                    <div class="site-rule-chip-list">${chips}</div>
+	                    ${validation.valid ? '' : `<p class="site-rule-item__error">Invalid pattern: ${escapeHtml(validation.error)}</p>`}
+	                </div>
+	                <div class="site-rule-item__actions">
+	                    <button type="button" class="btn btn-secondary btn-sm" data-site-rule-action="move-up" data-rule-id="${escapeHtml(rule.id)}" ${index === 0 ? 'disabled' : ''}>Up</button>
+	                    <button type="button" class="btn btn-secondary btn-sm" data-site-rule-action="move-down" data-rule-id="${escapeHtml(rule.id)}" ${index === rules.length - 1 ? 'disabled' : ''}>Down</button>
+	                    <button type="button" class="btn btn-secondary btn-sm" data-site-rule-action="edit" data-rule-id="${escapeHtml(rule.id)}">Edit</button>
+	                    <button type="button" class="btn btn-danger btn-sm" data-site-rule-action="delete" data-rule-id="${escapeHtml(rule.id)}">Delete</button>
+	                </div>
+	            </article>
+	        `;
+	    }).join('');
+
+	    if (siteRuleEditorState.ruleId && !findSiteRule(siteRuleEditorState.ruleId)) {
+	        closeSiteRuleEditor();
+	    }
+	}
+
+	async function saveSiteRuleEditor() {
+	    const patternInput = document.getElementById('siteRulePattern');
+	    const rawPattern = patternInput?.value || '';
+	    const validation = validateSiteRulePatternState(rawPattern);
+	    const feedback = document.getElementById('siteRulePatternFeedback');
+
+	    if (!validation.valid) {
+	        if (patternInput) {
+	            patternInput.classList.add('is-invalid');
+	            patternInput.focus();
+	        }
+	        if (feedback) {
+	            feedback.textContent = validation.error;
+	            feedback.classList.remove('is-success');
+	            feedback.classList.add('is-error');
+	        }
+	        showToast(validation.error || 'Invalid site rule pattern', 'error');
+	        return;
+	    }
+
+	    const nextRule = {
+	        id: siteRuleEditorState.mode === 'edit' && siteRuleEditorState.ruleId
+	            ? siteRuleEditorState.ruleId
+	            : buildSiteRuleIdState(),
+	        name: String(document.getElementById('siteRuleName')?.value || '').trim() || validation.normalizedPattern,
+	        enabled: document.getElementById('siteRuleEnabled')?.checked !== false,
+	        pattern: validation.normalizedPattern,
+	        overrides: buildSiteRuleOverridesFromEditor()
+	    };
+
+	    const rules = getSiteRulesList();
+	    const nextRules = siteRuleEditorState.mode === 'edit'
+	        ? rules.map((rule) => rule.id === siteRuleEditorState.ruleId ? nextRule : rule)
+	        : [...rules, nextRule];
+
+	    setSiteRules(nextRules);
+	    renderSiteRules();
+	    closeSiteRuleEditor();
+	    save();
+	}
+
+	function moveSiteRule(ruleId, direction) {
+	    const rules = getSiteRulesList();
+	    const index = rules.findIndex((rule) => rule.id === ruleId);
+	    if (index < 0) {
+	        return;
+	    }
+
+	    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+	    if (targetIndex < 0 || targetIndex >= rules.length) {
+	        return;
+	    }
+
+	    const nextRules = rules.slice();
+	    const [rule] = nextRules.splice(index, 1);
+	    nextRules.splice(targetIndex, 0, rule);
+	    setSiteRules(nextRules);
+	    renderSiteRules();
+	    save();
+	}
+
+	function deleteSiteRule(ruleId) {
+	    const nextRules = getSiteRulesList().filter((rule) => rule.id !== ruleId);
+	    setSiteRules(nextRules);
+	    renderSiteRules();
+	    if (siteRuleEditorState.ruleId === ruleId) {
+	        closeSiteRuleEditor();
+	    }
+	    save();
+	}
+
+	function toggleSiteRuleEnabled(ruleId, enabled) {
+	    const nextRules = getSiteRulesList().map((rule) => (
+	        rule.id === ruleId ? { ...rule, enabled: enabled !== false } : rule
+	    ));
+	    setSiteRules(nextRules);
+	    renderSiteRules();
+	    save();
+	}
+
+	function initSiteRuleControls() {
+	    document.getElementById('addSiteRule')?.addEventListener('click', () => openSiteRuleEditor());
+	    document.getElementById('cancelSiteRule')?.addEventListener('click', () => closeSiteRuleEditor());
+	    document.getElementById('saveSiteRule')?.addEventListener('click', () => {
+	        saveSiteRuleEditor().catch((error) => {
+	            console.error('Failed to save site rule:', error);
+	            showToast(String(error), 'error');
+	        });
+	    });
+	    document.getElementById('siteRulePattern')?.addEventListener('input', (event) => {
+	        const validation = validateSiteRulePatternState(event.target.value);
+	        const feedback = document.getElementById('siteRulePatternFeedback');
+	        event.target.classList.toggle('is-invalid', !validation.valid && event.target.value.trim().length > 0);
+	        if (!feedback) {
+	            return;
+	        }
+	        if (!event.target.value.trim()) {
+	            feedback.textContent = '';
+	            feedback.classList.remove('is-error', 'is-success');
+	            return;
+	        }
+	        feedback.textContent = validation.valid ? `Matches as ${validation.normalizedPattern}` : validation.error;
+	        feedback.classList.toggle('is-error', !validation.valid);
+	        feedback.classList.toggle('is-success', validation.valid);
+	    });
+
+	    Object.values(SITE_RULE_TEXT_FIELD_IDS).forEach(({ toggleId }) => {
+	        document.getElementById(toggleId)?.addEventListener('change', refreshSiteRuleTextOverrideStates);
+	    });
+
+	    document.getElementById('siteRulesList')?.addEventListener('click', (event) => {
+	        const button = event.target.closest('[data-site-rule-action]');
+	        if (!button) {
+	            return;
+	        }
+
+	        const ruleId = button.dataset.ruleId;
+	        const action = button.dataset.siteRuleAction;
+	        if (!ruleId || !action) {
+	            return;
+	        }
+
+	        if (action === 'edit') {
+	            openSiteRuleEditor(ruleId);
+	            return;
+	        }
+	        if (action === 'move-up') {
+	            moveSiteRule(ruleId, 'up');
+	            return;
+	        }
+	        if (action === 'move-down') {
+	            moveSiteRule(ruleId, 'down');
+	            return;
+	        }
+	        if (action === 'delete') {
+	            deleteSiteRule(ruleId);
+	        }
+	    });
+
+	    document.getElementById('siteRulesList')?.addEventListener('change', (event) => {
+	        const toggle = event.target.closest('[data-site-rule-toggle]');
+	        if (!toggle) {
+	            return;
+	        }
+	        toggleSiteRuleEnabled(toggle.dataset.siteRuleToggle, toggle.checked);
+	    });
+
+	    resetSiteRuleEditor();
+	    renderSiteRules();
+	}
 
 function usesOptionalNativeMessagingPermission() {
     const optionalPermissions = browser.runtime?.getManifest?.().optional_permissions || [];
@@ -635,20 +1110,22 @@ const saveOptions = e => {
         popupTheme: getCheckedValue(document.querySelectorAll("input[name='popupTheme']")),
         specialTheme: getCheckedValue(document.querySelectorAll("input[name='specialTheme']")) || 'none',
         specialThemeIcon: document.querySelector("[name='specialThemeIcon']").checked,
-        popupAccent: getCheckedValue(document.querySelectorAll("input[name='popupAccent']")),
-        compactMode: document.querySelector("[name='compactMode']").checked,
-        showUserGuideIcon: document.querySelector("[name='showUserGuideIcon']").checked,
-        editorTheme: getCheckedValue(document.querySelectorAll("input[name='editorTheme']")),
-    }
+	        popupAccent: getCheckedValue(document.querySelectorAll("input[name='popupAccent']")),
+	        compactMode: document.querySelector("[name='compactMode']").checked,
+	        showUserGuideIcon: document.querySelector("[name='showUserGuideIcon']").checked,
+	        editorTheme: getCheckedValue(document.querySelectorAll("input[name='editorTheme']")),
+	        siteRules: normalizeSiteRulesState(options.siteRules),
+	    }
 
     save();
 }
 
 const save = () => {
-    const spinner = document.getElementById("spinner");
-    spinner.style.display = "block";
+	    const spinner = document.getElementById("spinner");
+	    spinner.style.display = "block";
+	    options.siteRules = normalizeSiteRulesState(options.siteRules);
 
-    const safeUpdateMenu = (id, update) => {
+	    const safeUpdateMenu = (id, update) => {
         if (!browser.contextMenus || typeof browser.contextMenus.update !== "function") {
             return Promise.resolve();
         }
@@ -774,10 +1251,11 @@ const setCurrentChoice = result => {
     document.querySelector("[name='showUserGuideIcon']").checked = options.showUserGuideIcon !== false;
     setCheckedValue(document.querySelectorAll("[name='editorTheme']"), options.editorTheme || 'default');
 
-    updateSpecialThemeControlState();
-    refreshElements();
-    applyThemeSettings();
-}
+	    updateSpecialThemeControlState();
+	    refreshElements();
+	    applyThemeSettings();
+	    renderSiteRules();
+	}
 
 const setCurrentLibraryChoice = (result) => {
     librarySettings = normalizeLibrarySettingsState(result);
@@ -1290,8 +1768,9 @@ const loaded = () => {
     initSearch();
     configureReviewLink();
 
-    // Restore saved options
-    restoreOptions();
+	    // Restore saved options
+	    restoreOptions();
+	    initSiteRuleControls();
 
     browser.storage.onChanged?.addListener?.((changes, areaName) => {
         if (areaName !== 'local') {
@@ -1322,11 +1801,12 @@ const loaded = () => {
         resetAllBtn.addEventListener('click', resetAllSettings);
     }
 
-    // Attach event listeners (skip the search input)
-    document.querySelectorAll('input,textarea,button').forEach(input => {
-        if (input.id === 'settings-search') return;
-        // Skip permission panel buttons (they have their own handlers)
-        if (['agentBridgePermContinue', 'agentBridgePermCancel', 'agentBridgePermRetry', 'agentBridgePermDismiss'].includes(input.id)) return;
+	    // Attach event listeners (skip the search input)
+	    document.querySelectorAll('input,textarea,button').forEach(input => {
+	        if (input.id === 'settings-search') return;
+	        if (input.closest('#siteRulesCard')) return;
+	        // Skip permission panel buttons (they have their own handlers)
+	        if (['agentBridgePermContinue', 'agentBridgePermCancel', 'agentBridgePermRetry', 'agentBridgePermDismiss'].includes(input.id)) return;
         if (input.tagName == "TEXTAREA" || input.type == "text") {
             input.addEventListener('keyup', inputKeyup);
         }

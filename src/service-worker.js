@@ -6,6 +6,7 @@ if (typeof importScripts === 'function') {
     'background/moment.min.js',
     'background/apache-mime-types.js',
     'shared/notifications.js',
+    'shared/site-rules.js',
     'shared/default-options.js',
     'shared/template-utils.js',
     'shared/agent-bridge-state.js',
@@ -118,6 +119,39 @@ async function getReleaseHighlights(version) {
 
 function getAgentBridgeApi() {
   return globalThis.markSnipAgentBridgeState || null;
+}
+
+function getSiteRulesApi() {
+  return globalThis.markSnipSiteRules || null;
+}
+
+function cloneRuntimeOptions(source = {}) {
+  const nextOptions = {
+    ...(source || {})
+  };
+
+  if (source?.tableFormatting && typeof source.tableFormatting === 'object') {
+    nextOptions.tableFormatting = {
+      ...source.tableFormatting
+    };
+  }
+
+  delete nextOptions.siteRules;
+  return nextOptions;
+}
+
+function resolveOptionsForPageUrl(pageUrl, providedOptions = null) {
+  const baseOptions = providedOptions || defaultOptions;
+  const siteRulesApi = getSiteRulesApi();
+  if (pageUrl && siteRulesApi?.resolveSiteRuleOptions) {
+    return siteRulesApi.resolveSiteRuleOptions(pageUrl, baseOptions);
+  }
+
+  return {
+    options: cloneRuntimeOptions(baseOptions),
+    matchedRule: null,
+    overriddenKeys: []
+  };
 }
 
 async function loadAgentBridgeSettings() {
@@ -1736,7 +1770,10 @@ async function handleMarkdownResult(message) {
     imageList: result.imageList,
     sourceImageMap: result.sourceImageMap,
     mdClipsFolder: result.mdClipsFolder,
-    options: await getOptions()
+    options: result.effectiveOptions || await getOptions(),
+    effectiveOptions: result.effectiveOptions || null,
+    matchedSiteRule: result.matchedSiteRule || null,
+    overriddenKeys: Array.isArray(result.overriddenKeys) ? result.overriddenKeys : []
   });
 }
 
@@ -1744,7 +1781,7 @@ async function handleMarkdownResult(message) {
  * Handle download request
  */
 async function handleDownloadRequest(message) {
-  const options = await getOptions();
+  const options = message.options || await getOptions();
   console.log(`🔧 [Service Worker] Download request: downloadMode=${options.downloadMode}, offscreen=${typeof chrome !== 'undefined' && chrome.offscreen}`);
   
   if (typeof chrome !== 'undefined' && chrome.offscreen && options.downloadMode === 'downloadsApi') {
@@ -1775,6 +1812,7 @@ async function handleDownloadRequest(message) {
         message.tab.id,
         message.imageList,
         message.mdClipsFolder,
+        options,
         message.notificationDelta || SINGLE_DOWNLOAD_NOTIFICATION_DELTA
       );
     }
@@ -1787,6 +1825,7 @@ async function handleDownloadRequest(message) {
       message.tab.id,
       message.imageList,
       message.mdClipsFolder,
+      options,
       message.notificationDelta || SINGLE_DOWNLOAD_NOTIFICATION_DELTA
     );
   }
@@ -2565,14 +2604,15 @@ async function copyTabAsMarkdownLink(tab) {
     await ensureOffscreenDocumentExists();
     const options = await getOptions();
     const article = await getArticleFromContent(tab.id, false, options);
-    const title = await formatTitle(article, options);
+    const resolved = resolveOptionsForPageUrl(getArticlePageUrl(article, tab), options);
+    const title = await formatTitle(article, resolved.options);
     const pageUrl = getArticlePageUrl(article, tab);
     
     await browser.runtime.sendMessage({
       target: 'offscreen',
       type: 'copy-to-clipboard',
       text: `[${title}](${pageUrl})`,
-      options: options
+      options: resolved.options
     });
     await recordNotificationMetrics({ copies: 1, exports: 0 }, {
       tabId: tab.id
@@ -2597,9 +2637,10 @@ async function copyTabAsMarkdownLinkAll(tab) {
     for (const currentTab of tabs) {
       await ensureScripts(currentTab.id);
       const article = await getArticleFromContent(currentTab.id, false, options);
-      const title = await formatTitle(article, options);
+      const resolved = resolveOptionsForPageUrl(getArticlePageUrl(article, currentTab), options);
+      const title = await formatTitle(article, resolved.options);
       const pageUrl = getArticlePageUrl(article, currentTab);
-      const link = `${options.bulletListMarker} [${title}](${pageUrl})`;
+      const link = `${resolved.options.bulletListMarker} [${title}](${pageUrl})`;
       links.push(link);
     }
     
@@ -2626,8 +2667,6 @@ async function copySelectedTabAsMarkdownLink(tab) {
   try {
     await ensureOffscreenDocumentExists();
     const options = await getOptions();
-    options.frontmatter = options.backmatter = '';
-    
     const tabs = await browser.tabs.query({
       currentWindow: true,
       highlighted: true
@@ -2637,9 +2676,10 @@ async function copySelectedTabAsMarkdownLink(tab) {
     for (const selectedTab of tabs) {
       await ensureScripts(selectedTab.id);
       const article = await getArticleFromContent(selectedTab.id, false, options);
-      const title = await formatTitle(article, options);
+      const resolved = resolveOptionsForPageUrl(getArticlePageUrl(article, selectedTab), options);
+      const title = await formatTitle(article, resolved.options);
       const pageUrl = getArticlePageUrl(article, selectedTab);
-      const link = `${options.bulletListMarker} [${title}](${pageUrl})`;
+      const link = `${resolved.options.bulletListMarker} [${title}](${pageUrl})`;
       links.push(link);
     }
 
@@ -3043,8 +3083,24 @@ async function downloadGeneratedFile(message = {}) {
  * This function orchestrates with the offscreen document in Chrome
  * or handles directly in Firefox
  */
-async function downloadMarkdown(markdown, title, tabId, imageList = {}, mdClipsFolder = '', notificationDelta = SINGLE_DOWNLOAD_NOTIFICATION_DELTA) {
-  const options = await getOptions();
+function isRuntimeOptionsPayload(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return false;
+  }
+
+  return Object.prototype.hasOwnProperty.call(value, 'downloadMode') ||
+    Object.prototype.hasOwnProperty.call(value, 'saveAs') ||
+    Object.prototype.hasOwnProperty.call(value, 'downloadImages') ||
+    Object.prototype.hasOwnProperty.call(value, 'disallowedChars') ||
+    Object.prototype.hasOwnProperty.call(value, 'siteRules');
+}
+
+async function downloadMarkdown(markdown, title, tabId, imageList = {}, mdClipsFolder = '', providedOptionsOrNotificationDelta = SINGLE_DOWNLOAD_NOTIFICATION_DELTA, notificationDelta = SINGLE_DOWNLOAD_NOTIFICATION_DELTA) {
+  const providedOptions = isRuntimeOptionsPayload(providedOptionsOrNotificationDelta) ? providedOptionsOrNotificationDelta : null;
+  const resolvedNotificationDelta = providedOptions
+    ? notificationDelta
+    : (providedOptionsOrNotificationDelta || SINGLE_DOWNLOAD_NOTIFICATION_DELTA);
+  const options = providedOptions || await getOptions();
   
   // CRITICAL: Ensure title is never empty
   if (!title || title.trim() === '') {
@@ -3067,8 +3123,8 @@ async function downloadMarkdown(markdown, title, tabId, imageList = {}, mdClipsF
       tabId: tabId,
       imageList: imageList,
       mdClipsFolder: mdClipsFolder,
-      options: await getOptions(),
-      notificationDelta: notificationDelta
+      options: options,
+      notificationDelta: resolvedNotificationDelta
     });
   } 
   else if (options.downloadMode === 'downloadsApi' && (browser.downloads || (typeof chrome !== 'undefined' && chrome.downloads))) {
@@ -3091,7 +3147,7 @@ async function downloadMarkdown(markdown, title, tabId, imageList = {}, mdClipsF
       markSnipUrls.set(url, {
         filename: fullFilename,
         isMarkdown: true,
-        notificationDelta: notificationDelta,
+        notificationDelta: resolvedNotificationDelta,
         tabId: tabId
       });
       markSnipBlobUrls.add(url);
