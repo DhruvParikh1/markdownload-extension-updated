@@ -16,3 +16,4 @@ native/*.exe
 native/*.dll
 native/*.zip
 native/.tmp-builds
+tmp/
