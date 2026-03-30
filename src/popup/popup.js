@@ -1,6 +1,5 @@
 
 // default variables
-var selectedText = null;
 var imageList = null;
 var sourceImageMap = null;
 var mdClipsFolder = '';
@@ -3089,7 +3088,7 @@ browser.storage.onChanged.addListener((changes, areaName) => {
 });
 
 // Listen for link picker results
-browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+browser.runtime.onMessage.addListener((message) => {
     if (message.type === "LINK_PICKER_COMPLETE") {
         handleLinkPickerComplete(message.links);
     }
