@@ -844,8 +844,72 @@ a:hover {
     animation: omnitrix-pulse 7.5s ease-in-out infinite;
 }
 
+.claude-mascot {
+    display: none;
+}
+
+.perplexity-mascot {
+    display: none;
+}
+
+/* Claude mascot animations */
+@keyframes claude-float {
+    0%   { transform: translateY(-1.5px) rotate(-0.5deg); }
+    100% { transform: translateY(1.5px) rotate(0.5deg); }
+}
+
+:root.special-theme-claude .claude-mascot {
+    display: block;
+    height: 28px;
+    width: 28px;
+    flex-shrink: 0;
+    color: #C15F3C;
+    animation: claude-float 3s ease-in-out infinite alternate;
+    filter: drop-shadow(0 0 3px rgba(193, 95, 60, 0.3));
+}
+
+:root.theme-dark.special-theme-claude .claude-mascot {
+    color: #D1734E;
+    filter: drop-shadow(0 0 3px rgba(209, 115, 78, 0.35));
+}
+
+@media (prefers-color-scheme: dark) {
+    :root.theme-system.special-theme-claude .claude-mascot {
+        color: #D1734E;
+        filter: drop-shadow(0 0 3px rgba(209, 115, 78, 0.35));
+    }
+}
+
+/* Perplexity mascot animations */
+@keyframes perplexity-pulse {
+    0%   { transform: scale(1);    filter: drop-shadow(0 0 2px rgba(32, 128, 141, 0.4)); }
+    50%  { transform: scale(1.08); filter: drop-shadow(0 0 6px rgba(32, 128, 141, 0.8)); }
+    100% { transform: scale(1);    filter: drop-shadow(0 0 2px rgba(32, 128, 141, 0.4)); }
+}
+
+:root.special-theme-perplexity .perplexity-mascot {
+    display: block;
+    height: 28px;
+    width: 28px;
+    flex-shrink: 0;
+    color: #20808D;
+    animation: perplexity-pulse 6s ease-in-out infinite;
+}
+
+:root.theme-dark.special-theme-perplexity .perplexity-mascot {
+    color: #2E9CAB;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root.theme-system.special-theme-perplexity .perplexity-mascot {
+        color: #2E9CAB;
+    }
+}
+
 :root.hide-theme-icon.special-theme-atla .appa-mascot,
-:root.hide-theme-icon.special-theme-ben10 .ben10-mascot {
+:root.hide-theme-icon.special-theme-ben10 .ben10-mascot,
+:root.hide-theme-icon.special-theme-claude .claude-mascot,
+:root.hide-theme-icon.special-theme-perplexity .perplexity-mascot {
     display: none;
 }
 
