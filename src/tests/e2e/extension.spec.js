@@ -639,7 +639,8 @@ test.describe('MarkSnip Extension E2E', () => {
       await expect.poll(async () => popupPage.inputValue('#title'), { timeout: 10000 })
         .toContain('Deterministic Markdown Fixture');
 
-      await expect(popupPage.locator('#download')).toContainText('Download Markdown');
+      await expect(popupPage.locator('#download')).toHaveAttribute('aria-label', 'Download');
+      await expect(popupPage.locator('#ddMarkdown')).toBeHidden();
 
       await popupPage.evaluate(() => {
         const originalSendMessage = browser.runtime.sendMessage.bind(browser.runtime);
@@ -1042,7 +1043,9 @@ test.describe('MarkSnip Extension E2E', () => {
       await popupPage.locator('#showShortcuts').click();
       await expect(popupPage.locator('#shortcutsModal')).toBeVisible();
 
-      await popupPage.locator('#shortcutsModalBackdrop').click();
+      await popupPage.locator('#shortcutsModalBackdrop').click({
+        position: { x: 8, y: 8 }
+      });
       await expect(popupPage.locator('#shortcutsModal')).toBeHidden();
     });
 
