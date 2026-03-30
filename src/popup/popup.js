@@ -1466,6 +1466,7 @@ const defaultOptions = {
     batchProcessingEnabled: true,
     popupTheme: 'system',
     specialTheme: 'none',
+    specialThemeIcon: true,
     popupAccent: 'sage',
     compactMode: false,
     showUserGuideIcon: true,
