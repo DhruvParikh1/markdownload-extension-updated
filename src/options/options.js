@@ -1021,7 +1021,7 @@ function applyThemeSettings() {
 function updateSpecialThemeControlState() {
     const specialTheme = options.specialTheme || 'none';
     const specialThemeActive = specialTheme !== 'none';
-    const themeHasIcon = specialTheme === 'atla' || specialTheme === 'ben10';
+    const themeHasIcon = specialTheme === 'atla' || specialTheme === 'ben10' || specialTheme === 'claude' || specialTheme === 'perplexity';
     const accentGroup = document.getElementById('popupAccentGroup');
     const editorThemeGroup = document.getElementById('editorThemeGroup');
     const accentNote = document.getElementById('popupAccentThemeNote');
