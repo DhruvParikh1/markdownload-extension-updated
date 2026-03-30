@@ -8,6 +8,7 @@ const defaultOptions = {
   imagePrefix: '{pageTitle}/',
   defaultExportType: 'markdown',
   specialTheme: 'none',
+  colorBlindTheme: 'deuteranopia',
   showUserGuideIcon: true,
   siteRules: [],
   tableFormatting: {
@@ -27,6 +28,7 @@ const defaultOptions = {
     const importedOptions = {
       includeTemplate: true,
       specialTheme: 'ben10',
+      colorBlindTheme: 'tritanopia',
       tableFormatting: {
         stripLinks: false
       }
@@ -37,6 +39,7 @@ const defaultOptions = {
     expect(normalized.includeTemplate).toBe(true);
     expect(normalized.imagePrefix).toBe('{pageTitle}/');
     expect(normalized.specialTheme).toBe('ben10');
+    expect(normalized.colorBlindTheme).toBe('tritanopia');
     expect(normalized.tableFormatting).toEqual({
       stripLinks: false,
       stripFormatting: false,
@@ -63,6 +66,11 @@ const defaultOptions = {
   test('normalizeImportedOptions preserves specialTheme default when omitted', () => {
     const normalized = optionsState.normalizeImportedOptions({}, defaultOptions);
     expect(normalized.specialTheme).toBe('none');
+  });
+
+  test('normalizeImportedOptions preserves colorBlindTheme default when omitted', () => {
+    const normalized = optionsState.normalizeImportedOptions({}, defaultOptions);
+    expect(normalized.colorBlindTheme).toBe('deuteranopia');
   });
 
   test('normalizeImportedOptions preserves default export type when omitted', () => {

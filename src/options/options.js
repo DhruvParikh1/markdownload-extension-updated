@@ -21,24 +21,25 @@ let agentBridgeStatus = {
 let agentBridgeInstallCommand = 'marksnip install-host';
 let keyupTimeout = null;
 let templatePreviewListenersBound = false;
-	const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude', 'special-theme-perplexity', 'special-theme-atla', 'special-theme-ben10'];
-	const ACCENT_CLASS_NAMES = ['accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber'];
-	const POPUP_THEME_CACHE_KEY = 'marksnip-popup-theme-cache-v1';
-	const SITE_RULE_BOOLEAN_FIELD_IDS = {
-	    includeTemplate: 'siteRuleIncludeTemplate',
-	    downloadImages: 'siteRuleDownloadImages'
-	};
-	const SITE_RULE_ENUM_FIELD_IDS = {
-	    imageStyle: 'siteRuleImageStyle',
-	    imageRefStyle: 'siteRuleImageRefStyle'
-	};
-	const SITE_RULE_TEXT_FIELD_IDS = {
-	    frontmatter: { toggleId: 'siteRuleFrontmatterEnabled', inputId: 'siteRuleFrontmatter' },
-	    backmatter: { toggleId: 'siteRuleBackmatterEnabled', inputId: 'siteRuleBackmatter' },
-	    title: { toggleId: 'siteRuleTitleEnabled', inputId: 'siteRuleTitle' },
-	    imagePrefix: { toggleId: 'siteRuleImagePrefixEnabled', inputId: 'siteRuleImagePrefix' },
-	    mdClipsFolder: { toggleId: 'siteRuleMdClipsFolderEnabled', inputId: 'siteRuleMdClipsFolder' }
-	};
+const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude', 'special-theme-perplexity', 'special-theme-atla', 'special-theme-ben10', 'special-theme-colorblind'];
+const COLORBLIND_VARIANT_CLASS_NAMES = ['colorblind-theme-deuteranopia', 'colorblind-theme-protanopia', 'colorblind-theme-tritanopia'];
+const ACCENT_CLASS_NAMES = ['accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber'];
+const POPUP_THEME_CACHE_KEY = 'marksnip-popup-theme-cache-v1';
+const SITE_RULE_BOOLEAN_FIELD_IDS = {
+    includeTemplate: 'siteRuleIncludeTemplate',
+    downloadImages: 'siteRuleDownloadImages'
+};
+const SITE_RULE_ENUM_FIELD_IDS = {
+    imageStyle: 'siteRuleImageStyle',
+    imageRefStyle: 'siteRuleImageRefStyle'
+};
+const SITE_RULE_TEXT_FIELD_IDS = {
+    frontmatter: { toggleId: 'siteRuleFrontmatterEnabled', inputId: 'siteRuleFrontmatter' },
+    backmatter: { toggleId: 'siteRuleBackmatterEnabled', inputId: 'siteRuleBackmatter' },
+    title: { toggleId: 'siteRuleTitleEnabled', inputId: 'siteRuleTitle' },
+    imagePrefix: { toggleId: 'siteRuleImagePrefixEnabled', inputId: 'siteRuleImagePrefix' },
+    mdClipsFolder: { toggleId: 'siteRuleMdClipsFolderEnabled', inputId: 'siteRuleMdClipsFolder' }
+};
 	const SITE_RULE_TABLE_FIELD_IDS = {
 	    stripLinks: 'siteRuleTableStripLinks',
 	    stripFormatting: 'siteRuleTableStripFormatting',
@@ -978,6 +979,7 @@ function buildPopupThemeCacheSnapshot(source = options || defaultOptions) {
     return {
         popupTheme: source?.popupTheme || 'system',
         specialTheme: source?.specialTheme || 'none',
+        colorBlindTheme: normalizeColorBlindTheme(source?.colorBlindTheme),
         specialThemeIcon: source?.specialThemeIcon !== false,
         popupAccent: source?.popupAccent || 'sage',
         editorTheme: source?.editorTheme || 'default'
@@ -992,6 +994,44 @@ function persistPopupThemeCache(source = options || defaultOptions) {
     }
 }
 
+function normalizeColorBlindTheme(value) {
+    return ['deuteranopia', 'protanopia', 'tritanopia'].includes(value) ? value : 'deuteranopia';
+}
+
+function getColorBlindThemeClassName(value = options?.colorBlindTheme) {
+    return 'colorblind-theme-' + normalizeColorBlindTheme(value);
+}
+
+const CB_DROPDOWN_LABELS = { deuteranopia: 'Deuteranopia', protanopia: 'Protanopia', tritanopia: 'Tritanopia' };
+
+function updateCbDropdownLabel(value) {
+    const labelEl = document.getElementById('colorBlindThemeBtnLabel');
+    if (labelEl) labelEl.textContent = CB_DROPDOWN_LABELS[value] || 'Deuteranopia';
+    const panel = document.getElementById('colorBlindThemePanel');
+    if (panel) {
+        panel.querySelectorAll('.dd-item[data-value]').forEach(item => {
+            item.setAttribute('aria-selected', String(item.dataset.value === value));
+        });
+    }
+}
+
+function toggleCbDropdown(e) {
+    e.stopPropagation();
+    const panel = document.getElementById('colorBlindThemePanel');
+    const btn = document.getElementById('colorBlindThemeBtn');
+    if (!panel || !btn) return;
+    const willOpen = panel.hidden;
+    panel.hidden = !willOpen;
+    btn.setAttribute('aria-expanded', String(willOpen));
+}
+
+function closeCbDropdown() {
+    const panel = document.getElementById('colorBlindThemePanel');
+    const btn = document.getElementById('colorBlindThemeBtn');
+    if (panel) panel.hidden = true;
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+}
+
 // Apply theme mode and accent color to the Options page itself
 function applyThemeSettings() {
     const root = document.documentElement;
@@ -1002,8 +1042,12 @@ function applyThemeSettings() {
     root.classList.add('theme-' + (options.popupTheme || 'system'));
 
     root.classList.remove(...SPECIAL_THEME_CLASS_NAMES);
+    root.classList.remove(...COLORBLIND_VARIANT_CLASS_NAMES);
     if (specialTheme !== 'none') {
         root.classList.add('special-theme-' + specialTheme);
+        if (specialTheme === 'colorblind') {
+            root.classList.add(getColorBlindThemeClassName(options.colorBlindTheme));
+        }
     }
 
     root.classList.toggle('hide-theme-icon', options.specialThemeIcon === false);
@@ -1021,6 +1065,7 @@ function applyThemeSettings() {
 function updateSpecialThemeControlState() {
     const specialTheme = options.specialTheme || 'none';
     const specialThemeActive = specialTheme !== 'none';
+    const colorBlindThemeActive = specialTheme === 'colorblind';
     const themeHasIcon = specialTheme === 'atla' || specialTheme === 'ben10' || specialTheme === 'claude' || specialTheme === 'perplexity';
     const accentGroup = document.getElementById('popupAccentGroup');
     const editorThemeGroup = document.getElementById('editorThemeGroup');
@@ -1028,9 +1073,26 @@ function updateSpecialThemeControlState() {
     const editorThemeNote = document.getElementById('editorThemeLockNote');
     const iconRow = document.getElementById('specialThemeIconRow');
     const iconInput = document.querySelector("[name='specialThemeIcon']");
+    const colorBlindThemeRow = document.getElementById('colorBlindThemeRow');
+    const colorBlindThemeInput = document.querySelector("[name='colorBlindTheme']");
 
     if (iconRow) iconRow.classList.toggle('is-disabled', !themeHasIcon);
     if (iconInput) iconInput.disabled = !themeHasIcon;
+    if (colorBlindThemeRow) {
+        colorBlindThemeRow.hidden = !colorBlindThemeActive;
+        colorBlindThemeRow.classList.toggle('is-disabled', !colorBlindThemeActive);
+        colorBlindThemeRow.setAttribute('aria-hidden', String(!colorBlindThemeActive));
+    }
+    if (colorBlindThemeInput) {
+        colorBlindThemeInput.disabled = !colorBlindThemeActive;
+        colorBlindThemeInput.value = normalizeColorBlindTheme(options.colorBlindTheme);
+    }
+    const colorBlindThemeBtn = document.getElementById('colorBlindThemeBtn');
+    if (colorBlindThemeBtn) {
+        colorBlindThemeBtn.disabled = !colorBlindThemeActive;
+        updateCbDropdownLabel(normalizeColorBlindTheme(options.colorBlindTheme));
+        if (!colorBlindThemeActive) closeCbDropdown();
+    }
 
     [accentGroup, editorThemeGroup].forEach((group) => {
         group?.classList.toggle('is-disabled', specialThemeActive);
@@ -1114,6 +1176,7 @@ const saveOptions = e => {
         downloadMode: getCheckedValue(document.querySelectorAll("input[name='downloadMode']")),
         popupTheme: getCheckedValue(document.querySelectorAll("input[name='popupTheme']")),
         specialTheme: getCheckedValue(document.querySelectorAll("input[name='specialTheme']")) || 'none',
+        colorBlindTheme: normalizeColorBlindTheme(document.querySelector("[name='colorBlindTheme']")?.value),
         specialThemeIcon: document.querySelector("[name='specialThemeIcon']").checked,
 	        popupAccent: getCheckedValue(document.querySelectorAll("input[name='popupAccent']")),
 	        compactMode: document.querySelector("[name='compactMode']").checked,
@@ -1334,6 +1397,7 @@ const setCurrentChoice = result => {
 
     setCheckedValue(document.querySelectorAll("[name='popupTheme']"), options.popupTheme || 'system');
     setCheckedValue(document.querySelectorAll("[name='specialTheme']"), options.specialTheme || 'none');
+    document.querySelector("[name='colorBlindTheme']").value = normalizeColorBlindTheme(options.colorBlindTheme);
     document.querySelector("[name='specialThemeIcon']").checked = options.specialThemeIcon !== false;
     setCheckedValue(document.querySelectorAll("[name='popupAccent']"), options.popupAccent || 'sage');
     document.querySelector("[name='compactMode']").checked = options.compactMode || false;
@@ -1894,11 +1958,13 @@ const loaded = () => {
     }
 
 	    // Attach event listeners (skip the search input)
-	    document.querySelectorAll('input,textarea,button').forEach(input => {
+	    document.querySelectorAll('input,textarea,button,select').forEach(input => {
 	        if (input.id === 'settings-search') return;
 	        if (input.closest('#siteRulesCard')) return;
 	        // Skip permission panel buttons (they have their own handlers)
 	        if (['agentBridgePermContinue', 'agentBridgePermCancel', 'agentBridgePermRetry', 'agentBridgePermDismiss'].includes(input.id)) return;
+	        // Skip colorblind theme dropdown (has its own handlers)
+	        if (input.id === 'colorBlindThemeBtn' || input.closest('#colorBlindThemePanel')) return;
         if (input.tagName == "TEXTAREA" || input.type == "text") {
             input.addEventListener('keyup', inputKeyup);
         }
@@ -1911,6 +1977,28 @@ const loaded = () => {
         }
         else input.addEventListener('change', inputChange);
     })
+
+    // Colorblind theme custom dropdown
+    document.getElementById('colorBlindThemeBtn')?.addEventListener('click', toggleCbDropdown);
+    document.getElementById('colorBlindThemePanel')?.addEventListener('click', (e) => {
+        const item = e.target.closest('.dd-item[data-value]');
+        if (!item) return;
+        const value = item.dataset.value;
+        const hiddenInput = document.querySelector("[name='colorBlindTheme']");
+        if (hiddenInput) hiddenInput.value = value;
+        options.colorBlindTheme = value;
+        closeCbDropdown();
+        save();
+        refreshElements();
+    });
+    document.addEventListener('click', (e) => {
+        if (!document.getElementById('colorBlindDropdownWrap')?.contains(e.target)) {
+            closeCbDropdown();
+        }
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeCbDropdown();
+    });
 
     // Wire up permission panel buttons
     const permContinue = document.getElementById('agentBridgePermContinue');
@@ -1938,6 +2026,7 @@ const loaded = () => {
 // ── Settings Search ──
 function initSearch() {
     const searchInput = document.getElementById('settings-search');
+    const searchStatus = document.getElementById('settings-search-status');
     const contentPanel = document.querySelector('.content-panel');
     const noResults = document.getElementById('search-no-results');
     const noResultsQuery = document.getElementById('search-no-results-query');
@@ -1949,11 +2038,22 @@ function initSearch() {
 
     const sections = document.querySelectorAll('.section');
     const searchIndex = searchApi.buildSearchIndex(document);
+    const totalSettings = searchIndex.length;
     let searchTimeout = null;
+
+    function updateSearchStatus(message) {
+        if (!searchStatus) {
+            return;
+        }
+        const nextMessage = String(message || '');
+        searchStatus.textContent = nextMessage;
+        searchStatus.hidden = nextMessage === '';
+    }
 
     function restoreDefaultView() {
         contentPanel.classList.remove('search-active');
         noResults.classList.remove('visible');
+        updateSearchStatus('');
 
         searchIndex.forEach(({ card }) => {
             card.classList.remove('search-hidden', 'search-match');
@@ -2058,10 +2158,12 @@ function initSearch() {
         });
 
         if (totalMatches === 0) {
-            noResultsQuery.textContent = normalizedQuery;
+            noResultsQuery.textContent = query.trim();
             noResults.classList.add('visible');
+            updateSearchStatus(`No settings match "${query.trim()}"`);
         } else {
             noResults.classList.remove('visible');
+            updateSearchStatus(`Showing ${totalMatches} of ${totalSettings} settings`);
         }
     }
 

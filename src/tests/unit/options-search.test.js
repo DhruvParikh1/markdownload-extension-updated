@@ -72,12 +72,14 @@ const baseOptions = {
   obsidianFolder: '',
   popupTheme: 'system',
   specialTheme: 'none',
-	  popupAccent: 'sage',
-	  compactMode: false,
-	  showUserGuideIcon: true,
-	  editorTheme: 'default',
-	  siteRules: []
-	};
+  colorBlindTheme: 'deuteranopia',
+  specialThemeIcon: true,
+  popupAccent: 'sage',
+  compactMode: false,
+  showUserGuideIcon: true,
+  editorTheme: 'default',
+  siteRules: []
+};
 
 function mergeOptions(overrides = {}) {
   return {
@@ -116,7 +118,10 @@ function getMatchLabels(index, query) {
 
 const specialThemeCases = [
   { label: 'ATLA', slug: 'atla', keyword: 'avatar' },
-  { label: 'Ben 10', slug: 'ben10', keyword: 'omnitrix' }
+  { label: 'Ben 10', slug: 'ben10', keyword: 'omnitrix' },
+  { label: 'Color Blind Deuteranopia', slug: 'colorblind', colorBlindTheme: 'deuteranopia', keyword: 'deuteranopia' },
+  { label: 'Color Blind Protanopia', slug: 'colorblind', colorBlindTheme: 'protanopia', keyword: 'protanopia' },
+  { label: 'Color Blind Tritanopia', slug: 'colorblind', colorBlindTheme: 'tritanopia', keyword: 'tritanopia' }
 ];
 
 async function waitFor(windowObject, ms) {
@@ -305,6 +310,7 @@ describe('Options page search UI', () => {
     const searchInput = document.getElementById('settings-search');
     const noResults = document.getElementById('search-no-results');
     const noResultsQuery = document.getElementById('search-no-results-query');
+    const searchStatus = document.getElementById('settings-search-status');
 
     searchInput.value = 'google';
     searchInput.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
@@ -312,6 +318,28 @@ describe('Options page search UI', () => {
 
     expect(noResults.classList.contains('visible')).toBe(true);
     expect(noResultsQuery.textContent).toBe('google');
+    expect(searchStatus.hidden).toBe(false);
+    expect(searchStatus.textContent).toBe('No settings match "google"');
+  });
+
+  test('announces the live result count for matched queries', async () => {
+    const { dom } = createOptionsPageDom();
+    const { document } = dom.window;
+
+    document.dispatchEvent(new dom.window.Event('DOMContentLoaded', { bubbles: true }));
+    await waitForMicrotasks();
+
+    const searchInput = document.getElementById('settings-search');
+    const searchStatus = document.getElementById('settings-search-status');
+    const totalSettings = document.querySelectorAll('.setting-card').length;
+    const matchCount = optionsSearch.searchSettings(optionsSearch.buildSearchIndex(document), 'theme').matches.length;
+
+    searchInput.value = 'theme';
+    searchInput.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
+    await waitFor(dom.window, 200);
+
+    expect(searchStatus.hidden).toBe(false);
+    expect(searchStatus.textContent).toBe(`Showing ${matchCount} of ${totalSettings} settings`);
   });
 
   test('clearing search restores the active tab and conditional visibility', async () => {
@@ -331,6 +359,7 @@ describe('Options page search UI', () => {
     const downloadsSection = document.getElementById('section-downloads');
     const imagePrefixCard = document.getElementById('imagePrefix');
     const searchInput = document.getElementById('settings-search');
+    const searchStatus = document.getElementById('settings-search-status');
 
     expect(appearanceSection.classList.contains('active')).toBe(true);
     expect(downloadsSection.classList.contains('active')).toBe(false);
@@ -354,6 +383,8 @@ describe('Options page search UI', () => {
     expect(downloadsSection.classList.contains('active')).toBe(false);
     expect(imagePrefixCard.classList.contains('search-match')).toBe(false);
     expect(imagePrefixCard.style.display).toBe('none');
+    expect(searchStatus.hidden).toBe(true);
+    expect(searchStatus.textContent).toBe('');
   });
 
   test('reset all restores library defaults without deleting library items', async () => {
@@ -535,11 +566,12 @@ describe('Options page search UI', () => {
     }));
   });
 
-  test.each(specialThemeCases)('$label special theme restores root classes and locks accent and editor theme controls', async ({ slug }) => {
+  test.each(specialThemeCases)('$label special theme restores root classes and locks accent and editor theme controls', async ({ slug, colorBlindTheme }) => {
     const { dom } = createOptionsPageDom({
       popupTheme: 'dark',
       popupAccent: 'ocean',
       specialTheme: slug,
+      colorBlindTheme,
       editorTheme: 'nord'
     });
     const { document } = dom.window;
@@ -551,6 +583,13 @@ describe('Options page search UI', () => {
     const root = document.documentElement;
     expect(root.classList.contains('theme-dark')).toBe(true);
     expect(root.classList.contains(`special-theme-${slug}`)).toBe(true);
+    if (slug === 'colorblind') {
+      expect(root.classList.contains(`colorblind-theme-${colorBlindTheme}`)).toBe(true);
+      expect(document.getElementById('colorBlindThemeRow').hidden).toBe(false);
+      expect(document.getElementById('colorBlindTheme').value).toBe(colorBlindTheme);
+      expect(document.getElementById('specialThemeIconRow').classList.contains('is-disabled')).toBe(true);
+      expect(document.getElementById('specialThemeIcon').disabled).toBe(true);
+    }
     expect(root.classList.contains('accent-ocean')).toBe(false);
     expect(document.getElementById(`special-theme-${slug}`).checked).toBe(true);
     expect(document.getElementById('popupAccentGroup').classList.contains('is-disabled')).toBe(true);

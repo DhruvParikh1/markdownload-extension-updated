@@ -12,8 +12,13 @@
   'use strict';
 
   const core = globalThis.markSnipSearchCore;
-  const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude', 'special-theme-perplexity', 'special-theme-atla', 'special-theme-ben10'];
+  const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude', 'special-theme-perplexity', 'special-theme-atla', 'special-theme-ben10', 'special-theme-colorblind'];
+  const COLORBLIND_VARIANT_CLASS_NAMES = ['colorblind-theme-deuteranopia', 'colorblind-theme-protanopia', 'colorblind-theme-tritanopia'];
   const ACCENT_CLASS_NAMES = ['accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber'];
+
+  function normalizeColorBlindTheme(value) {
+    return ['deuteranopia', 'protanopia', 'tritanopia'].includes(value) ? value : 'deuteranopia';
+  }
 
   /* ════════════════════════════════════════
      Theme & Accent
@@ -25,8 +30,12 @@
     root.classList.add('theme-' + (opts.popupTheme || 'system'));
 
     root.classList.remove(...SPECIAL_THEME_CLASS_NAMES);
+    root.classList.remove(...COLORBLIND_VARIANT_CLASS_NAMES);
     if (specialTheme !== 'none') {
       root.classList.add('special-theme-' + specialTheme);
+      if (specialTheme === 'colorblind') {
+        root.classList.add('colorblind-theme-' + normalizeColorBlindTheme(opts.colorBlindTheme));
+      }
     }
 
     root.classList.remove(...ACCENT_CLASS_NAMES);

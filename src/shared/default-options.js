@@ -39,6 +39,7 @@ const defaultOptions = {
   obsidianFolder: "",
   popupTheme: 'system',
   specialTheme: 'none',
+  colorBlindTheme: 'deuteranopia',
   specialThemeIcon: true,
   popupAccent: 'sage',
   compactMode: false,

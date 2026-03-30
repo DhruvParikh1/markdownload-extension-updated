@@ -45,7 +45,8 @@ const COUNT_MODES = Array.isArray(countUtils?.COUNT_MODES) && countUtils.COUNT_M
     ? countUtils.COUNT_MODES
     : ['chars', 'words', 'minRead', 'tokens'];
 let lastRenderedLibraryStateKey = '';
-const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude', 'special-theme-perplexity', 'special-theme-atla', 'special-theme-ben10'];
+const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude', 'special-theme-perplexity', 'special-theme-atla', 'special-theme-ben10', 'special-theme-colorblind'];
+const COLORBLIND_VARIANT_CLASS_NAMES = ['colorblind-theme-deuteranopia', 'colorblind-theme-protanopia', 'colorblind-theme-tritanopia'];
 const ACCENT_CLASS_NAMES = ['accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber'];
 const EXPORT_TYPE_ORDER = ['markdown', 'text', 'html', 'pdf'];
 const EXPORT_TYPE_SET = new Set(EXPORT_TYPE_ORDER);
@@ -96,6 +97,21 @@ const EXPORT_TYPE_CONFIG = {
         icon: 'file'
     }
 };
+
+function normalizeColorBlindTheme(value) {
+    return ['deuteranopia', 'protanopia', 'tritanopia'].includes(value) ? value : 'deuteranopia';
+}
+
+function getColorBlindThemeClassName(value) {
+    return 'colorblind-theme-' + normalizeColorBlindTheme(value);
+}
+
+function getResolvedSpecialThemeKey(specialTheme, colorBlindTheme) {
+    if (specialTheme === 'colorblind') {
+        return 'colorblind-' + normalizeColorBlindTheme(colorBlindTheme);
+    }
+    return specialTheme;
+}
 const dom = {
     root: document.documentElement,
     body: document.body,
@@ -455,6 +471,9 @@ const EDITOR_THEME_MAP = {
     perplexity:{ dark: 'perplexity-dark',light: 'perplexity-light' },
     atla:      { dark: 'atla-dark',      light: 'atla-light' },
     ben10:     { dark: 'ben10-dark',     light: 'ben10-light' },
+    'colorblind-deuteranopia': { dark: 'colorblind-deuteranopia-dark', light: 'colorblind-deuteranopia-light' },
+    'colorblind-protanopia': { dark: 'colorblind-protanopia-dark', light: 'colorblind-protanopia-light' },
+    'colorblind-tritanopia': { dark: 'colorblind-tritanopia-dark', light: 'colorblind-tritanopia-light' },
     dracula:   { dark: 'dracula',         light: 'dracula' },
     material:  { dark: 'material-darker', light: 'material' },
     monokai:   { dark: 'monokai',         light: 'xq-light' },
@@ -473,6 +492,12 @@ const EDITOR_THEME_STYLESHEET_MAP = Object.freeze({
     'atla-light': 'lib/atla-light.css',
     'ben10-dark': 'lib/ben10-dark.css',
     'ben10-light': 'lib/ben10-light.css',
+    'colorblind-deuteranopia-dark': 'lib/colorblind-deuteranopia-dark.css',
+    'colorblind-deuteranopia-light': 'lib/colorblind-deuteranopia-light.css',
+    'colorblind-protanopia-dark': 'lib/colorblind-protanopia-dark.css',
+    'colorblind-protanopia-light': 'lib/colorblind-protanopia-light.css',
+    'colorblind-tritanopia-dark': 'lib/colorblind-tritanopia-dark.css',
+    'colorblind-tritanopia-light': 'lib/colorblind-tritanopia-light.css',
     'dracula': 'lib/dracula.css',
     'material': 'lib/material.css',
     'material-darker': 'lib/material-darker.css',
@@ -628,7 +653,8 @@ function initializeEditor() {
             theme: resolveEditorTheme(
                 currentOptions?.editorTheme || 'default',
                 darkMode,
-                currentOptions?.specialTheme || 'none'
+                currentOptions?.specialTheme || 'none',
+                currentOptions?.colorBlindTheme
             ),
             mode: 'markdown',
             lineWrapping: true
@@ -1150,9 +1176,10 @@ async function getActiveTabId(forceRefresh = false) {
     return (await getActiveTab(forceRefresh))?.id ?? null;
 }
 
-function resolveEditorTheme(editorTheme, isDark, specialTheme = 'none') {
-    if (specialTheme !== 'none' && EDITOR_THEME_MAP[specialTheme]) {
-        const specialEntry = EDITOR_THEME_MAP[specialTheme];
+function resolveEditorTheme(editorTheme, isDark, specialTheme = 'none', colorBlindTheme = currentOptions?.colorBlindTheme) {
+    const resolvedSpecialTheme = getResolvedSpecialThemeKey(specialTheme, colorBlindTheme);
+    if (specialTheme !== 'none' && EDITOR_THEME_MAP[resolvedSpecialTheme]) {
+        const specialEntry = EDITOR_THEME_MAP[resolvedSpecialTheme];
         return isDark ? specialEntry.dark : specialEntry.light;
     }
 
@@ -1164,6 +1191,7 @@ function buildPopupThemeCacheSnapshot(options = currentOptions || defaultOptions
     return {
         popupTheme: options?.popupTheme || 'system',
         specialTheme: options?.specialTheme || 'none',
+        colorBlindTheme: normalizeColorBlindTheme(options?.colorBlindTheme),
         specialThemeIcon: options?.specialThemeIcon !== false,
         popupAccent: options?.popupAccent || 'sage',
         editorTheme: options?.editorTheme || 'default'
@@ -1186,8 +1214,12 @@ function applyThemeSettings(options) {
     dom.root.classList.add('theme-' + (options.popupTheme || 'system'));
 
     dom.root.classList.remove(...SPECIAL_THEME_CLASS_NAMES);
+    dom.root.classList.remove(...COLORBLIND_VARIANT_CLASS_NAMES);
     if (specialTheme !== 'none') {
         dom.root.classList.add('special-theme-' + specialTheme);
+        if (specialTheme === 'colorblind') {
+            dom.root.classList.add(getColorBlindThemeClassName(options.colorBlindTheme));
+        }
     }
 
     dom.root.classList.toggle('hide-theme-icon', options.specialThemeIcon === false);
@@ -1206,7 +1238,7 @@ function applyThemeSettings(options) {
     const isDark = options.popupTheme === 'dark' ||
         (options.popupTheme !== 'light' && prefersDarkScheme.matches);
     darkMode = isDark;
-    const themeName = resolveEditorTheme(options.editorTheme || 'default', isDark, specialTheme);
+    const themeName = resolveEditorTheme(options.editorTheme || 'default', isDark, specialTheme, options.colorBlindTheme);
     ensureEditorThemeStylesheet(themeName);
     if (typeof cm !== 'undefined' && cm) {
         cm.setOption('theme', themeName);
@@ -1465,6 +1497,7 @@ const defaultOptions = {
     batchProcessingEnabled: true,
     popupTheme: 'system',
     specialTheme: 'none',
+    colorBlindTheme: 'deuteranopia',
     specialThemeIcon: true,
     popupAccent: 'sage',
     compactMode: false,
@@ -3025,7 +3058,7 @@ browser.runtime.onMessage.addListener(notify);
 
 browser.storage.onChanged.addListener((changes, areaName) => {
     if (areaName === "sync") {
-        const themeSettingKeys = ['popupTheme', 'specialTheme', 'specialThemeIcon', 'popupAccent', 'compactMode', 'editorTheme'];
+        const themeSettingKeys = ['popupTheme', 'specialTheme', 'colorBlindTheme', 'specialThemeIcon', 'popupAccent', 'compactMode', 'editorTheme'];
         if (themeSettingKeys.some((key) => Object.prototype.hasOwnProperty.call(changes, key))) {
             currentOptions = {
                 ...defaultOptions,

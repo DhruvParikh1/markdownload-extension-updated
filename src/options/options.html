@@ -61,12 +61,15 @@
                 <path fill="#9FF337" d="M212.288116,97.233757 C235.039154,89.144127 257.913971,82.827736 281.837006,84.095367 C324.673218,86.365150 363.114288,101.474754 397.758087,126.504486 C402.588959,129.994751 407.130707,133.885239 412.072693,137.801559 C401.620148,153.727203 391.436035,169.252884 381.242828,184.772583 C361.790497,214.389786 342.413239,244.056992 322.773743,273.549561 C320.378418,277.146576 320.826477,279.434357 323.001099,282.729279 C351.864380,326.461578 380.597748,370.279602 409.363892,414.075989 C410.166626,415.298157 410.972839,416.518005 412.560486,418.927246 C400.888672,426.876953 389.783142,435.370148 377.820282,442.405548 C348.142517,459.859192 316.071533,470.453247 281.526550,471.946869 C258.800873,472.929474 236.946808,467.451630 215.654419,459.899078 C190.821121,451.090546 168.145660,438.403168 147.942810,421.408722 C146.923920,420.551605 145.918472,419.677124 144.938629,418.776093 C144.709091,418.564972 144.609421,418.212646 144.290833,417.638458 C157.235123,397.912231 170.254181,378.058258 183.287506,358.213623 C199.908127,332.906921 216.469986,307.561005 233.252808,282.362274 C235.451050,279.061676 235.395920,276.889771 233.229630,273.611023 C203.517990,228.641968 173.963989,183.568741 144.060135,138.047501 C164.009750,120.053848 186.971909,107.078079 212.288116,97.233757 z"/>
             </svg>
             <div class="header-search">
-                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8"/>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                </svg>
-                <input type="text" id="settings-search" class="search-input" placeholder="Search settings..." autocomplete="off" />
-                <kbd class="search-shortcut" id="search-shortcut-hint">/</kbd>
+                <div class="header-search-input">
+                    <input type="text" id="settings-search" class="search-input" placeholder="Search settings..." autocomplete="off" />
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <kbd class="search-shortcut" id="search-shortcut-hint">/</kbd>
+                </div>
+                <div id="settings-search-status" class="search-status" role="status" aria-live="polite" aria-atomic="true" hidden></div>
             </div>
         </header>
 
@@ -394,10 +397,10 @@
                     </div>
                 </div>
 
-                <div class="setting-card" id="specialThemeGroup" data-setting-key="specialTheme"
-                    data-search-keywords="special theme,claude,perplexity,atla,avatar,the last airbender,ben 10,omnitrix,alien force,brand theme,appearance skin">
+                <div class="setting-card" id="specialThemeGroup" data-setting-key="specialTheme,colorBlindTheme"
+                    data-search-keywords="special theme,claude,perplexity,atla,avatar,the last airbender,ben 10,omnitrix,alien force,brand theme,appearance skin,color blind,colorblind,accessibility,deuteranopia,protanopia,tritanopia,wcag">
                     <h3 class="card-title">Special Themes</h3>
-                    <p class="card-desc">Apply a branded look across the popup, options page, guide, and editor.</p>
+                    <p class="card-desc">Apply a tailored aesthetic across the popup, options page, guide, and editor.</p>
                     <div class="radio-group">
                         <div class="radio-pill">
                             <input type="radio" name="specialTheme" id="special-theme-none" value="none" />
@@ -419,11 +422,32 @@
                             <input type="radio" name="specialTheme" id="special-theme-ben10" value="ben10" />
                             <label for="special-theme-ben10">Ben 10</label>
                         </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="specialTheme" id="special-theme-colorblind" value="colorblind" />
+                            <label for="special-theme-colorblind">Color Blind</label>
+                        </div>
+                    </div>
+                    <div class="colorblind-theme-row" id="colorBlindThemeRow" hidden>
+                        <label class="input-label" for="colorBlindThemeBtn">Color Blind Profile</label>
+                        <input type="hidden" id="colorBlindTheme" name="colorBlindTheme" value="deuteranopia">
+                        <div class="cb-dropdown-wrap" id="colorBlindDropdownWrap">
+                            <button type="button" class="cb-dropdown-btn" id="colorBlindThemeBtn"
+                                    aria-haspopup="listbox" aria-expanded="false">
+                                <span id="colorBlindThemeBtnLabel">Deuteranopia</span>
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+                            </button>
+                            <div class="cb-dropdown-panel" id="colorBlindThemePanel" role="listbox" hidden>
+                                <button type="button" class="dd-item" role="option" data-value="deuteranopia">Deuteranopia</button>
+                                <button type="button" class="dd-item" role="option" data-value="protanopia">Protanopia</button>
+                                <button type="button" class="dd-item" role="option" data-value="tritanopia">Tritanopia</button>
+                            </div>
+                        </div>
+                        <p class="toggle-hint colorblind-theme-hint">Uses a WCAG AA palette across the popup, options page, guide, and editor.</p>
                     </div>
                     <div class="toggle-row" id="specialThemeIconRow">
                         <div class="toggle-info">
                             <label class="toggle-label-text" for="specialThemeIcon">Show theme icon</label>
-                            <p class="toggle-hint">Display the mascot icon in the header when using special themes.</p>
+                            <p class="toggle-hint">Display the mascot icon in the header when using supported special themes.</p>
                         </div>
                         <label class="toggle-switch">
                             <input name="specialThemeIcon" id="specialThemeIcon" type="checkbox" />

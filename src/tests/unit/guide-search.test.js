@@ -259,6 +259,7 @@ describe('Guide keyboard shortcuts', () => {
     const defaultOpts = {
       popupTheme: 'system',
       specialTheme: 'none',
+      colorBlindTheme: 'deuteranopia',
       popupAccent: 'sage'
     };
 
@@ -299,16 +300,19 @@ describe('Guide keyboard shortcuts', () => {
 
 describe('Guide theme application', () => {
   test.each([
-    { slug: 'atla' },
-    { slug: 'ben10' }
-  ])('theme classes are applied from settings for $slug', async ({ slug }) => {
+    { label: 'ATLA', slug: 'atla' },
+    { label: 'Ben 10', slug: 'ben10' },
+    { label: 'Color Blind Deuteranopia', slug: 'colorblind', colorBlindTheme: 'deuteranopia' },
+    { label: 'Color Blind Protanopia', slug: 'colorblind', colorBlindTheme: 'protanopia' },
+    { label: 'Color Blind Tritanopia', slug: 'colorblind', colorBlindTheme: 'tritanopia' }
+  ])('theme classes are applied from settings for $label', async ({ slug, colorBlindTheme }) => {
     const dom = new JSDOM(guideHtml, {
       url: 'https://example.com/guide/guide.html',
       pretendToBeVisual: true,
       runScripts: 'dangerously'
     });
 
-    const opts = { popupTheme: 'dark', specialTheme: slug, popupAccent: 'ocean' };
+    const opts = { popupTheme: 'dark', specialTheme: slug, colorBlindTheme, popupAccent: 'ocean' };
     dom.window.eval(`var defaultOptions = ${JSON.stringify(opts)};`);
     dom.window.browser = {
       storage: { sync: { get: () => Promise.resolve(opts) } },
@@ -323,6 +327,9 @@ describe('Guide theme application', () => {
     const root = dom.window.document.documentElement;
     expect(root.classList.contains('theme-dark')).toBe(true);
     expect(root.classList.contains(`special-theme-${slug}`)).toBe(true);
+    if (slug === 'colorblind') {
+      expect(root.classList.contains(`colorblind-theme-${colorBlindTheme}`)).toBe(true);
+    }
     expect(root.classList.contains('accent-ocean')).toBe(false);
 
     dom.window.close();

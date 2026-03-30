@@ -352,6 +352,74 @@ test.describe('MarkSnip Extension E2E', () => {
     });
   }
 
+  for (const { label, variant } of [
+    { label: 'Deuteranopia', variant: 'deuteranopia' },
+    { label: 'Protanopia', variant: 'protanopia' },
+    { label: 'Tritanopia', variant: 'tritanopia' }
+  ]) {
+    test(`popup startup loads ${label} dark stylesheet when the color blind special theme is active`, async () => {
+      await setSyncStorage(serviceWorker, {
+        popupTheme: 'dark',
+        specialTheme: 'colorblind',
+        colorBlindTheme: variant,
+        editorTheme: 'nord'
+      });
+
+      const popupPage = await context.newPage();
+
+      try {
+        await popupPage.goto(`chrome-extension://${extensionId}/popup/popup.html`);
+
+        await expect.poll(async () => {
+          return await popupPage.evaluate(() => {
+            return document.getElementById('cm-theme-stylesheet')?.getAttribute('href') || null;
+          });
+        }, { timeout: 10000 }).toBe(`lib/colorblind-${variant}-dark.css`);
+
+        const themeLinks = await popupPage.evaluate(() => {
+          return Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
+            .map((link) => link.getAttribute('href'))
+            .filter((href) => href && href.startsWith('lib/') && href !== 'lib/codemirror.css');
+        });
+
+        expect(themeLinks).toEqual([`lib/colorblind-${variant}-dark.css`]);
+      } finally {
+        await popupPage.close().catch(() => {});
+      }
+    });
+
+    test(`popup startup loads ${label} light stylesheet when the color blind special theme is active in light mode`, async () => {
+      await setSyncStorage(serviceWorker, {
+        popupTheme: 'light',
+        specialTheme: 'colorblind',
+        colorBlindTheme: variant,
+        editorTheme: 'nord'
+      });
+
+      const popupPage = await context.newPage();
+
+      try {
+        await popupPage.goto(`chrome-extension://${extensionId}/popup/popup.html`);
+
+        await expect.poll(async () => {
+          return await popupPage.evaluate(() => {
+            return document.getElementById('cm-theme-stylesheet')?.getAttribute('href') || null;
+          });
+        }, { timeout: 10000 }).toBe(`lib/colorblind-${variant}-light.css`);
+
+        const themeLinks = await popupPage.evaluate(() => {
+          return Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
+            .map((link) => link.getAttribute('href'))
+            .filter((href) => href && href.startsWith('lib/') && href !== 'lib/codemirror.css');
+        });
+
+        expect(themeLinks).toEqual([`lib/colorblind-${variant}-light.css`]);
+      } finally {
+        await popupPage.close().catch(() => {});
+      }
+    });
+  }
+
   test('popup startup preserves non-Claude theme resolution when no special theme is active', async () => {
     await setSyncStorage(serviceWorker, {
       popupTheme: 'dark',
