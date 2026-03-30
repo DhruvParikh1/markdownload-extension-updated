@@ -1,0 +1,79 @@
+{
+  "root": true,
+  "extends": ["eslint:recommended", "prettier"],
+  "env": {
+    "es2021": true
+  },
+  "parserOptions": {
+    "ecmaVersion": "latest"
+  },
+  "globals": {
+    "browser": "readonly",
+    "chrome": "readonly",
+    "defaultOptions": "readonly",
+    "CodeMirror": "readonly",
+    "cm": "readonly",
+    "marked": "readonly",
+    "hljs": "readonly",
+    "TurndownService": "readonly",
+    "turndownPluginGfm": "readonly",
+    "Readability": "readonly",
+    "JSZip": "readonly",
+    "moment": "readonly",
+    "mimedb": "readonly",
+    "markSnipObsidian": "readonly",
+    "createMenus": "readonly",
+    "getOptions": "readonly",
+    "marksnipPrepareForCapture": "readonly",
+    "getSelectionAndDom": "readonly",
+    "downloadMarkdown": "readonly",
+    "clipSite": "readonly",
+    "recordNotificationMetrics": "readonly",
+    "handleInstalled": "readonly",
+    "handleCommands": "readonly",
+    "handleContextMenuClick": "readonly",
+    "ensureOffscreenDocumentExists": "readonly",
+    "batchState": "writable",
+    "importScripts": "readonly",
+    "self": "readonly",
+    "window": "readonly",
+    "document": "readonly",
+    "DOMParser": "readonly",
+    "fr": "readonly"
+  },
+  "overrides": [
+    {
+      "files": ["scripts/**/*.js", "jest.config.js", "playwright.config.js", "tests/**/*.js"],
+      "env": {
+        "node": true,
+        "jest": true
+      },
+      "parserOptions": {
+        "sourceType": "script"
+      }
+    },
+    {
+      "files": ["**/*.js"],
+      "excludedFiles": ["scripts/**/*.js", "jest.config.js", "playwright.config.js", "tests/**/*.js"],
+      "env": {
+        "browser": true
+      },
+      "parserOptions": {
+        "sourceType": "script"
+      }
+    }
+  ],
+  "rules": {
+    "no-empty": ["error", { "allowEmptyCatch": true }],
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+    "no-undef": "off",
+    "no-redeclare": "off",
+    "no-global-assign": "off",
+    "no-prototype-builtins": "off",
+    "no-control-regex": "off",
+    "no-self-assign": "off",
+    "no-useless-escape": "off",
+    "no-async-promise-executor": "off",
+    "no-empty-pattern": "off"
+  }
+}

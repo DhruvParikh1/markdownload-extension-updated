@@ -1,0 +1,8 @@
+.build/
+node_modules/
+test-results/
+test-artifacts/
+background/
+browser-polyfill.min.js
+highlight.min.js
+popup/lib/

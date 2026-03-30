@@ -69,6 +69,10 @@ jobs:
         working-directory: src
         run: npm ci || npm ci || npm ci
 
+      - name: Run ESLint
+        working-directory: src
+        run: npm run lint:js
+
       - name: Get version from manifest
         id: get-version
         working-directory: src
@@ -80,6 +84,10 @@ jobs:
       - name: Generate browser-specific manifests
         working-directory: src
         run: npm run build:manifests
+
+      - name: Run web-ext lint (Firefox)
+        working-directory: src
+        run: npx web-ext lint -s .build/firefox
 
       - name: Create dist directory
         run: mkdir -p dist

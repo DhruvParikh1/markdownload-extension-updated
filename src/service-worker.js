@@ -485,6 +485,12 @@ async function handleInstalled(details) {
       lastInstalledVersion: currentVersion
     };
 
+    if (details.reason === 'install') {
+      await browser.tabs.create({
+        url: browser.runtime.getURL('guide/guide.html?welcome=true')
+      });
+    }
+
     if (details.reason === 'update') {
       const previousVersion = details.previousVersion || previousInstalledVersion;
       if (previousVersion && previousVersion !== currentVersion) {

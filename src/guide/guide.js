@@ -293,10 +293,31 @@
   }
 
   /* ════════════════════════════════════════
+     Welcome Banner (first-install onboarding)
+     ════════════════════════════════════════ */
+  function initWelcomeBanner() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('welcome') !== 'true') return;
+
+    const banner = document.getElementById('welcome-banner');
+    const dismissBtn = document.getElementById('welcome-banner-dismiss');
+    if (!banner) return;
+
+    banner.style.display = '';
+
+    if (dismissBtn) {
+      dismissBtn.addEventListener('click', () => {
+        banner.style.display = 'none';
+      });
+    }
+  }
+
+  /* ════════════════════════════════════════
      Init
      ════════════════════════════════════════ */
   function init() {
     loadSettings();
+    initWelcomeBanner();
     initSearch();
     initTocTracking();
     initKeyboard();

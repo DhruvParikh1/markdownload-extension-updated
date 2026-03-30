@@ -1368,6 +1368,58 @@ body.search-active .search-results {
 }
 
 
+/* ── Welcome Banner (first-install onboarding) ── */
+.welcome-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    background: var(--accent-light);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-5);
+}
+
+.welcome-banner-content {
+    flex: 1;
+}
+
+.welcome-banner-title {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: 600;
+    color: var(--accent-darker);
+    margin: 0 0 var(--space-2) 0;
+}
+
+.welcome-banner-content p {
+    margin: 0 0 var(--space-2) 0;
+    font-size: var(--text-sm);
+    line-height: 1.6;
+    color: var(--text-primary);
+}
+
+.welcome-banner-content p:last-child {
+    margin-bottom: 0;
+}
+
+.welcome-banner-dismiss {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    line-height: 1;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: var(--space-1);
+    border-radius: var(--radius-sm);
+}
+
+.welcome-banner-dismiss:hover {
+    color: var(--text-primary);
+    background: var(--bg-hover);
+}
+
 /* ── Reduced Motion ── */
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {

@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: "src/package-lock.json"
+
+      - name: Install dependencies
+        working-directory: src
+        run: npm ci
+
+      - name: Run unit tests
+        working-directory: src
+        run: npm run test:unit
+
+      - name: Run integration tests
+        working-directory: src
+        run: npm run test:integration
+
+      - name: Install Playwright browsers
+        working-directory: src
+        run: npx playwright install --with-deps chromium
+
+      - name: Run deterministic E2E tests
+        working-directory: src
+        run: xvfb-run -a npx playwright test tests/e2e/extension.spec.js tests/e2e/notifications.spec.js tests/e2e/batch-processing.spec.js tests/e2e/command-download-regression.spec.js
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: "src/package-lock.json"
+
+      - name: Install dependencies
+        working-directory: src
+        run: npm ci
+
+      - name: Run ESLint
+        working-directory: src
+        run: npm run lint:js
+
+      - name: Generate browser manifests
+        working-directory: src
+        run: npm run build:manifests
+
+      - name: Run web-ext lint (Firefox)
+        working-directory: src
+        run: npx web-ext lint -s .build/firefox

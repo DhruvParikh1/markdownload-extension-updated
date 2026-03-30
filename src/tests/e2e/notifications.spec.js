@@ -116,6 +116,16 @@ async function queueVersionUpdateNotification(serviceWorker, previousVersion) {
   }, { priorVersion: previousVersion });
 }
 
+async function triggerInstallOnboarding(serviceWorker) {
+  return await serviceWorker.evaluate(async () => {
+    const guideUrl = browser.runtime.getURL('guide/guide.html?welcome=true');
+    await handleInstalled({
+      reason: 'install'
+    });
+    return { guideUrl };
+  });
+}
+
 test.describe('Notifications E2E', () => {
   let context;
   let serviceWorker;
@@ -131,6 +141,24 @@ test.describe('Notifications E2E', () => {
 
   test.afterAll(async () => {
     await context?.close();
+  });
+
+  test('install opens the guide with the welcome banner visible', async () => {
+    const guidePagePromise = context.waitForEvent('page');
+    const { guideUrl } = await triggerInstallOnboarding(serviceWorker);
+    const guidePage = await guidePagePromise;
+    await guidePage.waitForLoadState('domcontentloaded');
+    expect(guidePage.url()).toBe(guideUrl);
+
+    try {
+      await expect(guidePage.locator('#welcome-banner')).toBeVisible();
+      await expect(guidePage.getByText('Welcome to MarkSnip!')).toBeVisible();
+
+      await guidePage.getByLabel('Dismiss welcome message').click();
+      await expect(guidePage.locator('#welcome-banner')).toBeHidden();
+    } finally {
+      await guidePage?.close().catch(() => {});
+    }
   });
 
   test('shows the support milestone card after the first threshold is reached', async () => {
