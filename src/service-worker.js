@@ -421,7 +421,7 @@ function postAgentBridgeMessage(message) {
   }
 }
 
-function createDownloadNotificationDelta(config = {}) {
+function _createDownloadNotificationDelta(config = {}) {
   return {
     downloads: config.countsTowardDownloads === false ? 0 : 1,
     exports: config.countsTowardExports === false ? 0 : 1
@@ -741,7 +741,7 @@ function handleFilenameConflict(downloadItem, suggest) {
 /**
  * Handle messages from content scripts and popup
  */
-async function handleMessages(message, sender, sendResponse) {
+async function handleMessages(message, sender, _sendResponse) {
   switch (message.type) {
     case "get-pending-notification":
       return await getPendingNotification();
@@ -1147,7 +1147,7 @@ async function injectBatchProgressOverlay(tabId, current, total, url, pageTitle,
 
         const darker = colors.darker;
         const dark = colors.dark;
-        const base = colors.base;
+        const _base = colors.base;
 
         const style = document.createElement('style');
         style.id = 'marksnip-batch-overlay-style';
@@ -1262,7 +1262,7 @@ async function updateBatchProgressOverlay(tabId, current, total, url, pageTitle,
   }
 }
 
-async function removeBatchProgressOverlay(tabId) {
+async function _removeBatchProgressOverlay(tabId) {
   try {
     await browser.scripting.executeScript({
       target: { tabId },
@@ -1648,7 +1648,7 @@ async function executeContentDownload(tabId, filename, base64Content, notificati
  * Handle image downloads from offscreen document (Downloads API method)
  */
 async function handleImageDownloads(message) {
-  const { imageList, mdClipsFolder, title, options } = message;
+  const { imageList, mdClipsFolder, title, options: _options } = message;
   
   try {
     console.log('🖼️ Service worker handling image downloads:', Object.keys(imageList).length, 'images');
@@ -1707,7 +1707,7 @@ async function handleImageDownloads(message) {
  * Handle image downloads for content script method
  */
 async function handleImageDownloadsContentScript(message) {
-  const { imageList, tabId, options } = message;
+  const { imageList, tabId, options: _options } = message;
   
   try {
     console.log('Service worker handling image downloads via content script');
@@ -1846,7 +1846,7 @@ function generateRequestId() {
  * Process markdown result from offscreen document
  */
 async function handleMarkdownResult(message) {
-  const { result, requestId } = message;
+  const { result, requestId: _requestId } = message;
   
   // Forward the result to the popup
   await browser.runtime.sendMessage({
@@ -2946,7 +2946,7 @@ async function handleDownloadWithBlobUrl(blobUrl, filename, tabId, imageList = {
  * Handle download directly in service worker (bypass offscreen routing)
  * Used when offscreen document can't use Downloads API
  */
-async function handleDownloadDirectly(markdown, title, tabId, imageList = {}, mdClipsFolder = '', options = null) {
+async function _handleDownloadDirectly(markdown, title, tabId, imageList = {}, mdClipsFolder = '', options = null) {
   if (!options) options = await getOptions();
   
   // CRITICAL: Ensure title is never empty
@@ -3309,7 +3309,7 @@ async function downloadMarkdown(markdown, title, tabId, imageList = {}, mdClipsF
 /**
  * Handle image downloads directly (for Firefox path)
  */
-async function handleImageDownloadsDirectly(imageList, mdClipsFolder, title, options) {
+async function handleImageDownloadsDirectly(imageList, mdClipsFolder, title, _options) {
   const destPath = mdClipsFolder + title.substring(0, title.lastIndexOf('/'));
   const adjustedDestPath = destPath && !destPath.endsWith('/') ? destPath + '/' : destPath;
   
