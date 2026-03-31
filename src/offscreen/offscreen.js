@@ -153,11 +153,11 @@ function handleMessages(message, sender) {
     return false; // Not for this context
   }
 
-  return (async () => {
-    switch (message.type) {
-    case 'process-content':
-      await processContent(message);
-      break;
+	  return (async () => {
+	    switch (message.type) {
+	    case 'process-content':
+	      await processContent(message);
+	      break;
     case 'download-markdown':
       await downloadMarkdown(
         message.markdown,
@@ -179,12 +179,10 @@ function handleMessages(message, sender) {
         message.notificationDelta
       );
       break;
-    case 'process-context-menu':
-      await processContextMenu(message);
-      break;
-    case 'copy-to-clipboard':
-      await copyToClipboard(message.text);
-      break;
+	    case 'process-context-menu':
+	      return await processContextMenu(message);
+	    case 'copy-to-clipboard':
+	      return await copyToClipboard(message.text);
     case 'get-article-content':
       await handleGetArticleContent(message);
       break;
@@ -200,11 +198,13 @@ function handleMessages(message, sender) {
         console.log('⚠️ [Offscreen] Could not cleanup blob URL:', err.message);
       }
       break;
-    case 'download-batch-zip':
-      await downloadBatchZip(message);
-      break;
-    }
-  })();
+	    case 'download-batch-zip':
+	      await downloadBatchZip(message);
+	      break;
+	    }
+
+	    return null;
+	  })();
 }
 
 /**
@@ -260,10 +260,18 @@ async function processContextMenu(message) {
     if (action === 'download') {
       await handleContextMenuDownload(info, tabId, options, customTitle, collectOnly, notificationDelta);
     } else if (action === 'copy') {
-      await handleContextMenuCopy(info, tabId, options);
+      const copied = await handleContextMenuCopy(info, tabId, options);
+      return { ok: copied === true, action };
     }
+
+    return { ok: true, action };
   } catch (error) {
     console.error(`Error processing context menu ${action}:`, error);
+    return {
+      ok: false,
+      action,
+      error: error.message
+    };
   }
 }
 
@@ -414,10 +422,10 @@ async function handleContextMenuCopy(info, tabId, providedOptions = null) {
       { ...localOptions, downloadImages: false },
       article
     );
-    await copyToClipboard(markdown);
+    return await copyToClipboard(markdown);
   }
   else if (info.menuItemId === "copy-markdown-image") {
-    await copyToClipboard(`![](${info.srcUrl})`);
+    return await copyToClipboard(`![](${info.srcUrl})`);
   }
   else if (info.menuItemId === "copy-markdown-obsidian") {
     const article = await getArticleFromContent(tabId, true, options);
@@ -438,6 +446,7 @@ async function handleContextMenuCopy(info, tabId, providedOptions = null) {
       folder: obsidianFolder,
       title: generateValidFileName(title, resolved.options.disallowedChars)
     });
+    return true;
   }
   else if (info.menuItemId === "copy-markdown-obsall") {
     const article = await getArticleFromContent(tabId, false, options);
@@ -458,12 +467,13 @@ async function handleContextMenuCopy(info, tabId, providedOptions = null) {
       folder: obsidianFolder,
       title: generateValidFileName(title, resolved.options.disallowedChars)
     });
+    return true;
   }
   else {
     const article = await getArticleFromContent(tabId, info.menuItemId === "copy-markdown-selection", options);
     const resolved = resolveOptionsForArticle(article, options);
     const { markdown } = await convertArticleToMarkdown(article, false, resolved.options);
-    await copyToClipboard(markdown);
+    return await copyToClipboard(markdown);
   }
 }
 
@@ -2083,12 +2093,12 @@ async function downloadMarkdown(markdown, title, tabId, imageList = {}, mdClipsF
      });
    } catch (err) {
      console.error("❌ [Offscreen] Failed to create blob, falling back to content script:", err);
-     await downloadViaContentScript(markdown, title, tabId, imageList, mdClipsFolder, options);
+     await downloadViaContentScript(markdown, title, tabId, imageList, mdClipsFolder, options, notificationDelta);
    }
  } else {
     // Use content script method via service worker
     console.log(`🔗 [Offscreen] Using content script method (downloadMode: ${options.downloadMode})`);
-    await downloadViaContentScript(markdown, title, tabId, imageList, mdClipsFolder, options);
+    await downloadViaContentScript(markdown, title, tabId, imageList, mdClipsFolder, options, notificationDelta);
   }
 }
 
@@ -2155,7 +2165,7 @@ async function downloadGeneratedFileExport(content, filename, tabId, providedOpt
 /**
  * Download via content script method (fallback when Downloads API not available)
  */
-async function downloadViaContentScript(markdown, title, tabId, imageList, mdClipsFolder, options) {
+async function downloadViaContentScript(markdown, title, tabId, imageList, mdClipsFolder, options, notificationDelta = null) {
   try {
     // For content script downloads, we need to handle the subfolder differently
     // since data URI downloads don't support subfolders
@@ -2177,7 +2187,8 @@ async function downloadViaContentScript(markdown, title, tabId, imageList, mdCli
       type: "execute-content-download",
       tabId: tabId,
       filename: filename,
-      content: base64Content
+      content: base64Content,
+      notificationDelta: notificationDelta
     });
 
     // Handle image downloads for content script method

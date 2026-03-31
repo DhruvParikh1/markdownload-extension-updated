@@ -266,10 +266,12 @@ test.describe('Command And Download Regression E2E', () => {
         getOptions: self.getOptions,
         ensureScripts: self.ensureScripts,
         executeScript: browser.scripting.executeScript,
+        recordNotificationMetrics: self.recordNotificationMetrics,
       };
 
       let ensureScriptsTabId = null;
       const executeCalls = [];
+      const metricCalls = [];
 
       try {
         self.getOptions = async () => ({
@@ -288,15 +290,20 @@ test.describe('Command And Download Regression E2E', () => {
           executeCalls.push(payload);
           return [{ result: true }];
         };
+        self.recordNotificationMetrics = async (delta, options) => {
+          metricCalls.push({ delta, options });
+          return { ok: true };
+        };
 
         await downloadMarkdown('# content', 'Content Link Title', 313, {}, 'Clips/');
       } finally {
         self.getOptions = originals.getOptions;
         self.ensureScripts = originals.ensureScripts;
         browser.scripting.executeScript = originals.executeScript;
+        self.recordNotificationMetrics = originals.recordNotificationMetrics;
       }
 
-      return { ensureScriptsTabId, executeCalls };
+      return { ensureScriptsTabId, executeCalls, metricCalls };
     });
 
     expect(result.ensureScriptsTabId).toBe(313);
@@ -304,5 +311,104 @@ test.describe('Command And Download Regression E2E', () => {
     expect(result.executeCalls[0].target).toEqual({ tabId: 313 });
     expect(result.executeCalls[0].args[0]).toMatch(/^Clips\/.+\.md$/);
     expect(result.executeCalls[0].args[1].length).toBeGreaterThan(10);
+    expect(result.metricCalls).toEqual([
+      {
+        delta: { downloads: 1, exports: 1 },
+        options: { tabId: 313 },
+      },
+    ]);
+  });
+
+  test('records metrics when offscreen delegates a content download through the service worker', async () => {
+    const result = await serviceWorker.evaluate(async () => {
+      if (typeof self.executeContentDownload !== 'function') {
+        throw new Error('Missing function in service worker: executeContentDownload');
+      }
+
+      const originals = {
+        executeScript: browser.scripting.executeScript,
+        recordNotificationMetrics: self.recordNotificationMetrics,
+      };
+
+      const executeCalls = [];
+      const metricCalls = [];
+
+      try {
+        browser.scripting.executeScript = async (payload) => {
+          executeCalls.push(payload);
+          return [{ result: true }];
+        };
+        self.recordNotificationMetrics = async (delta, options) => {
+          metricCalls.push({ delta, options });
+          return { ok: true };
+        };
+
+        await executeContentDownload(444, 'Offscreen Clip.md', 'Zm9v', { downloads: 1, exports: 1 });
+      } finally {
+        browser.scripting.executeScript = originals.executeScript;
+        self.recordNotificationMetrics = originals.recordNotificationMetrics;
+      }
+
+      return { executeCalls, metricCalls };
+    });
+
+    expect(result.executeCalls).toHaveLength(1);
+    expect(result.executeCalls[0].target).toEqual({ tabId: 444 });
+    expect(result.metricCalls).toEqual([
+      {
+        delta: { downloads: 1, exports: 1 },
+        options: { tabId: 444 },
+      },
+    ]);
+  });
+
+  test('records copy metrics only after offscreen confirms clipboard success', async () => {
+    const result = await serviceWorker.evaluate(async () => {
+      if (typeof self.copyMarkdownFromContext !== 'function') {
+        throw new Error('Missing function in service worker: copyMarkdownFromContext');
+      }
+
+      const originals = {
+        ensureScripts: self.ensureScripts,
+        ensureOffscreenDocumentExists: self.ensureOffscreenDocumentExists,
+        sendMessage: browser.runtime.sendMessage,
+        recordNotificationMetrics: self.recordNotificationMetrics,
+      };
+
+      const metricCalls = [];
+      const sentMessages = [];
+      const responses = [{ ok: false }, { ok: true }];
+
+      try {
+        self.ensureScripts = async () => {};
+        self.ensureOffscreenDocumentExists = async () => {};
+        browser.runtime.sendMessage = async (message) => {
+          sentMessages.push(message);
+          return responses.shift() || { ok: false };
+        };
+        self.recordNotificationMetrics = async (delta, options) => {
+          metricCalls.push({ delta, options });
+          return { ok: true };
+        };
+
+        await copyMarkdownFromContext({ menuItemId: 'copy-markdown-all' }, { id: 901 });
+        await copyMarkdownFromContext({ menuItemId: 'copy-markdown-all' }, { id: 902 });
+      } finally {
+        self.ensureScripts = originals.ensureScripts;
+        self.ensureOffscreenDocumentExists = originals.ensureOffscreenDocumentExists;
+        browser.runtime.sendMessage = originals.sendMessage;
+        self.recordNotificationMetrics = originals.recordNotificationMetrics;
+      }
+
+      return { metricCalls, sentMessages };
+    });
+
+    expect(result.sentMessages).toHaveLength(2);
+    expect(result.metricCalls).toEqual([
+      {
+        delta: { copies: 1, exports: 1 },
+        options: { tabId: 902 },
+      },
+    ]);
   });
 });

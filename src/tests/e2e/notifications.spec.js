@@ -228,6 +228,46 @@ test.describe('Notifications E2E', () => {
     }
   });
 
+  test('retries queued notification display after the original tab closes before acknowledgement', async () => {
+    const firstThreshold = await getFirstSupportThreshold(serviceWorker);
+    expect(firstThreshold).toBeGreaterThan(0);
+
+    const firstPage = await context.newPage();
+
+    await firstPage.goto(notificationHostUrl);
+    const firstTabId = await getTabIdForUrl(serviceWorker, firstPage.url());
+    expect(firstTabId).toBeTruthy();
+
+    await recordMetrics(serviceWorker, { exports: firstThreshold }, firstTabId);
+    await firstPage.close().catch(() => {});
+
+    const retryPage = await context.newPage();
+
+    try {
+      await retryPage.goto(notificationHostUrl);
+      const retryTabId = await getTabIdForUrl(serviceWorker, retryPage.url());
+      expect(retryTabId).toBeTruthy();
+
+      await recordMetrics(serviceWorker, { copies: 1, exports: 0 }, retryTabId);
+
+      const title = `${firstThreshold.toLocaleString('en-US')} pages exported`;
+      await expect(retryPage.getByText(title)).toBeVisible({ timeout: 15000 });
+
+      await expect.poll(async () => {
+        const notificationState = await serviceWorker.evaluate(async () => {
+          const state = await browser.storage.local.get(['pendingNotifications']);
+          return state.pendingNotifications?.[0] || null;
+        });
+
+        return notificationState?.showCount || 0;
+      }).toBe(1);
+
+      await retryPage.getByLabel('Dismiss notification').click();
+    } finally {
+      await retryPage.close().catch(() => {});
+    }
+  });
+
   test('shows the version update card only after the next successful use', async () => {
     const currentVersion = await serviceWorker.evaluate(() => browser.runtime.getManifest().version);
     const previousVersion = '4.1.0';

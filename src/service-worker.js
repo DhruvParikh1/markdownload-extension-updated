@@ -40,6 +40,18 @@ browser.contextMenus.onClicked.addListener(handleContextMenuClick);
 browser.commands.onCommand.addListener(handleCommands);
 browser.downloads.onChanged.addListener(handleDownloadChange);
 browser.storage.onChanged.addListener(handleStorageChange);
+if (browser.tabs?.onRemoved?.addListener) {
+  browser.tabs.onRemoved.addListener((tabId) => {
+    clearPendingNotificationDisplayLocksForTab(tabId);
+  });
+}
+if (browser.tabs?.onUpdated?.addListener) {
+  browser.tabs.onUpdated.addListener((tabId, changeInfo) => {
+    if (changeInfo.status === 'loading' || typeof changeInfo.url === 'string') {
+      clearPendingNotificationDisplayLocksForTab(tabId);
+    }
+  });
+}
 
 // Create context menus when service worker starts
 createMenus();
@@ -56,9 +68,10 @@ const notificationHelpers = globalThis.markSnipNotifications;
 const SINGLE_DOWNLOAD_NOTIFICATION_DELTA = Object.freeze({ downloads: 1, exports: 1 });
 const BATCH_DOWNLOAD_NOTIFICATION_DELTA = Object.freeze({ downloads: 1, exports: 0 });
 const NO_EXPORT_DOWNLOAD_NOTIFICATION_DELTA = Object.freeze({ downloads: 0, exports: 0 });
+const PENDING_NOTIFICATION_DISPLAY_LOCK_TIMEOUT_MS = 5000;
 let releaseHighlightsCachePromise = null;
 let notificationStateTaskChain = Promise.resolve();
-const pendingNotificationDisplayLocks = new Set();
+const pendingNotificationDisplayLocks = new Map();
 const AGENT_BRIDGE_HOST_NAME = 'com.marksnip.bridge';
 const AGENT_BRIDGE_RECONNECT_DELAY_MS = 3000;
 let agentBridgePort = null;
@@ -84,6 +97,67 @@ async function saveNotificationState(state) {
   const normalizedState = notificationHelpers.ensureNotificationState(state);
   await browser.storage.local.set(normalizedState);
   return normalizedState;
+}
+
+function clearPendingNotificationDisplayLock(notificationId) {
+  const lock = pendingNotificationDisplayLocks.get(notificationId);
+  if (lock?.timeoutId) {
+    clearTimeout(lock.timeoutId);
+  }
+  pendingNotificationDisplayLocks.delete(notificationId);
+}
+
+function clearPendingNotificationDisplayLocksForTab(tabId) {
+  if (!Number.isInteger(tabId)) {
+    return;
+  }
+
+  for (const [notificationId, lock] of pendingNotificationDisplayLocks.entries()) {
+    if (lock?.tabId === tabId) {
+      clearPendingNotificationDisplayLock(notificationId);
+    }
+  }
+}
+
+function hasPendingNotificationDisplayLock(notificationId) {
+  const lock = pendingNotificationDisplayLocks.get(notificationId);
+  if (!lock) {
+    return false;
+  }
+
+  if (Date.now() - lock.createdAt >= PENDING_NOTIFICATION_DISPLAY_LOCK_TIMEOUT_MS) {
+    clearPendingNotificationDisplayLock(notificationId);
+    return false;
+  }
+
+  return true;
+}
+
+function setPendingNotificationDisplayLock(notificationId, tabId) {
+  clearPendingNotificationDisplayLock(notificationId);
+
+  const timeoutId = setTimeout(() => {
+    clearPendingNotificationDisplayLock(notificationId);
+  }, PENDING_NOTIFICATION_DISPLAY_LOCK_TIMEOUT_MS);
+
+  pendingNotificationDisplayLocks.set(notificationId, {
+    tabId,
+    createdAt: Date.now(),
+    timeoutId
+  });
+}
+
+async function recordNotificationMetricsSafely(delta, options = {}) {
+  if (!delta || typeof delta !== 'object') {
+    return null;
+  }
+
+  try {
+    return await recordNotificationMetrics(delta, options);
+  } catch (error) {
+    console.error('[Notifications] Failed to record notification metrics:', error);
+    return null;
+  }
 }
 
 async function loadReleaseHighlightsAsset() {
@@ -381,7 +455,7 @@ async function showPendingNotificationInTab(tabId, notification = null) {
     return false;
   }
 
-  if (pendingNotificationDisplayLocks.has(nextNotification.id)) {
+  if (hasPendingNotificationDisplayLock(nextNotification.id)) {
     return false;
   }
 
@@ -390,7 +464,7 @@ async function showPendingNotificationInTab(tabId, notification = null) {
     return false;
   }
 
-  pendingNotificationDisplayLocks.add(nextNotification.id);
+  setPendingNotificationDisplayLock(nextNotification.id, tab.id);
 
   try {
     await browser.scripting.executeScript({
@@ -400,7 +474,7 @@ async function showPendingNotificationInTab(tabId, notification = null) {
     return true;
   } catch (error) {
     console.debug('[Notifications] Could not display notification in tab:', error);
-    pendingNotificationDisplayLocks.delete(nextNotification.id);
+    clearPendingNotificationDisplayLock(nextNotification.id);
     return false;
   }
 }
@@ -442,7 +516,7 @@ async function markPendingNotificationShown(notificationId) {
     return null;
   }
 
-  pendingNotificationDisplayLocks.delete(notificationId);
+  clearPendingNotificationDisplayLock(notificationId);
 
   return runNotificationStateTask(async () => {
     const state = notificationHelpers.markNotificationShown(
@@ -460,7 +534,7 @@ async function dismissPendingNotification(notificationId) {
     return null;
   }
 
-  pendingNotificationDisplayLocks.delete(notificationId);
+  clearPendingNotificationDisplayLock(notificationId);
 
   return runNotificationStateTask(async () => {
     let state = notificationHelpers.dismissNotification(await loadNotificationState(), notificationId);
@@ -729,7 +803,12 @@ async function handleMessages(message, sender, sendResponse) {
       break;
 
     case "execute-content-download":
-      await executeContentDownload(message.tabId, message.filename, message.content);
+      await executeContentDownload(
+        message.tabId,
+        message.filename,
+        message.content,
+        message.notificationDelta || null
+      );
       break;
     case "cleanup-blob-url":
       // Forward cleanup request to offscreen document
@@ -1545,7 +1624,7 @@ async function forwardGetArticleContent(tabId, selection, originalRequestId) {
  * @param {string} filename - Filename for download
  * @param {string} base64Content - Base64 encoded content to download
  */
-async function executeContentDownload(tabId, filename, base64Content) {
+async function executeContentDownload(tabId, filename, base64Content, notificationDelta = null) {
   try {
     await browser.scripting.executeScript({
       target: { tabId: tabId },
@@ -1559,6 +1638,7 @@ async function executeContentDownload(tabId, filename, base64Content) {
       },
       args: [filename, base64Content]
     });
+    await recordNotificationMetricsSafely(notificationDelta, { tabId });
   } catch (error) {
     console.error("Failed to execute download script:", error);
   }
@@ -2584,7 +2664,7 @@ async function copyMarkdownFromContext(info, tab) {
   await ensureScripts(tab.id);
   await ensureOffscreenDocumentExists();
   
-  await browser.runtime.sendMessage({
+  const result = await browser.runtime.sendMessage({
     target: 'offscreen',
     type: 'process-context-menu',
     action: 'copy',
@@ -2594,8 +2674,8 @@ async function copyMarkdownFromContext(info, tab) {
   });
 
   const delta = getCopyNotificationDelta(info.menuItemId);
-  if (delta) {
-    await recordNotificationMetrics(delta, {
+  if (delta && result?.ok) {
+    await recordNotificationMetricsSafely(delta, {
       tabId: tab.id
     });
   }
@@ -2614,15 +2694,17 @@ async function copyTabAsMarkdownLink(tab) {
     const title = await formatTitle(article, resolved.options);
     const pageUrl = getArticlePageUrl(article, tab);
     
-    await browser.runtime.sendMessage({
+    const copied = await browser.runtime.sendMessage({
       target: 'offscreen',
       type: 'copy-to-clipboard',
       text: `[${title}](${pageUrl})`,
       options: resolved.options
     });
-    await recordNotificationMetrics({ copies: 1, exports: 0 }, {
-      tabId: tab.id
-    });
+    if (copied) {
+      await recordNotificationMetricsSafely({ copies: 1, exports: 0 }, {
+        tabId: tab.id
+      });
+    }
   } catch (error) {
     console.error("Failed to copy as markdown link:", error);
   }
@@ -2652,15 +2734,17 @@ async function copyTabAsMarkdownLinkAll(tab) {
     
     const markdown = links.join('\n');
     
-    await browser.runtime.sendMessage({
+    const copied = await browser.runtime.sendMessage({
       target: 'offscreen',
       type: 'copy-to-clipboard',
       text: markdown,
       options: options
     });
-    await recordNotificationMetrics({ copies: 1, exports: 0 }, {
-      tabId: tab.id
-    });
+    if (copied) {
+      await recordNotificationMetricsSafely({ copies: 1, exports: 0 }, {
+        tabId: tab.id
+      });
+    }
   } catch (error) {
     console.error("Failed to copy all tabs as markdown links:", error);
   }
@@ -2691,15 +2775,17 @@ async function copySelectedTabAsMarkdownLink(tab) {
 
     const markdown = links.join(`\n`);
     
-    await browser.runtime.sendMessage({
+    const copied = await browser.runtime.sendMessage({
       target: 'offscreen',
       type: 'copy-to-clipboard',
       text: markdown,
       options: options
     });
-    await recordNotificationMetrics({ copies: 1, exports: 0 }, {
-      tabId: tab.id
-    });
+    if (copied) {
+      await recordNotificationMetricsSafely({ copies: 1, exports: 0 }, {
+        tabId: tab.id
+      });
+    }
   } catch (error) {
     console.error("Failed to copy selected tabs as markdown links:", error);
   }
@@ -2849,6 +2935,7 @@ async function handleDownloadWithBlobUrl(blobUrl, filename, tabId, imageList = {
         },
         args: [blobUrl, filename.split('/').pop()] // Just the filename, not path
       });
+      await recordNotificationMetricsSafely(notificationDelta, { tabId });
     }
   } else {
     console.error("❌ [Service Worker] No Downloads API available");
@@ -3082,6 +3169,7 @@ async function downloadGeneratedFile(message = {}) {
     },
     args: [filename, base64Content, mimeType]
   });
+  await recordNotificationMetricsSafely(notificationDelta, { tabId });
 }
 
 /**
@@ -3211,6 +3299,7 @@ async function downloadMarkdown(markdown, title, tabId, imageList = {}, mdClipsF
         },
         args: [filename, base64Content]
       });
+      await recordNotificationMetricsSafely(resolvedNotificationDelta, { tabId });
     } catch (error) {
       console.error("Failed to execute script:", error);
     }
