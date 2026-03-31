@@ -1,5 +1,24 @@
 # Changelog
 
+## 4.4.0
+
+### User Highlights
+
+- Popup exports now support Markdown, plain text, HTML, PDF, and Print, with a configurable default format.
+- New Site Rules add per-site clipping overrides for templates, images, downloads, and table formatting.
+- First-run onboarding and Permissions & Privacy guidance are now clearer, including an Agent Bridge preflight explainer.
+- New Color Blind themes add Deuteranopia, Protanopia, and Tritanopia variants across the extension.
+- The popup and settings now include shortcut help, live template previews, better search feedback, and reading-time counts.
+
+### Technical Notes
+
+- **Popup Export Formats**: Added popup split-button actions for plain text, HTML, PDF, and Print, plus a configurable default popup export format in Settings and print-specific popup assets.
+- **Site Rules**: Added ordered wildcard URL matching with first-match-wins overrides for templates, image behavior, downloads folders, and table formatting across the clipping pipeline.
+- **Onboarding & Trust UX**: Open the guide with a welcome banner on first install, added Permissions & Privacy guidance in the guide and settings, and inserted an Agent Bridge preflight explainer before requesting optional native messaging access.
+- **Accessibility Themes**: Added Color Blind special themes with Deuteranopia, Protanopia, and Tritanopia variants, a theme-icon visibility toggle, and follow-up fixes for Claude and Perplexity theme icons.
+- **Popup & Settings Polish**: Added a popup keyboard shortcuts modal, collapsible live template previews, better settings search result context, a shared min-read counter mode, and smoother themed popup loading.
+- **Quality Gates & Release Flow**: Added ESLint-backed CI quality gates, refreshed store screenshot assets, and updated release workflow plumbing for automated release builds.
+
 ## 4.3.0
 
 ### User Highlights

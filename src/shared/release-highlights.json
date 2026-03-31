@@ -1,7 +1,14 @@
 {
-  "generatedAt": "2026-03-30T01:48:55.269Z",
+  "generatedAt": "2026-03-31T03:03:53.785Z",
   "source": "CHANGELOG.md",
   "versions": {
+    "4.4.0": [
+      "Popup exports now support Markdown, plain text, HTML, PDF, and Print, with a configurable default format.",
+      "New Site Rules add per-site clipping overrides for templates, images, downloads, and table formatting.",
+      "First-run onboarding and Permissions & Privacy guidance are now clearer, including an Agent Bridge preflight explainer.",
+      "New Color Blind themes add Deuteranopia, Protanopia, and Tritanopia variants across the extension.",
+      "The popup and settings now include shortcut help, live template previews, better search feedback, and reading-time counts."
+    ],
     "4.3.0": [
       "The popup now has a Markdown Preview toggle, so you can switch from editing to a rendered preview without leaving MarkSnip.",
       "MarkSnip now includes special Claude, Perplexity, Avatar: The Last Airbender, and Ben 10 themes across the popup, settings, and guide.",
