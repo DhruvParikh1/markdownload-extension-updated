@@ -935,6 +935,7 @@ a:hover {
     width: 280px;
     background: rgba(255,255,255,0.18);
     border-color: rgba(255,255,255,0.35);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
 }
 
 .search-input:focus ~ .search-shortcut {
@@ -1067,7 +1068,6 @@ a:hover {
 .cb-dropdown-panel .dd-item:hover,
 .cb-dropdown-panel .dd-item:focus-visible {
     background: var(--bg-hover);
-    outline: none;
 }
 
 .cb-dropdown-panel .dd-item[aria-selected="true"] {
@@ -3450,5 +3450,55 @@ input[type="file"] {
     .site-rule-fields,
     .site-rule-grid {
         grid-template-columns: 1fr;
+    }
+}
+
+/* High Contrast */
+@media (prefers-contrast: more) {
+    :root,
+    :root[class*="special-theme-"] {
+        --border-light:  var(--stone-400);
+        --border-medium: var(--stone-600);
+        --border-dark:   var(--stone-800);
+    }
+
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --border-light:  var(--stone-500);
+            --border-medium: var(--stone-400);
+            --border-dark:   var(--stone-200);
+        }
+    }
+
+    :root.theme-dark,
+    :root.theme-dark[class*="special-theme-"] {
+        --border-light:  var(--stone-500);
+        --border-medium: var(--stone-400);
+        --border-dark:   var(--stone-200);
+    }
+
+    @media (prefers-color-scheme: dark) {
+        :root.theme-system,
+        :root.theme-system[class*="special-theme-"] {
+            --border-light:  var(--stone-500);
+            --border-medium: var(--stone-400);
+            --border-dark:   var(--stone-200);
+        }
+    }
+
+    *:focus-visible {
+        outline-width: 3px;
+        outline-offset: 3px;
+    }
+}
+
+/* Windows High Contrast Mode */
+@media (forced-colors: active) {
+    .cb-dropdown-btn:focus-visible,
+    .text-input:focus,
+    .textarea-input:focus,
+    .search-input:focus {
+        outline: 3px solid ButtonText;
+        box-shadow: none;
     }
 }
