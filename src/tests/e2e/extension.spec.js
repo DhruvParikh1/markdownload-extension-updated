@@ -288,6 +288,7 @@ test.describe('MarkSnip Extension E2E', () => {
   });
 
   for (const { label, slug } of [
+    { label: 'OpenAI', slug: 'openai' },
     { label: 'ATLA', slug: 'atla' },
     { label: 'Ben 10', slug: 'ben10' }
   ]) {

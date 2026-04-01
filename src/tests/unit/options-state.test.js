@@ -71,6 +71,11 @@ const defaultOptions = {
     expect(normalized.specialTheme).toBe('none');
   });
 
+  test('normalizeImportedOptions preserves the OpenAI special theme when imported', () => {
+    const normalized = optionsState.normalizeImportedOptions({ specialTheme: 'openai' }, defaultOptions);
+    expect(normalized.specialTheme).toBe('openai');
+  });
+
   test('normalizeImportedOptions preserves colorBlindTheme default when omitted', () => {
     const normalized = optionsState.normalizeImportedOptions({}, defaultOptions);
     expect(normalized.colorBlindTheme).toBe('deuteranopia');

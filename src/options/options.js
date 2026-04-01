@@ -21,7 +21,7 @@ let agentBridgeStatus = {
 let agentBridgeInstallCommand = 'marksnip install-host';
 let keyupTimeout = null;
 let templatePreviewListenersBound = false;
-const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude', 'special-theme-perplexity', 'special-theme-atla', 'special-theme-ben10', 'special-theme-colorblind'];
+const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude', 'special-theme-perplexity', 'special-theme-openai', 'special-theme-atla', 'special-theme-ben10', 'special-theme-colorblind'];
 const COLORBLIND_VARIANT_CLASS_NAMES = ['colorblind-theme-deuteranopia', 'colorblind-theme-protanopia', 'colorblind-theme-tritanopia'];
 const ACCENT_CLASS_NAMES = ['accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber'];
 const POPUP_THEME_CACHE_KEY = 'marksnip-popup-theme-cache-v1';
@@ -1391,7 +1391,7 @@ function updateSpecialThemeControlState() {
     const specialTheme = options.specialTheme || 'none';
     const specialThemeActive = specialTheme !== 'none';
     const colorBlindThemeActive = specialTheme === 'colorblind';
-    const themeHasIcon = specialTheme === 'atla' || specialTheme === 'ben10' || specialTheme === 'claude' || specialTheme === 'perplexity';
+    const themeHasIcon = specialTheme === 'atla' || specialTheme === 'ben10' || specialTheme === 'claude' || specialTheme === 'perplexity' || specialTheme === 'openai';
     const accentGroup = document.getElementById('popupAccentGroup');
     const editorThemeGroup = document.getElementById('editorThemeGroup');
     const accentNote = document.getElementById('popupAccentThemeNote');

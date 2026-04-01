@@ -124,6 +124,7 @@ function getMatchLabels(index, query) {
 }
 
 const specialThemeCases = [
+  { label: 'OpenAI', slug: 'openai', keyword: 'chatgpt' },
   { label: 'ATLA', slug: 'atla', keyword: 'avatar' },
   { label: 'Ben 10', slug: 'ben10', keyword: 'omnitrix' },
   { label: 'Color Blind Deuteranopia', slug: 'colorblind', colorBlindTheme: 'deuteranopia', keyword: 'deuteranopia' },
@@ -691,6 +692,9 @@ describe('Options page search UI', () => {
       expect(document.getElementById('colorBlindTheme').value).toBe(colorBlindTheme);
       expect(document.getElementById('specialThemeIconRow').classList.contains('is-disabled')).toBe(true);
       expect(document.getElementById('specialThemeIcon').disabled).toBe(true);
+    } else if (slug === 'openai') {
+      expect(document.getElementById('specialThemeIconRow').classList.contains('is-disabled')).toBe(false);
+      expect(document.getElementById('specialThemeIcon').disabled).toBe(false);
     }
     expect(root.classList.contains('accent-ocean')).toBe(false);
     expect(document.getElementById(`special-theme-${slug}`).checked).toBe(true);

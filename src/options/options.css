@@ -248,6 +248,84 @@
 }
 :root.theme-dark.accent-amber { --accent-light: rgba(176,142,80,0.15); }
 
+/* OpenAI special theme */
+:root.special-theme-openai {
+    --accent-rgb: 8, 8, 8;
+    --accent-light: #ECECF1;
+    --accent: #080808;
+    --accent-dark: #202123;
+    --accent-darker: #0B0F19;
+    --success: #202123;
+    --warning: #4B5563;
+    --error: #374151;
+    --bg-base: #F6F6F3;
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F6F6F3;
+    --bg-tertiary: #ECECF1;
+    --bg-hover: #E2E4EA;
+    --text-primary: #080808;
+    --text-secondary: #3D4452;
+    --text-tertiary: #6A7280;
+    --border-light: #E3E4E8;
+    --border-medium: #CDD1D8;
+    --border-dark: #9AA3B2;
+    --shadow-sm: 0 1px 3px rgba(8,8,8,0.06);
+    --shadow-md: 0 10px 26px rgba(11,15,25,0.1);
+    --shadow-lg: 0 18px 42px rgba(11,15,25,0.14);
+}
+
+:root.theme-dark.special-theme-openai {
+    --accent-rgb: 52, 53, 65;
+    --accent-light: rgba(236,236,241,0.12);
+    --accent: #343541;
+    --accent-dark: #202123;
+    --accent-darker: #0B0F19;
+    --success: #343541;
+    --warning: #6B7280;
+    --error: #4B5563;
+    --bg-base: #080808;
+    --bg-primary: #0B0F19;
+    --bg-secondary: #111522;
+    --bg-tertiary: #202123;
+    --bg-hover: #2A2F3C;
+    --text-primary: #ECECF1;
+    --text-secondary: #B8BFCC;
+    --text-tertiary: #8E96A5;
+    --border-light: #202534;
+    --border-medium: #313747;
+    --border-dark: #495062;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.36);
+    --shadow-md: 0 10px 28px rgba(0,0,0,0.44);
+    --shadow-lg: 0 18px 48px rgba(0,0,0,0.54);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root.theme-system.special-theme-openai {
+        --accent-rgb: 52, 53, 65;
+        --accent-light: rgba(236,236,241,0.12);
+        --accent: #343541;
+        --accent-dark: #202123;
+        --accent-darker: #0B0F19;
+        --success: #343541;
+        --warning: #6B7280;
+        --error: #4B5563;
+        --bg-base: #080808;
+        --bg-primary: #0B0F19;
+        --bg-secondary: #111522;
+        --bg-tertiary: #202123;
+        --bg-hover: #2A2F3C;
+        --text-primary: #ECECF1;
+        --text-secondary: #B8BFCC;
+        --text-tertiary: #8E96A5;
+        --border-light: #202534;
+        --border-medium: #313747;
+        --border-dark: #495062;
+        --shadow-sm: 0 1px 2px rgba(0,0,0,0.36);
+        --shadow-md: 0 10px 28px rgba(0,0,0,0.44);
+        --shadow-lg: 0 18px 48px rgba(0,0,0,0.54);
+    }
+}
+
 /* Claude special theme */
 :root.special-theme-claude {
     --accent-rgb: 193, 95, 60;
@@ -1200,6 +1278,37 @@ a:hover {
     display: none;
 }
 
+@keyframes openai-breathe {
+    0%   { transform: translateY(0); opacity: 0.9; }
+    100% { transform: translateY(-1.5px); opacity: 1; }
+}
+
+.openai-mascot {
+    display: none;
+}
+
+:root.special-theme-openai .openai-mascot {
+    display: block;
+    height: 28px;
+    width: 28px;
+    flex-shrink: 0;
+    color: #0B0F19;
+    animation: openai-breathe 4.8s ease-in-out infinite alternate;
+    filter: drop-shadow(0 0 2px rgba(11, 15, 25, 0.12));
+}
+
+:root.theme-dark.special-theme-openai .openai-mascot {
+    color: #ECECF1;
+    filter: drop-shadow(0 0 2px rgba(236, 236, 241, 0.16));
+}
+
+@media (prefers-color-scheme: dark) {
+    :root.theme-system.special-theme-openai .openai-mascot {
+        color: #ECECF1;
+        filter: drop-shadow(0 0 2px rgba(236, 236, 241, 0.16));
+    }
+}
+
 /* Claude mascot animations */
 @keyframes claude-float {
     0%   { transform: translateY(-1.5px) rotate(-0.5deg); }
@@ -1257,8 +1366,226 @@ a:hover {
 :root.hide-theme-icon.special-theme-atla .appa-mascot,
 :root.hide-theme-icon.special-theme-ben10 .ben10-mascot,
 :root.hide-theme-icon.special-theme-claude .claude-mascot,
-:root.hide-theme-icon.special-theme-perplexity .perplexity-mascot {
+:root.hide-theme-icon.special-theme-perplexity .perplexity-mascot,
+:root.hide-theme-icon.special-theme-openai .openai-mascot {
     display: none;
+}
+
+/* OpenAI header overrides */
+:root.special-theme-openai .options-header {
+    background: linear-gradient(135deg, #F6F6F3 0%, #FFFFFF 100%);
+    border-bottom-color: #E3E4E8;
+}
+
+:root.special-theme-openai .header-logo {
+    filter: none;
+}
+
+:root.special-theme-openai .header-title {
+    color: #080808;
+    text-shadow: none;
+}
+
+:root.special-theme-openai .header-subtitle {
+    color: #6A7280;
+}
+
+:root.special-theme-openai .search-input {
+    background: rgba(8,8,8,0.04);
+    border-color: rgba(8,8,8,0.1);
+    color: #080808;
+}
+
+:root.special-theme-openai .search-input::placeholder {
+    color: rgba(8,8,8,0.4);
+}
+
+:root.special-theme-openai .search-input:focus {
+    background: rgba(8,8,8,0.06);
+    border-color: rgba(8,8,8,0.2);
+    box-shadow: 0 0 0 3px rgba(11,15,25,0.08);
+}
+
+:root.special-theme-openai .search-icon,
+:root.special-theme-openai .search-input:focus + .search-icon,
+:root.special-theme-openai .search-input:not(:placeholder-shown) + .search-icon {
+    color: rgba(8,8,8,0.55);
+}
+
+:root.special-theme-openai .search-shortcut {
+    background: rgba(8,8,8,0.04);
+    border-color: rgba(8,8,8,0.1);
+    color: rgba(8,8,8,0.55);
+}
+
+:root.special-theme-openai .search-status {
+    color: #4B5563;
+}
+
+:root.theme-dark.special-theme-openai .options-header {
+    background: linear-gradient(135deg, #0B0F19 0%, #080808 100%);
+    border-bottom-color: #202123;
+}
+
+:root.theme-dark.special-theme-openai .header-logo {
+    filter: none;
+}
+
+:root.theme-dark.special-theme-openai .header-title {
+    color: #ECECF1;
+    text-shadow: none;
+}
+
+:root.theme-dark.special-theme-openai .header-subtitle {
+    color: #A1A8B5;
+}
+
+:root.theme-dark.special-theme-openai .search-input {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.08);
+    color: #ECECF1;
+}
+
+:root.theme-dark.special-theme-openai .search-input::placeholder {
+    color: rgba(236,236,241,0.44);
+}
+
+:root.theme-dark.special-theme-openai .search-input:focus {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(236,236,241,0.2);
+    box-shadow: 0 0 0 3px rgba(236,236,241,0.08);
+}
+
+:root.theme-dark.special-theme-openai .search-icon,
+:root.theme-dark.special-theme-openai .search-input:focus + .search-icon,
+:root.theme-dark.special-theme-openai .search-input:not(:placeholder-shown) + .search-icon {
+    color: rgba(236,236,241,0.62);
+}
+
+:root.theme-dark.special-theme-openai .search-shortcut {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.08);
+    color: rgba(236,236,241,0.55);
+}
+
+:root.theme-dark.special-theme-openai .search-status {
+    color: #B8BFCC;
+}
+
+:root.theme-dark.special-theme-openai .sidebar-item.active {
+    background: rgba(255,255,255,0.08);
+    color: #ECECF1;
+}
+
+:root.theme-dark.special-theme-openai .sidebar-item.active::before {
+    background: #ECECF1;
+}
+
+:root.theme-dark.special-theme-openai .radio-pill input:checked + label {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(236,236,241,0.18);
+    color: #ECECF1;
+}
+
+:root.theme-dark.special-theme-openai .special-theme-lock-note,
+:root.theme-dark.special-theme-openai .search-active .section:not(.search-section-empty)::before,
+:root.theme-dark.special-theme-openai .search-active .setting-card[data-search-breadcrumb]::before,
+:root.theme-dark.special-theme-openai .reset-setting-link:hover {
+    color: #D7DBE3;
+}
+
+:root.theme-dark.special-theme-openai .permission-badge--included {
+    background: rgba(255,255,255,0.08);
+    color: #ECECF1;
+}
+
+:root.theme-dark.special-theme-openai .agent-bridge-permission-panel {
+    background: #151B28;
+    border-color: #495062;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root.theme-system.special-theme-openai .options-header {
+        background: linear-gradient(135deg, #0B0F19 0%, #080808 100%);
+        border-bottom-color: #202123;
+    }
+
+    :root.theme-system.special-theme-openai .header-logo {
+        filter: none;
+    }
+
+    :root.theme-system.special-theme-openai .header-title {
+        color: #ECECF1;
+        text-shadow: none;
+    }
+
+    :root.theme-system.special-theme-openai .header-subtitle {
+        color: #A1A8B5;
+    }
+
+    :root.theme-system.special-theme-openai .search-input {
+        background: rgba(255,255,255,0.04);
+        border-color: rgba(255,255,255,0.08);
+        color: #ECECF1;
+    }
+
+    :root.theme-system.special-theme-openai .search-input::placeholder {
+        color: rgba(236,236,241,0.44);
+    }
+
+    :root.theme-system.special-theme-openai .search-input:focus {
+        background: rgba(255,255,255,0.06);
+        border-color: rgba(236,236,241,0.2);
+        box-shadow: 0 0 0 3px rgba(236,236,241,0.08);
+    }
+
+    :root.theme-system.special-theme-openai .search-icon,
+    :root.theme-system.special-theme-openai .search-input:focus + .search-icon,
+    :root.theme-system.special-theme-openai .search-input:not(:placeholder-shown) + .search-icon {
+        color: rgba(236,236,241,0.62);
+    }
+
+    :root.theme-system.special-theme-openai .search-shortcut {
+        background: rgba(255,255,255,0.04);
+        border-color: rgba(255,255,255,0.08);
+        color: rgba(236,236,241,0.55);
+    }
+
+    :root.theme-system.special-theme-openai .search-status {
+        color: #B8BFCC;
+    }
+
+    :root.theme-system.special-theme-openai .sidebar-item.active {
+        background: rgba(255,255,255,0.08);
+        color: #ECECF1;
+    }
+
+    :root.theme-system.special-theme-openai .sidebar-item.active::before {
+        background: #ECECF1;
+    }
+
+    :root.theme-system.special-theme-openai .radio-pill input:checked + label {
+        background: rgba(255,255,255,0.08);
+        border-color: rgba(236,236,241,0.18);
+        color: #ECECF1;
+    }
+
+    :root.theme-system.special-theme-openai .special-theme-lock-note,
+    :root.theme-system.special-theme-openai .search-active .section:not(.search-section-empty)::before,
+    :root.theme-system.special-theme-openai .search-active .setting-card[data-search-breadcrumb]::before,
+    :root.theme-system.special-theme-openai .reset-setting-link:hover {
+        color: #D7DBE3;
+    }
+
+    :root.theme-system.special-theme-openai .permission-badge--included {
+        background: rgba(255,255,255,0.08);
+        color: #ECECF1;
+    }
+
+    :root.theme-system.special-theme-openai .agent-bridge-permission-panel {
+        background: #151B28;
+        border-color: #495062;
+    }
 }
 
 /* Ben 10 header overrides */

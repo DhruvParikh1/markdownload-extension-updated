@@ -45,7 +45,7 @@ const COUNT_MODES = Array.isArray(countUtils?.COUNT_MODES) && countUtils.COUNT_M
     ? countUtils.COUNT_MODES
     : ['chars', 'words', 'minRead', 'tokens'];
 let lastRenderedLibraryStateKey = '';
-const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude', 'special-theme-perplexity', 'special-theme-atla', 'special-theme-ben10', 'special-theme-colorblind'];
+const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude', 'special-theme-perplexity', 'special-theme-openai', 'special-theme-atla', 'special-theme-ben10', 'special-theme-colorblind'];
 const COLORBLIND_VARIANT_CLASS_NAMES = ['colorblind-theme-deuteranopia', 'colorblind-theme-protanopia', 'colorblind-theme-tritanopia'];
 const ACCENT_CLASS_NAMES = ['accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber'];
 const DEFAULT_SEND_TO_TARGET = 'chatgpt';
@@ -744,6 +744,7 @@ const EDITOR_THEME_MAP = {
     default:   { dark: 'xq-dark',        light: 'xq-light' },
     claude:    { dark: 'claude-dark',    light: 'claude-light' },
     perplexity:{ dark: 'perplexity-dark',light: 'perplexity-light' },
+    openai:    { dark: 'openai-dark',    light: 'openai-light' },
     atla:      { dark: 'atla-dark',      light: 'atla-light' },
     ben10:     { dark: 'ben10-dark',     light: 'ben10-light' },
     'colorblind-deuteranopia': { dark: 'colorblind-deuteranopia-dark', light: 'colorblind-deuteranopia-light' },
@@ -763,6 +764,8 @@ const EDITOR_THEME_STYLESHEET_MAP = Object.freeze({
     'claude-light': 'lib/claude-light.css',
     'perplexity-dark': 'lib/perplexity-dark.css',
     'perplexity-light': 'lib/perplexity-light.css',
+    'openai-dark': 'lib/openai-dark.css',
+    'openai-light': 'lib/openai-light.css',
     'atla-dark': 'lib/atla-dark.css',
     'atla-light': 'lib/atla-light.css',
     'ben10-dark': 'lib/ben10-dark.css',

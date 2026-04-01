@@ -300,6 +300,7 @@ describe('Guide keyboard shortcuts', () => {
 
 describe('Guide theme application', () => {
   test.each([
+    { label: 'OpenAI', slug: 'openai' },
     { label: 'ATLA', slug: 'atla' },
     { label: 'Ben 10', slug: 'ben10' },
     { label: 'Color Blind Deuteranopia', slug: 'colorblind', colorBlindTheme: 'deuteranopia' },

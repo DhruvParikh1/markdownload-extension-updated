@@ -186,6 +186,81 @@
 @media (prefers-color-scheme: dark) { :root.accent-amber { --accent-light: rgba(176,142,80,0.15); } }
 :root.theme-dark.accent-amber { --accent-light: rgba(176,142,80,0.15); }
 
+/* OpenAI special theme */
+:root.special-theme-openai {
+    --accent-light: #ECECF1;
+    --accent: #080808;
+    --accent-dark: #202123;
+    --accent-darker: #0B0F19;
+    --success: #202123;
+    --warning: #4B5563;
+    --error: #374151;
+    --bg-base: #F6F6F3;
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F6F6F3;
+    --bg-tertiary: #ECECF1;
+    --bg-hover: #E2E4EA;
+    --text-primary: #080808;
+    --text-secondary: #3D4452;
+    --text-tertiary: #6A7280;
+    --border-light: #E3E4E8;
+    --border-medium: #CDD1D8;
+    --border-dark: #9AA3B2;
+    --shadow-sm: 0 1px 3px rgba(8,8,8,0.06);
+    --shadow-md: 0 10px 26px rgba(11,15,25,0.1);
+    --shadow-lg: 0 18px 42px rgba(11,15,25,0.14);
+}
+
+:root.theme-dark.special-theme-openai {
+    --accent-light: rgba(236,236,241,0.12);
+    --accent: #343541;
+    --accent-dark: #202123;
+    --accent-darker: #0B0F19;
+    --success: #343541;
+    --warning: #6B7280;
+    --error: #4B5563;
+    --bg-base: #080808;
+    --bg-primary: #0B0F19;
+    --bg-secondary: #111522;
+    --bg-tertiary: #202123;
+    --bg-hover: #2A2F3C;
+    --text-primary: #ECECF1;
+    --text-secondary: #B8BFCC;
+    --text-tertiary: #8E96A5;
+    --border-light: #202534;
+    --border-medium: #313747;
+    --border-dark: #495062;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.36);
+    --shadow-md: 0 10px 28px rgba(0,0,0,0.44);
+    --shadow-lg: 0 18px 48px rgba(0,0,0,0.54);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root.theme-system.special-theme-openai {
+        --accent-light: rgba(236,236,241,0.12);
+        --accent: #343541;
+        --accent-dark: #202123;
+        --accent-darker: #0B0F19;
+        --success: #343541;
+        --warning: #6B7280;
+        --error: #4B5563;
+        --bg-base: #080808;
+        --bg-primary: #0B0F19;
+        --bg-secondary: #111522;
+        --bg-tertiary: #202123;
+        --bg-hover: #2A2F3C;
+        --text-primary: #ECECF1;
+        --text-secondary: #B8BFCC;
+        --text-tertiary: #8E96A5;
+        --border-light: #202534;
+        --border-medium: #313747;
+        --border-dark: #495062;
+        --shadow-sm: 0 1px 2px rgba(0,0,0,0.36);
+        --shadow-md: 0 10px 28px rgba(0,0,0,0.44);
+        --shadow-lg: 0 18px 48px rgba(0,0,0,0.54);
+    }
+}
+
 /* Claude special theme */
 :root.special-theme-claude {
     --accent-light: #EEE5DE;
@@ -890,6 +965,222 @@ a:hover { text-decoration: underline; }
 .header-btn:hover {
     background: rgba(255,255,255,0.2);
     border-color: rgba(255,255,255,0.3);
+}
+
+/* OpenAI header overrides */
+:root.special-theme-openai .guide-header {
+    background: linear-gradient(135deg, #F6F6F3 0%, #FFFFFF 100%);
+    border-bottom-color: #E3E4E8;
+}
+
+:root.special-theme-openai .header-logo {
+    filter: none;
+}
+
+:root.special-theme-openai .header-title {
+    color: #080808;
+    text-shadow: none;
+}
+
+:root.special-theme-openai .header-subtitle {
+    color: #6A7280;
+}
+
+:root.special-theme-openai .search-input {
+    background: rgba(8,8,8,0.04);
+    border-color: rgba(8,8,8,0.1);
+    color: #080808;
+}
+
+:root.special-theme-openai .search-input::placeholder {
+    color: rgba(8,8,8,0.4);
+}
+
+:root.special-theme-openai .search-input:focus {
+    background: rgba(8,8,8,0.06);
+    border-color: rgba(8,8,8,0.2);
+    box-shadow: 0 0 0 3px rgba(11,15,25,0.08);
+}
+
+:root.special-theme-openai .search-icon,
+:root.special-theme-openai .search-input:focus + .search-icon,
+:root.special-theme-openai .search-input:not(:placeholder-shown) + .search-icon {
+    color: rgba(8,8,8,0.55);
+}
+
+:root.special-theme-openai .search-shortcut {
+    background: rgba(8,8,8,0.04);
+    border-color: rgba(8,8,8,0.1);
+    color: rgba(8,8,8,0.55);
+}
+
+:root.special-theme-openai .header-btn {
+    background: rgba(8,8,8,0.04);
+    border-color: rgba(8,8,8,0.1);
+    color: #080808;
+}
+
+:root.special-theme-openai .header-btn:hover {
+    background: rgba(8,8,8,0.08);
+    border-color: rgba(8,8,8,0.16);
+}
+
+:root.theme-dark.special-theme-openai .guide-header {
+    background: linear-gradient(135deg, #0B0F19 0%, #080808 100%);
+    border-bottom-color: #202123;
+}
+
+:root.theme-dark.special-theme-openai .header-logo {
+    filter: none;
+}
+
+:root.theme-dark.special-theme-openai .header-title {
+    color: #ECECF1;
+    text-shadow: none;
+}
+
+:root.theme-dark.special-theme-openai .header-subtitle {
+    color: #A1A8B5;
+}
+
+:root.theme-dark.special-theme-openai .search-input {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.08);
+    color: #ECECF1;
+}
+
+:root.theme-dark.special-theme-openai .search-input::placeholder {
+    color: rgba(236,236,241,0.44);
+}
+
+:root.theme-dark.special-theme-openai .search-input:focus {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(236,236,241,0.2);
+    box-shadow: 0 0 0 3px rgba(236,236,241,0.08);
+}
+
+:root.theme-dark.special-theme-openai .search-icon,
+:root.theme-dark.special-theme-openai .search-input:focus + .search-icon,
+:root.theme-dark.special-theme-openai .search-input:not(:placeholder-shown) + .search-icon {
+    color: rgba(236,236,241,0.62);
+}
+
+:root.theme-dark.special-theme-openai .search-shortcut {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.08);
+    color: rgba(236,236,241,0.55);
+}
+
+:root.theme-dark.special-theme-openai .header-btn {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.08);
+    color: #ECECF1;
+}
+
+:root.theme-dark.special-theme-openai .header-btn:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.14);
+}
+
+:root.theme-dark.special-theme-openai a,
+:root.theme-dark.special-theme-openai .guide-content code,
+:root.theme-dark.special-theme-openai .search-result-parent {
+    color: #D7DBE3;
+}
+
+:root.theme-dark.special-theme-openai .toc-link.active {
+    background: rgba(255,255,255,0.08);
+    color: #ECECF1;
+}
+
+:root.theme-dark.special-theme-openai .tip-box {
+    background: #151B28;
+    border-left-color: #ECECF1;
+}
+
+:root.theme-dark.special-theme-openai .search-result-item:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(236,236,241,0.18);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root.theme-system.special-theme-openai .guide-header {
+        background: linear-gradient(135deg, #0B0F19 0%, #080808 100%);
+        border-bottom-color: #202123;
+    }
+
+    :root.theme-system.special-theme-openai .header-logo {
+        filter: none;
+    }
+
+    :root.theme-system.special-theme-openai .header-title {
+        color: #ECECF1;
+        text-shadow: none;
+    }
+
+    :root.theme-system.special-theme-openai .header-subtitle {
+        color: #A1A8B5;
+    }
+
+    :root.theme-system.special-theme-openai .search-input {
+        background: rgba(255,255,255,0.04);
+        border-color: rgba(255,255,255,0.08);
+        color: #ECECF1;
+    }
+
+    :root.theme-system.special-theme-openai .search-input::placeholder {
+        color: rgba(236,236,241,0.44);
+    }
+
+    :root.theme-system.special-theme-openai .search-input:focus {
+        background: rgba(255,255,255,0.06);
+        border-color: rgba(236,236,241,0.2);
+        box-shadow: 0 0 0 3px rgba(236,236,241,0.08);
+    }
+
+    :root.theme-system.special-theme-openai .search-icon,
+    :root.theme-system.special-theme-openai .search-input:focus + .search-icon,
+    :root.theme-system.special-theme-openai .search-input:not(:placeholder-shown) + .search-icon {
+        color: rgba(236,236,241,0.62);
+    }
+
+    :root.theme-system.special-theme-openai .search-shortcut {
+        background: rgba(255,255,255,0.04);
+        border-color: rgba(255,255,255,0.08);
+        color: rgba(236,236,241,0.55);
+    }
+
+    :root.theme-system.special-theme-openai .header-btn {
+        background: rgba(255,255,255,0.04);
+        border-color: rgba(255,255,255,0.08);
+        color: #ECECF1;
+    }
+
+    :root.theme-system.special-theme-openai .header-btn:hover {
+        background: rgba(255,255,255,0.08);
+        border-color: rgba(255,255,255,0.14);
+    }
+
+    :root.theme-system.special-theme-openai a,
+    :root.theme-system.special-theme-openai .guide-content code,
+    :root.theme-system.special-theme-openai .search-result-parent {
+        color: #D7DBE3;
+    }
+
+    :root.theme-system.special-theme-openai .toc-link.active {
+        background: rgba(255,255,255,0.08);
+        color: #ECECF1;
+    }
+
+    :root.theme-system.special-theme-openai .tip-box {
+        background: #151B28;
+        border-left-color: #ECECF1;
+    }
+
+    :root.theme-system.special-theme-openai .search-result-item:hover {
+        background: rgba(255,255,255,0.08);
+        border-color: rgba(236,236,241,0.18);
+    }
 }
 
 /* ATLA header overrides */
