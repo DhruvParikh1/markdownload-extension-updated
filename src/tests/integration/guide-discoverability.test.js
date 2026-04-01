@@ -93,11 +93,21 @@ describe('Guide discoverability — options', () => {
 });
 
 describe('Guide discoverability — manifest', () => {
-  test('guide page is registered as a web_accessible_resource', () => {
+  test('guide page is not registered as a web_accessible_resource', () => {
     const resources = manifestJson.web_accessible_resources || [];
     const guideResource = resources.find(r =>
       r.resources && r.resources.includes('guide/guide.html')
     );
-    expect(guideResource).toBeDefined();
+    expect(guideResource).toBeUndefined();
+  });
+
+  test('page context script is only exposed to page schemes', () => {
+    const resources = manifestJson.web_accessible_resources || [];
+    const pageContextResource = resources.find(r =>
+      r.resources && r.resources.includes('contentScript/pageContext.js')
+    );
+
+    expect(pageContextResource).toBeDefined();
+    expect(pageContextResource.matches).toEqual(['<all_urls>']);
   });
 });

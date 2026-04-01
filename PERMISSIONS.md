@@ -11,7 +11,7 @@ This document explains every permission declared in `src/manifest.json`, why it 
 
 **Without it:** The extension could not read the current page to convert it to Markdown.
 
-**Privacy note:** Access is granted only for the moment the user explicitly invokes the extension — the extension cannot silently read tabs in the background.
+**Privacy note:** Access is granted only for the moment the user explicitly invokes the extension. The extension cannot silently read tabs in the background.
 
 ---
 
@@ -23,16 +23,16 @@ This document explains every permission declared in `src/manifest.json`, why it 
 ---
 
 ### `storage`
-**Why it's needed:** Persists the user's settings (template strings, formatting preferences, Obsidian vault config, Agent Bridge settings, etc.) in the browser's local storage so they survive page reloads and browser restarts.
+**Why it's needed:** Persists the user's settings (template strings, formatting preferences, Obsidian vault config, Agent Bridge settings, etc.) so they survive page reloads and browser restarts.
 
 **Without it:** All settings would reset every time the extension reloads; no preferences could be saved.
 
 ---
 
 ### `contextMenus`
-**Why it's needed:** Adds MarkSnip actions to the right-click context menu for pages, selected text, links, images, and browser tabs — letting users clip content without opening the popup.
+**Why it's needed:** Adds MarkSnip actions to the right-click context menu for pages, selected text, links, images, and browser tabs, letting users clip content without opening the popup.
 
-**Without it:** Context menu entries (e.g., "Copy selection as Markdown") would not appear.
+**Without it:** Context menu entries (for example, "Copy selection as Markdown") would not appear.
 
 ---
 
@@ -46,7 +46,7 @@ This document explains every permission declared in `src/manifest.json`, why it 
 ## Optional Permissions
 
 ### `nativeMessaging`
-**Why it's needed:** Enables communication with the optional **Agent Bridge CLI** — a locally installed helper program that lets AI agents and automation scripts request Markdown clipping programmatically. The CLI runs entirely on the user's own machine; no data leaves the device.
+**Why it's needed:** Enables communication with the optional **Agent Bridge CLI**, a locally installed helper program that lets AI agents and automation scripts request Markdown clipping programmatically. The CLI runs entirely on the user's own machine; no data leaves the device.
 
 **How it's granted:** MarkSnip requests this permission only when the user turns on **Agent Bridge** in Settings.
 
@@ -75,9 +75,9 @@ This document explains every permission declared in `src/manifest.json`, why it 
 ## Host Permissions
 
 ### `<all_urls>`
-**Why it's needed:** Allows content scripts to be injected into any website the user navigates to, so the extension can clip content from any page — not just a predefined list of domains.
+**Why it's needed:** Allows MarkSnip to clip pages across arbitrary sites instead of a fixed allowlist. This also covers user-triggered workflows that operate beyond a single popup click, such as keyboard shortcuts, context-menu actions, clipping multiple highlighted tabs, and batch processing URLs in newly opened tabs.
 
-**Without it:** The extension could only clip content from sites explicitly listed in the manifest, making it useless on most of the web.
+**Without it:** The extension could only clip content from sites explicitly listed in the manifest, and multi-tab or batch workflows would fail on pages that had not granted temporary access.
 
 **Privacy note:** This does **not** mean the extension passively monitors all websites. Scripts are injected only when the user actively triggers a clip action on a page. No browsing data is collected or transmitted.
 
@@ -86,10 +86,10 @@ This document explains every permission declared in `src/manifest.json`, why it 
 ## Web Accessible Resources
 
 ### `contentScript/pageContext.js`
-A script injected into pages at clip time to capture page context (e.g., `document.URL`, metadata, selected text). It is declared as a web-accessible resource so it can be loaded into the page's own JavaScript context for accurate DOM access.
+A script injected into pages at clip time to capture page context (for example, `document.URL`, metadata, selected text). It is declared as a web-accessible resource so it can be loaded into the page's own JavaScript context for accurate DOM access.
 
 ### `guide/guide.html`
-The in-extension guide/help page. It must be web-accessible so it can be opened as a new browser tab from within the extension UI.
+The in-extension guide/help page. It is opened directly with the extension's own URL and does **not** need to be exposed as a web-accessible resource to arbitrary websites.
 
 ---
 
@@ -99,7 +99,7 @@ The in-extension guide/help page. It must be web-accessible so it can be opened 
 |---|---|---|
 | `activeTab` | No | Yes |
 | `downloads` | No (local filesystem) | Yes |
-| `storage` | No (browser local storage) | Yes |
+| `storage` | No (browser storage) | Yes |
 | `contextMenus` | No | Yes |
 | `clipboardWrite` | No (local clipboard) | Yes |
 | `nativeMessaging` | No (local CLI only) | Yes (opt-in feature, requested on enable) |
@@ -107,4 +107,4 @@ The in-extension guide/help page. It must be web-accessible so it can be opened 
 | `offscreen` | No | Yes |
 | `<all_urls>` | No | Yes |
 
-All content processing happens **locally on your device**. MarkSnip does not transmit page content, clipboard data, or browsing history to any external server.
+All content processing happens locally on your device. MarkSnip does not transmit page content, clipboard data, or browsing history to any external server.

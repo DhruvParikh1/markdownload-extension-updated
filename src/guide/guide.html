@@ -93,6 +93,7 @@
                 <li><a href="#permissions-privacy" class="toc-link">Permissions &amp; Privacy</a>
                     <ul class="toc-sublist">
                         <li><a href="#site-access-permission" class="toc-link">Site Access</a></li>
+                        <li><a href="#other-core-permissions" class="toc-link">Other Core Permissions</a></li>
                         <li><a href="#agent-bridge-permission" class="toc-link">Agent Bridge Permission</a></li>
                     </ul>
                 </li>
@@ -540,21 +541,43 @@ author: {byline}
             <section id="permissions-privacy" class="guide-section"
                 data-guide-section="Permissions and Privacy"
                 data-guide-summary="What permissions MarkSnip uses and why"
-                data-search-keywords="permissions,privacy,site access,all urls,native messaging,local companion,data,security,nativeMessaging,what does marksnip access,agent bridge permission">
+                data-search-keywords="permissions,privacy,site access,all urls,native messaging,local companion,data,security,nativeMessaging,what does marksnip access,agent bridge permission,downloads,clipboard,storage,context menus,scripting,offscreen">
                 <h2 class="section-heading"><a href="#permissions-privacy" class="anchor-link">#</a>Permissions &amp; Privacy</h2>
-                <p>MarkSnip processes pages entirely within your browser. It does not send page content to any external server. This section explains what browser permissions MarkSnip uses and why.</p>
+                <p>MarkSnip processes pages entirely within your browser. It does not send page content to any external server. This section explains what browser permissions MarkSnip uses, why they are needed, and when they are actually exercised.</p>
 
                 <div id="site-access-permission" class="guide-subsection"
                     data-guide-section="Site Access Permission"
                     data-guide-summary="Why MarkSnip requests access to all sites"
-                    data-search-keywords="site access,all urls,host permission,content script,clip any page,browsing data">
+                    data-search-keywords="site access,all urls,host permission,content script,clip any page,browsing data,keyboard shortcuts,batch processing,selected tabs">
                     <h3 class="subsection-heading"><a href="#site-access-permission" class="anchor-link">#</a>Site Access</h3>
-                    <p>MarkSnip requests access to web pages so it can read the current page when you trigger a clip. This permission is part of the extension install.</p>
+                    <p>MarkSnip requests access to web pages so it can clip pages across the web when you trigger a clip. This covers popup clipping, keyboard shortcuts, context-menu actions, multi-tab link actions, and batch processing of URLs opened in new tabs.</p>
                     <ul>
                         <li><strong>Only active when you clip</strong> &mdash; MarkSnip does not monitor browsing activity or read pages in the background.</li>
                         <li><strong>Processed locally</strong> &mdash; page content is converted to Markdown inside your browser and is never sent to a remote service.</li>
                         <li><strong>Managed by the browser</strong> &mdash; you can review this permission in your browser&rsquo;s extension settings at any time.</li>
                     </ul>
+                </div>
+
+                <div id="other-core-permissions" class="guide-subsection"
+                    data-guide-section="Other Core Permissions"
+                    data-guide-summary="What the rest of the built-in permissions are used for"
+                    data-search-keywords="downloads permission,clipboard permission,storage permission,context menu permission,scripting permission,offscreen permission,activeTab">
+                    <h3 class="subsection-heading"><a href="#other-core-permissions" class="anchor-link">#</a>Other Core Permissions</h3>
+                    <p>Beyond site access, MarkSnip uses a small set of standard browser permissions to make its main features work. These permissions support local browser actions; they do not change the fact that clipping stays local.</p>
+                    <div class="ref-table-wrap">
+                        <table class="ref-table">
+                            <thead><tr><th>Permission</th><th>Why MarkSnip uses it</th><th>When it matters</th></tr></thead>
+                            <tbody>
+                                <tr><td><code>activeTab</code></td><td>Lets MarkSnip work with the page you explicitly invoked it on.</td><td>Opening the popup or using a shortcut on the current tab.</td></tr>
+                                <tr><td><code>downloads</code></td><td>Saves Markdown files, ZIP exports, and downloaded images through the browser.</td><td>Downloading clips or batch exports.</td></tr>
+                                <tr><td><code>clipboardWrite</code></td><td>Writes generated Markdown to your clipboard.</td><td>Using Copy actions.</td></tr>
+                                <tr><td><code>storage</code></td><td>Remembers your settings, templates, themes, and feature toggles.</td><td>Whenever you save or restore settings.</td></tr>
+                                <tr><td><code>contextMenus</code></td><td>Adds right-click actions for pages, selections, links, images, and tabs.</td><td>When context menus are enabled in settings.</td></tr>
+                                <tr><td><code>scripting</code></td><td>Injects MarkSnip&rsquo;s capture helpers into the page at clip time.</td><td>Whenever MarkSnip reads page content.</td></tr>
+                                <tr><td><code>offscreen</code></td><td>Uses a hidden document for Manifest V3 clipboard and download workflows in Chromium browsers.</td><td>Behind the scenes during some copy and download actions.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <div id="agent-bridge-permission" class="guide-subsection"

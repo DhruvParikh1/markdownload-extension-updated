@@ -86,10 +86,6 @@
     {
       "resources": ["contentScript/pageContext.js"],
       "matches": ["<all_urls>"]
-    },
-    {
-      "resources": ["guide/guide.html"],
-      "matches": ["<all_urls>"]
     }
   ],
   "browser_specific_settings": {
