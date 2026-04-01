@@ -25,6 +25,8 @@ const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude', 'special-theme-perple
 const COLORBLIND_VARIANT_CLASS_NAMES = ['colorblind-theme-deuteranopia', 'colorblind-theme-protanopia', 'colorblind-theme-tritanopia'];
 const ACCENT_CLASS_NAMES = ['accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber'];
 const POPUP_THEME_CACHE_KEY = 'marksnip-popup-theme-cache-v1';
+const DEFAULT_SEND_TO_TARGET = 'chatgpt';
+const DEFAULT_SEND_TO_MAX_URL_LENGTH = 3600;
 const SITE_RULE_BOOLEAN_FIELD_IDS = {
     includeTemplate: 'siteRuleIncludeTemplate',
     downloadImages: 'siteRuleDownloadImages'
@@ -122,14 +124,320 @@ function getLibraryStateApi() {
 	    return `site-rule-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
 	}
 
-	function escapeHtml(value) {
-	    return String(value || '')
-	        .replace(/&/g, '&amp;')
-	        .replace(/</g, '&lt;')
-	        .replace(/>/g, '&gt;')
-	        .replace(/"/g, '&quot;')
-	        .replace(/'/g, '&#39;');
-	}
+function escapeHtml(value) {
+    return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function buildCustomSendToTargetId() {
+    return `custom-target-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
+}
+
+function getSendToUrlValidationState(value) {
+    const optionsStateApi = getOptionsStateApi();
+    if (optionsStateApi?.validateSendToUrlTemplate) {
+        return optionsStateApi.validateSendToUrlTemplate(value);
+    }
+
+    const normalizedValue = String(value || '').trim();
+    if (!normalizedValue) {
+        return { valid: false, normalizedValue: '', error: 'URL template is required' };
+    }
+
+    const matches = normalizedValue.match(/\{prompt\}/g) || [];
+    if (matches.length !== 1) {
+        return { valid: false, normalizedValue, error: 'URL template must contain exactly one {prompt} placeholder' };
+    }
+
+    const queryStartIndex = normalizedValue.indexOf('?');
+    const hashStartIndex = normalizedValue.indexOf('#');
+    const promptIndex = normalizedValue.indexOf('{prompt}');
+    const queryEndIndex = hashStartIndex === -1 ? normalizedValue.length : hashStartIndex;
+    if (queryStartIndex === -1 || promptIndex < queryStartIndex || promptIndex >= queryEndIndex) {
+        return { valid: false, normalizedValue, error: '{prompt} must appear in the query portion of the URL' };
+    }
+
+    try {
+        const parsedUrl = new URL(normalizedValue.replace('{prompt}', '__MARKSNIP_PROMPT__'));
+        if (parsedUrl.protocol !== 'https:') {
+            return { valid: false, normalizedValue, error: 'URL template must start with https://' };
+        }
+    } catch {
+        return { valid: false, normalizedValue, error: 'URL template must be a valid HTTPS URL' };
+    }
+
+    return { valid: true, normalizedValue, error: '' };
+}
+
+function normalizeCustomSendToTargetsState(targets) {
+    const optionsStateApi = getOptionsStateApi();
+    if (optionsStateApi?.normalizeCustomSendToTargets) {
+        return optionsStateApi.normalizeCustomSendToTargets(targets);
+    }
+
+    if (!Array.isArray(targets)) {
+        return [];
+    }
+
+    const seenIds = new Set();
+    return targets.reduce((normalizedTargets, target, index) => {
+        if (!target || typeof target !== 'object') {
+            return normalizedTargets;
+        }
+
+        const name = String(target.name || '').trim();
+        const validation = getSendToUrlValidationState(target.urlTemplate ?? target.url);
+        if (!name || !validation.valid) {
+            return normalizedTargets;
+        }
+
+        const id = String(target.id || '').trim() || `custom-target-${index + 1}`;
+        if (seenIds.has(id)) {
+            return normalizedTargets;
+        }
+
+        seenIds.add(id);
+        normalizedTargets.push({
+            id,
+            name,
+            urlTemplate: validation.normalizedValue
+        });
+        return normalizedTargets;
+    }, []);
+}
+
+function normalizeDefaultSendToTargetState(value, customTargets = normalizeCustomSendToTargetsState(options?.sendToCustomTargets)) {
+    const optionsStateApi = getOptionsStateApi();
+    if (optionsStateApi?.normalizeDefaultSendToTarget) {
+        return optionsStateApi.normalizeDefaultSendToTarget(value, customTargets, DEFAULT_SEND_TO_TARGET);
+    }
+
+    const normalizedValue = String(value || '').trim();
+    if (normalizedValue === 'chatgpt' || normalizedValue === 'claude' || normalizedValue === 'perplexity') {
+        return normalizedValue;
+    }
+
+    return customTargets.some((target) => target.id === normalizedValue)
+        ? normalizedValue
+        : DEFAULT_SEND_TO_TARGET;
+}
+
+function normalizeSendToMaxUrlLengthState(value, fallbackValue = defaultOptions?.sendToMaxUrlLength ?? DEFAULT_SEND_TO_MAX_URL_LENGTH) {
+    const optionsStateApi = getOptionsStateApi();
+    if (optionsStateApi?.normalizeSendToMaxUrlLength) {
+        return optionsStateApi.normalizeSendToMaxUrlLength(value, fallbackValue);
+    }
+
+    const normalizedFallback = Number.isFinite(Number(fallbackValue)) && Number(fallbackValue) > 0
+        ? Math.floor(Number(fallbackValue))
+        : DEFAULT_SEND_TO_MAX_URL_LENGTH;
+    const parsedValue = Number.parseInt(String(value ?? '').trim(), 10);
+    return Number.isFinite(parsedValue) && parsedValue > 0
+        ? parsedValue
+        : normalizedFallback;
+}
+
+function getNormalizedSendToTargets() {
+    const targets = normalizeCustomSendToTargetsState(options?.sendToCustomTargets);
+    options.sendToCustomTargets = targets;
+    options.defaultSendToTarget = normalizeDefaultSendToTargetState(options?.defaultSendToTarget, targets);
+    return targets;
+}
+
+function renderDefaultSendToTargetOptions() {
+    const customContainer = document.getElementById('defaultSendToTargetCustomOptions');
+    if (!customContainer) {
+        return;
+    }
+
+    const defaultTarget = normalizeDefaultSendToTargetState(options?.defaultSendToTarget, getNormalizedSendToTargets());
+    const builtInInputs = {
+        chatgpt: document.getElementById('send-to-target-chatgpt'),
+        claude: document.getElementById('send-to-target-claude'),
+        perplexity: document.getElementById('send-to-target-perplexity')
+    };
+    Object.entries(builtInInputs).forEach(([targetId, input]) => {
+        if (input) {
+            input.checked = defaultTarget === targetId;
+        }
+    });
+
+    const targets = getNormalizedSendToTargets();
+    customContainer.innerHTML = '';
+    targets.forEach((target) => {
+        const radioPill = document.createElement('div');
+        radioPill.className = 'radio-pill';
+
+        const input = document.createElement('input');
+        input.type = 'radio';
+        input.name = 'defaultSendToTarget';
+        input.id = `send-to-target-${target.id}`;
+        input.value = target.id;
+        input.checked = defaultTarget === target.id;
+
+        const label = document.createElement('label');
+        label.setAttribute('for', input.id);
+        label.textContent = target.name;
+
+        radioPill.appendChild(input);
+        radioPill.appendChild(label);
+        customContainer.appendChild(radioPill);
+    });
+}
+
+function renderAssistantTargetsList() {
+    const list = document.getElementById('assistantTargetsList');
+    if (!list) {
+        return;
+    }
+
+    const targets = getNormalizedSendToTargets();
+    list.innerHTML = '';
+    if (targets.length === 0) {
+        const emptyState = document.createElement('p');
+        emptyState.className = 'assistant-targets-empty';
+        emptyState.textContent = 'No custom assistant targets yet. ChatGPT, Claude, and Perplexity are always available.';
+        list.appendChild(emptyState);
+        return;
+    }
+
+    targets.forEach((target) => {
+        const item = document.createElement('article');
+        item.className = 'assistant-target-item';
+
+        const body = document.createElement('div');
+        body.className = 'assistant-target-item__body';
+
+        const name = document.createElement('h4');
+        name.className = 'assistant-target-item__name';
+        name.textContent = target.name;
+
+        const meta = document.createElement('code');
+        meta.className = 'assistant-target-item__meta';
+        meta.textContent = target.urlTemplate;
+        meta.title = target.urlTemplate;
+
+        body.appendChild(name);
+        body.appendChild(meta);
+
+        const removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.className = 'btn btn-secondary btn-sm assistant-target-item__remove';
+        removeButton.dataset.targetId = target.id;
+        removeButton.textContent = 'Remove';
+        removeButton.setAttribute('aria-label', `Remove ${target.name}`);
+
+        item.appendChild(body);
+        item.appendChild(removeButton);
+        list.appendChild(item);
+    });
+}
+
+function handleDefaultSendToTargetChoice(event) {
+    const input = event.target;
+    if (!input || input.name !== 'defaultSendToTarget') {
+        return;
+    }
+
+    options.defaultSendToTarget = normalizeDefaultSendToTargetState(input.value, getNormalizedSendToTargets());
+    renderDefaultSendToTargetOptions();
+    save();
+}
+
+async function handleAddCustomSendToTarget() {
+    const nameInput = document.getElementById('customSendToName');
+    const urlInput = document.getElementById('customSendToUrl');
+    const name = String(nameInput?.value || '').trim();
+    const validation = getSendToUrlValidationState(urlInput?.value || '');
+
+    if (!name) {
+        showToast('Please enter a target name', 'error');
+        nameInput?.focus();
+        return;
+    }
+
+    if (!validation.valid) {
+        showToast(validation.error || 'Please enter a valid URL template', 'error');
+        urlInput?.focus();
+        return;
+    }
+
+    const nextTargets = [
+        ...getNormalizedSendToTargets(),
+        {
+            id: buildCustomSendToTargetId(),
+            name,
+            urlTemplate: validation.normalizedValue
+        }
+    ];
+
+    options.sendToCustomTargets = normalizeCustomSendToTargetsState(nextTargets);
+    options.defaultSendToTarget = normalizeDefaultSendToTargetState(options.defaultSendToTarget, options.sendToCustomTargets);
+    renderDefaultSendToTargetOptions();
+    renderAssistantTargetsList();
+
+    if (nameInput) {
+        nameInput.value = '';
+    }
+    if (urlInput) {
+        urlInput.value = '';
+    }
+
+    save({ message: `Added "${name}"`, type: 'success' });
+    nameInput?.focus();
+}
+
+function removeCustomSendToTarget(targetId) {
+    const currentTargets = getNormalizedSendToTargets();
+    const removedTarget = currentTargets.find((target) => target.id === targetId);
+    if (!removedTarget) {
+        return;
+    }
+
+    options.sendToCustomTargets = currentTargets.filter((target) => target.id !== targetId);
+    options.defaultSendToTarget = normalizeDefaultSendToTargetState(
+        options.defaultSendToTarget === targetId ? DEFAULT_SEND_TO_TARGET : options.defaultSendToTarget,
+        options.sendToCustomTargets
+    );
+
+    renderDefaultSendToTargetOptions();
+    renderAssistantTargetsList();
+    save({ message: `Removed "${removedTarget.name}"`, type: 'success' });
+}
+
+function initSendToControls() {
+    document.getElementById('defaultSendToTargetOptions')?.addEventListener('change', handleDefaultSendToTargetChoice);
+    document.getElementById('addSendToCustomTarget')?.addEventListener('click', () => {
+        handleAddCustomSendToTarget().catch((error) => {
+            console.error('Failed to add custom assistant target:', error);
+            showToast('Failed to add assistant target', 'error');
+        });
+    });
+    document.getElementById('assistantTargetsList')?.addEventListener('click', (event) => {
+        const removeButton = event.target.closest('[data-target-id]');
+        if (!removeButton) {
+            return;
+        }
+        removeCustomSendToTarget(removeButton.dataset.targetId);
+    });
+
+    ['customSendToName', 'customSendToUrl'].forEach((inputId) => {
+        document.getElementById(inputId)?.addEventListener('keydown', (event) => {
+            if (event.key !== 'Enter') {
+                return;
+            }
+            event.preventDefault();
+            handleAddCustomSendToTarget().catch((error) => {
+                console.error('Failed to add custom assistant target:', error);
+                showToast('Failed to add assistant target', 'error');
+            });
+        });
+    });
+}
 
 	function getSiteRulesList() {
 	    return normalizeSiteRulesState(options?.siteRules);
@@ -876,7 +1184,7 @@ function normalizeImportedOptionsState(importedOptions) {
         return optionsStateApi.normalizeImportedOptions(importedOptions, defaultOptions);
     }
 
-    return {
+    const normalizedOptions = {
         ...defaultOptions,
         ...(importedOptions || {}),
         tableFormatting: {
@@ -884,6 +1192,23 @@ function normalizeImportedOptionsState(importedOptions) {
             ...((importedOptions && importedOptions.tableFormatting) || {})
         }
     };
+
+    normalizedOptions.sendToCustomTargets = normalizeCustomSendToTargetsState(normalizedOptions.sendToCustomTargets);
+    normalizedOptions.defaultSendToTarget = normalizeDefaultSendToTargetState(
+        normalizedOptions.defaultSendToTarget,
+        normalizedOptions.sendToCustomTargets
+    );
+    normalizedOptions.sendToMaxUrlLength = normalizeSendToMaxUrlLengthState(
+        normalizedOptions.sendToMaxUrlLength,
+        defaultOptions?.sendToMaxUrlLength
+    );
+
+    const validPrimaryActions = new Set(['markdown', 'text', 'html', 'pdf', 'sendTo']);
+    normalizedOptions.defaultExportType = validPrimaryActions.has(normalizedOptions.defaultExportType)
+        ? normalizedOptions.defaultExportType
+        : defaultOptions.defaultExportType;
+
+    return normalizedOptions;
 }
 
 function getContextMenuTransitionState(previousOptions, nextOptions) {
@@ -1132,6 +1457,7 @@ function configureReviewLink() {
 const saveOptions = e => {
     e.preventDefault();
 
+    const customSendToTargets = normalizeCustomSendToTargetsState(options.sendToCustomTargets);
     options = {
         frontmatter: document.querySelector("[name='frontmatter']").value,
         backmatter: document.querySelector("[name='backmatter']").value,
@@ -1143,6 +1469,15 @@ const saveOptions = e => {
         imagePrefix: document.querySelector("[name='imagePrefix']").value,
         mdClipsFolder: document.querySelector("[name='mdClipsFolder']").value,
         defaultExportType: getCheckedValue(document.querySelectorAll("input[name='defaultExportType']")) || 'markdown',
+        defaultSendToTarget: normalizeDefaultSendToTargetState(
+            getCheckedValue(document.querySelectorAll("input[name='defaultSendToTarget']")) || DEFAULT_SEND_TO_TARGET,
+            customSendToTargets
+        ),
+        sendToCustomTargets: customSendToTargets,
+        sendToMaxUrlLength: normalizeSendToMaxUrlLengthState(
+            document.querySelector("[name='sendToMaxUrlLength']")?.value,
+            defaultOptions?.sendToMaxUrlLength
+        ),
         turndownEscape: document.querySelector("[name='turndownEscape']").checked,
         hashtagHandling: getCheckedValue(document.querySelectorAll("input[name='hashtagHandling']")),
         contextMenus: document.querySelector("[name='contextMenus']").checked,
@@ -1188,9 +1523,10 @@ const saveOptions = e => {
     save();
 }
 
-const save = () => {
+const save = (feedback = { message: "Options Saved 💾", type: "success" }) => {
 	    const spinner = document.getElementById("spinner");
 	    spinner.style.display = "block";
+        options = normalizeImportedOptionsState(options);
 	    options.siteRules = normalizeSiteRulesState(options.siteRules);
 
 	    const safeUpdateMenu = (id, update) => {
@@ -1226,7 +1562,9 @@ const save = () => {
             ]);
         })
         .then(() => {
-            showToast("Options Saved 💾", "success");
+                if (feedback !== false) {
+                    showToast(feedback?.message || "Options Saved 💾", feedback?.type || "success");
+                }
             spinner.style.display = "none";
         })
         .catch(err => {
@@ -1369,6 +1707,7 @@ const setCurrentChoice = result => {
     document.querySelector("[name='obsidianIntegration']").checked = options.obsidianIntegration;
     document.querySelector("[name='obsidianVault']").value = options.obsidianVault;
     document.querySelector("[name='obsidianFolder']").value = options.obsidianFolder;
+    document.querySelector("[name='sendToMaxUrlLength']").value = options.sendToMaxUrlLength;
 
     // Set preserveCodeFormatting checkbox
     document.querySelector("[name='preserveCodeFormatting']").checked = options.preserveCodeFormatting;
@@ -1391,11 +1730,13 @@ const setCurrentChoice = result => {
     setCheckedValue(document.querySelectorAll("[name='linkReferenceStyle']"), options.linkReferenceStyle);
     setCheckedValue(document.querySelectorAll("[name='imageStyle']"), options.imageStyle);
     setCheckedValue(document.querySelectorAll("[name='imageRefStyle']"), options.imageRefStyle);
-    setCheckedValue(document.querySelectorAll("[name='hashtagHandling']"), options.hashtagHandling || 'keep');
-    setCheckedValue(document.querySelectorAll("[name='downloadMode']"), options.downloadMode);
-    setCheckedValue(document.querySelectorAll("[name='defaultExportType']"), options.defaultExportType || 'markdown');
+	    setCheckedValue(document.querySelectorAll("[name='hashtagHandling']"), options.hashtagHandling || 'keep');
+	    setCheckedValue(document.querySelectorAll("[name='downloadMode']"), options.downloadMode);
+	    setCheckedValue(document.querySelectorAll("[name='defaultExportType']"), options.defaultExportType || 'markdown');
+        renderDefaultSendToTargetOptions();
+        renderAssistantTargetsList();
 
-    setCheckedValue(document.querySelectorAll("[name='popupTheme']"), options.popupTheme || 'system');
+	    setCheckedValue(document.querySelectorAll("[name='popupTheme']"), options.popupTheme || 'system');
     setCheckedValue(document.querySelectorAll("[name='specialTheme']"), options.specialTheme || 'none');
     document.querySelector("[name='colorBlindTheme']").value = normalizeColorBlindTheme(options.colorBlindTheme);
     document.querySelector("[name='specialThemeIcon']").checked = options.specialThemeIcon !== false;
@@ -1549,6 +1890,8 @@ const refreshElements = () => {
     document.getElementById('obsidian').disabled = !downloadImages;
     document.getElementById('obsidian-nofolder').disabled = !downloadImages;
 
+    show(document.getElementById("defaultSendToTargetCard"), options.defaultExportType === 'sendTo');
+
     show(document.getElementById("libraryAutoSave-container"), librarySettings.enabled);
     show(document.getElementById("libraryItemsToKeep-container"), librarySettings.enabled);
 }
@@ -1623,6 +1966,10 @@ const inputChange = async (e) => {
         }
         else {
             if (e.target.type == "checkbox") value = e.target.checked;
+            if (key === 'sendToMaxUrlLength') {
+                value = normalizeSendToMaxUrlLengthState(value, defaultOptions?.sendToMaxUrlLength);
+                e.target.value = value;
+            }
             
             // Handle nested table formatting options
             if (key.startsWith('tableFormatting.')) {
@@ -1918,11 +2265,12 @@ async function resetAllSettings() {
 
 const loaded = () => {
     // Initialize sidebar navigation
-    initSidebar();
-    initSearch();
-    configureReviewLink();
-    bindTemplatePreviewListeners();
-    renderTemplatePreviews();
+	    initSidebar();
+	    initSearch();
+	    configureReviewLink();
+	    bindTemplatePreviewListeners();
+	    renderTemplatePreviews();
+        initSendToControls();
 
 	    // Restore saved options
 	    restoreOptions();
@@ -1958,11 +2306,12 @@ const loaded = () => {
     }
 
 	    // Attach event listeners (skip the search input)
-	    document.querySelectorAll('input,textarea,button,select').forEach(input => {
-	        if (input.id === 'settings-search') return;
-	        if (input.closest('#siteRulesCard')) return;
-	        // Skip permission panel buttons (they have their own handlers)
-	        if (['agentBridgePermContinue', 'agentBridgePermCancel', 'agentBridgePermRetry', 'agentBridgePermDismiss'].includes(input.id)) return;
+		    document.querySelectorAll('input,textarea,button,select').forEach(input => {
+		        if (input.id === 'settings-search') return;
+		        if (input.closest('#siteRulesCard')) return;
+                if (input.closest('#defaultSendToTargetCard') || input.closest('#assistantTargetsCard')) return;
+		        // Skip permission panel buttons (they have their own handlers)
+		        if (['agentBridgePermContinue', 'agentBridgePermCancel', 'agentBridgePermRetry', 'agentBridgePermDismiss'].includes(input.id)) return;
 	        // Skip colorblind theme dropdown (has its own handlers)
 	        if (input.id === 'colorBlindThemeBtn' || input.closest('#colorBlindThemePanel')) return;
         if (input.tagName == "TEXTAREA" || input.type == "text") {

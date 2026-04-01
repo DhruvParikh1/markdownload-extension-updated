@@ -981,6 +981,205 @@ test.describe('MarkSnip Extension E2E', () => {
     });
   }
 
+  test('popup send-to mode updates labels and routes full and selection sends through assistant URLs', async () => {
+    await setSyncStorage(serviceWorker, {
+      defaultExportType: 'sendTo',
+      defaultSendToTarget: 'chatgpt',
+      sendToCustomTargets: []
+    });
+
+    const fixturePage = await context.newPage();
+    const popupPage = await context.newPage();
+
+    try {
+      await fixturePage.goto(`${fixtureHost}/extension/deterministic-article.html`);
+      await fixturePage.waitForLoadState('networkidle');
+      await fixturePage.bringToFront();
+
+      await popupPage.goto(`chrome-extension://${extensionId}/popup/popup.html`);
+      await expect(popupPage.locator('#container')).toBeVisible();
+
+      await expect.poll(async () => popupPage.inputValue('#title'), { timeout: 10000 })
+        .toContain('Deterministic Markdown Fixture');
+
+      await popupPage.evaluate(() => {
+        const originalTabsCreate = browser.tabs.create.bind(browser.tabs);
+        const originalSendMessage = browser.runtime.sendMessage.bind(browser.runtime);
+        const originalClipboardWrite = navigator.clipboard.writeText.bind(navigator.clipboard);
+        const originalClose = window.close.bind(window);
+
+        window.__markSnipSendToHarness = {
+          tabsCalls: [],
+          metricCalls: [],
+          clipboardCalls: [],
+          restore() {
+            browser.tabs.create = originalTabsCreate;
+            browser.runtime.sendMessage = originalSendMessage;
+            navigator.clipboard.writeText = originalClipboardWrite;
+            window.close = originalClose;
+          }
+        };
+
+        browser.tabs.create = async (options) => {
+          window.__markSnipSendToHarness.tabsCalls.push(options);
+          return { id: 9000 + window.__markSnipSendToHarness.tabsCalls.length };
+        };
+        browser.runtime.sendMessage = async (message) => {
+          if (message?.type === 'record-notification-metrics') {
+            window.__markSnipSendToHarness.metricCalls.push(message);
+            return null;
+          }
+          return originalSendMessage(message);
+        };
+        navigator.clipboard.writeText = async (text) => {
+          window.__markSnipSendToHarness.clipboardCalls.push(text);
+          return undefined;
+        };
+        window.close = () => {};
+      });
+
+      await expect(popupPage.locator('#download')).toContainText('Send to ChatGPT');
+
+      await popupPage.locator('#splitArrow').click();
+      await expect(popupPage.locator('#splitDropdown')).toBeVisible();
+      await expect(popupPage.locator('#ddSendToChatgpt')).toBeHidden();
+      await expect(popupPage.locator('#ddSendToClaude')).toBeVisible();
+      await expect(popupPage.locator('#ddSendToPerplexity')).toBeVisible();
+      await expect(popupPage.locator('#ddMarkdown')).toBeVisible();
+
+      await popupPage.locator('#download').click();
+      await expect.poll(async () => {
+        return await popupPage.evaluate(() => window.__markSnipSendToHarness.tabsCalls.length);
+      }, { timeout: 10000 }).toBe(1);
+
+      await popupPage.evaluate(() => {
+        const lineIndex = (cm.getLine(0) || '').length > 0 ? 0 : Math.min(1, Math.max(0, cm.lineCount() - 1));
+        const lineText = cm.getLine(lineIndex) || '';
+        cm.focus();
+        cm.setSelection(
+          { line: lineIndex, ch: 0 },
+          { line: lineIndex, ch: Math.max(1, Math.min(24, lineText.length || 1)) }
+        );
+      });
+
+      await expect(popupPage.locator('#downloadSelection')).toBeVisible();
+      await expect(popupPage.locator('#downloadSelection')).toContainText('Send Selection to ChatGPT');
+      await popupPage.locator('#downloadSelection').click();
+
+      await expect.poll(async () => {
+        return await popupPage.evaluate(() => window.__markSnipSendToHarness.tabsCalls.length);
+      }, { timeout: 10000 }).toBe(2);
+
+      const harnessState = await popupPage.evaluate(() => {
+        const result = {
+          tabsCalls: window.__markSnipSendToHarness.tabsCalls.slice(),
+          metricCalls: window.__markSnipSendToHarness.metricCalls.slice(),
+          clipboardCalls: window.__markSnipSendToHarness.clipboardCalls.slice()
+        };
+        window.__markSnipSendToHarness.restore();
+        return result;
+      });
+
+      expect(harnessState.clipboardCalls).toEqual([]);
+      expect(harnessState.metricCalls).toHaveLength(2);
+      harnessState.metricCalls.forEach((call) => {
+        expect(call.delta).toEqual({ exports: 1 });
+      });
+      harnessState.tabsCalls.forEach((call) => {
+        expect(call.url).toMatch(/^https:\/\/chatgpt\.com\/\?q=/);
+      });
+    } finally {
+      await popupPage.close().catch(() => {});
+      await fixturePage.close().catch(() => {});
+    }
+  });
+
+  test('popup send-to mode copies oversized markdown and opens the assistant fallback URL', async () => {
+    await setSyncStorage(serviceWorker, {
+      defaultExportType: 'sendTo',
+      defaultSendToTarget: 'chatgpt',
+      sendToCustomTargets: []
+    });
+
+    const fixturePage = await context.newPage();
+    const popupPage = await context.newPage();
+
+    try {
+      await fixturePage.goto(`${fixtureHost}/extension/deterministic-article.html`);
+      await fixturePage.waitForLoadState('networkidle');
+      await fixturePage.bringToFront();
+
+      await popupPage.goto(`chrome-extension://${extensionId}/popup/popup.html`);
+      await expect(popupPage.locator('#container')).toBeVisible();
+
+      await expect.poll(async () => popupPage.inputValue('#title'), { timeout: 10000 })
+        .toContain('Deterministic Markdown Fixture');
+
+      await popupPage.evaluate(() => {
+        const originalTabsCreate = browser.tabs.create.bind(browser.tabs);
+        const originalSendMessage = browser.runtime.sendMessage.bind(browser.runtime);
+        const originalClipboardWrite = navigator.clipboard.writeText.bind(navigator.clipboard);
+        const originalClose = window.close.bind(window);
+
+        window.__markSnipSendToOverflowHarness = {
+          tabsCalls: [],
+          metricCalls: [],
+          clipboardCalls: [],
+          restore() {
+            browser.tabs.create = originalTabsCreate;
+            browser.runtime.sendMessage = originalSendMessage;
+            navigator.clipboard.writeText = originalClipboardWrite;
+            window.close = originalClose;
+          }
+        };
+
+        browser.tabs.create = async (options) => {
+          window.__markSnipSendToOverflowHarness.tabsCalls.push(options);
+          return { id: 9100 + window.__markSnipSendToOverflowHarness.tabsCalls.length };
+        };
+        browser.runtime.sendMessage = async (message) => {
+          if (message?.type === 'record-notification-metrics') {
+            window.__markSnipSendToOverflowHarness.metricCalls.push(message);
+            return null;
+          }
+          return originalSendMessage(message);
+        };
+        navigator.clipboard.writeText = async (text) => {
+          window.__markSnipSendToOverflowHarness.clipboardCalls.push(text);
+          return undefined;
+        };
+        window.close = () => {};
+
+        cm.setValue(`# Huge\n\n${'A'.repeat(12000)}`);
+      });
+
+      await popupPage.locator('#download').click();
+
+      await expect.poll(async () => {
+        return await popupPage.evaluate(() => window.__markSnipSendToOverflowHarness.tabsCalls.length);
+      }, { timeout: 10000 }).toBe(1);
+
+      const harnessState = await popupPage.evaluate(() => {
+        const result = {
+          tabsCalls: window.__markSnipSendToOverflowHarness.tabsCalls.slice(),
+          metricCalls: window.__markSnipSendToOverflowHarness.metricCalls.slice(),
+          clipboardCalls: window.__markSnipSendToOverflowHarness.clipboardCalls.slice()
+        };
+        window.__markSnipSendToOverflowHarness.restore();
+        return result;
+      });
+
+      expect(harnessState.metricCalls).toHaveLength(1);
+      expect(harnessState.metricCalls[0].delta).toEqual({ exports: 1 });
+      expect(harnessState.clipboardCalls).toHaveLength(1);
+      expect(harnessState.clipboardCalls[0].length).toBeGreaterThan(10000);
+      expect(harnessState.tabsCalls).toEqual([{ url: 'https://chatgpt.com/' }]);
+    } finally {
+      await popupPage.close().catch(() => {});
+      await fixturePage.close().catch(() => {});
+    }
+  });
+
   test('disabling the library hides the popup entry point and prevents auto-save', async () => {
     await setLibraryStorage(serviceWorker, {
       librarySettings: {

@@ -210,20 +210,20 @@
 
                 <div id="action-buttons" class="guide-subsection"
                     data-guide-section="Action Buttons"
-                    data-guide-summary="Download, copy, or send Markdown to Obsidian"
-                    data-search-keywords="download,download selection,send to obsidian,save,export">
+                    data-guide-summary="Download, send, copy, or send Markdown to Obsidian"
+                    data-search-keywords="download,download selection,send to assistant,chatgpt,claude,perplexity,send to obsidian,save,export">
                     <h3 class="subsection-heading"><a href="#action-buttons" class="anchor-link">#</a>Action Buttons</h3>
                     <div class="ref-table-wrap">
                         <table class="ref-table">
                             <thead><tr><th>Button</th><th>Action</th></tr></thead>
                             <tbody>
-                                <tr><td><strong>Download</strong></td><td>Exports the popup clip using your configured default format: Markdown (<code>.md</code>), Plain text (<code>.txt</code>), HTML (<code>.html</code>), or PDF.</td></tr>
-                                <tr><td><strong>Download Selection</strong></td><td>Appears when text is selected inside the editor; exports only the selected text using the same popup default format.</td></tr>
+                                <tr><td><strong>Main Action</strong></td><td>Uses your configured popup default action. Choose Markdown (<code>.md</code>), Plain text (<code>.txt</code>), HTML (<code>.html</code>), PDF, or <strong>Send to Assistant</strong>.</td></tr>
+                                <tr><td><strong>Selection Action</strong></td><td>Appears when text is selected inside the editor; exports or sends only the selected text using the same popup default action.</td></tr>
                                 <tr><td><strong>Send to Obsidian</strong></td><td>Copies Markdown to clipboard and opens Obsidian via the Advanced URI plugin to create a new note (only visible when Obsidian integration is enabled).</td></tr>
                             </tbody>
                         </table>
                     </div>
-                    <p><strong>Note:</strong> This popup export format setting only affects popup exports. Context menus, keyboard download shortcuts, batch exports, Library exports, Agent Bridge, and Obsidian actions remain Markdown-based.</p>
+                    <p><strong>Note:</strong> This popup default action setting only affects popup actions. Context menus, keyboard download shortcuts, batch exports, Library exports, Agent Bridge, and Obsidian actions remain Markdown-based.</p>
                 </div>
             </section>
 
@@ -395,12 +395,18 @@ author: {byline}
                 <div id="download-settings" class="guide-subsection"
                     data-guide-section="Download Settings"
                     data-guide-summary="Configure download behavior and context menus"
-                    data-search-keywords="context menus toggle,enable context menus">
+                    data-search-keywords="context menus toggle,enable context menus,assistant url length,max url length,clipboard fallback">
                     <h3 class="subsection-heading"><a href="#download-settings" class="anchor-link">#</a>Downloads</h3>
                     <h4>Context Menus</h4>
                     <p>Toggles the right-click context menu items on and off. Default: <strong>On</strong>.</p>
-                    <h4>Default Popup Export Format</h4>
-                    <p>Controls the popup's primary export buttons. Choose <strong>Markdown</strong>, <strong>Plain text</strong>, <strong>HTML</strong>, or <strong>PDF</strong>. This does not change context-menu downloads, keyboard download shortcuts, batch output, Library exports, Agent Bridge output, or Obsidian sends.</p>
+                    <h4>Default Popup Action</h4>
+                    <p>Controls the popup's primary action buttons. Choose <strong>Markdown</strong>, <strong>Plain text</strong>, <strong>HTML</strong>, <strong>PDF</strong>, or <strong>Send to Assistant</strong>. This does not change context-menu downloads, keyboard download shortcuts, batch output, Library exports, Agent Bridge output, or Obsidian sends.</p>
+                    <h4>Default Assistant Target</h4>
+                    <p>When <strong>Send to Assistant</strong> is selected, choose the popup's default destination such as <strong>ChatGPT</strong>, <strong>Claude</strong>, <strong>Perplexity</strong>, or one of your custom assistant URLs.</p>
+                    <h4>Assistant Targets</h4>
+                    <p>ChatGPT, Claude, and Perplexity are built in. Add custom HTTPS assistant URLs that accept a <code>{prompt}</code> placeholder in the query string. MarkSnip inserts the current Markdown into that placeholder when you send from the popup.</p>
+                    <h4>Assistant URL Length Cap</h4>
+                    <p>Controls how long a generated assistant URL can be before MarkSnip falls back to copying the Markdown to your clipboard and opening the assistant landing page instead. The default is <strong>3600</strong>, and changing it is not recommended.</p>
                 </div>
 
                 <div id="markdown-options" class="guide-subsection"

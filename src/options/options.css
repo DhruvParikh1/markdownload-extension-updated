@@ -2355,6 +2355,94 @@ a:hover {
     color: var(--text-tertiary);
 }
 
+.assistant-target-radio-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+
+.assistant-target-builder {
+    display: grid;
+    grid-template-columns: minmax(0, 180px) minmax(0, 1fr) auto;
+    gap: var(--space-3);
+    align-items: end;
+}
+
+.assistant-target-builder .input-group {
+    margin-bottom: 0;
+}
+
+.assistant-target-builder__url {
+    min-width: 0;
+}
+
+.assistant-target-builder__button {
+    min-width: 132px;
+}
+
+.assistant-target-hint {
+    margin-top: var(--space-3);
+    font-size: var(--text-xs);
+    color: var(--text-tertiary);
+    line-height: 1.6;
+}
+
+.assistant-targets-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+}
+
+.assistant-target-item,
+.assistant-targets-empty {
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    background: var(--bg-secondary);
+}
+
+.assistant-target-item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: var(--space-4);
+}
+
+.assistant-target-item__body {
+    min-width: 0;
+    flex: 1;
+}
+
+.assistant-target-item__name {
+    margin: 0;
+    font-size: var(--text-base);
+    color: var(--text-primary);
+}
+
+.assistant-target-item__meta {
+    display: inline-block;
+    margin-top: var(--space-2);
+    padding: 0.2rem 0.45rem;
+    border-radius: var(--radius-sm);
+    background: var(--bg-primary);
+    color: var(--text-secondary);
+    font-size: var(--text-xs);
+    word-break: break-all;
+}
+
+.assistant-target-item__remove {
+    flex: 0 0 auto;
+}
+
+.assistant-targets-empty {
+    margin: 0;
+    padding: var(--space-4);
+    color: var(--text-tertiary);
+    font-size: var(--text-sm);
+    line-height: 1.6;
+}
+
 .textarea-input {
     width: 100%;
     min-height: 120px;
@@ -3437,6 +3525,18 @@ input[type="file"] {
 }
 
 @media (max-width: 900px) {
+    .assistant-target-builder {
+        grid-template-columns: 1fr;
+    }
+
+    .assistant-target-builder__button {
+        width: 100%;
+    }
+
+    .assistant-target-item {
+        flex-direction: column;
+    }
+
     .site-rule-item {
         flex-direction: column;
     }

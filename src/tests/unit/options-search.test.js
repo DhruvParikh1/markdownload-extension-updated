@@ -18,6 +18,10 @@ const optionsSearchSource = fs.readFileSync(
   path.join(__dirname, '../../options/options-search.js'),
   'utf8'
 );
+const optionsStateSource = fs.readFileSync(
+  path.join(__dirname, '../../shared/options-state.js'),
+  'utf8'
+);
 const templateUtilsSource = fs.readFileSync(
   path.join(__dirname, '../../shared/template-utils.js'),
   'utf8'
@@ -63,6 +67,9 @@ const baseOptions = {
   disallowedChars: '[]#^',
   downloadMode: 'downloadsApi',
   defaultExportType: 'markdown',
+  defaultSendToTarget: 'chatgpt',
+  sendToCustomTargets: [],
+  sendToMaxUrlLength: 3600,
   turndownEscape: true,
   hashtagHandling: 'keep',
   contextMenus: true,
@@ -199,6 +206,7 @@ function createOptionsPageDom(optionOverrides = {}, libraryOverrides = {}) {
   dom.window.eval(`var defaultOptions = ${JSON.stringify(storedOptions)};`);
   dom.window.eval(searchCoreSource);
   dom.window.eval(libraryStateSource);
+  dom.window.eval(optionsStateSource);
   dom.window.eval(optionsSearchSource);
   dom.window.eval(templateUtilsSource);
   dom.window.eval(optionsSource);
@@ -268,6 +276,13 @@ describe('Options search helper', () => {
     expect(getMatchIds(index, 'txt')).toContain('defaultExportTypeGroup');
     expect(getMatchIds(index, 'html')).toContain('defaultExportTypeGroup');
     expect(getMatchIds(index, 'pdf')).toContain('defaultExportTypeGroup');
+    expect(getMatchIds(index, 'send to')).toContain('defaultExportTypeGroup');
+    expect(getMatchIds(index, 'assistant target')).toContain('defaultSendToTargetCard');
+    expect(getMatchIds(index, 'custom url')).toContain('assistantTargetsCard');
+    expect(getMatchIds(index, 'url length')).toContain('sendToMaxUrlLengthCard');
+    expect(getMatchIds(index, 'clipboard fallback')).toContain('sendToMaxUrlLengthCard');
+    expect(getMatchIds(index, 'chatgpt')).toContain('assistantTargetsCard');
+    expect(getMatchIds(index, 'perplexity')).toContain('assistantTargetsCard');
     expect(getMatchLabels(index, 'frontmatter')).toContain('Front-matter template');
     expect(getMatchLabels(index, 'backmatter')).toContain('Back-matter template');
     expect(getMatchIds(index, 'base64')).toContain('imageOptions');
@@ -525,6 +540,93 @@ describe('Options page search UI', () => {
 
     expect(browser.storage.sync.set).toHaveBeenCalledWith(expect.objectContaining({
       defaultExportType: 'html'
+    }));
+  });
+
+  test('restores and saves the default assistant target for popup send-to mode', async () => {
+    const { dom, browser } = createOptionsPageDom({
+      defaultExportType: 'sendTo',
+      defaultSendToTarget: 'claude'
+    });
+    const { document } = dom.window;
+
+    document.dispatchEvent(new dom.window.Event('DOMContentLoaded', { bubbles: true }));
+    await waitForMicrotasks();
+    await waitFor(dom.window, 50);
+
+    expect(document.getElementById('export-send-to').checked).toBe(true);
+    expect(document.getElementById('send-to-target-claude').checked).toBe(true);
+
+    const chatgptOption = document.getElementById('send-to-target-chatgpt');
+    chatgptOption.checked = true;
+    chatgptOption.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
+    await waitForMicrotasks();
+
+    expect(browser.storage.sync.set).toHaveBeenCalledWith(expect.objectContaining({
+      defaultSendToTarget: 'chatgpt'
+    }));
+  });
+
+  test('restores the built-in Perplexity assistant target for popup send-to mode', async () => {
+    const { dom } = createOptionsPageDom({
+      defaultExportType: 'sendTo',
+      defaultSendToTarget: 'perplexity'
+    });
+    const { document } = dom.window;
+
+    document.dispatchEvent(new dom.window.Event('DOMContentLoaded', { bubbles: true }));
+    await waitForMicrotasks();
+    await waitFor(dom.window, 50);
+
+    expect(document.getElementById('export-send-to').checked).toBe(true);
+    expect(document.getElementById('send-to-target-perplexity').checked).toBe(true);
+  });
+
+  test('removing the active custom assistant target falls back to ChatGPT', async () => {
+    const { dom, browser } = createOptionsPageDom({
+      defaultExportType: 'sendTo',
+      defaultSendToTarget: 'custom-1',
+      sendToCustomTargets: [
+        {
+          id: 'custom-1',
+          name: 'Custom One',
+          urlTemplate: 'https://example.com/new?q={prompt}'
+        }
+      ]
+    });
+    const { document } = dom.window;
+
+    document.dispatchEvent(new dom.window.Event('DOMContentLoaded', { bubbles: true }));
+    await waitForMicrotasks();
+    await waitFor(dom.window, 50);
+
+    const removeButton = document.querySelector('[data-target-id="custom-1"]');
+    removeButton.click();
+    await waitForMicrotasks();
+
+    expect(browser.storage.sync.set).toHaveBeenCalledWith(expect.objectContaining({
+      defaultSendToTarget: 'chatgpt',
+      sendToCustomTargets: []
+    }));
+  });
+
+  test('restores and saves the assistant URL length cap', async () => {
+    const { dom, browser } = createOptionsPageDom({ sendToMaxUrlLength: 4200 });
+    const { document } = dom.window;
+
+    document.dispatchEvent(new dom.window.Event('DOMContentLoaded', { bubbles: true }));
+    await waitForMicrotasks();
+    await waitFor(dom.window, 50);
+
+    const input = document.getElementById('sendToMaxUrlLength');
+    expect(input.value).toBe('4200');
+
+    input.value = '5100';
+    input.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
+    await waitForMicrotasks();
+
+    expect(browser.storage.sync.set).toHaveBeenCalledWith(expect.objectContaining({
+      sendToMaxUrlLength: 5100
     }));
   });
 

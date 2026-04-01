@@ -19,6 +19,114 @@
     return Object.prototype.toString.call(value) === '[object Object]';
   }
 
+  const POPUP_PRIMARY_ACTIONS = new Set(['markdown', 'text', 'html', 'pdf', 'sendTo']);
+  const BUILTIN_SEND_TO_TARGETS = new Set(['chatgpt', 'claude', 'perplexity']);
+  const DEFAULT_SEND_TO_TARGET = 'chatgpt';
+  const DEFAULT_SEND_TO_MAX_URL_LENGTH = 3600;
+
+  function countPromptPlaceholders(value) {
+    const matches = String(value || '').match(/\{prompt\}/g);
+    return matches ? matches.length : 0;
+  }
+
+  function validateSendToUrlTemplate(value) {
+    const normalizedValue = String(value || '').trim();
+    if (!normalizedValue) {
+      return { valid: false, normalizedValue: '', error: 'URL template is required' };
+    }
+
+    if (countPromptPlaceholders(normalizedValue) !== 1) {
+      return { valid: false, normalizedValue, error: 'URL template must contain exactly one {prompt} placeholder' };
+    }
+
+    const queryStartIndex = normalizedValue.indexOf('?');
+    const hashStartIndex = normalizedValue.indexOf('#');
+    const promptIndex = normalizedValue.indexOf('{prompt}');
+    const queryEndIndex = hashStartIndex === -1 ? normalizedValue.length : hashStartIndex;
+
+    if (queryStartIndex === -1 || promptIndex < queryStartIndex || promptIndex >= queryEndIndex) {
+      return { valid: false, normalizedValue, error: '{prompt} must appear in the query portion of the URL' };
+    }
+
+    try {
+      const parsedUrl = new URL(normalizedValue.replace('{prompt}', '__MARKSNIP_PROMPT__'));
+      if (parsedUrl.protocol !== 'https:') {
+        return { valid: false, normalizedValue, error: 'URL template must start with https://' };
+      }
+    } catch {
+      return { valid: false, normalizedValue, error: 'URL template must be a valid HTTPS URL' };
+    }
+
+    return { valid: true, normalizedValue, error: '' };
+  }
+
+  function normalizeCustomSendToTarget(target, index) {
+    if (!isPlainObject(target)) {
+      return null;
+    }
+
+    const name = String(target.name || '').trim();
+    const urlTemplateValue = target.urlTemplate ?? target.url;
+    const validation = validateSendToUrlTemplate(urlTemplateValue);
+    if (!name || !validation.valid) {
+      return null;
+    }
+
+    const rawId = String(target.id || '').trim();
+    return {
+      id: rawId || `custom-target-${index + 1}`,
+      name,
+      urlTemplate: validation.normalizedValue
+    };
+  }
+
+  function normalizeCustomSendToTargets(targets) {
+    if (!Array.isArray(targets)) {
+      return [];
+    }
+
+    const seenIds = new Set();
+    return targets.reduce((normalizedTargets, target, index) => {
+      const normalizedTarget = normalizeCustomSendToTarget(target, index);
+      if (!normalizedTarget) {
+        return normalizedTargets;
+      }
+
+      if (seenIds.has(normalizedTarget.id)) {
+        return normalizedTargets;
+      }
+
+      seenIds.add(normalizedTarget.id);
+      normalizedTargets.push(normalizedTarget);
+      return normalizedTargets;
+    }, []);
+  }
+
+  function normalizePopupPrimaryAction(value, fallbackValue = 'markdown') {
+    const normalizedValue = String(value || '').trim();
+    return POPUP_PRIMARY_ACTIONS.has(normalizedValue) ? normalizedValue : fallbackValue;
+  }
+
+  function normalizeDefaultSendToTarget(targetValue, customTargets = [], fallbackValue = DEFAULT_SEND_TO_TARGET) {
+    const normalizedTargetValue = String(targetValue || '').trim();
+    if (BUILTIN_SEND_TO_TARGETS.has(normalizedTargetValue)) {
+      return normalizedTargetValue;
+    }
+
+    const hasMatchingCustomTarget = customTargets.some((target) => target.id === normalizedTargetValue);
+    return hasMatchingCustomTarget ? normalizedTargetValue : fallbackValue;
+  }
+
+  function normalizeSendToMaxUrlLength(value, fallbackValue = DEFAULT_SEND_TO_MAX_URL_LENGTH) {
+    const normalizedFallback = Number.isFinite(Number(fallbackValue)) && Number(fallbackValue) > 0
+      ? Math.floor(Number(fallbackValue))
+      : DEFAULT_SEND_TO_MAX_URL_LENGTH;
+    const parsedValue = Number.parseInt(String(value ?? '').trim(), 10);
+    return Number.isFinite(parsedValue) && parsedValue > 0
+      ? parsedValue
+      : normalizedFallback;
+  }
+
   function deepClone(value) {
     if (Array.isArray(value)) {
       return value.map((item) => deepClone(item));
@@ -70,6 +178,22 @@
     } else if (!Array.isArray(normalized.siteRules)) {
       normalized.siteRules = [];
     }
+
+    normalized.defaultExportType = normalizePopupPrimaryAction(
+      normalized.defaultExportType,
+      normalizePopupPrimaryAction(safeDefaults.defaultExportType, 'markdown')
+    );
+
+    normalized.sendToCustomTargets = normalizeCustomSendToTargets(normalized.sendToCustomTargets);
+    normalized.defaultSendToTarget = normalizeDefaultSendToTarget(
+      normalized.defaultSendToTarget,
+      normalized.sendToCustomTargets,
+      normalizeDefaultSendToTarget(safeDefaults.defaultSendToTarget, normalizeCustomSendToTargets(safeDefaults.sendToCustomTargets))
+    );
+    normalized.sendToMaxUrlLength = normalizeSendToMaxUrlLength(
+      normalized.sendToMaxUrlLength,
+      normalizeSendToMaxUrlLength(safeDefaults.sendToMaxUrlLength)
+    );
 
     return normalized;
   }
@@ -144,7 +268,11 @@
     normalizeImportedOptions,
     getContextMenuTransition,
     resetOptionKeys,
-    resetAllOptions
+    resetAllOptions,
+    validateSendToUrlTemplate,
+    normalizeCustomSendToTargets,
+    normalizeDefaultSendToTarget,
+    normalizeSendToMaxUrlLength
   };
 
   root.markSnipOptionsState = api;

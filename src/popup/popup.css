@@ -1592,6 +1592,15 @@ body {
     background: var(--bg-primary);
 }
 
+.btn__label,
+.split-btn__label,
+.dd-item__label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .btn.success {
     background: var(--success) !important;
     border-color: var(--success) !important;
@@ -1599,6 +1608,18 @@ body {
 }
 
 .btn.error {
+    background: var(--error) !important;
+    border-color: var(--error) !important;
+    color: var(--text-inverse) !important;
+}
+
+.split-btn__main.success {
+    background: var(--success) !important;
+    border-color: var(--success) !important;
+    color: var(--text-inverse) !important;
+}
+
+.split-btn__main.error {
     background: var(--error) !important;
     border-color: var(--error) !important;
     color: var(--text-inverse) !important;
@@ -1698,7 +1719,7 @@ body {
     bottom: calc(100% + var(--space-2));
     right: 0;
     z-index: 30;
-    min-width: 210px;
+    min-width: 240px;
     padding: var(--space-1);
     border: 1px solid var(--border-medium);
     border-radius: var(--radius-md);
@@ -1727,6 +1748,17 @@ body {
     color: var(--text-tertiary);
 }
 
+.dd-section-divider {
+    height: 1px;
+    margin: var(--space-1) var(--space-2);
+    background: var(--border-light);
+}
+
+.split-dropdown__group {
+    display: grid;
+    gap: 0;
+}
+
 .dd-item {
     width: 100%;
     display: flex;
@@ -1748,6 +1780,10 @@ body {
 .dd-item:hover,
 .dd-item:focus-visible {
     background: var(--bg-hover);
+}
+
+.dd-item[hidden] {
+    display: none !important;
 }
 
 .dd-item svg {

@@ -48,8 +48,34 @@ let lastRenderedLibraryStateKey = '';
 const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude', 'special-theme-perplexity', 'special-theme-atla', 'special-theme-ben10', 'special-theme-colorblind'];
 const COLORBLIND_VARIANT_CLASS_NAMES = ['colorblind-theme-deuteranopia', 'colorblind-theme-protanopia', 'colorblind-theme-tritanopia'];
 const ACCENT_CLASS_NAMES = ['accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber'];
+const DEFAULT_SEND_TO_TARGET = 'chatgpt';
+const DEFAULT_SEND_TO_MAX_URL_LENGTH = 3600;
+const POPUP_PRIMARY_ACTION_SET = new Set(['markdown', 'text', 'html', 'pdf', 'sendTo']);
 const EXPORT_TYPE_ORDER = ['markdown', 'text', 'html', 'pdf'];
 const EXPORT_TYPE_SET = new Set(EXPORT_TYPE_ORDER);
+const SEND_TO_TARGETS = {
+    chatgpt: {
+        id: 'chatgpt',
+        label: 'ChatGPT',
+        urlTemplate: 'https://chatgpt.com/?q={prompt}',
+        fallbackUrl: 'https://chatgpt.com/',
+        iconKey: 'assistantChatgpt'
+    },
+    claude: {
+        id: 'claude',
+        label: 'Claude',
+        urlTemplate: 'https://claude.ai/new?q={prompt}',
+        fallbackUrl: 'https://claude.ai/new',
+        iconKey: 'assistantClaude'
+    },
+    perplexity: {
+        id: 'perplexity',
+        label: 'Perplexity',
+        urlTemplate: 'https://perplexity.ai/search/new?q={prompt}',
+        fallbackUrl: 'https://perplexity.ai/search/new',
+        iconKey: 'assistantPerplexity'
+    }
+};
 const EXPORT_BUTTON_ICONS = {
     download: `
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -64,6 +90,27 @@ const EXPORT_BUTTON_ICONS = {
             <polyline points="14 2 14 8 20 8"/>
             <line x1="9" y1="13" x2="15" y2="13"/>
             <line x1="9" y1="17" x2="15" y2="17"/>
+        </svg>
+    `,
+    send: `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 2 11 13"/>
+            <path d="m22 2-7 20-4-9-9-4Z"/>
+        </svg>
+    `,
+    assistantChatgpt: `
+        <svg class="assistant-icon assistant-icon--chatgpt" width="16" height="16" viewBox="0 0 721 721" fill="currentColor" aria-hidden="true">
+            <path d="M304.246 295.411V249.828C304.246 245.989 305.687 243.109 309.044 241.191L400.692 188.412C413.167 181.215 428.042 177.858 443.394 177.858C500.971 177.858 537.44 222.482 537.44 269.982C537.44 273.34 537.44 277.179 536.959 281.018L441.954 225.358C436.197 222 430.437 222 424.68 225.358L304.246 295.411ZM518.245 472.945V364.024C518.245 357.304 515.364 352.507 509.608 349.149L389.174 279.096L428.519 256.543C431.877 254.626 434.757 254.626 438.115 256.543L529.762 309.323C556.154 324.679 573.905 357.304 573.905 388.971C573.905 425.436 552.315 459.024 518.245 472.941V472.945ZM275.937 376.982L236.592 353.952C233.235 352.034 231.794 349.154 231.794 345.315V239.756C231.794 188.416 271.139 149.548 324.4 149.548C344.555 149.548 363.264 156.268 379.102 168.262L284.578 222.964C278.822 226.321 275.942 231.119 275.942 237.838V376.986L275.937 376.982ZM360.626 425.922L304.246 394.255V327.083L360.626 295.416L417.002 327.083V394.255L360.626 425.922ZM396.852 571.789C376.698 571.789 357.989 565.07 342.151 553.075L436.674 498.374C442.431 495.017 445.311 490.219 445.311 483.499V344.352L485.138 367.382C488.495 369.299 489.936 372.179 489.936 376.018V481.577C489.936 532.917 450.109 571.785 396.852 571.785V571.789ZM283.134 464.79L191.486 412.01C165.094 396.654 147.343 364.029 147.343 332.362C147.343 295.416 169.415 262.309 203.48 248.393V357.791C203.48 364.51 206.361 369.308 212.117 372.665L332.074 442.237L292.729 464.79C289.372 466.707 286.491 466.707 283.134 464.79ZM277.859 543.48C223.639 543.48 183.813 502.695 183.813 452.314C183.813 448.475 184.294 444.636 184.771 440.797L279.295 495.498C285.051 498.856 290.812 498.856 296.568 495.498L417.002 425.927V471.509C417.002 475.349 415.562 478.229 412.204 480.146L320.557 532.926C308.081 540.122 293.206 543.48 277.854 543.48H277.859ZM396.852 600.576C454.911 600.576 503.37 559.313 514.41 504.612C568.149 490.696 602.696 440.315 602.696 388.976C602.696 355.387 588.303 322.762 562.392 299.25C564.791 289.173 566.231 279.096 566.231 269.024C566.231 200.411 510.571 149.067 446.274 149.067C433.322 149.067 420.846 150.984 408.37 155.305C386.775 134.192 357.026 120.758 324.4 120.758C266.342 120.758 217.883 162.02 206.843 216.721C153.104 230.637 118.557 281.018 118.557 332.357C118.557 365.946 132.95 398.571 158.861 422.083C156.462 432.16 155.022 442.237 155.022 452.309C155.022 520.922 210.682 572.266 274.978 572.266C287.931 572.266 300.407 570.349 312.883 566.028C334.473 587.141 364.222 600.576 396.852 600.576Z"/>
+        </svg>
+    `,
+    assistantClaude: `
+        <svg class="assistant-icon assistant-icon--claude" width="16" height="16" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
+            <path d="m19.6 66.5 19.7-11 .3-1-.3-.5h-1l-3.3-.2-11.2-.3L14 53l-9.5-.5-2.4-.5L0 49l.2-1.5 2-1.3 2.9.2 6.3.5 9.5.6 6.9.4L38 49.1h1.6l.2-.7-.5-.4-.4-.4L29 41l-10.6-7-5.6-4.1-3-2-1.5-2-.6-4.2 2.7-3 3.7.3.9.2 3.7 2.9 8 6.1L37 36l1.5 1.2.6-.4.1-.3-.7-1.1L33 25l-6-10.4-2.7-4.3-.7-2.6c-.3-1-.4-2-.4-3l3-4.2L28 0l4.2.6L33.8 2l2.6 6 4.1 9.3L47 29.9l2 3.8 1 3.4.3 1h.7v-.5l.5-7.2 1-8.7 1-11.2.3-3.2 1.6-3.8 3-2L61 2.6l2 2.9-.3 1.8-1.1 7.7L59 27.1l-1.5 8.2h.9l1-1.1 4.1-5.4 6.9-8.6 3-3.5L77 13l2.3-1.8h4.3l3.1 4.7-1.4 4.9-4.4 5.6-3.7 4.7-5.3 7.1-3.2 5.7.3.4h.7l12-2.6 6.4-1.1 7.6-1.3 3.5 1.6.4 1.6-1.4 3.4-8.2 2-9.6 2-14.3 3.3-.2.1.2.3 6.4.6 2.8.2h6.8l12.6 1 3.3 2 1.9 2.7-.3 2-5.1 2.6-6.8-1.6-16-3.8-5.4-1.3h-.8v.4l4.6 4.5 8.3 7.5L89 80.1l.5 2.4-1.3 2-1.4-.2-9.2-7-3.6-3-8-6.8h-.5v.7l1.8 2.7 9.8 14.7.5 4.5-.7 1.4-2.6 1-2.7-.6-5.8-8-6-9-4.7-8.2-.5.4-2.9 30.2-1.3 1.5-3 1.2-2.5-2-1.4-3 1.4-6.2 1.6-8 1.3-6.4 1.2-7.9.7-2.6v-.2H49L43 72l-9 12.3-7.2 7.6-1.7.7-3-1.5.3-2.8L24 86l10-12.8 6-7.9 4-4.6-.1-.5h-.3L17.2 77.4l-4.7.6-2-2 .2-3 1-1 8-5.5Z"/>
+        </svg>
+    `,
+    assistantPerplexity: `
+        <svg class="assistant-icon assistant-icon--perplexity" width="16" height="16" viewBox="0 0 172 172" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M85.6758 22.7223C87.5821 22.7223 89.1279 24.2681 89.1279 26.1744V57.5016L122.896 23.734C123.884 22.747 125.369 22.451 126.658 22.985C127.948 23.5193 128.789 24.7784 128.789 26.1744V62.275H140.215C142.121 62.2751 143.666 63.821 143.666 65.7272V115.415C143.666 117.321 142.121 118.867 140.215 118.867H128.788V145.156C128.788 146.552 127.947 147.81 126.657 148.344C125.367 148.879 123.883 148.583 122.896 147.596L89.1279 113.829V145.174C89.1277 147.081 87.582 148.626 85.6758 148.626C83.7697 148.626 82.2239 147.081 82.2236 145.174V113.83L48.457 147.596C47.4699 148.583 45.9851 148.879 44.6953 148.344C43.4058 147.81 42.5646 146.552 42.5645 145.156V118.867H31.1348C29.2285 118.867 27.6826 117.321 27.6826 115.415V65.7272C27.6828 63.8211 29.2286 62.2752 31.1348 62.275H42.5645V26.1744C42.5645 24.7784 43.4056 23.5193 44.6953 22.985C45.9851 22.4508 47.4699 22.7469 48.457 23.734L82.2236 57.4996V26.1744C82.2237 24.2682 83.7695 22.7224 85.6758 22.7223ZM49.4688 102.101V136.822L82.2236 104.067V73.442L49.4688 102.101ZM89.1279 104.065L121.885 136.822V115.45C121.885 115.438 121.884 115.426 121.884 115.415C121.884 115.403 121.885 115.391 121.885 115.379V102.101L89.1279 73.4401V104.065ZM127.609 97.9371C128.359 98.5926 128.788 99.5404 128.788 100.536V111.964H136.763V69.1793H94.7402L127.609 97.9371ZM34.5869 111.964H42.5645V100.536C42.5645 99.5404 42.995 98.5926 43.7441 97.9371L76.6123 69.1793H34.5869V111.964ZM49.4688 62.275H77.2354L49.4688 34.5074V62.275ZM94.1191 62.275H121.886V34.5074L94.1191 62.275Z"/>
         </svg>
     `
 };
@@ -112,6 +159,156 @@ function getResolvedSpecialThemeKey(specialTheme, colorBlindTheme) {
     }
     return specialTheme;
 }
+
+function getOptionsStateApi() {
+    return globalThis.markSnipOptionsState || null;
+}
+
+function validateSendToUrlTemplate(value) {
+    const normalizedValue = String(value || '').trim();
+    const matches = normalizedValue.match(/\{prompt\}/g) || [];
+    if (!normalizedValue || matches.length !== 1) {
+        return { valid: false, normalizedValue };
+    }
+
+    const queryStartIndex = normalizedValue.indexOf('?');
+    const hashStartIndex = normalizedValue.indexOf('#');
+    const promptIndex = normalizedValue.indexOf('{prompt}');
+    const queryEndIndex = hashStartIndex === -1 ? normalizedValue.length : hashStartIndex;
+    if (queryStartIndex === -1 || promptIndex < queryStartIndex || promptIndex >= queryEndIndex) {
+        return { valid: false, normalizedValue };
+    }
+
+    try {
+        const parsedUrl = new URL(normalizedValue.replace('{prompt}', '__MARKSNIP_PROMPT__'));
+        return {
+            valid: parsedUrl.protocol === 'https:',
+            normalizedValue
+        };
+    } catch {
+        return { valid: false, normalizedValue };
+    }
+}
+
+function normalizeSendToCustomTargets(targets) {
+    const optionsStateApi = getOptionsStateApi();
+    if (optionsStateApi?.normalizeCustomSendToTargets) {
+        return optionsStateApi.normalizeCustomSendToTargets(targets);
+    }
+
+    if (!Array.isArray(targets)) {
+        return [];
+    }
+
+    const seenIds = new Set();
+    return targets.reduce((normalizedTargets, target, index) => {
+        if (!target || typeof target !== 'object') {
+            return normalizedTargets;
+        }
+
+        const name = String(target.name || '').trim();
+        const urlTemplate = target.urlTemplate ?? target.url;
+        const validation = validateSendToUrlTemplate(urlTemplate);
+        if (!name || !validation.valid) {
+            return normalizedTargets;
+        }
+
+        const id = String(target.id || '').trim() || `custom-target-${index + 1}`;
+        if (seenIds.has(id)) {
+            return normalizedTargets;
+        }
+
+        seenIds.add(id);
+        normalizedTargets.push({
+            id,
+            name,
+            urlTemplate: validation.normalizedValue
+        });
+        return normalizedTargets;
+    }, []);
+}
+
+function normalizeDefaultSendToTarget(value, customTargets = normalizeSendToCustomTargets(currentOptions?.sendToCustomTargets)) {
+    const optionsStateApi = getOptionsStateApi();
+    if (optionsStateApi?.normalizeDefaultSendToTarget) {
+        return optionsStateApi.normalizeDefaultSendToTarget(value, customTargets, DEFAULT_SEND_TO_TARGET);
+    }
+
+    const normalizedValue = String(value || '').trim();
+    if (SEND_TO_TARGETS[normalizedValue]) {
+        return normalizedValue;
+    }
+
+    return customTargets.some((target) => target.id === normalizedValue)
+        ? normalizedValue
+        : DEFAULT_SEND_TO_TARGET;
+}
+
+function normalizeSendToMaxUrlLength(value, fallbackValue = defaultOptions?.sendToMaxUrlLength ?? DEFAULT_SEND_TO_MAX_URL_LENGTH) {
+    const optionsStateApi = getOptionsStateApi();
+    if (optionsStateApi?.normalizeSendToMaxUrlLength) {
+        return optionsStateApi.normalizeSendToMaxUrlLength(value, fallbackValue);
+    }
+
+    const normalizedFallback = Number.isFinite(Number(fallbackValue)) && Number(fallbackValue) > 0
+        ? Math.floor(Number(fallbackValue))
+        : DEFAULT_SEND_TO_MAX_URL_LENGTH;
+    const parsedValue = Number.parseInt(String(value ?? '').trim(), 10);
+    return Number.isFinite(parsedValue) && parsedValue > 0
+        ? parsedValue
+        : normalizedFallback;
+}
+
+function normalizePopupOptions(source = {}) {
+    const optionsStateApi = getOptionsStateApi();
+    if (optionsStateApi?.normalizeImportedOptions) {
+        return optionsStateApi.normalizeImportedOptions(source, defaultOptions);
+    }
+
+    const normalizedOptions = {
+        ...defaultOptions,
+        ...(source || {})
+    };
+    normalizedOptions.sendToCustomTargets = normalizeSendToCustomTargets(normalizedOptions.sendToCustomTargets);
+    normalizedOptions.defaultSendToTarget = normalizeDefaultSendToTarget(
+        normalizedOptions.defaultSendToTarget,
+        normalizedOptions.sendToCustomTargets
+    );
+    normalizedOptions.sendToMaxUrlLength = normalizeSendToMaxUrlLength(
+        normalizedOptions.sendToMaxUrlLength,
+        defaultOptions?.sendToMaxUrlLength
+    );
+    normalizedOptions.defaultExportType = POPUP_PRIMARY_ACTION_SET.has(normalizedOptions.defaultExportType)
+        ? normalizedOptions.defaultExportType
+        : defaultOptions.defaultExportType;
+    return normalizedOptions;
+}
+
+function resolvePopupPrimaryActionType(options = currentOptions) {
+    const actionType = String(options?.defaultExportType || '').trim();
+    return POPUP_PRIMARY_ACTION_SET.has(actionType) ? actionType : 'markdown';
+}
+
+function resolveSendToTarget(targetId = currentOptions?.defaultSendToTarget, options = currentOptions) {
+    const customTargets = normalizeSendToCustomTargets(options?.sendToCustomTargets);
+    const normalizedTargetId = normalizeDefaultSendToTarget(targetId, customTargets);
+    if (SEND_TO_TARGETS[normalizedTargetId]) {
+        return SEND_TO_TARGETS[normalizedTargetId];
+    }
+
+    const customTarget = customTargets.find((target) => target.id === normalizedTargetId);
+    if (customTarget) {
+        return {
+            id: customTarget.id,
+            label: customTarget.name,
+            urlTemplate: customTarget.urlTemplate,
+            fallbackUrl: customTarget.urlTemplate.replace('{prompt}', ''),
+            iconKey: 'send'
+        };
+    }
+
+    return SEND_TO_TARGETS[DEFAULT_SEND_TO_TARGET];
+}
 const dom = {
     root: document.documentElement,
     body: document.body,
@@ -153,6 +350,10 @@ const dom = {
     splitButtonWrap: document.getElementById('splitBtnWrap'),
     splitButtonArrow: document.getElementById('splitArrow'),
     splitDropdown: document.getElementById('splitDropdown'),
+    sendToChatgptButton: document.getElementById('ddSendToChatgpt'),
+    sendToClaudeButton: document.getElementById('ddSendToClaude'),
+    sendToPerplexityButton: document.getElementById('ddSendToPerplexity'),
+    sendToCustomTargets: document.getElementById('ddSendToCustomTargets'),
     markdownButton: document.getElementById('ddMarkdown'),
     textButton: document.getElementById('ddText'),
     htmlButton: document.getElementById('ddHtml'),
@@ -239,6 +440,20 @@ function getExportTypeConfig(exportType) {
     return EXPORT_TYPE_CONFIG[resolveDefaultExportType({ defaultExportType: exportType })] || EXPORT_TYPE_CONFIG.markdown;
 }
 
+function getPopupPrimaryActionConfig(options = currentOptions) {
+    const primaryActionType = resolvePopupPrimaryActionType(options);
+    if (primaryActionType === 'sendTo') {
+        const target = resolveSendToTarget(undefined, options);
+        return {
+            mainLabel: `Send to ${target.label}`,
+            selectionLabel: `Send Selection to ${target.label}`,
+            icon: target.iconKey || 'send'
+        };
+    }
+
+    return getExportTypeConfig(primaryActionType);
+}
+
 function getDropdownExportButtons() {
     return {
         markdown: dom.markdownButton,
@@ -248,21 +463,79 @@ function getDropdownExportButtons() {
     };
 }
 
-function setExportButtonContent(button, label, iconKey = 'download') {
+function getDropdownSendButtons() {
+    return {
+        chatgpt: dom.sendToChatgptButton,
+        claude: dom.sendToClaudeButton,
+        perplexity: dom.sendToPerplexityButton
+    };
+}
+
+function setActionButtonContent(button, label, iconKey = 'download') {
     if (!button) {
         return;
     }
 
     const iconMarkup = EXPORT_BUTTON_ICONS[iconKey] || EXPORT_BUTTON_ICONS.download;
-    button.innerHTML = `${iconMarkup}${label}`;
+    const labelClassName = button.classList.contains('split-btn__main') ? 'split-btn__label' : 'btn__label';
+    button.innerHTML = `${iconMarkup}<span class="${labelClassName}"></span>`;
+    const labelElement = button.querySelector(`.${labelClassName}`);
+    if (labelElement) {
+        labelElement.textContent = label;
+    }
+}
+
+function renderSendToDropdownOptions(options = currentOptions) {
+    const primaryActionType = resolvePopupPrimaryActionType(options);
+    const activeTarget = resolveSendToTarget(undefined, options);
+    const dropdownButtons = getDropdownSendButtons();
+    Object.entries(dropdownButtons).forEach(([targetId, button]) => {
+        if (!button) {
+            return;
+        }
+
+        button.hidden = primaryActionType === 'sendTo' && activeTarget.id === targetId;
+    });
+
+    if (!dom.sendToCustomTargets) {
+        return;
+    }
+
+    dom.sendToCustomTargets.innerHTML = '';
+    const customTargets = normalizeSendToCustomTargets(options?.sendToCustomTargets);
+    customTargets.forEach((target) => {
+        const button = document.createElement('button');
+        button.className = 'dd-item';
+        button.type = 'button';
+        button.role = 'menuitem';
+        button.hidden = primaryActionType === 'sendTo' && activeTarget.id === target.id;
+        button.dataset.targetId = target.id;
+        button.innerHTML = `
+            ${EXPORT_BUTTON_ICONS.send}
+            <span class="dd-item__label"></span>
+        `;
+        button.querySelector('.dd-item__label').textContent = target.name;
+        button.title = `Send to ${target.name}`;
+        button.addEventListener('click', async (event) => {
+            event.preventDefault();
+            try {
+                await handleSendToAction(target.id, { triggerButton: dom.downloadButton });
+            } catch (error) {
+                console.error(`Error sending to ${target.name}:`, error);
+            }
+        });
+        dom.sendToCustomTargets.appendChild(button);
+    });
 }
 
 function updatePopupExportControls(options = currentOptions) {
-    const exportType = resolveDefaultExportType(options);
-    const config = getExportTypeConfig(exportType);
+    const primaryActionType = resolvePopupPrimaryActionType(options);
+    const config = getPopupPrimaryActionConfig(options);
 
-    setExportButtonContent(dom.downloadButton, config.mainLabel, config.icon);
-    setExportButtonContent(dom.downloadSelectionButton, config.selectionLabel, config.icon);
+    dom.downloadButton?.classList.remove('success', 'error');
+    dom.downloadSelectionButton?.classList.remove('success', 'error');
+    setActionButtonContent(dom.downloadButton, config.mainLabel, config.icon);
+    setActionButtonContent(dom.downloadSelectionButton, config.selectionLabel, config.icon);
 
     if (dom.downloadButton) {
         dom.downloadButton.setAttribute('aria-label', config.mainLabel);
@@ -281,8 +554,10 @@ function updatePopupExportControls(options = currentOptions) {
             return;
         }
 
-        button.hidden = kind === exportType;
+        button.hidden = primaryActionType !== 'sendTo' && kind === primaryActionType;
     });
+
+    renderSendToDropdownOptions(options);
 }
 
 let popupViewsInitialized = false;
@@ -1295,6 +1570,30 @@ dom.copySelectionButton?.addEventListener("click", copySelectionToClipboard);
 
 dom.sendToObsidianButton?.addEventListener("click", sendToObsidian);
 dom.splitButtonArrow?.addEventListener("click", toggleSplitDropdown);
+dom.sendToChatgptButton?.addEventListener("click", async (event) => {
+    event.preventDefault();
+    try {
+        await handleSendToAction('chatgpt', { triggerButton: dom.downloadButton });
+    } catch (error) {
+        console.error('Error sending to ChatGPT:', error);
+    }
+});
+dom.sendToClaudeButton?.addEventListener("click", async (event) => {
+    event.preventDefault();
+    try {
+        await handleSendToAction('claude', { triggerButton: dom.downloadButton });
+    } catch (error) {
+        console.error('Error sending to Claude:', error);
+    }
+});
+dom.sendToPerplexityButton?.addEventListener("click", async (event) => {
+    event.preventDefault();
+    try {
+        await handleSendToAction('perplexity', { triggerButton: dom.downloadButton });
+    } catch (error) {
+        console.error('Error sending to Perplexity:', error);
+    }
+});
 dom.markdownButton?.addEventListener("click", async (event) => {
     event.preventDefault();
     try {
@@ -1493,6 +1792,9 @@ const defaultOptions = {
     clipSelection: true,
     downloadImages: false,
     defaultExportType: 'markdown',
+    defaultSendToTarget: DEFAULT_SEND_TO_TARGET,
+    sendToCustomTargets: [],
+    sendToMaxUrlLength: DEFAULT_SEND_TO_MAX_URL_LENGTH,
     obsidianIntegration: false,
     batchProcessingEnabled: true,
     popupTheme: 'system',
@@ -1504,7 +1806,7 @@ const defaultOptions = {
     showUserGuideIcon: true,
     editorTheme: 'default',
 }
-currentOptions = { ...defaultOptions };
+currentOptions = normalizePopupOptions({ ...defaultOptions });
 
 const updateObsidianButtonVisibility = (options) => {
     if (!dom.sendToObsidianButton) return;
@@ -1573,6 +1875,9 @@ function clonePopupOptionsSnapshot(source = currentOptions || defaultOptions) {
     }
     if (Array.isArray(source?.siteRules)) {
         nextOptions.siteRules = source.siteRules.map((rule) => ({ ...rule }));
+    }
+    if (Array.isArray(source?.sendToCustomTargets)) {
+        nextOptions.sendToCustomTargets = source.sendToCustomTargets.map((target) => ({ ...target }));
     }
     return nextOptions;
 }
@@ -2803,10 +3108,10 @@ async function handleBatchConversion(e) {
 }
 
 const checkInitialSettings = options => {
-    currentOptions = {
+    currentOptions = normalizePopupOptions({
         ...defaultOptions,
         ...options
-    };
+    });
 
     // Apply theme settings
     applyThemeSettings(currentOptions);
@@ -2917,15 +3222,15 @@ const clipSite = id => {
                     ...message,
                     ...currentOptions
                 });
-            }
-            return browser.storage.sync.get(defaultOptions).then(options => {
-                currentOptions = {
-                    ...defaultOptions,
-                    ...options
-                };
-                return browser.runtime.sendMessage({
-                    ...message,
-                    ...currentOptions
+	            }
+	            return browser.storage.sync.get(defaultOptions).then(options => {
+	                currentOptions = normalizePopupOptions({
+	                    ...defaultOptions,
+	                    ...options
+	                });
+	                return browser.runtime.sendMessage({
+	                    ...message,
+	                    ...currentOptions
                 });
             }).catch(err => {
                 console.error(err);
@@ -3059,8 +3364,9 @@ browser.runtime.onMessage.addListener(notify);
 browser.storage.onChanged.addListener((changes, areaName) => {
     if (areaName === "sync") {
         const themeSettingKeys = ['popupTheme', 'specialTheme', 'colorBlindTheme', 'specialThemeIcon', 'popupAccent', 'compactMode', 'editorTheme'];
+        const popupActionKeys = ['defaultExportType', 'defaultSendToTarget', 'sendToCustomTargets', 'sendToMaxUrlLength'];
         if (themeSettingKeys.some((key) => Object.prototype.hasOwnProperty.call(changes, key))) {
-            currentOptions = {
+            currentOptions = normalizePopupOptions({
                 ...defaultOptions,
                 ...currentOptions,
                 ...themeSettingKeys.reduce((nextOptions, key) => {
@@ -3069,21 +3375,26 @@ browser.storage.onChanged.addListener((changes, areaName) => {
                     }
                     return nextOptions;
                 }, {})
-            };
+            });
             applyThemeSettings(currentOptions);
         }
         if (changes.batchProcessingEnabled) {
-            currentOptions = {
+            currentOptions = normalizePopupOptions({
                 ...currentOptions,
                 batchProcessingEnabled: changes.batchProcessingEnabled.newValue !== false
-            };
+            });
             updateBatchProcessButtonVisibility(currentOptions);
         }
-        if (changes.defaultExportType) {
-            currentOptions = {
+        if (popupActionKeys.some((key) => Object.prototype.hasOwnProperty.call(changes, key))) {
+            currentOptions = normalizePopupOptions({
                 ...currentOptions,
-                defaultExportType: changes.defaultExportType.newValue || 'markdown'
-            };
+                ...popupActionKeys.reduce((nextOptions, key) => {
+                    if (Object.prototype.hasOwnProperty.call(changes, key)) {
+                        nextOptions[key] = changes[key].newValue;
+                    }
+                    return nextOptions;
+                }, {})
+            });
             updatePopupExportControls(currentOptions);
         }
         if (changes.obsidianIntegration) {
@@ -3219,6 +3530,95 @@ async function sendGeneratedDownloadMessage(kind, markdown, title = getCurrentEx
     });
 }
 
+function setPrimaryActionFeedback(button, label, state = 'success') {
+    if (!button) {
+        return;
+    }
+
+    button.classList.remove('success', 'error');
+    if (state) {
+        button.classList.add(state);
+    }
+    const target = resolveSendToTarget(undefined, currentOptions);
+    setActionButtonContent(button, label, target?.iconKey || 'send');
+    button.setAttribute('aria-label', label);
+    button.title = label;
+}
+
+function resetPrimaryActionFeedback() {
+    updatePopupExportControls(currentOptions);
+}
+
+function buildAssistantLaunchUrls(target, prompt, options = currentOptions) {
+    const encodedPrompt = encodeURIComponent(String(prompt || ''));
+    const launchUrl = String(target?.urlTemplate || '').replace('{prompt}', encodedPrompt);
+    const fallbackUrl = String(target?.fallbackUrl || target?.urlTemplate || '').replace('{prompt}', '');
+    const maxUrlLength = normalizeSendToMaxUrlLength(options?.sendToMaxUrlLength);
+    return {
+        launchUrl,
+        fallbackUrl,
+        requiresClipboardFallback: launchUrl.length > maxUrlLength
+    };
+}
+
+async function recordSuccessfulSendMetric() {
+    const tabId = await getActiveTabId();
+
+    return browser.runtime.sendMessage({
+        type: 'record-notification-metrics',
+        tabId,
+        delta: {
+            exports: 1
+        }
+    }).catch(() => {});
+}
+
+async function handleSendToAction(targetId = currentOptions?.defaultSendToTarget, { selectionOnly = false, triggerButton = null } = {}) {
+    closeSplitDropdown();
+    if (selectionOnly && !editorHasSelection()) {
+        return;
+    }
+
+    const content = selectionOnly ? getEditorSelection() : getEditorValue();
+    if (!String(content || '').trim()) {
+        if (triggerButton) {
+            setPrimaryActionFeedback(triggerButton, 'Nothing to send', 'error');
+            setTimeout(resetPrimaryActionFeedback, 1800);
+        }
+        return;
+    }
+
+    const target = resolveSendToTarget(targetId, currentOptions);
+    const { launchUrl, fallbackUrl, requiresClipboardFallback } = buildAssistantLaunchUrls(target, content, currentOptions);
+
+    try {
+        if (requiresClipboardFallback) {
+            await navigator.clipboard.writeText(content);
+        }
+
+        if (triggerButton) {
+            setPrimaryActionFeedback(
+                triggerButton,
+                requiresClipboardFallback
+                    ? `Copied. Opening ${target.label}...`
+                    : `Opening ${target.label}...`,
+                'success'
+            );
+            await new Promise((resolve) => setTimeout(resolve, requiresClipboardFallback ? 420 : 180));
+        }
+
+        await recordSuccessfulSendMetric();
+        await browser.tabs.create({ url: requiresClipboardFallback ? fallbackUrl : launchUrl });
+        window.close();
+    } catch (error) {
+        if (triggerButton) {
+            setPrimaryActionFeedback(triggerButton, 'Failed', 'error');
+            setTimeout(resetPrimaryActionFeedback, 2200);
+        }
+        throw error;
+    }
+}
+
 async function exportCurrentContent(kind, { selectionOnly = false, closeAfter = false } = {}) {
     if (selectionOnly && !editorHasSelection()) {
         return;
@@ -3259,10 +3659,17 @@ async function handleExplicitExport(kind) {
 // Download event handler - updated to use promises
 async function download(e) {
     e.preventDefault();
-    const exportKind = resolveDefaultExportType(currentOptions);
+    const primaryActionType = resolvePopupPrimaryActionType(currentOptions);
     try {
-        await exportCurrentContent(exportKind, {
-            closeAfter: shouldClosePopupAfterExport(exportKind)
+        if (primaryActionType === 'sendTo') {
+            await handleSendToAction(currentOptions?.defaultSendToTarget, {
+                triggerButton: dom.downloadButton
+            });
+            return;
+        }
+
+        await exportCurrentContent(primaryActionType, {
+            closeAfter: shouldClosePopupAfterExport(primaryActionType)
         });
     } catch (error) {
         console.error("Error exporting content:", error);
@@ -3272,9 +3679,17 @@ async function download(e) {
 // Download selection handler - updated to use promises
 async function downloadSelection(e) {
     e.preventDefault();
-    const exportKind = resolveDefaultExportType(currentOptions);
+    const primaryActionType = resolvePopupPrimaryActionType(currentOptions);
     try {
-        await exportCurrentContent(exportKind, {
+        if (primaryActionType === 'sendTo') {
+            await handleSendToAction(currentOptions?.defaultSendToTarget, {
+                selectionOnly: true,
+                triggerButton: dom.downloadSelectionButton
+            });
+            return;
+        }
+
+        await exportCurrentContent(primaryActionType, {
             selectionOnly: true
         });
     } catch (error) {

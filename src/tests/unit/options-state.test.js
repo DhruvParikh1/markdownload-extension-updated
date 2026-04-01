@@ -7,6 +7,9 @@ const defaultOptions = {
   includeTemplate: false,
   imagePrefix: '{pageTitle}/',
   defaultExportType: 'markdown',
+  defaultSendToTarget: 'chatgpt',
+  sendToCustomTargets: [],
+  sendToMaxUrlLength: 3600,
   specialTheme: 'none',
   colorBlindTheme: 'deuteranopia',
   showUserGuideIcon: true,
@@ -78,6 +81,66 @@ const defaultOptions = {
     expect(normalized.defaultExportType).toBe('markdown');
   });
 
+  test('normalizeImportedOptions preserves default send target when omitted', () => {
+    const normalized = optionsState.normalizeImportedOptions({}, defaultOptions);
+    expect(normalized.defaultSendToTarget).toBe('chatgpt');
+    expect(normalized.sendToCustomTargets).toEqual([]);
+    expect(normalized.sendToMaxUrlLength).toBe(3600);
+  });
+
+  test('normalizeImportedOptions keeps valid send-to settings and sanitizes custom targets', () => {
+    const normalized = optionsState.normalizeImportedOptions({
+      defaultExportType: 'sendTo',
+      defaultSendToTarget: 'custom-1',
+      sendToCustomTargets: [
+        { id: 'custom-1', name: 'Perplexity', urlTemplate: 'https://example.com/new?q={prompt}' },
+        { id: 'ignored', name: '', urlTemplate: 'https://invalid.com/new?q={prompt}' },
+        { id: 'ignored-2', name: 'Bad Protocol', urlTemplate: 'http://invalid.com/new?q={prompt}' }
+      ]
+    }, defaultOptions);
+
+    expect(normalized.defaultExportType).toBe('sendTo');
+    expect(normalized.defaultSendToTarget).toBe('custom-1');
+    expect(normalized.sendToCustomTargets).toEqual([
+      { id: 'custom-1', name: 'Perplexity', urlTemplate: 'https://example.com/new?q={prompt}' }
+    ]);
+  });
+
+  test('normalizeImportedOptions falls back to ChatGPT when the selected custom target is missing', () => {
+    const normalized = optionsState.normalizeImportedOptions({
+      defaultExportType: 'sendTo',
+      defaultSendToTarget: 'custom-missing',
+      sendToCustomTargets: []
+    }, defaultOptions);
+
+    expect(normalized.defaultSendToTarget).toBe('chatgpt');
+  });
+
+  test('normalizeImportedOptions keeps built-in Perplexity as a valid default send target', () => {
+    const normalized = optionsState.normalizeImportedOptions({
+      defaultExportType: 'sendTo',
+      defaultSendToTarget: 'perplexity'
+    }, defaultOptions);
+
+    expect(normalized.defaultSendToTarget).toBe('perplexity');
+  });
+
+  test('normalizeImportedOptions normalizes the assistant URL length cap', () => {
+    const normalized = optionsState.normalizeImportedOptions({
+      sendToMaxUrlLength: '4200'
+    }, defaultOptions);
+
+    expect(normalized.sendToMaxUrlLength).toBe(4200);
+  });
+
+  test('normalizeImportedOptions falls back to the default assistant URL length cap when invalid', () => {
+    const normalized = optionsState.normalizeImportedOptions({
+      sendToMaxUrlLength: 0
+    }, defaultOptions);
+
+    expect(normalized.sendToMaxUrlLength).toBe(3600);
+  });
+
   test('resetOptionKeys resets top-level and tableFormatting keys', () => {
     const currentOptions = {
       ...defaultOptions,
@@ -134,7 +197,14 @@ const defaultOptions = {
 
 test('normalizeImportedOptions ignores non-plain option inputs', () => {
   const normalized = optionsState.normalizeImportedOptions('text', 123);
-  expect(normalized).toEqual({ tableFormatting: {}, siteRules: [] });
+  expect(normalized).toEqual({
+    tableFormatting: {},
+    siteRules: [],
+    defaultExportType: 'markdown',
+    defaultSendToTarget: 'chatgpt',
+    sendToCustomTargets: [],
+    sendToMaxUrlLength: 3600
+  });
 });
 
 test('buildExportFilename handles invalid date values', () => {
@@ -159,7 +229,14 @@ test('resetOptionKeys clears tableFormatting when defaults lack that object', ()
 
 test('resetAllOptions handles non-plain defaults without blowing up', () => {
   const result = optionsState.resetAllOptions({ contextMenus: true }, null);
-  expect(result.options).toEqual({ tableFormatting: {}, siteRules: [] });
+  expect(result.options).toEqual({
+    tableFormatting: {},
+    siteRules: [],
+    defaultExportType: 'markdown',
+    defaultSendToTarget: 'chatgpt',
+    sendToCustomTargets: [],
+    sendToMaxUrlLength: 3600
+  });
   expect(result.contextMenuAction).toBe('remove');
 });
 

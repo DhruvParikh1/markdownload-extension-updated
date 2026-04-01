@@ -622,10 +622,10 @@
                 </div>
 
                 <div class="setting-card" id="defaultExportTypeGroup"
-                    data-search-keywords="default export,popup export,export format,plain text,txt,html,pdf,markdown"
+                    data-search-keywords="default export,default popup action,popup export,export format,send to assistant,assistant action,plain text,txt,html,pdf,markdown,chatgpt,claude"
                     data-setting-key="defaultExportType">
-                    <h3 class="card-title">Default Popup Export Format</h3>
-                    <p class="card-desc">Controls the popup's main export button and selection export button only. Context menus, shortcuts, batch exports, library exports, Agent Bridge, and Obsidian remain Markdown-based.</p>
+                    <h3 class="card-title">Default Popup Action</h3>
+                    <p class="card-desc">Controls the popup's main action button and selection action button only. Context menus, shortcuts, batch exports, library exports, Agent Bridge, and Obsidian remain Markdown-based.</p>
                     <div class="radio-group">
                         <div class="radio-pill">
                             <input type="radio" name="defaultExportType" id="export-markdown" value="markdown" />
@@ -643,6 +643,63 @@
                             <input type="radio" name="defaultExportType" id="export-pdf" value="pdf" />
                             <label for="export-pdf">PDF</label>
                         </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="defaultExportType" id="export-send-to" value="sendTo" />
+                            <label for="export-send-to">Send to Assistant</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setting-card" id="defaultSendToTargetCard"
+                    data-search-keywords="default assistant target,send to target,chatgpt,claude,perplexity,custom assistant,custom url"
+                    data-setting-key="defaultSendToTarget">
+                    <h3 class="card-title">Default Assistant Target</h3>
+                    <p class="card-desc">Used when the popup's main action is set to Send to Assistant. If a selected custom target is removed, MarkSnip falls back to ChatGPT.</p>
+                    <div class="radio-group" id="defaultSendToTargetOptions">
+                        <div class="radio-pill">
+                            <input type="radio" name="defaultSendToTarget" id="send-to-target-chatgpt" value="chatgpt" />
+                            <label for="send-to-target-chatgpt">ChatGPT</label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="defaultSendToTarget" id="send-to-target-claude" value="claude" />
+                            <label for="send-to-target-claude">Claude</label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="defaultSendToTarget" id="send-to-target-perplexity" value="perplexity" />
+                            <label for="send-to-target-perplexity">Perplexity</label>
+                        </div>
+                        <div id="defaultSendToTargetCustomOptions" class="assistant-target-radio-list" aria-live="polite"></div>
+                    </div>
+                </div>
+
+                <div class="setting-card" id="assistantTargetsCard"
+                    data-search-keywords="assistant targets,send to,custom assistant,custom url,url template,prompt placeholder,chatgpt,claude,perplexity"
+                    data-setting-key="sendToCustomTargets">
+                    <h3 class="card-title">Assistant Targets</h3>
+                    <p class="card-desc">ChatGPT, Claude, and Perplexity are built in. Add custom HTTPS URLs that accept a <code>{prompt}</code> placeholder in the query string.</p>
+                    <div class="assistant-target-builder">
+                        <div class="input-group">
+                            <label class="input-label" for="customSendToName">Target Name</label>
+                            <input type="text" id="customSendToName" class="text-input" role="textbox" placeholder="Gemini Workspace" />
+                        </div>
+                        <div class="input-group assistant-target-builder__url">
+                            <label class="input-label" for="customSendToUrl">URL Template</label>
+                            <input type="text" id="customSendToUrl" class="text-input" role="textbox" placeholder="https://example.com/new?q={prompt}" spellcheck="false" />
+                        </div>
+                        <button type="button" id="addSendToCustomTarget" class="btn btn-secondary assistant-target-builder__button">Add Target</button>
+                    </div>
+                    <p class="assistant-target-hint">Use exactly one <code>{prompt}</code> placeholder. Example: <code>https://example.com/new?q={prompt}</code></p>
+                    <div id="assistantTargetsList" class="assistant-targets-list" aria-live="polite"></div>
+                </div>
+
+                <div class="setting-card" id="sendToMaxUrlLengthCard"
+                    data-search-keywords="assistant url length,max url length,clipboard fallback,query string,send to assistant,chatgpt,claude,perplexity"
+                    data-setting-key="sendToMaxUrlLength">
+                    <h3 class="card-title">Assistant URL Length Cap</h3>
+                    <p class="card-desc">Advanced setting for Send to Assistant links. If a generated assistant URL exceeds this value, MarkSnip copies the Markdown to your clipboard and opens the assistant landing page instead. Default: <strong>3600</strong>. Changing this is not recommended.</p>
+                    <div class="input-group">
+                        <label class="input-label" for="sendToMaxUrlLength">Maximum URL Length</label>
+                        <input type="number" id="sendToMaxUrlLength" name="sendToMaxUrlLength" class="text-input" role="spinbutton" min="1" step="100" inputmode="numeric" />
                     </div>
                 </div>
 
