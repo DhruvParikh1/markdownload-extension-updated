@@ -4,7 +4,7 @@ Markdown web clipper for Chrome and Firefox. Save pages as clean Markdown, copy 
 
 [Chrome Web Store](https://chromewebstore.google.com/detail/marksnip-markdown-web-cli/kcbaglhfgbkjdnpeokaamjjkddempipm?hl=en) | [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/marksnip-markdown-web-clipper/) | [User Guide](user-guide.md) | [Agent Bridge Walkthrough](agent-bridge-walkthrough.md) | [Changelog](CHANGELOG.md) | [Privacy Policy](PRIVACY.md)
 
-<video src="media/marksnip_promo.mp4" autoplay loop muted playsinline></video>
+![MarkSnip Promo](media/marksnip_promo.gif)
 
 ## Why MarkSnip
 
