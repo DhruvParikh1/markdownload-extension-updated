@@ -204,7 +204,7 @@ If you are testing a local unpacked build instead of the store build, Chrome use
 Run this from the repo root:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\find-unpacked-chrome-extension-id.ps1 -ExtensionPath .\src
+powershell -ExecutionPolicy Bypass -File .\tools\find-unpacked-chrome-extension-id.ps1 -ExtensionPath .\src
 ```
 
 If the script finds your unpacked extension, it prints the Chrome profile and extension ID.

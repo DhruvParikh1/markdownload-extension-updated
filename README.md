@@ -2,7 +2,7 @@
 
 Markdown web clipper for Chrome and Firefox. Save pages as clean Markdown, copy content to clipboard, or send notes directly to Obsidian.
 
-[Chrome Web Store](https://chromewebstore.google.com/detail/marksnip-markdown-web-cli/kcbaglhfgbkjdnpeokaamjjkddempipm?hl=en) | [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/marksnip-markdown-web-clipper/) | [User Guide](user-guide.md) | [Agent Bridge Walkthrough](agent-bridge-walkthrough.md) | [Changelog](CHANGELOG.md) | [Privacy Policy](PRIVACY.md)
+[Chrome Web Store](https://chromewebstore.google.com/detail/marksnip-markdown-web-cli/kcbaglhfgbkjdnpeokaamjjkddempipm?hl=en) | [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/marksnip-markdown-web-clipper/) | [User Guide](docs/guides/user-guide.md) | [Agent Bridge Walkthrough](docs/guides/agent-bridge.md) | [Changelog](CHANGELOG.md) | [Privacy Policy](PRIVACY.md)
 
 ![MarkSnip Promo](media/marksnip_promo.gif)
 
@@ -80,7 +80,7 @@ Agent Bridge:
 For local unpacked Chrome testing on Windows, you can first look up the unpacked extension ID with:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\find-unpacked-chrome-extension-id.ps1 -ExtensionPath .\src
+powershell -ExecutionPolicy Bypass -File .\tools\find-unpacked-chrome-extension-id.ps1 -ExtensionPath .\src
 ```
 
 On any platform, you can also copy the unpacked extension ID from `chrome://extensions`.
@@ -157,6 +157,8 @@ npm ci
 
 The `.build/` directory is generated output and should not be committed.
 
+Root-level `dist/` is for packaged release artifacts, and root-level `tmp/` is for ignored local scratch work.
+
 ## Release Flow
 
 GitHub Actions workflow [`.github/workflows/build-release.yml`](.github/workflows/build-release.yml):
@@ -187,6 +189,13 @@ git push origin v4.0.4
 
 ```text
 .
+|- docs/
+|  |- compliance/
+|  |  `- permissions.md
+|  |- guides/
+|  |  |- agent-bridge.md
+|  |  `- user-guide.md
+|  `- store-screenshots/
 |- src/
 |  |- background/
 |  |- contentScript/
@@ -197,9 +206,11 @@ git push origin v4.0.4
 |  |- shared/
 |  |- tests/
 |  `- manifest.json
+|- tools/
+|  `- find-unpacked-chrome-extension-id.ps1
 |- CHANGELOG.md
 |- PRIVACY.md
-`- user-guide.md
+`- LICENSE
 ```
 
 ## Privacy
