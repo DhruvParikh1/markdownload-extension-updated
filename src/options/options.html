@@ -395,7 +395,7 @@
                 <p class="section-desc">Customize the look of the MarkSnip popup.</p>
 
                 <!-- Color Mode -->
-                <div class="setting-card" id="popupThemeGroup" data-setting-key="popupTheme">
+                <div class="setting-card" id="popupThemeGroup" data-setting-key="popupTheme,showThemeToggleInPopup" data-search-keywords="theme toggle,dark mode toggle,light mode toggle,popup header theme button,appearance">
                     <h3 class="card-title">Color Mode</h3>
                     <div class="radio-group">
                         <div class="radio-pill">
@@ -410,6 +410,16 @@
                             <input type="radio" name="popupTheme" id="theme-dark" value="dark" />
                             <label for="theme-dark">Dark</label>
                         </div>
+                    </div>
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <label class="toggle-label-text" for="showThemeToggleInPopup">Show quick theme toggle in popup header</label>
+                            <p class="toggle-hint">Adds a header button in the popup for one-click switching between light and dark mode.</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input name="showThemeToggleInPopup" id="showThemeToggleInPopup" type="checkbox" />
+                            <span class="toggle-slider"></span>
+                        </label>
                     </div>
                 </div>
 

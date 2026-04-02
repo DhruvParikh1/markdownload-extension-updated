@@ -94,6 +94,7 @@
         }
 
         root.classList.toggle('hide-theme-icon', cached?.specialThemeIcon === false);
+        root.classList.toggle('hide-popup-theme-toggle', cached?.showThemeToggleInPopup === false);
 
         root.classList.remove(...accentClassNames);
         if (specialTheme === 'none' && popupAccent !== 'sage') {
@@ -228,6 +229,29 @@
         </div>
       </div>
       <div class="header-actions">
+        <button
+          id="themeToggle"
+          class="icon-btn icon-btn--theme"
+          type="button"
+          title="Switch to dark mode"
+          aria-label="Switch to dark mode"
+          aria-pressed="false"
+        >
+          <svg class="theme-toggle-icon theme-toggle-icon--moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3c0 5 3.5 8.5 8.5 8.5.44 0 .87-.04 1.29-.11Z"/>
+          </svg>
+          <svg class="theme-toggle-icon theme-toggle-icon--sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2"/>
+            <path d="M12 20v2"/>
+            <path d="m4.93 4.93 1.41 1.41"/>
+            <path d="m17.66 17.66 1.41 1.41"/>
+            <path d="M2 12h2"/>
+            <path d="M20 12h2"/>
+            <path d="m6.34 17.66-1.41 1.41"/>
+            <path d="m19.07 4.93-1.41 1.41"/>
+          </svg>
+        </button>
         <div class="guide-dropdown-wrap" id="guideDropdownWrap">
           <button id="openGuide" class="icon-btn" title="User Guide"
                   aria-haspopup="true" aria-expanded="false">
@@ -355,7 +379,7 @@
           </button>
         </div>
       </div>
-      <div class="editor-body">
+      <div class="editor-body" id="editorBody">
         <textarea id="md" class="markdown-textarea"></textarea>
         <div id="editorPreview" class="editor-preview" hidden>
           <div class="markdown-body"></div>

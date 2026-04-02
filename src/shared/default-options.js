@@ -46,6 +46,7 @@ const defaultOptions = {
   specialThemeIcon: true,
   popupAccent: 'sage',
   compactMode: false,
+  showThemeToggleInPopup: true,
   showUserGuideIcon: true,
   editorTheme: 'default',
   siteRules: [],

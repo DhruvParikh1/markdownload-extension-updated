@@ -71,6 +71,8 @@
     
     /* Transitions */
     --transition: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --theme-transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
+    --theme-editor-fade-duration: 170ms;
 }
 
 /* ========================================
@@ -817,7 +819,7 @@
 
 /* Body */
 body {
-    width: 400px;
+    width: 420px;
     height: 700px;
     font-family: var(--font-sans);
     font-size: var(--text-base);
@@ -826,6 +828,7 @@ body {
     overflow: hidden;
     position: relative;
     scrollbar-gutter: stable; /* Reserve scrollbar space for smoothness */
+    transition: background-color var(--theme-transition), color var(--theme-transition);
 }
 
 /* Loading Skeleton */
@@ -843,6 +846,7 @@ body {
     flex-direction: column;
     min-height: 100%;
     width: 100%;
+    transition: background-color var(--theme-transition), color var(--theme-transition);
 }
 
 .loading-indicator {
@@ -1048,6 +1052,7 @@ body {
 .container {
     display: none;
     animation: fadeIn 200ms ease-out;
+    transition: background-color var(--theme-transition), color var(--theme-transition);
 }
 
 /* Header */
@@ -1060,6 +1065,7 @@ body {
     background: linear-gradient(135deg, var(--accent-darker) 0%, var(--accent-dark) 100%);
     border-bottom: 1px solid var(--accent-darker);
     animation: slideDown 250ms ease-out;
+    transition: background var(--theme-transition), border-color var(--theme-transition), color var(--theme-transition), box-shadow var(--theme-transition);
 }
 
 @keyframes slideDown {
@@ -1102,10 +1108,12 @@ body {
 
 .appa-mascot {
     display: none;
+    order: -1;
 }
 
 .ben10-mascot {
     display: none;
+    order: -1;
 }
 
 .app-subtitle {
@@ -1119,6 +1127,10 @@ body {
 .header-actions {
     display: flex;
     gap: var(--space-2);
+}
+
+:root.hide-popup-theme-toggle .icon-btn--theme {
+    display: none !important;
 }
 
 .icon-btn {
@@ -1135,6 +1147,30 @@ body {
     cursor: pointer;
     transition: all var(--transition);
     text-decoration: none;
+}
+
+.icon-btn--theme {
+    position: relative;
+}
+
+.theme-toggle-icon {
+    position: absolute;
+    transition: opacity var(--transition), transform var(--transition);
+}
+
+.theme-toggle-icon--sun {
+    opacity: 0;
+    transform: scale(0.72) rotate(-18deg);
+}
+
+.icon-btn--theme.is-dark .theme-toggle-icon--moon {
+    opacity: 0;
+    transform: scale(0.72) rotate(18deg);
+}
+
+.icon-btn--theme.is-dark .theme-toggle-icon--sun {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
 }
 
 .icon-btn:hover {
@@ -1171,6 +1207,7 @@ body {
     background: var(--bg-secondary);
     border-bottom: 1px solid var(--border-light);
     animation: fadeIn 300ms ease-out 50ms backwards;
+    transition: background-color var(--theme-transition), border-color var(--theme-transition), color var(--theme-transition);
 }
 
 /* Toggle Row — side-by-side toggle switches */
@@ -1285,6 +1322,7 @@ body {
     border: 1px solid var(--border-medium);
     border-radius: var(--radius-md);
     overflow: hidden;
+    transition: background-color var(--theme-transition), border-color var(--theme-transition), color var(--theme-transition);
 }
 
 .segment {
@@ -1327,6 +1365,7 @@ body {
     flex-shrink: 0;
     padding: var(--space-4) var(--space-4) var(--space-3);
     animation: fadeIn 300ms ease-out 100ms backwards;
+    transition: background-color var(--theme-transition), color var(--theme-transition);
 }
 
 .input-label {
@@ -1370,6 +1409,7 @@ body {
     overflow: hidden;
     min-height: 0;
     animation: fadeIn 300ms ease-out 150ms backwards;
+    transition: background-color var(--theme-transition), border-color var(--theme-transition), box-shadow var(--theme-transition), color var(--theme-transition);
 }
 
 .editor-header {
@@ -1380,6 +1420,7 @@ body {
     padding: var(--space-2) var(--space-3);
     background: var(--bg-secondary);
     border-bottom: 1px solid var(--border-light);
+    transition: background-color var(--theme-transition), border-color var(--theme-transition), color var(--theme-transition);
 }
 
 .editor-label {
@@ -1465,6 +1506,7 @@ body {
     font-family: var(--font-mono);
     font-size: var(--text-sm);
     line-height: 1.6;
+    transition: background-color var(--theme-transition), color var(--theme-transition), opacity var(--theme-editor-fade-duration) ease;
 }
 
 .CodeMirror-scroll {
@@ -1483,6 +1525,7 @@ body {
     flex-direction: column;
     min-height: 0;
     overflow: hidden;
+    transition: opacity var(--theme-editor-fade-duration) ease, filter var(--theme-transition), background-color var(--theme-transition), color var(--theme-transition);
 }
 
 /* Preview toggle button active state */
@@ -1498,6 +1541,7 @@ body {
     min-height: 0;
     overflow-y: auto;
     background: var(--bg-primary);
+    transition: opacity var(--theme-editor-fade-duration) ease, background-color var(--theme-transition), color var(--theme-transition), border-color var(--theme-transition);
 }
 
 .editor-preview .markdown-body {
@@ -1636,7 +1680,7 @@ body {
     letter-spacing: -0.01em;
     color: var(--text-primary);
     cursor: pointer;
-    transition: all var(--transition);
+    transition: background-color var(--theme-transition), color var(--theme-transition), border-color var(--theme-transition), box-shadow var(--theme-transition), transform var(--transition);
 }
 
 .btn:hover {
@@ -1936,10 +1980,19 @@ body {
 /* Batch Container */
 .batch-container {
     display: none;
+    transition: background-color var(--theme-transition), color var(--theme-transition);
 }
 
 .library-container {
     display: none;
+    transition: background-color var(--theme-transition), color var(--theme-transition);
+}
+
+:root.theme-transition-active .editor-body,
+:root.theme-transition-active .editor-preview,
+:root.theme-transition-active .CodeMirror {
+    opacity: 0.72;
+    filter: saturate(0.94);
 }
 
 .popup-view {
@@ -2481,10 +2534,12 @@ body {
 
 .claude-mascot {
     display: none;
+    order: -1;
 }
 
 .perplexity-mascot {
     display: none;
+    order: -1;
 }
 
 @keyframes openai-breathe {
@@ -2494,6 +2549,7 @@ body {
 
 .openai-mascot {
     display: none;
+    order: -1;
 }
 
 :root.special-theme-openai .openai-mascot {
@@ -2578,6 +2634,14 @@ body {
 :root.hide-theme-icon.special-theme-perplexity .perplexity-mascot,
 :root.hide-theme-icon.special-theme-openai .openai-mascot {
     display: none;
+}
+
+:root.special-theme-atla:not(.hide-theme-icon) .header-logo,
+:root.special-theme-ben10:not(.hide-theme-icon) .header-logo,
+:root.special-theme-claude:not(.hide-theme-icon) .header-logo,
+:root.special-theme-perplexity:not(.hide-theme-icon) .header-logo,
+:root.special-theme-openai:not(.hide-theme-icon) .header-logo {
+    display: none !important;
 }
 
 :root.special-theme-openai .header {
@@ -3665,7 +3729,7 @@ body {
 /* Responsive */
 @media (max-width: 450px) {
     body {
-        width: 360px;
+        width: 380px;
         height: 540px;
     }
 }
@@ -3685,6 +3749,13 @@ body {
     .popup-view.is-entering,
     .popup-view.is-exiting {
         transform: none !important;
+    }
+
+    :root.theme-transition-active .editor-body,
+    :root.theme-transition-active .editor-preview,
+    :root.theme-transition-active .CodeMirror {
+        opacity: 1;
+        filter: none;
     }
 }
 

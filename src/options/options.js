@@ -1307,6 +1307,7 @@ function buildPopupThemeCacheSnapshot(source = options || defaultOptions) {
         colorBlindTheme: normalizeColorBlindTheme(source?.colorBlindTheme),
         specialThemeIcon: source?.specialThemeIcon !== false,
         popupAccent: source?.popupAccent || 'sage',
+        showThemeToggleInPopup: source?.showThemeToggleInPopup !== false,
         editorTheme: source?.editorTheme || 'default'
     };
 }
@@ -1515,6 +1516,7 @@ const saveOptions = e => {
         specialThemeIcon: document.querySelector("[name='specialThemeIcon']").checked,
 	        popupAccent: getCheckedValue(document.querySelectorAll("input[name='popupAccent']")),
 	        compactMode: document.querySelector("[name='compactMode']").checked,
+	        showThemeToggleInPopup: document.querySelector("[name='showThemeToggleInPopup']").checked,
 	        showUserGuideIcon: document.querySelector("[name='showUserGuideIcon']").checked,
 	        editorTheme: getCheckedValue(document.querySelectorAll("input[name='editorTheme']")),
 	        siteRules: normalizeSiteRulesState(options.siteRules),
@@ -1742,6 +1744,7 @@ const setCurrentChoice = result => {
     document.querySelector("[name='specialThemeIcon']").checked = options.specialThemeIcon !== false;
     setCheckedValue(document.querySelectorAll("[name='popupAccent']"), options.popupAccent || 'sage');
     document.querySelector("[name='compactMode']").checked = options.compactMode || false;
+    document.querySelector("[name='showThemeToggleInPopup']").checked = options.showThemeToggleInPopup !== false;
     document.querySelector("[name='showUserGuideIcon']").checked = options.showUserGuideIcon !== false;
     setCheckedValue(document.querySelectorAll("[name='editorTheme']"), options.editorTheme || 'default');
 

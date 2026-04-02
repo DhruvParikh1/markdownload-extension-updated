@@ -36,10 +36,17 @@ let deferredLibraryWarmupScheduled = false;
 let previewActive = false;
 let markedLoadPromise = null;
 let printStylesPromise = null;
+let themeTransitionCleanupTimer = null;
+let themeTransitionPendingLink = null;
+let themeTransitionPendingHandler = null;
+let hasAppliedThemeSettings = false;
+let lastResolvedThemeName = null;
+let lastResolvedDarkMode = null;
 const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const POPUP_VIEW_TRANSITION_MS = 180;
 const POPUP_THEME_CACHE_KEY = 'marksnip-popup-theme-cache-v1';
+const THEME_TRANSITION_FALLBACK_MS = 220;
 const countUtils = globalThis.markSnipCountUtils;
 const COUNT_MODES = Array.isArray(countUtils?.COUNT_MODES) && countUtils.COUNT_MODES.length > 0
     ? countUtils.COUNT_MODES
@@ -340,6 +347,7 @@ const dom = {
     pickLinksButton: document.getElementById('pickLinks'),
     batchSaveModeToggle: document.getElementById('batchSaveModeToggle'),
     batchProcessButton: document.getElementById('batchProcess'),
+    themeToggleButton: document.getElementById('themeToggle'),
     openGuideButton: document.getElementById('openGuide'),
     guideDropdownWrap:      document.getElementById('guideDropdownWrap'),
     guideDropdown:          document.getElementById('guideDropdown'),
@@ -352,6 +360,7 @@ const dom = {
     sendToObsidianButton: document.getElementById('sendToObsidian'),
     previewToggle: document.getElementById('previewToggle'),
     editorPreview: document.getElementById('editorPreview'),
+    editorBody: document.getElementById('editorBody'),
     splitExport: document.getElementById('splitExport'),
     splitButtonWrap: document.getElementById('splitBtnWrap'),
     splitButtonArrow: document.getElementById('splitArrow'),
@@ -868,16 +877,108 @@ function getEditorThemeStylesheetLink() {
 function ensureEditorThemeStylesheet(themeName) {
     const href = EDITOR_THEME_STYLESHEET_MAP[themeName];
     if (!href) {
-        return;
+        return false;
     }
 
     const link = getEditorThemeStylesheetLink();
     if (link.getAttribute('href') === href) {
-        return;
+        link.setAttribute('data-theme-name', themeName);
+        return false;
     }
 
     link.setAttribute('href', href);
     link.setAttribute('data-theme-name', themeName);
+    return true;
+}
+
+function resolvePopupDarkMode(options = currentOptions) {
+    return options?.popupTheme === 'dark' ||
+        (options?.popupTheme !== 'light' && prefersDarkScheme.matches);
+}
+
+function clearPendingThemeTransitionListeners() {
+    if (themeTransitionPendingLink && themeTransitionPendingHandler) {
+        themeTransitionPendingLink.removeEventListener('load', themeTransitionPendingHandler);
+        themeTransitionPendingLink.removeEventListener('error', themeTransitionPendingHandler);
+    }
+
+    themeTransitionPendingLink = null;
+    themeTransitionPendingHandler = null;
+}
+
+function finishThemeTransition() {
+    clearTimeout(themeTransitionCleanupTimer);
+    themeTransitionCleanupTimer = null;
+    clearPendingThemeTransitionListeners();
+    window.requestAnimationFrame(() => {
+        dom.root.classList.remove('theme-transition-active');
+    });
+}
+
+function beginThemeTransition(waitForStylesheet = false) {
+    if (prefersReducedMotion.matches) {
+        return;
+    }
+
+    clearTimeout(themeTransitionCleanupTimer);
+    clearPendingThemeTransitionListeners();
+    dom.root.classList.add('theme-transition-active');
+
+    const finish = () => finishThemeTransition();
+    if (waitForStylesheet) {
+        const link = getEditorThemeStylesheetLink();
+        themeTransitionPendingLink = link;
+        themeTransitionPendingHandler = finish;
+        link.addEventListener('load', finish, { once: true });
+        link.addEventListener('error', finish, { once: true });
+    }
+
+    themeTransitionCleanupTimer = window.setTimeout(finish, THEME_TRANSITION_FALLBACK_MS);
+}
+
+function updateThemeToggleButton(options = currentOptions) {
+    if (!dom.themeToggleButton) {
+        return;
+    }
+
+    const shouldShow = options?.showThemeToggleInPopup !== false;
+    const isDark = resolvePopupDarkMode(options);
+    const nextLabel = isDark ? 'Switch to light mode' : 'Switch to dark mode';
+
+    dom.root.classList.toggle('hide-popup-theme-toggle', !shouldShow);
+    dom.themeToggleButton.hidden = !shouldShow;
+    dom.themeToggleButton.setAttribute('aria-hidden', String(!shouldShow));
+    dom.themeToggleButton.classList.toggle('is-dark', isDark);
+    dom.themeToggleButton.setAttribute('aria-pressed', String(isDark));
+    dom.themeToggleButton.setAttribute('aria-label', nextLabel);
+    dom.themeToggleButton.title = nextLabel;
+}
+
+async function handleThemeToggleClick(event) {
+    event?.preventDefault?.();
+    if (!currentOptions) {
+        return;
+    }
+
+    const previousTheme = currentOptions.popupTheme || 'system';
+    const nextTheme = resolvePopupDarkMode(currentOptions) ? 'light' : 'dark';
+
+    currentOptions = normalizePopupOptions({
+        ...currentOptions,
+        popupTheme: nextTheme
+    });
+    applyThemeSettings(currentOptions);
+
+    try {
+        await browser.storage.sync.set({ popupTheme: nextTheme });
+    } catch (error) {
+        console.error('Failed to persist popup theme toggle:', error);
+        currentOptions = normalizePopupOptions({
+            ...currentOptions,
+            popupTheme: previousTheme
+        });
+        applyThemeSettings(currentOptions);
+    }
 }
 
 function getEditorValue() {
@@ -1486,6 +1587,7 @@ function buildPopupThemeCacheSnapshot(options = currentOptions || defaultOptions
         colorBlindTheme: normalizeColorBlindTheme(options?.colorBlindTheme),
         specialThemeIcon: options?.specialThemeIcon !== false,
         popupAccent: options?.popupAccent || 'sage',
+        showThemeToggleInPopup: options?.showThemeToggleInPopup !== false,
         editorTheme: options?.editorTheme || 'default'
     };
 }
@@ -1500,6 +1602,10 @@ function persistPopupThemeCache(options = currentOptions || defaultOptions) {
 
 function applyThemeSettings(options) {
     const specialTheme = options.specialTheme || 'none';
+    const isDark = resolvePopupDarkMode(options);
+    const themeName = resolveEditorTheme(options.editorTheme || 'default', isDark, specialTheme, options.colorBlindTheme);
+    const shouldAnimateThemeChange = hasAppliedThemeSettings &&
+        (lastResolvedDarkMode !== isDark || lastResolvedThemeName !== themeName);
 
     // Apply theme mode
     dom.root.classList.remove('theme-light', 'theme-dark', 'theme-system');
@@ -1515,6 +1621,7 @@ function applyThemeSettings(options) {
     }
 
     dom.root.classList.toggle('hide-theme-icon', options.specialThemeIcon === false);
+    dom.root.classList.toggle('hide-popup-theme-toggle', options.showThemeToggleInPopup === false);
 
     // Apply accent color
     dom.root.classList.remove(...ACCENT_CLASS_NAMES);
@@ -1527,20 +1634,25 @@ function applyThemeSettings(options) {
     dom.body.classList.toggle('compact-mode', !!options.compactMode);
 
     // Update CodeMirror theme based on resolved dark mode + editor theme
-    const isDark = options.popupTheme === 'dark' ||
-        (options.popupTheme !== 'light' && prefersDarkScheme.matches);
     darkMode = isDark;
-    const themeName = resolveEditorTheme(options.editorTheme || 'default', isDark, specialTheme, options.colorBlindTheme);
+    if (shouldAnimateThemeChange) {
+        beginThemeTransition(lastResolvedThemeName !== themeName);
+    }
     ensureEditorThemeStylesheet(themeName);
     if (typeof cm !== 'undefined' && cm) {
         cm.setOption('theme', themeName);
     }
+
+    updateThemeToggleButton(options);
 
     // Re-render preview if active (theme classes affect preview styling)
     if (previewActive) {
         renderPreviewContent();
     }
 
+    hasAppliedThemeSettings = true;
+    lastResolvedDarkMode = isDark;
+    lastResolvedThemeName = themeName;
     persistPopupThemeCache(options);
 }
 
@@ -1662,6 +1774,7 @@ libraryUI.exportButton?.addEventListener("click", toggleExportDropdown);
 libraryUI.exportDropdownMenu?.addEventListener("click", handleExportDropdownChoice);
 document.addEventListener("click", closeExportDropdownOnOutsideClick);
 document.addEventListener("keydown", handlePopupKeydown);
+dom.themeToggleButton?.addEventListener('click', handleThemeToggleClick);
 dom.openGuideButton?.addEventListener('click', toggleGuideDropdown);
 dom.guideLink?.addEventListener('click', closeGuideDropdown);
 dom.showShortcutsBtn?.addEventListener('click', showShortcutsModal);
@@ -1820,6 +1933,7 @@ const defaultOptions = {
     specialThemeIcon: true,
     popupAccent: 'sage',
     compactMode: false,
+    showThemeToggleInPopup: true,
     showUserGuideIcon: true,
     editorTheme: 'default',
 }
@@ -3380,7 +3494,7 @@ browser.runtime.onMessage.addListener(notify);
 
 browser.storage.onChanged.addListener((changes, areaName) => {
     if (areaName === "sync") {
-        const themeSettingKeys = ['popupTheme', 'specialTheme', 'colorBlindTheme', 'specialThemeIcon', 'popupAccent', 'compactMode', 'editorTheme'];
+        const themeSettingKeys = ['popupTheme', 'specialTheme', 'colorBlindTheme', 'specialThemeIcon', 'popupAccent', 'compactMode', 'showThemeToggleInPopup', 'editorTheme'];
         const popupActionKeys = ['defaultExportType', 'defaultSendToTarget', 'sendToCustomTargets', 'sendToMaxUrlLength'];
         if (themeSettingKeys.some((key) => Object.prototype.hasOwnProperty.call(changes, key))) {
             currentOptions = normalizePopupOptions({
