@@ -277,6 +277,8 @@ describe('Options search helper', () => {
     expect(getMatchIds(index, 'txt')).toContain('defaultExportTypeGroup');
     expect(getMatchIds(index, 'html')).toContain('defaultExportTypeGroup');
     expect(getMatchIds(index, 'pdf')).toContain('defaultExportTypeGroup');
+    expect(getMatchIds(index, 'copy')).toContain('defaultExportTypeGroup');
+    expect(getMatchIds(index, 'copy to clipboard')).toContain('defaultExportTypeGroup');
     expect(getMatchIds(index, 'send to')).toContain('defaultExportTypeGroup');
     expect(getMatchIds(index, 'assistant target')).toContain('defaultSendToTargetCard');
     expect(getMatchIds(index, 'custom url')).toContain('assistantTargetsCard');

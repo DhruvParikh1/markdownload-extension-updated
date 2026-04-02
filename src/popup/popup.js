@@ -50,7 +50,7 @@ const COLORBLIND_VARIANT_CLASS_NAMES = ['colorblind-theme-deuteranopia', 'colorb
 const ACCENT_CLASS_NAMES = ['accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber'];
 const DEFAULT_SEND_TO_TARGET = 'chatgpt';
 const DEFAULT_SEND_TO_MAX_URL_LENGTH = 3600;
-const POPUP_PRIMARY_ACTION_SET = new Set(['markdown', 'text', 'html', 'pdf', 'sendTo']);
+const POPUP_PRIMARY_ACTION_SET = new Set(['markdown', 'text', 'html', 'pdf', 'copy', 'sendTo']);
 const EXPORT_TYPE_ORDER = ['markdown', 'text', 'html', 'pdf'];
 const EXPORT_TYPE_SET = new Set(EXPORT_TYPE_ORDER);
 const SEND_TO_TARGETS = {
@@ -96,6 +96,12 @@ const EXPORT_BUTTON_ICONS = {
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M22 2 11 13"/>
             <path d="m22 2-7 20-4-9-9-4Z"/>
+        </svg>
+    `,
+    copy: `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
         </svg>
     `,
     assistantChatgpt: `
@@ -448,6 +454,14 @@ function getPopupPrimaryActionConfig(options = currentOptions) {
             mainLabel: `Send to ${target.label}`,
             selectionLabel: `Send Selection to ${target.label}`,
             icon: target.iconKey || 'send'
+        };
+    }
+
+    if (primaryActionType === 'copy') {
+        return {
+            mainLabel: 'Copy',
+            selectionLabel: 'Copy Selection',
+            icon: 'copy'
         };
     }
 
@@ -3533,7 +3547,7 @@ async function sendGeneratedDownloadMessage(kind, markdown, title = getCurrentEx
     });
 }
 
-function setPrimaryActionFeedback(button, label, state = 'success') {
+function setPrimaryActionFeedback(button, label, state = 'success', iconKey = null) {
     if (!button) {
         return;
     }
@@ -3542,8 +3556,8 @@ function setPrimaryActionFeedback(button, label, state = 'success') {
     if (state) {
         button.classList.add(state);
     }
-    const target = resolveSendToTarget(undefined, currentOptions);
-    setActionButtonContent(button, label, target?.iconKey || 'send');
+    const defaultIconKey = getPopupPrimaryActionConfig(currentOptions).icon;
+    setActionButtonContent(button, label, iconKey || defaultIconKey);
     button.setAttribute('aria-label', label);
     button.title = label;
 }
@@ -3605,7 +3619,8 @@ async function handleSendToAction(targetId = currentOptions?.defaultSendToTarget
                 requiresClipboardFallback
                     ? `Copied. Opening ${target.label}...`
                     : `Opening ${target.label}...`,
-                'success'
+                'success',
+                target.iconKey || 'send'
             );
             await new Promise((resolve) => setTimeout(resolve, requiresClipboardFallback ? 420 : 180));
         }
@@ -3652,6 +3667,43 @@ async function exportCurrentContent(kind, { selectionOnly = false, closeAfter = 
     }
 }
 
+async function handlePrimaryCopyAction({ selectionOnly = false, triggerButton = null } = {}) {
+    closeSplitDropdown();
+    if (selectionOnly && !editorHasSelection()) {
+        return;
+    }
+
+    const textToCopy = selectionOnly ? getEditorSelection() : getEditorValue();
+    if (!String(textToCopy || '').trim()) {
+        if (triggerButton) {
+            setPrimaryActionFeedback(triggerButton, 'Nothing to copy', 'error', 'copy');
+            setTimeout(resetPrimaryActionFeedback, 1800);
+        }
+        return;
+    }
+
+    try {
+        await navigator.clipboard.writeText(textToCopy);
+        await recordSuccessfulCopyMetric();
+
+        if (triggerButton) {
+            setPrimaryActionFeedback(
+                triggerButton,
+                selectionOnly ? 'Copied Selection!' : 'Copied!',
+                'success',
+                'copy'
+            );
+            setTimeout(resetPrimaryActionFeedback, 2000);
+        }
+    } catch (error) {
+        if (triggerButton) {
+            setPrimaryActionFeedback(triggerButton, 'Failed', 'error', 'copy');
+            setTimeout(resetPrimaryActionFeedback, 2000);
+        }
+        throw error;
+    }
+}
+
 async function handleExplicitExport(kind) {
     closeSplitDropdown();
     await exportCurrentContent(kind, {
@@ -3666,6 +3718,13 @@ async function download(e) {
     try {
         if (primaryActionType === 'sendTo') {
             await handleSendToAction(currentOptions?.defaultSendToTarget, {
+                triggerButton: dom.downloadButton
+            });
+            return;
+        }
+
+        if (primaryActionType === 'copy') {
+            await handlePrimaryCopyAction({
                 triggerButton: dom.downloadButton
             });
             return;
@@ -3686,6 +3745,14 @@ async function downloadSelection(e) {
     try {
         if (primaryActionType === 'sendTo') {
             await handleSendToAction(currentOptions?.defaultSendToTarget, {
+                selectionOnly: true,
+                triggerButton: dom.downloadSelectionButton
+            });
+            return;
+        }
+
+        if (primaryActionType === 'copy') {
+            await handlePrimaryCopyAction({
                 selectionOnly: true,
                 triggerButton: dom.downloadSelectionButton
             });

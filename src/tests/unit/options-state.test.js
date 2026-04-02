@@ -86,6 +86,14 @@ const defaultOptions = {
     expect(normalized.defaultExportType).toBe('markdown');
   });
 
+  test('normalizeImportedOptions keeps copy as a valid popup primary action', () => {
+    const normalized = optionsState.normalizeImportedOptions({
+      defaultExportType: 'copy'
+    }, defaultOptions);
+
+    expect(normalized.defaultExportType).toBe('copy');
+  });
+
   test('normalizeImportedOptions preserves default send target when omitted', () => {
     const normalized = optionsState.normalizeImportedOptions({}, defaultOptions);
     expect(normalized.defaultSendToTarget).toBe('chatgpt');

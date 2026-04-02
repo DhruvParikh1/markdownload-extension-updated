@@ -642,11 +642,15 @@
                 </div>
 
                 <div class="setting-card" id="defaultExportTypeGroup"
-                    data-search-keywords="default export,default popup action,popup export,export format,send to assistant,assistant action,plain text,txt,html,pdf,markdown,chatgpt,claude"
+                    data-search-keywords="default export,default popup action,popup export,export format,send to assistant,assistant action,plain text,txt,html,pdf,markdown,copy,clipboard,copy to clipboard,chatgpt,claude"
                     data-setting-key="defaultExportType">
                     <h3 class="card-title">Default Popup Action</h3>
                     <p class="card-desc">Controls the popup's main action button and selection action button only. Context menus, shortcuts, batch exports, library exports, Agent Bridge, and Obsidian remain Markdown-based.</p>
                     <div class="radio-group">
+                        <div class="radio-pill">
+                            <input type="radio" name="defaultExportType" id="export-copy" value="copy" />
+                            <label for="export-copy">Copy to clipboard</label>
+                        </div>
                         <div class="radio-pill">
                             <input type="radio" name="defaultExportType" id="export-markdown" value="markdown" />
                             <label for="export-markdown">Markdown (.md)</label>

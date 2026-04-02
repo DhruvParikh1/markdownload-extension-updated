@@ -1203,7 +1203,7 @@ function normalizeImportedOptionsState(importedOptions) {
         defaultOptions?.sendToMaxUrlLength
     );
 
-    const validPrimaryActions = new Set(['markdown', 'text', 'html', 'pdf', 'sendTo']);
+    const validPrimaryActions = new Set(['markdown', 'text', 'html', 'pdf', 'copy', 'sendTo']);
     normalizedOptions.defaultExportType = validPrimaryActions.has(normalizedOptions.defaultExportType)
         ? normalizedOptions.defaultExportType
         : defaultOptions.defaultExportType;

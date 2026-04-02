@@ -19,7 +19,7 @@
     return Object.prototype.toString.call(value) === '[object Object]';
   }
 
-  const POPUP_PRIMARY_ACTIONS = new Set(['markdown', 'text', 'html', 'pdf', 'sendTo']);
+  const POPUP_PRIMARY_ACTIONS = new Set(['markdown', 'text', 'html', 'pdf', 'copy', 'sendTo']);
   const BUILTIN_SEND_TO_TARGETS = new Set(['chatgpt', 'claude', 'perplexity']);
   const DEFAULT_SEND_TO_TARGET = 'chatgpt';
   const DEFAULT_SEND_TO_MAX_URL_LENGTH = 3600;
