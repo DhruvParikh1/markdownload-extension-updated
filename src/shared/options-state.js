@@ -1,4 +1,10 @@
 (function (root) {
+  const i18nApi = root.markSnipI18n || null;
+
+  function t(key, fallback) {
+    return i18nApi?.getMessage?.(key) || fallback;
+  }
+
   function getSiteRulesApi() {
     if (root.markSnipSiteRules) {
       return root.markSnipSiteRules;
@@ -21,6 +27,7 @@
 
   const POPUP_PRIMARY_ACTIONS = new Set(['markdown', 'text', 'html', 'pdf', 'copy', 'sendTo']);
   const BUILTIN_SEND_TO_TARGETS = new Set(['chatgpt', 'claude', 'perplexity']);
+  const UI_LANGUAGE_PREFERENCES = new Set(['browser', 'en', 'es', 'fr', 'de']);
   const DEFAULT_SEND_TO_TARGET = 'chatgpt';
   const DEFAULT_SEND_TO_MAX_URL_LENGTH = 3600;
 
@@ -32,11 +39,15 @@
   function validateSendToUrlTemplate(value) {
     const normalizedValue = String(value || '').trim();
     if (!normalizedValue) {
-      return { valid: false, normalizedValue: '', error: 'URL template is required' };
+      return { valid: false, normalizedValue: '', error: t('options_error_url_template_required', 'URL template is required') };
     }
 
     if (countPromptPlaceholders(normalizedValue) !== 1) {
-      return { valid: false, normalizedValue, error: 'URL template must contain exactly one {prompt} placeholder' };
+      return {
+        valid: false,
+        normalizedValue,
+        error: t('options_error_url_template_prompt_once', 'URL template must contain exactly one {prompt} placeholder')
+      };
     }
 
     const queryStartIndex = normalizedValue.indexOf('?');
@@ -45,16 +56,20 @@
     const queryEndIndex = hashStartIndex === -1 ? normalizedValue.length : hashStartIndex;
 
     if (queryStartIndex === -1 || promptIndex < queryStartIndex || promptIndex >= queryEndIndex) {
-      return { valid: false, normalizedValue, error: '{prompt} must appear in the query portion of the URL' };
+      return {
+        valid: false,
+        normalizedValue,
+        error: t('options_error_url_template_prompt_query', '{prompt} must appear in the query portion of the URL')
+      };
     }
 
     try {
       const parsedUrl = new URL(normalizedValue.replace('{prompt}', '__MARKSNIP_PROMPT__'));
       if (parsedUrl.protocol !== 'https:') {
-        return { valid: false, normalizedValue, error: 'URL template must start with https://' };
+        return { valid: false, normalizedValue, error: t('options_error_url_template_https', 'URL template must start with https://') };
       }
     } catch {
-      return { valid: false, normalizedValue, error: 'URL template must be a valid HTTPS URL' };
+      return { valid: false, normalizedValue, error: t('options_error_url_template_valid_https', 'URL template must be a valid HTTPS URL') };
     }
 
     return { valid: true, normalizedValue, error: '' };
@@ -127,6 +142,14 @@
       : normalizedFallback;
   }
 
+  function normalizeUiLanguagePreference(value, fallbackValue = 'browser') {
+    const normalizedFallback = UI_LANGUAGE_PREFERENCES.has(String(fallbackValue || '').trim())
+      ? String(fallbackValue || '').trim()
+      : 'browser';
+    const normalizedValue = String(value || '').trim().toLowerCase();
+    return UI_LANGUAGE_PREFERENCES.has(normalizedValue) ? normalizedValue : normalizedFallback;
+  }
+
   function deepClone(value) {
     if (Array.isArray(value)) {
       return value.map((item) => deepClone(item));
@@ -193,6 +216,10 @@
     normalized.sendToMaxUrlLength = normalizeSendToMaxUrlLength(
       normalized.sendToMaxUrlLength,
       normalizeSendToMaxUrlLength(safeDefaults.sendToMaxUrlLength)
+    );
+    normalized.uiLanguage = normalizeUiLanguagePreference(
+      normalized.uiLanguage,
+      normalizeUiLanguagePreference(safeDefaults.uiLanguage)
     );
 
     return normalized;
@@ -272,7 +299,8 @@
     validateSendToUrlTemplate,
     normalizeCustomSendToTargets,
     normalizeDefaultSendToTarget,
-    normalizeSendToMaxUrlLength
+    normalizeSendToMaxUrlLength,
+    normalizeUiLanguagePreference
   };
 
   root.markSnipOptionsState = api;

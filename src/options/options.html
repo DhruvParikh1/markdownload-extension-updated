@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MarkSnip Options</title>
+    <title data-i18n="options_page_title">MarkSnip Options</title>
     <link rel="stylesheet" href="../shared/fonts.css">
     <link rel="stylesheet" type="text/css" href="options.css" media="screen">
 </head>
@@ -18,7 +18,7 @@
                 <img src="../icons/favicon-32x32.png" alt="MarkSnip" class="header-logo">
                 <h1 class="header-title">MarkSnip</h1>
             </div>
-            <span class="header-subtitle">Options</span>
+            <span class="header-subtitle" data-i18n="options_header_subtitle">Options</span>
             <!-- Appa mascot – visible only with ATLA theme -->
             <svg class="appa-mascot" viewBox="120 210 250 155" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <g transform="translate(0,561) scale(0.1,-0.1)" fill="currentColor" stroke="none">
@@ -78,7 +78,7 @@
             </svg>
             <div class="header-search">
                 <div class="header-search-input">
-                    <input type="text" id="settings-search" class="search-input" placeholder="Search settings..." autocomplete="off" />
+                    <input type="text" id="settings-search" class="search-input" placeholder="Search settings..." autocomplete="off" data-i18n-attr-placeholder="options_search_placeholder" />
                     <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="11" cy="11" r="8"/>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -90,14 +90,14 @@
         </header>
 
         <!-- ═══ Sidebar ═══ -->
-        <nav class="sidebar" aria-label="Options sections">
+        <nav class="sidebar" aria-label="Options sections" data-i18n-attr-aria-label="options_sidebar_aria">
             <ul class="sidebar-nav" role="tablist" aria-orientation="vertical">
                 <li class="sidebar-item active" id="tab-templates" data-section="templates" role="tab" tabindex="0" aria-selected="true" aria-controls="section-templates">
                     <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                     </svg>
-                    <span class="sidebar-label">Templates</span>
+                    <span class="sidebar-label" data-i18n="options_sidebar_templates">Templates</span>
                 </li>
                 <li class="sidebar-item" id="tab-appearance" data-section="appearance" role="tab" tabindex="-1" aria-selected="false" aria-controls="section-appearance">
                     <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -111,7 +111,7 @@
                         <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
                         <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
                     </svg>
-                    <span class="sidebar-label">Appearance</span>
+                    <span class="sidebar-label" data-i18n="options_sidebar_appearance">Appearance</span>
                 </li>
                 <li class="sidebar-item" id="tab-downloads" data-section="downloads" role="tab" tabindex="-1" aria-selected="false" aria-controls="section-downloads">
                     <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -119,14 +119,14 @@
                         <polyline points="7 10 12 15 17 10"/>
                         <line x1="12" y1="15" x2="12" y2="3"/>
                     </svg>
-                    <span class="sidebar-label">Downloads</span>
+                    <span class="sidebar-label" data-i18n="options_sidebar_downloads">Downloads</span>
                 </li>
                 <li class="sidebar-item" id="tab-library" data-section="library" role="tab" tabindex="-1" aria-selected="false" aria-controls="section-library">
                     <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
                         <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 0 4 24V4.5A2.5 2.5 0 0 1 6.5 2z"/>
                     </svg>
-                    <span class="sidebar-label">Library</span>
+                    <span class="sidebar-label" data-i18n="options_sidebar_library">Library</span>
                 </li>
                 <li class="sidebar-item" id="tab-markdown" data-section="markdown" role="tab" tabindex="-1" aria-selected="false" aria-controls="section-markdown">
                     <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -136,7 +136,7 @@
                         <line x1="16" y1="17" x2="8" y2="17"/>
                         <polyline points="10 9 9 9 8 9"/>
                     </svg>
-                    <span class="sidebar-label">Markdown</span>
+                    <span class="sidebar-label" data-i18n="options_sidebar_markdown">Markdown</span>
                 </li>
 	                <li class="sidebar-item" id="tab-tables" data-section="tables" role="tab" tabindex="-1" aria-selected="false" aria-controls="section-tables">
 	                    <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -145,7 +145,7 @@
 	                        <line x1="3" y1="15" x2="21" y2="15"/>
 	                        <line x1="9" y1="3" x2="9" y2="21"/>
 	                    </svg>
-	                    <span class="sidebar-label">Tables</span>
+	                    <span class="sidebar-label" data-i18n="options_sidebar_tables">Tables</span>
 	                </li>
 	                <li class="sidebar-item" id="tab-site-rules" data-section="site-rules" role="tab" tabindex="-1" aria-selected="false" aria-controls="section-site-rules">
 	                    <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -156,7 +156,7 @@
 	                        <path d="M8 12h8"/>
 	                        <path d="M12 8v8"/>
 	                    </svg>
-	                    <span class="sidebar-label">Site Rules</span>
+	                    <span class="sidebar-label" data-i18n="options_sidebar_site_rules">Site Rules</span>
 	                </li>
 	                <div class="sidebar-divider"></div>
                 <li class="sidebar-item" id="tab-import-export" data-section="import-export" role="tab" tabindex="-1" aria-selected="false" aria-controls="section-import-export">
@@ -165,10 +165,10 @@
                         <path d="M8 11l4 4 4-4"/>
                         <path d="M8 5H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-4"/>
                     </svg>
-                    <span class="sidebar-label">Import / Export</span>
+                    <span class="sidebar-label" data-i18n="options_sidebar_import_export">Import / Export</span>
                 </li>
                 <!-- ── Help & Resources ── -->
-                <div class="sidebar-category">Help & Resources</div>
+                <div class="sidebar-category" data-i18n="options_sidebar_help_resources">Help & Resources</div>
                 <a href="/guide/guide.html" target="_blank" class="sidebar-action-btn sidebar-action--guide" id="open-guide-link">
                     <span class="sidebar-action-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -178,11 +178,11 @@
                             <line x1="12" y1="17" x2="12.01" y2="17"/>
                         </svg>
                     </span>
-                    <span class="sidebar-action-label">User Guide</span>
+                    <span class="sidebar-action-label" data-i18n="options_sidebar_user_guide">User Guide</span>
                 </a>
 
                 <!-- ── Community ── -->
-                <div class="sidebar-category">Community</div>
+                <div class="sidebar-category" data-i18n="options_sidebar_community">Community</div>
                 <a href="https://www.buymeacoffee.com/dhruvparikh" target="_blank" rel="noopener noreferrer" class="sidebar-action-btn sidebar-action--coffee">
                     <span class="sidebar-action-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -194,7 +194,7 @@
                             <line x1="14" y1="3" x2="14" y2="5"></line>
                         </svg>
                     </span>
-                    <span class="sidebar-action-label">Buy Me a Coffee</span>
+                    <span class="sidebar-action-label" data-i18n="options_sidebar_buy_me_a_coffee">Buy Me a Coffee</span>
                 </a>
                 <a id="leave-review-link"
                     href="https://chromewebstore.google.com/detail/marksnip-markdown-web-cli/kcbaglhfgbkjdnpeokaamjjkddempipm/reviews"
@@ -207,7 +207,7 @@
                             <path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.2 6.4 20.2l1.1-6.2L3 9.6l6.2-.9L12 3z"></path>
                         </svg>
                     </span>
-                    <span class="sidebar-action-label">Leave a Review</span>
+                    <span class="sidebar-action-label" data-i18n="options_sidebar_leave_review">Leave a Review</span>
                 </a>
                 <a href="https://github.com/DhruvParikh1/markdownload-extension-updated/issues"
                     target="_blank" rel="noopener noreferrer" class="sidebar-action-btn sidebar-action--issue">
@@ -219,7 +219,7 @@
                             <path d="M10.3 3.9l-7 12.1A2 2 0 0 0 5 19h14a2 2 0 0 0 1.7-3l-7-12.1a2 2 0 0 0-3.4 0z"></path>
                         </svg>
                     </span>
-                    <span class="sidebar-action-label">Report Issue</span>
+                    <span class="sidebar-action-label" data-i18n="options_sidebar_report_issue">Report Issue</span>
                 </a>
             </ul>
         </nav>
@@ -231,8 +231,8 @@
             <!-- ────────────────────────────────────────────
                  SECTION: Templates
                  ──────────────────────────────────────────── -->
-            <div class="section active" id="section-templates" data-section-label="Templates" role="tabpanel" tabindex="0" aria-labelledby="tab-templates">
-                <h2 class="section-title">Templates</h2>
+            <div class="section active" id="section-templates" data-section-label="Templates" data-i18n-attr-data-section-label="options_sidebar_templates" role="tabpanel" tabindex="0" aria-labelledby="tab-templates">
+                <h2 class="section-title" data-i18n="options_sidebar_templates">Templates</h2>
                 <p class="section-desc">Configure title, front-matter, and back-matter templates for your clipped markdown files.</p>
 
                 <!-- Help info -->
@@ -390,9 +390,25 @@
             <!-- ────────────────────────────────────────────
                  SECTION: Appearance
                  ──────────────────────────────────────────── -->
-            <div class="section" id="section-appearance" data-section-label="Appearance" role="tabpanel" tabindex="0" aria-labelledby="tab-appearance">
-                <h2 class="section-title">Appearance</h2>
+            <div class="section" id="section-appearance" data-section-label="Appearance" data-i18n-attr-data-section-label="options_sidebar_appearance" role="tabpanel" tabindex="0" aria-labelledby="tab-appearance">
+                <h2 class="section-title" data-i18n="options_sidebar_appearance">Appearance</h2>
                 <p class="section-desc">Customize the look of the MarkSnip popup.</p>
+
+                <div class="setting-card" data-setting-key="uiLanguage" data-search-keywords="language locale translation browser default english spanish french german" data-i18n-attr-data-search-keywords="options_language_search_keywords">
+                    <h3 class="card-title" data-i18n="options_language_title">Language</h3>
+                    <p class="card-desc" data-i18n="options_language_desc">Choose the language used by MarkSnip pages, menus, and notifications.</p>
+                    <div class="input-group">
+                        <label class="input-label" for="uiLanguage" data-i18n="options_language_label">Extension language</label>
+                        <select id="uiLanguage" name="uiLanguage" class="text-input">
+                            <option value="browser" data-i18n="options_language_option_browser">Browser default</option>
+                            <option value="en" data-i18n="options_language_option_en">English</option>
+                            <option value="es" data-i18n="options_language_option_es">Espanol</option>
+                            <option value="fr" data-i18n="options_language_option_fr">Francais</option>
+                            <option value="de" data-i18n="options_language_option_de">Deutsch</option>
+                        </select>
+                    </div>
+                    <p class="option-note" data-i18n="options_language_help">Extension names and labels provided by the browser still follow the browser language.</p>
+                </div>
 
                 <!-- Color Mode -->
                 <div class="setting-card" id="popupThemeGroup" data-setting-key="popupTheme,showThemeToggleInPopup" data-search-keywords="theme toggle,dark mode toggle,light mode toggle,popup header theme button,appearance">
@@ -598,8 +614,8 @@
             <!-- ────────────────────────────────────────────
                  SECTION: Downloads
                  ──────────────────────────────────────────── -->
-            <div class="section" id="section-downloads" data-section-label="Downloads" role="tabpanel" tabindex="0" aria-labelledby="tab-downloads">
-                <h2 class="section-title">Downloads</h2>
+            <div class="section" id="section-downloads" data-section-label="Downloads" data-i18n-attr-data-section-label="options_sidebar_downloads" role="tabpanel" tabindex="0" aria-labelledby="tab-downloads">
+                <h2 class="section-title" data-i18n="options_sidebar_downloads">Downloads</h2>
                 <p class="section-desc">Configure how files are downloaded and integrate with Obsidian.</p>
 
                 <!-- Context Menus -->
@@ -714,11 +730,11 @@
                     <div class="assistant-target-builder">
                         <div class="input-group">
                             <label class="input-label" for="customSendToName">Target Name</label>
-                            <input type="text" id="customSendToName" class="text-input" role="textbox" placeholder="Gemini Workspace" />
+                            <input type="text" id="customSendToName" class="text-input" role="textbox" placeholder="Gemini Workspace" data-i18n-attr-placeholder="options_custom_send_to_name_placeholder" />
                         </div>
                         <div class="input-group assistant-target-builder__url">
                             <label class="input-label" for="customSendToUrl">URL Template</label>
-                            <input type="text" id="customSendToUrl" class="text-input" role="textbox" placeholder="https://example.com/new?q={prompt}" spellcheck="false" />
+                            <input type="text" id="customSendToUrl" class="text-input" role="textbox" placeholder="https://example.com/new?q={prompt}" spellcheck="false" data-i18n-attr-placeholder="options_custom_send_to_url_placeholder" />
                         </div>
                         <button type="button" id="addSendToCustomTarget" class="btn btn-secondary assistant-target-builder__button">Add Target</button>
                     </div>
@@ -800,11 +816,11 @@
                     data-setting-key="obsidianVault,obsidianFolder">
                     <div class="input-group">
                         <label class="input-label">Obsidian Vault Name</label>
-                        <input type="text" name="obsidianVault" class="text-input" role="textbox" placeholder="If blank, it will use the main Vault. Please specify it." />
+                        <input type="text" name="obsidianVault" class="text-input" role="textbox" placeholder="If blank, it will use the main Vault. Please specify it." data-i18n-attr-placeholder="options_obsidian_vault_placeholder" />
                     </div>
                     <div class="input-group">
                         <label class="input-label">Obsidian Folder Name</label>
-                        <input type="text" name="obsidianFolder" class="text-input" role="textbox" placeholder="Enter Folder Name eg. Clippers" />
+                        <input type="text" name="obsidianFolder" class="text-input" role="textbox" placeholder="Enter Folder Name eg. Clippers" data-i18n-attr-placeholder="options_obsidian_folder_placeholder" />
                     </div>
                 </div>
 
@@ -940,8 +956,8 @@
             </div>
 
 
-            <div class="section" id="section-library" data-section-label="Library" role="tabpanel" tabindex="0" aria-labelledby="tab-library">
-                <h2 class="section-title">Library</h2>
+            <div class="section" id="section-library" data-section-label="Library" data-i18n-attr-data-section-label="options_sidebar_library" role="tabpanel" tabindex="0" aria-labelledby="tab-library">
+                <h2 class="section-title" data-i18n="options_sidebar_library">Library</h2>
                 <p class="section-desc">Manage the popup Library that stores saved clips locally on this browser only.</p>
 
                 <div class="setting-card" data-search-keywords="library local clips saved clips popup history local only import export"
@@ -1007,8 +1023,8 @@
             <!-- ────────────────────────────────────────────
                  SECTION: Markdown
                  ──────────────────────────────────────────── -->
-            <div class="section" id="section-markdown" data-section-label="Markdown" role="tabpanel" tabindex="0" aria-labelledby="tab-markdown">
-                <h2 class="section-title">Markdown</h2>
+            <div class="section" id="section-markdown" data-section-label="Markdown" data-i18n-attr-data-section-label="options_sidebar_markdown" role="tabpanel" tabindex="0" aria-labelledby="tab-markdown">
+                <h2 class="section-title" data-i18n="options_sidebar_markdown">Markdown</h2>
                 <p class="section-desc">Configure how HTML is converted to Markdown syntax.</p>
 
                 <!-- Heading Style -->
@@ -1373,8 +1389,8 @@ const helloWorld = () => {
             <!-- ────────────────────────────────────────────
                  SECTION: Tables
                  ──────────────────────────────────────────── -->
-            <div class="section" id="section-tables" data-section-label="Tables" role="tabpanel" tabindex="0" aria-labelledby="tab-tables">
-                <h2 class="section-title">Tables</h2>
+            <div class="section" id="section-tables" data-section-label="Tables" data-i18n-attr-data-section-label="options_sidebar_tables" role="tabpanel" tabindex="0" aria-labelledby="tab-tables">
+                <h2 class="section-title" data-i18n="options_sidebar_tables">Tables</h2>
                 <p class="section-desc">Configure how HTML tables are converted to Markdown tables.</p>
 
                 <div class="setting-card" id="table-options" data-setting-key="tableFormatting">
@@ -1486,8 +1502,8 @@ const helloWorld = () => {
             <!-- ────────────────────────────────────────────
                  SECTION: Import / Export
                  ──────────────────────────────────────────── -->
-	            <div class="section" id="section-site-rules" data-section-label="Site Rules" role="tabpanel" tabindex="0" aria-labelledby="tab-site-rules">
-	                <h2 class="section-title">Site Rules</h2>
+	            <div class="section" id="section-site-rules" data-section-label="Site Rules" data-i18n-attr-data-section-label="options_sidebar_site_rules" role="tabpanel" tabindex="0" aria-labelledby="tab-site-rules">
+	                <h2 class="section-title" data-i18n="options_sidebar_site_rules">Site Rules</h2>
 	                <p class="section-desc">Create ordered wildcard URL rules that override clip settings for matching sites. The first enabled match wins.</p>
 
 	                <div class="setting-card" id="siteRulesCard" data-setting-key="siteRules" data-search-keywords="site rules,per site,domain,url pattern,host rule,wildcard,override,matching">
@@ -1517,12 +1533,12 @@ const helloWorld = () => {
 	                        <div class="site-rule-fields">
 	                            <div class="site-rule-field">
 	                                <label class="input-label" for="siteRuleName">Rule Name</label>
-	                                <input type="text" id="siteRuleName" class="text-input" placeholder="Docs Template" />
+	                                <input type="text" id="siteRuleName" class="text-input" placeholder="Docs Template" data-i18n-attr-placeholder="options_site_rule_name_placeholder" />
 	                            </div>
 
 	                            <div class="site-rule-field">
 	                                <label class="input-label" for="siteRulePattern">Wildcard URL Pattern</label>
-	                                <input type="text" id="siteRulePattern" class="text-input" placeholder="example.com/*" />
+	                                <input type="text" id="siteRulePattern" class="text-input" placeholder="example.com/*" data-i18n-attr-placeholder="options_site_rule_pattern_placeholder" />
 	                                <p class="toggle-hint" id="siteRulePatternFeedback"></p>
 	                            </div>
 
@@ -1570,35 +1586,35 @@ const helloWorld = () => {
 	                                        <input type="checkbox" id="siteRuleFrontmatterEnabled" />
 	                                        <span>Override Frontmatter</span>
 	                                    </label>
-	                                    <textarea id="siteRuleFrontmatter" class="textarea-input" placeholder="---&#10;source: {pageURL}&#10;---"></textarea>
+	                                    <textarea id="siteRuleFrontmatter" class="textarea-input" placeholder="---&#10;source: {pageURL}&#10;---" data-i18n-attr-placeholder="options_site_rule_frontmatter_placeholder"></textarea>
 	                                </div>
 	                                <div class="site-rule-text-override">
 	                                    <label class="site-rule-inline-toggle">
 	                                        <input type="checkbox" id="siteRuleBackmatterEnabled" />
 	                                        <span>Override Backmatter</span>
 	                                    </label>
-	                                    <textarea id="siteRuleBackmatter" class="textarea-input" placeholder="Captured from {pageHostname}"></textarea>
+	                                    <textarea id="siteRuleBackmatter" class="textarea-input" placeholder="Captured from {pageHostname}" data-i18n-attr-placeholder="options_site_rule_backmatter_placeholder"></textarea>
 	                                </div>
 	                                <div class="site-rule-text-override">
 	                                    <label class="site-rule-inline-toggle">
 	                                        <input type="checkbox" id="siteRuleTitleEnabled" />
 	                                        <span>Override Title Template</span>
 	                                    </label>
-	                                    <input type="text" id="siteRuleTitle" class="text-input" placeholder="{pageTitle}" />
+	                                    <input type="text" id="siteRuleTitle" class="text-input" placeholder="{pageTitle}" data-i18n-attr-placeholder="options_site_rule_title_placeholder" />
 	                                </div>
 	                                <div class="site-rule-text-override">
 	                                    <label class="site-rule-inline-toggle">
 	                                        <input type="checkbox" id="siteRuleImagePrefixEnabled" />
 	                                        <span>Override Image Prefix</span>
 	                                    </label>
-	                                    <input type="text" id="siteRuleImagePrefix" class="text-input" placeholder="{pageTitle}/" />
+	                                    <input type="text" id="siteRuleImagePrefix" class="text-input" placeholder="{pageTitle}/" data-i18n-attr-placeholder="options_site_rule_image_prefix_placeholder" />
 	                                </div>
 	                                <div class="site-rule-text-override">
 	                                    <label class="site-rule-inline-toggle">
 	                                        <input type="checkbox" id="siteRuleMdClipsFolderEnabled" />
 	                                        <span>Override Downloads Folder</span>
 	                                    </label>
-	                                    <input type="text" id="siteRuleMdClipsFolder" class="text-input" placeholder="Clips/{pageHostname}" />
+	                                    <input type="text" id="siteRuleMdClipsFolder" class="text-input" placeholder="Clips/{pageHostname}" data-i18n-attr-placeholder="options_site_rule_md_clips_folder_placeholder" />
 	                                </div>
 	                            </div>
 	                        </div>
@@ -1675,8 +1691,8 @@ const helloWorld = () => {
 	                </div>
 	            </div>
 
-	            <div class="section" id="section-import-export" data-section-label="Import / Export" role="tabpanel" tabindex="0" aria-labelledby="tab-import-export">
-                <h2 class="section-title">Import / Export</h2>
+	            <div class="section" id="section-import-export" data-section-label="Import / Export" data-i18n-attr-data-section-label="options_sidebar_import_export" role="tabpanel" tabindex="0" aria-labelledby="tab-import-export">
+                <h2 class="section-title" data-i18n="options_sidebar_import_export">Import / Export</h2>
                 <p class="section-desc">Back up your settings or restore from a previous backup.</p>
 
                 <div class="setting-card">
@@ -1733,8 +1749,8 @@ const helloWorld = () => {
                     <line x1="8" y1="8" x2="14" y2="14"/>
                     <line x1="14" y1="8" x2="8" y2="14"/>
                 </svg>
-                <p>No settings match "<span id="search-no-results-query"></span>"</p>
-                <p style="margin-top: 8px;"><a href="/guide/guide.html" target="_blank" style="color: var(--accent); font-size: var(--text-sm);">Search the User Guide instead</a></p>
+                <p id="search-no-results-label" data-i18n-html="options_search_no_results_html">No settings match "<span id="search-no-results-query"></span>"</p>
+                <p style="margin-top: 8px;"><a href="/guide/guide.html" target="_blank" style="color: var(--accent); font-size: var(--text-sm);" data-i18n="options_search_user_guide_instead">Search the User Guide instead</a></p>
             </div>
 
         </main>
@@ -1745,6 +1761,7 @@ const helloWorld = () => {
 	    <div id="spinner" style="display: none;"></div>
 	
 	    <script src="../browser-polyfill.min.js"></script>
+	    <script src="../shared/i18n.js"></script>
 	    <script src="../shared/site-rules.js"></script>
 	    <script src="../shared/default-options.js"></script>
 	    <script src="../shared/context-menus.js"></script>

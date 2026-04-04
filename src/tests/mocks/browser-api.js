@@ -3,6 +3,36 @@
  * Provides mock objects for chrome.* and browser.* APIs used in the extension
  */
 
+const enMessages = require('../../_locales/en/messages.json');
+const esMessages = require('../../_locales/es/messages.json');
+const frMessages = require('../../_locales/fr/messages.json');
+const deMessages = require('../../_locales/de/messages.json');
+
+const localeCatalogs = {
+  en: enMessages,
+  es: esMessages,
+  fr: frMessages,
+  de: deMessages
+};
+
+let currentLocale = 'en';
+
+function applySubstitutions(message, substitutions) {
+  const values = Array.isArray(substitutions)
+    ? substitutions
+    : substitutions == null
+      ? []
+      : [substitutions];
+
+  return values.reduce((result, value, index) => {
+    return result.replaceAll(`$${index + 1}`, String(value));
+  }, String(message || ''));
+}
+
+function getCatalog(locale = currentLocale) {
+  return localeCatalogs[locale] || localeCatalogs.en;
+}
+
 // Storage mock
 const storageMock = {
   local: {
@@ -130,6 +160,23 @@ const runtimeMock = {
     version: '4.0.0',
     manifest_version: 3
   }))
+};
+
+const i18nMock = {
+  getMessage: jest.fn((key, substitutions) => {
+    const entry = getCatalog()[key] || localeCatalogs.en[key];
+    if (!entry?.message) {
+      return '';
+    }
+    return applySubstitutions(entry.message, substitutions);
+  }),
+  getUILanguage: jest.fn(() => currentLocale),
+  _setLocale: (locale) => {
+    currentLocale = localeCatalogs[locale] ? locale : 'en';
+  },
+  _reset: () => {
+    currentLocale = 'en';
+  }
 };
 
 // Tabs mock
@@ -310,6 +357,7 @@ const offscreenMock = {
 const browserAPI = {
   storage: storageMock,
   runtime: runtimeMock,
+  i18n: i18nMock,
   tabs: tabsMock,
   downloads: downloadsMock,
   contextMenus: contextMenusMock,
@@ -325,11 +373,12 @@ const browserAPI = {
     storageMock.sync._reset();
     tabsMock._reset();
     downloadsMock._reset();
-    contextMenusMock._reset();
-    clipboardMock._reset();
-    jest.clearAllMocks();
-  }
-};
+      contextMenusMock._reset();
+      clipboardMock._reset();
+      i18nMock._reset();
+      jest.clearAllMocks();
+    }
+  };
 
 // Initialize with some default data
 tabsMock._reset();

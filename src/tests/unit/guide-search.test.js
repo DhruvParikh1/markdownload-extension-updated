@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { JSDOM } = require('jsdom');
+const i18n = require('../../shared/i18n.js');
 
 // Load shared search core
 require('../../shared/search-core.js');
@@ -21,10 +22,13 @@ const searchCoreSource = fs.readFileSync(
   'utf8'
 );
 
-function loadGuideDom() {
-  return new JSDOM(guideHtml, {
+function loadGuideDom(locale = 'en') {
+  browser.i18n._setLocale(locale);
+  const dom = new JSDOM(guideHtml, {
     url: 'https://example.com/guide/guide.html'
   });
+  i18n.localizeDocument(dom.window.document);
+  return dom;
 }
 
 function buildGuideIndex(document) {
@@ -268,6 +272,7 @@ describe('Guide keyboard shortcuts', () => {
       storage: { sync: { get: () => Promise.resolve(defaultOpts) } },
       runtime: { openOptionsPage: () => {} }
     };
+    dom.window.markSnipI18n = i18n;
     dom.window.eval(searchCoreSource);
     dom.window.eval(guideSource);
   });
@@ -319,6 +324,7 @@ describe('Guide theme application', () => {
       storage: { sync: { get: () => Promise.resolve(opts) } },
       runtime: { openOptionsPage: () => {} }
     };
+    dom.window.markSnipI18n = i18n;
     dom.window.eval(searchCoreSource);
     dom.window.eval(guideSource);
 
@@ -332,6 +338,26 @@ describe('Guide theme application', () => {
       expect(root.classList.contains(`colorblind-theme-${colorBlindTheme}`)).toBe(true);
     }
     expect(root.classList.contains('accent-ocean')).toBe(false);
+
+    dom.window.close();
+  });
+});
+
+describe('Guide localization smoke', () => {
+  afterEach(() => {
+    browser.i18n._reset();
+  });
+
+  test('spanish localization updates searchable metadata and shell copy', () => {
+    const dom = loadGuideDom('es');
+    const index = buildGuideIndex(dom.window.document);
+
+    expect(dom.window.document.title).toBe(browser.i18n.getMessage('guide_page_title'));
+    expect(dom.window.document.getElementById('guide-search').getAttribute('placeholder')).toBe(
+      browser.i18n.getMessage('guide_search_placeholder')
+    );
+    expect(getMatchIds(index, browser.i18n.getMessage('guide_section_quick_start').toLowerCase())).toContain('quick-start');
+    expect(getMatchIds(index, browser.i18n.getMessage('guide_section_keyboard_shortcuts').toLowerCase())).toContain('keyboard-shortcuts');
 
     dom.window.close();
   });

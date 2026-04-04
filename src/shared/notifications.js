@@ -6,6 +6,26 @@
 
   root.markSnipNotifications = factory();
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  function getI18nApi() {
+    if (globalThis.markSnipI18n?.getMessage) {
+      return globalThis.markSnipI18n;
+    }
+    if (globalThis.browser?.i18n?.getMessage) {
+      return {
+        getMessage: globalThis.browser.i18n.getMessage.bind(globalThis.browser.i18n),
+        formatNumber: (value) => new Intl.NumberFormat(globalThis.browser.i18n.getUILanguage?.() || undefined).format(value)
+      };
+    }
+    if (globalThis.chrome?.i18n?.getMessage) {
+      return {
+        getMessage: globalThis.chrome.i18n.getMessage.bind(globalThis.chrome.i18n),
+        formatNumber: (value) => new Intl.NumberFormat(globalThis.chrome.i18n.getUILanguage?.() || undefined).format(value)
+      };
+    }
+    return null;
+  }
+
+  const t = (key, substitutions) => getI18nApi()?.getMessage?.(key, substitutions) || '';
   const SUPPORT_NOTIFICATION_THRESHOLDS = Object.freeze([25, 100, 500, 1000, 2500, 5000, 10000]);
   const RELEASES_URL = 'https://github.com/DhruvParikh1/markdownload-extension-updated/releases';
   const BUY_ME_A_COFFEE_URL = 'https://buymeacoffee.com/dhruvparikh';
@@ -67,12 +87,12 @@
       return null;
     }
 
-    return {
-      label: typeof action.label === 'string' && action.label.trim()
-        ? action.label.trim()
-        : 'Open link',
-      url: action.url.trim()
-    };
+      return {
+        label: typeof action.label === 'string' && action.label.trim()
+          ? action.label.trim()
+          : t('notification_open_link') || 'Open link',
+        url: action.url.trim()
+      };
   }
 
   function sanitizeHighlights(highlights) {
@@ -129,7 +149,7 @@
   }
 
   function formatCount(value) {
-    return new Intl.NumberFormat('en-US').format(toNonNegativeInteger(value));
+    return (getI18nApi()?.formatNumber?.(toNonNegativeInteger(value))) || new Intl.NumberFormat().format(toNonNegativeInteger(value));
   }
 
   function hasPendingNotificationType(state, type) {
@@ -204,19 +224,19 @@
       id: `version-update:${currentVersion}`,
       type: 'version-update',
       createdAt: Date.now(),
-      title: `MarkSnip updated to v${currentVersion}`,
+      title: t('notification_update_title', currentVersion) || `MarkSnip updated to v${currentVersion}`,
       message: previousVersion
-        ? `Updated from v${previousVersion} to v${currentVersion}.`
-        : `MarkSnip updated to v${currentVersion}.`,
+        ? (t('notification_update_message_with_previous', [previousVersion, currentVersion]) || `Updated from v${previousVersion} to v${currentVersion}.`)
+        : (t('notification_update_message_without_previous', currentVersion) || `MarkSnip updated to v${currentVersion}.`),
       previousVersion,
       currentVersion,
       highlights: sanitizeHighlights(config?.highlights),
       primaryAction: {
-        label: 'Buy Me a Coffee',
+        label: t('notification_action_support') || 'Buy Me a Coffee',
         url: config?.buyMeACoffeeUrl || BUY_ME_A_COFFEE_URL
       },
       secondaryAction: {
-        label: 'View release notes',
+        label: t('notification_action_release_notes') || 'View release notes',
         url: config?.releaseNotesUrl || RELEASES_URL
       }
     });
@@ -230,15 +250,15 @@
       id: `support-milestone:${milestone}`,
       type: 'support-milestone',
       createdAt: Date.now(),
-      title: `${formattedMilestone} pages exported`,
-      message: `MarkSnip has helped export over ${formattedMilestone} pages. If it has been useful, support ongoing development.`,
+      title: t('notification_support_title', formattedMilestone) || `${formattedMilestone} pages exported`,
+      message: t('notification_support_message', formattedMilestone) || `MarkSnip has helped export over ${formattedMilestone} pages. If it has been useful, support ongoing development.`,
       milestone,
       primaryAction: {
-        label: 'Buy Me a Coffee',
+        label: t('notification_action_support') || 'Buy Me a Coffee',
         url: config?.buyMeACoffeeUrl || BUY_ME_A_COFFEE_URL
       },
       secondaryAction: {
-        label: 'View release notes',
+        label: t('notification_action_release_notes') || 'View release notes',
         url: config?.releaseNotesUrl || RELEASES_URL
       }
     });

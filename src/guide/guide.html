@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MarkSnip User Guide</title>
+    <title data-i18n="guide_page_title">MarkSnip User Guide</title>
     <link rel="stylesheet" href="../shared/fonts.css">
     <link rel="stylesheet" href="guide.css">
 </head>
 
 <body>
     <!-- Skip link for accessibility -->
-    <a href="#guide-content" class="skip-link">Skip to content</a>
+    <a href="#guide-content" class="skip-link" data-i18n="guide_skip_to_content">Skip to content</a>
 
     <!-- ═══ Window Container ═══ -->
     <div class="guide-window">
@@ -21,23 +21,23 @@
             <div class="header-brand">
                 <img src="../icons/favicon-32x32.png" alt="MarkSnip" class="header-logo">
                 <h1 class="header-title">MarkSnip</h1>
-                <span class="header-subtitle">User Guide</span>
+                <span class="header-subtitle" data-i18n="guide_header_subtitle">User Guide</span>
             </div>
             <div class="header-search">
                 <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="11" cy="11" r="8"/>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"/>
                 </svg>
-                <input type="text" id="guide-search" class="search-input" placeholder="Search guide..." autocomplete="off" aria-label="Search the user guide" />
+                <input type="text" id="guide-search" class="search-input" placeholder="Search guide..." autocomplete="off" aria-label="Search the user guide" data-i18n-attr-placeholder="guide_search_placeholder" data-i18n-attr-aria-label="guide_search_aria" />
                 <kbd class="search-shortcut" id="search-shortcut-hint">/</kbd>
             </div>
             <div class="header-actions">
-                <button id="open-settings" class="header-btn" title="Open Settings">
+                <button id="open-settings" class="header-btn" title="Open Settings" data-i18n-attr-title="guide_open_settings_title">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
                         <circle cx="12" cy="12" r="3"/>
                     </svg>
-                    Settings
+                    <span data-i18n="guide_open_settings_label">Settings</span>
                 </button>
             </div>
         </div>
@@ -47,58 +47,58 @@
     <div class="guide-layout" id="guide-layout">
 
         <!-- ── Sticky TOC Sidebar ── -->
-        <nav class="guide-toc" aria-label="Table of contents">
+        <nav class="guide-toc" aria-label="Table of contents" data-i18n-attr-aria-label="guide_toc_aria">
             <ul class="toc-list" role="list">
-                <li><a href="#quick-start" class="toc-link active">Quick Start</a></li>
-                <li><a href="#using-the-popup" class="toc-link">Using the Popup</a>
+                <li><a href="#quick-start" class="toc-link active" data-i18n="guide_toc_quick_start">Quick Start</a></li>
+                <li><a href="#using-the-popup" class="toc-link" data-i18n="guide_toc_using_popup">Using the Popup</a>
                     <ul class="toc-sublist">
-                        <li><a href="#quick-settings" class="toc-link">Quick Settings</a></li>
-                        <li><a href="#clipping-scope" class="toc-link">Clipping Scope</a></li>
-                        <li><a href="#editing-title" class="toc-link">Editing the Title</a></li>
-                        <li><a href="#markdown-preview" class="toc-link">Markdown Preview</a></li>
-                        <li><a href="#action-buttons" class="toc-link">Action Buttons</a></li>
+                        <li><a href="#quick-settings" class="toc-link" data-i18n="guide_toc_quick_settings">Quick Settings</a></li>
+                        <li><a href="#clipping-scope" class="toc-link" data-i18n="guide_toc_clipping_scope">Clipping Scope</a></li>
+                        <li><a href="#editing-title" class="toc-link" data-i18n="guide_toc_editing_title">Editing the Title</a></li>
+                        <li><a href="#markdown-preview" class="toc-link" data-i18n="guide_toc_markdown_preview">Markdown Preview</a></li>
+                        <li><a href="#action-buttons" class="toc-link" data-i18n="guide_toc_action_buttons">Action Buttons</a></li>
                     </ul>
                 </li>
-                <li><a href="#batch-processing" class="toc-link">Batch Processing</a>
+                <li><a href="#batch-processing" class="toc-link" data-i18n="guide_toc_batch_processing">Batch Processing</a>
                     <ul class="toc-sublist">
-                        <li><a href="#adding-urls" class="toc-link">Adding URLs</a></li>
-                        <li><a href="#pick-links" class="toc-link">Pick Links from Page</a></li>
-                        <li><a href="#output-format" class="toc-link">Output Format</a></li>
+                        <li><a href="#adding-urls" class="toc-link" data-i18n="guide_toc_adding_urls">Adding URLs</a></li>
+                        <li><a href="#pick-links" class="toc-link" data-i18n="guide_toc_pick_links">Pick Links from Page</a></li>
+                        <li><a href="#output-format" class="toc-link" data-i18n="guide_toc_output_format">Output Format</a></li>
                     </ul>
                 </li>
-                <li><a href="#context-menus" class="toc-link">Context Menus &amp; Shortcuts</a>
+                <li><a href="#context-menus" class="toc-link" data-i18n="guide_toc_context_menus">Context Menus &amp; Shortcuts</a>
                     <ul class="toc-sublist">
-                        <li><a href="#download-actions" class="toc-link">Download Actions</a></li>
-                        <li><a href="#copy-actions" class="toc-link">Copy Actions</a></li>
-                        <li><a href="#obsidian-actions" class="toc-link">Obsidian Actions</a></li>
-                        <li><a href="#keyboard-shortcuts" class="toc-link">Keyboard Shortcuts</a></li>
+                        <li><a href="#download-actions" class="toc-link" data-i18n="guide_toc_download_actions">Download Actions</a></li>
+                        <li><a href="#copy-actions" class="toc-link" data-i18n="guide_toc_copy_actions">Copy Actions</a></li>
+                        <li><a href="#obsidian-actions" class="toc-link" data-i18n="guide_toc_obsidian_actions">Obsidian Actions</a></li>
+                        <li><a href="#keyboard-shortcuts" class="toc-link" data-i18n="guide_toc_keyboard_shortcuts">Keyboard Shortcuts</a></li>
                     </ul>
                 </li>
-                <li><a href="#settings" class="toc-link">Settings &amp; Customization</a>
+                <li><a href="#settings" class="toc-link" data-i18n="guide_toc_settings">Settings &amp; Customization</a>
                     <ul class="toc-sublist">
-                        <li><a href="#templates" class="toc-link">Templates</a></li>
-                        <li><a href="#download-settings" class="toc-link">Downloads</a></li>
-                        <li><a href="#markdown-options" class="toc-link">Markdown Options</a></li>
-                        <li><a href="#table-options" class="toc-link">Table Options</a></li>
-                        <li><a href="#import-export" class="toc-link">Import / Export</a></li>
+                        <li><a href="#templates" class="toc-link" data-i18n="guide_toc_templates">Templates</a></li>
+                        <li><a href="#download-settings" class="toc-link" data-i18n="guide_toc_download_settings">Downloads</a></li>
+                        <li><a href="#markdown-options" class="toc-link" data-i18n="guide_toc_markdown_options">Markdown Options</a></li>
+                        <li><a href="#table-options" class="toc-link" data-i18n="guide_toc_table_options">Table Options</a></li>
+                        <li><a href="#import-export" class="toc-link" data-i18n="guide_toc_import_export">Import / Export</a></li>
                     </ul>
                 </li>
-                <li><a href="#obsidian-downloads" class="toc-link">Obsidian &amp; Downloads</a>
+                <li><a href="#obsidian-downloads" class="toc-link" data-i18n="guide_toc_obsidian_downloads">Obsidian &amp; Downloads</a>
                     <ul class="toc-sublist">
-                        <li><a href="#obsidian-integration" class="toc-link">Obsidian Integration</a></li>
-                        <li><a href="#download-mode" class="toc-link">Download Mode</a></li>
-                        <li><a href="#image-downloads" class="toc-link">Image Downloads</a></li>
+                        <li><a href="#obsidian-integration" class="toc-link" data-i18n="guide_toc_obsidian_integration">Obsidian Integration</a></li>
+                        <li><a href="#download-mode" class="toc-link" data-i18n="guide_toc_download_mode">Download Mode</a></li>
+                        <li><a href="#image-downloads" class="toc-link" data-i18n="guide_toc_image_downloads">Image Downloads</a></li>
                     </ul>
                 </li>
-                <li><a href="#permissions-privacy" class="toc-link">Permissions &amp; Privacy</a>
+                <li><a href="#permissions-privacy" class="toc-link" data-i18n="guide_toc_permissions_privacy">Permissions &amp; Privacy</a>
                     <ul class="toc-sublist">
-                        <li><a href="#site-access-permission" class="toc-link">Site Access</a></li>
-                        <li><a href="#other-core-permissions" class="toc-link">Other Core Permissions</a></li>
-                        <li><a href="#agent-bridge-permission" class="toc-link">Agent Bridge Permission</a></li>
+                        <li><a href="#site-access-permission" class="toc-link" data-i18n="guide_toc_site_access_permission">Site Access</a></li>
+                        <li><a href="#other-core-permissions" class="toc-link" data-i18n="guide_toc_other_core_permissions">Other Core Permissions</a></li>
+                        <li><a href="#agent-bridge-permission" class="toc-link" data-i18n="guide_toc_agent_bridge_permission">Agent Bridge Permission</a></li>
                     </ul>
                 </li>
-                <li><a href="#troubleshooting" class="toc-link">Troubleshooting / FAQ</a></li>
-                <li><a href="#text-substitutions" class="toc-link">Text Substitutions</a></li>
+                <li><a href="#troubleshooting" class="toc-link" data-i18n="guide_toc_troubleshooting">Troubleshooting / FAQ</a></li>
+                <li><a href="#text-substitutions" class="toc-link" data-i18n="guide_toc_text_substitutions">Text Substitutions</a></li>
             </ul>
         </nav>
 
@@ -106,10 +106,10 @@
         <main class="guide-content" id="guide-content">
 
             <!-- Search Results Container (hidden by default) -->
-            <div id="search-results" class="search-results" role="region" aria-live="polite" aria-label="Search results" style="display:none;">
+            <div id="search-results" class="search-results" role="region" aria-live="polite" aria-label="Search results" data-i18n-attr-aria-label="guide_search_results_aria" style="display:none;">
                 <div class="search-results-header">
                     <span id="search-results-count" class="search-results-count"></span>
-                    <button id="search-clear" class="search-clear-btn" aria-label="Clear search">Clear</button>
+                    <button id="search-clear" class="search-clear-btn" aria-label="Clear search" data-i18n-attr-aria-label="guide_search_clear_aria" data-i18n="guide_search_clear_label">Clear</button>
                 </div>
                 <ul id="search-results-list" class="search-results-list" role="list"></ul>
                 <div id="search-no-results" class="search-no-results" style="display:none;">
@@ -119,19 +119,19 @@
                         <line x1="8" y1="8" x2="14" y2="14"/>
                         <line x1="14" y1="8" x2="8" y2="14"/>
                     </svg>
-                    <p>No results for "<span id="search-no-results-query"></span>"</p>
-                    <p class="no-results-hint">Try different keywords or browse the table of contents.</p>
+                    <p id="search-no-results-label" data-i18n-html="guide_search_no_results_html">No results for "<span id="search-no-results-query"></span>"</p>
+                    <p class="no-results-hint" data-i18n="guide_search_no_results_hint">Try different keywords or browse the table of contents.</p>
                 </div>
             </div>
 
             <!-- ── Welcome Banner (shown on first install) ── -->
             <div id="welcome-banner" class="welcome-banner" style="display:none;">
                 <div class="welcome-banner-content">
-                    <h2 class="welcome-banner-title">Welcome to MarkSnip!</h2>
-                    <p>Thanks for installing MarkSnip. This guide will help you get started with clipping web pages as clean Markdown.</p>
-                    <p>Start with the <strong>Quick Start</strong> section below, or browse the table of contents on the left.</p>
+                    <h2 class="welcome-banner-title" data-i18n="guide_welcome_title">Welcome to MarkSnip!</h2>
+                    <p data-i18n="guide_welcome_body">Thanks for installing MarkSnip. This guide will help you get started with clipping web pages as clean Markdown.</p>
+                    <p data-i18n="guide_welcome_body_followup">Start with the <strong>Quick Start</strong> section below, or browse the table of contents on the left.</p>
                 </div>
-                <button id="welcome-banner-dismiss" class="welcome-banner-dismiss" aria-label="Dismiss welcome message">&times;</button>
+                <button id="welcome-banner-dismiss" class="welcome-banner-dismiss" aria-label="Dismiss welcome message" data-i18n-attr-aria-label="guide_welcome_dismiss_aria">&times;</button>
             </div>
 
             <!-- ────────────────────────────────────────────
@@ -140,7 +140,10 @@
             <section id="quick-start" class="guide-section"
                 data-guide-section="Quick Start"
                 data-guide-summary="Get started with MarkSnip in three steps"
-                data-search-keywords="getting started,intro,overview,begin,first time,how to use">
+                data-search-keywords="getting started,intro,overview,begin,first time,how to use"
+                data-i18n-attr-data-guide-section="guide_section_quick_start"
+                data-i18n-attr-data-guide-summary="guide_summary_quick_start"
+                data-i18n-attr-data-search-keywords="guide_keywords_quick_start">
                 <h2 class="section-heading"><a href="#quick-start" class="anchor-link">#</a>Quick Start</h2>
                 <div class="section-body">
                     <ol class="steps-list">
@@ -233,7 +236,10 @@
             <section id="batch-processing" class="guide-section"
                 data-guide-section="Batch Processing"
                 data-guide-summary="Convert multiple URLs to Markdown at once"
-                data-search-keywords="batch,bulk,multiple pages,urls,zip,convert all">
+                data-search-keywords="batch,bulk,multiple pages,urls,zip,convert all"
+                data-i18n-attr-data-guide-section="guide_section_batch_processing"
+                data-i18n-attr-data-guide-summary="guide_summary_batch_processing"
+                data-i18n-attr-data-search-keywords="guide_keywords_batch_processing">
                 <h2 class="section-heading"><a href="#batch-processing" class="anchor-link">#</a>Batch Processing</h2>
                 <p>Click the batch icon in the popup header to switch to batch mode.</p>
 
@@ -259,7 +265,10 @@ https://example.com/page2
                 <div id="output-format" class="guide-subsection"
                     data-guide-section="Output Format"
                     data-guide-summary="Choose ZIP or individual file downloads"
-                    data-search-keywords="zip,individual,output format,batch save">
+                    data-search-keywords="zip,individual,output format,batch save"
+                    data-i18n-attr-data-guide-section="guide_section_output_format"
+                    data-i18n-attr-data-guide-summary="guide_summary_output_format"
+                    data-i18n-attr-data-search-keywords="guide_keywords_output_format">
                     <h3 class="subsection-heading"><a href="#output-format" class="anchor-link">#</a>Output Format</h3>
                     <ul>
                         <li><strong>ZIP file</strong> &mdash; all converted Markdown files are bundled into a single <code>.zip</code> download.</li>
@@ -335,10 +344,13 @@ https://example.com/page2
                     <p>At the bottom of the context menu you'll also find checkboxes for <strong>Include front/back template</strong> and <strong>Download Images</strong>.</p>
                 </div>
 
-                <div id="keyboard-shortcuts" class="guide-subsection"
+                    <div id="keyboard-shortcuts" class="guide-subsection"
                     data-guide-section="Keyboard Shortcuts"
                     data-guide-summary="Default keyboard shortcuts and customization"
-                    data-search-keywords="keyboard shortcut,hotkey,alt shift,keybinding,command">
+                    data-search-keywords="keyboard shortcut,hotkey,alt shift,keybinding,command"
+                    data-i18n-attr-data-guide-section="guide_section_keyboard_shortcuts"
+                    data-i18n-attr-data-guide-summary="guide_summary_keyboard_shortcuts"
+                    data-i18n-attr-data-search-keywords="guide_keywords_keyboard_shortcuts">
                     <h3 class="subsection-heading"><a href="#keyboard-shortcuts" class="anchor-link">#</a>Keyboard Shortcuts</h3>
                     <div class="ref-table-wrap">
                         <table class="ref-table">
@@ -500,7 +512,10 @@ author: {byline}
                 <div id="obsidian-integration" class="guide-subsection"
                     data-guide-section="Obsidian Integration"
                     data-guide-summary="Send clipped pages directly to Obsidian"
-                    data-search-keywords="obsidian integration,vault name,folder name,advanced uri,obsidian plugin">
+                    data-search-keywords="obsidian integration,vault name,folder name,advanced uri,obsidian plugin"
+                    data-i18n-attr-data-guide-section="guide_section_obsidian_integration"
+                    data-i18n-attr-data-guide-summary="guide_summary_obsidian_integration"
+                    data-i18n-attr-data-search-keywords="guide_keywords_obsidian_integration">
                     <h3 class="subsection-heading"><a href="#obsidian-integration" class="anchor-link">#</a>Obsidian Integration</h3>
                     <p>Enable this to show the <strong>Send to Obsidian</strong> button and Obsidian context menu actions. Requires the <strong>Advanced Obsidian URI</strong> community plugin.</p>
                     <ul>
@@ -611,7 +626,10 @@ author: {byline}
             <section id="troubleshooting" class="guide-section"
                 data-guide-section="Troubleshooting / FAQ"
                 data-guide-summary="Common issues and solutions"
-                data-search-keywords="troubleshooting,faq,help,problem,issue,bug,not working,error,fix">
+                data-search-keywords="troubleshooting,faq,help,problem,issue,bug,not working,error,fix"
+                data-i18n-attr-data-guide-section="guide_section_troubleshooting"
+                data-i18n-attr-data-guide-summary="guide_summary_troubleshooting"
+                data-i18n-attr-data-search-keywords="guide_keywords_troubleshooting">
                 <h2 class="section-heading"><a href="#troubleshooting" class="anchor-link">#</a>Troubleshooting / FAQ</h2>
                 <div class="section-body">
                     <div class="faq-item">
@@ -719,6 +737,7 @@ author: {byline}
     </div><!-- /.guide-window -->
 
     <script src="../browser-polyfill.min.js"></script>
+    <script src="../shared/i18n.js"></script>
     <script src="../shared/default-options.js"></script>
     <script src="../shared/search-core.js"></script>
     <script src="guide.js"></script>

@@ -1,0 +1,920 @@
+{
+  "manifest_name": {
+    "message": "MarkSnip - Recortador Web en Markdown"
+  },
+  "manifest_description": {
+    "message": "Recortador web en Markdown con un clic. Guarda artículos, documentación, código y tablas como Markdown limpio para agentes de IA y LLM. Compatible con Obsidian y más."
+  },
+  "manifest_action_title": {
+    "message": "MarkSnip"
+  },
+  "manifest_command_download_tab_as_markdown": {
+    "message": "Guardar la pestaña actual como Markdown"
+  },
+  "manifest_command_copy_tab_as_markdown": {
+    "message": "Copiar la pestaña actual como Markdown al portapapeles"
+  },
+  "manifest_command_copy_selection_as_markdown": {
+    "message": "Copiar la selección actual como Markdown al portapapeles"
+  },
+  "manifest_command_copy_tab_as_markdown_link": {
+    "message": "Copiar la URL de la pestaña actual como enlace Markdown al portapapeles"
+  },
+  "manifest_command_copy_selected_tab_as_markdown_link": {
+    "message": "Copiar las URL de las pestañas seleccionadas como enlace Markdown al portapapeles"
+  },
+  "manifest_command_copy_selection_to_obsidian": {
+    "message": "Copiar la selección actual como Markdown a Obsidian"
+  },
+  "manifest_command_copy_tab_to_obsidian": {
+    "message": "Copiar la pestaña actual como Markdown a Obsidian"
+  },
+  "popup_loading_text": {
+    "message": "Procesando página..."
+  },
+  "popup_logo_alt": {
+    "message": "Logotipo de MarkSnip"
+  },
+  "popup_theme_toggle_title": {
+    "message": "Cambiar al modo oscuro"
+  },
+  "popup_theme_toggle_aria": {
+    "message": "Cambiar al modo oscuro"
+  },
+  "popup_open_guide_title": {
+    "message": "Guía de usuario"
+  },
+  "popup_open_guide_aria": {
+    "message": "Abrir la guía de usuario"
+  },
+  "popup_open_guide_menu_label": {
+    "message": "Guía de usuario"
+  },
+  "popup_batch_processing_title": {
+    "message": "Procesamiento por lotes"
+  },
+  "popup_batch_processing_aria": {
+    "message": "Abrir el procesamiento por lotes"
+  },
+  "popup_library_title": {
+    "message": "Biblioteca"
+  },
+  "popup_library_aria": {
+    "message": "Abrir la biblioteca"
+  },
+  "popup_settings_title": {
+    "message": "Configuración"
+  },
+  "popup_settings_aria": {
+    "message": "Abrir la configuración"
+  },
+  "popup_content_scope_aria": {
+    "message": "Alcance del contenido"
+  },
+  "popup_title_placeholder": {
+    "message": "Título del documento..."
+  },
+  "popup_preview_toggle_title": {
+    "message": "Alternar vista previa"
+  },
+  "popup_copy_selection_button": {
+    "message": "Copiar selección"
+  },
+  "popup_copy_button": {
+    "message": "Copiar"
+  },
+  "popup_download_selection_button": {
+    "message": "Descargar selección"
+  },
+  "popup_download_button": {
+    "message": "Descargar"
+  },
+  "popup_more_export_options_title": {
+    "message": "Más opciones de exportación"
+  },
+  "popup_url_list_placeholder": {
+    "message": "https://example.com/page1\nhttps://example.com/page2\n\nO usa enlaces markdown:\n[Page Title](https://example.com)"
+  },
+  "popup_close_library_aria": {
+    "message": "Cerrar biblioteca"
+  },
+  "popup_download_zip_button": {
+    "message": "Descargar como ZIP"
+  },
+  "popup_copy_all_links_button": {
+    "message": "Copiar todos los enlaces"
+  },
+  "popup_close_shortcuts_aria": {
+    "message": "Cerrar atajos"
+  },
+  "popup_export_markdown_main": {
+    "message": "Descargar"
+  },
+  "popup_export_markdown_selection": {
+    "message": "Descargar selección"
+  },
+  "popup_export_markdown_dropdown": {
+    "message": "Markdown (.md)"
+  },
+  "popup_export_text_main": {
+    "message": "Descargar TXT"
+  },
+  "popup_export_text_selection": {
+    "message": "Descargar selección como TXT"
+  },
+  "popup_export_text_dropdown": {
+    "message": "Texto sin formato (.txt)"
+  },
+  "popup_export_html_main": {
+    "message": "Descargar HTML"
+  },
+  "popup_export_html_selection": {
+    "message": "Descargar selección como HTML"
+  },
+  "popup_export_html_dropdown": {
+    "message": "HTML (.html)"
+  },
+  "popup_export_pdf_main": {
+    "message": "Guardar como PDF"
+  },
+  "popup_export_pdf_selection": {
+    "message": "Guardar selección como PDF"
+  },
+  "popup_export_pdf_dropdown": {
+    "message": "Guardar como PDF"
+  },
+  "popup_export_copy_main": {
+    "message": "Copiar"
+  },
+  "popup_export_copy_selection": {
+    "message": "Copiar selección"
+  },
+  "popup_opening_assistant": {
+    "message": "Abriendo $1..."
+  },
+  "popup_copying_then_opening_assistant": {
+    "message": "Copiado. Abriendo $1..."
+  },
+  "popup_sent_to_obsidian": {
+    "message": "¡Enviado a Obsidian!"
+  },
+  "popup_link_picker_failed": {
+    "message": "No se pudo activar el selector de enlaces. Inténtalo de nuevo."
+  },
+  "popup_library_empty_auto_save": {
+    "message": "Abre el popup en cualquier página y el recorte actual se guardará aquí automáticamente."
+  },
+  "popup_shortcuts_assign": {
+    "message": "Asignar en los atajos del navegador"
+  },
+  "popup_shortcut_execute_action": {
+    "message": "Abrir el popup de MarkSnip"
+  },
+  "popup_shortcut_download_tab_as_markdown": {
+    "message": "Descargar la pestaña como Markdown"
+  },
+  "popup_shortcut_copy_tab_as_markdown": {
+    "message": "Copiar la pestaña como Markdown"
+  },
+  "popup_shortcut_copy_tab_as_markdown_link": {
+    "message": "Copiar la URL de la pestaña como enlace Markdown"
+  },
+  "popup_shortcut_copy_selection_as_markdown": {
+    "message": "Copiar la selección como Markdown"
+  },
+  "popup_shortcut_copy_selected_tab_as_markdown_link": {
+    "message": "Copiar las pestañas seleccionadas como enlaces Markdown"
+  },
+  "popup_shortcut_copy_selection_to_obsidian": {
+    "message": "Copiar la selección a Obsidian"
+  },
+  "popup_shortcut_copy_tab_to_obsidian": {
+    "message": "Copiar la pestaña a Obsidian"
+  },
+  "options_page_title": {
+    "message": "Opciones de MarkSnip"
+  },
+  "options_header_subtitle": {
+    "message": "Opciones"
+  },
+  "options_search_placeholder": {
+    "message": "Buscar ajustes..."
+  },
+  "options_sidebar_aria": {
+    "message": "Secciones de opciones"
+  },
+  "options_sidebar_templates": {
+    "message": "Plantillas"
+  },
+  "options_sidebar_appearance": {
+    "message": "Apariencia"
+  },
+  "options_sidebar_downloads": {
+    "message": "Descargas"
+  },
+  "options_sidebar_library": {
+    "message": "Biblioteca"
+  },
+  "options_sidebar_markdown": {
+    "message": "Markdown"
+  },
+  "options_sidebar_tables": {
+    "message": "Tablas"
+  },
+  "options_sidebar_site_rules": {
+    "message": "Reglas del sitio"
+  },
+  "options_sidebar_import_export": {
+    "message": "Importar / Exportar"
+  },
+  "options_sidebar_help_resources": {
+    "message": "Ayuda y recursos"
+  },
+  "options_sidebar_user_guide": {
+    "message": "Guía de usuario"
+  },
+  "options_sidebar_community": {
+    "message": "Comunidad"
+  },
+  "options_sidebar_buy_me_a_coffee": {
+    "message": "Invítame a un café"
+  },
+  "options_sidebar_leave_review": {
+    "message": "Dejar una reseña"
+  },
+  "options_sidebar_report_issue": {
+    "message": "Reportar un problema"
+  },
+  "options_download_mode_title": {
+    "message": "Modo de descarga"
+  },
+  "options_search_user_guide_instead": {
+    "message": "Buscar en la guía de usuario"
+  },
+  "options_show_user_guide_icon_label": {
+    "message": "Mostrar el icono de la guía de usuario"
+  },
+  "options_show_user_guide_icon_hint": {
+    "message": "Muestra el botón de la guía de usuario en el encabezado del popup para acceder rápidamente a la ayuda."
+  },
+  "options_custom_send_to_name_placeholder": {
+    "message": "Espacio de trabajo Gemini"
+  },
+  "options_custom_send_to_url_placeholder": {
+    "message": "https://example.com/new?q={prompt}"
+  },
+  "options_obsidian_vault_placeholder": {
+    "message": "Si se deja en blanco, se usará el Vault principal. Especifícalo si lo necesitas."
+  },
+  "options_obsidian_folder_placeholder": {
+    "message": "Introduce el nombre de la carpeta, por ejemplo Clippers"
+  },
+  "options_site_rule_name_placeholder": {
+    "message": "Plantilla para documentación"
+  },
+  "options_site_rule_pattern_placeholder": {
+    "message": "example.com/*"
+  },
+  "options_site_rule_frontmatter_placeholder": {
+    "message": "---\nsource: {pageURL}\n---"
+  },
+  "options_site_rule_backmatter_placeholder": {
+    "message": "Capturado desde {pageHostname}"
+  },
+  "options_site_rule_title_placeholder": {
+    "message": "{pageTitle}"
+  },
+  "options_site_rule_image_prefix_placeholder": {
+    "message": "{pageTitle}/"
+  },
+  "options_site_rule_md_clips_folder_placeholder": {
+    "message": "Clips/{pageHostname}"
+  },
+  "options_agent_bridge_check_connection_aria": {
+    "message": "Comprobar el estado de conexión de Agent Bridge"
+  },
+  "options_agent_bridge_copy_command_aria": {
+    "message": "Copiar el comando de instalación al portapapeles"
+  },
+  "options_toast_saved": {
+    "message": "Opciones guardadas"
+  },
+  "options_toast_library_saved": {
+    "message": "Ajustes de la biblioteca guardados"
+  },
+  "options_toast_library_cleared": {
+    "message": "Biblioteca borrada"
+  },
+  "options_toast_setting_reset": {
+    "message": "El ajuste se restableció al valor predeterminado"
+  },
+  "options_toast_all_reset": {
+    "message": "Todos los ajustes se restablecieron a sus valores predeterminados"
+  },
+  "options_toast_agent_bridge_enabled": {
+    "message": "Agent Bridge activado"
+  },
+  "options_toast_agent_bridge_disabled": {
+    "message": "Agent Bridge desactivado"
+  },
+  "options_toast_agent_bridge_permission_granted": {
+    "message": "Permiso de Agent Bridge concedido"
+  },
+  "options_toast_agent_bridge_status_refreshed": {
+    "message": "Estado de Agent Bridge actualizado"
+  },
+  "options_toast_install_command_copied": {
+    "message": "Comando de instalación copiado"
+  },
+  "options_toast_install_command_copy_failed": {
+    "message": "No se pudo copiar el comando de instalación"
+  },
+  "options_error_target_name_required": {
+    "message": "Introduce un nombre para el destino"
+  },
+  "options_error_valid_url_template_required": {
+    "message": "Introduce una plantilla de URL válida"
+  },
+  "options_error_add_assistant_target_failed": {
+    "message": "No se pudo añadir el destino del asistente"
+  },
+  "options_error_invalid_site_rule_pattern": {
+    "message": "Patrón de regla del sitio no válido"
+  },
+  "options_error_native_permission_unavailable": {
+    "message": "Este navegador no puede solicitar aquí el permiso de mensajería nativa"
+  },
+  "options_error_native_permission_denied": {
+    "message": "No se concedió el permiso de Agent Bridge"
+  },
+  "options_permission_granted_reload_hint": {
+    "message": "Permiso concedido. MarkSnip se recargará una vez para terminar de activar Agent Bridge."
+  },
+  "options_agent_bridge_hint_default": {
+    "message": "Activa Agent Bridge para permitir que MarkSnip se conecte al complemento local."
+  },
+  "options_agent_bridge_hint_permission": {
+    "message": "Concede el permiso de mensajería nativa para que MarkSnip pueda conectarse al complemento local."
+  },
+  "options_agent_bridge_hint_waiting": {
+    "message": "MarkSnip está esperando que responda el complemento local."
+  },
+  "options_agent_bridge_hint_connecting": {
+    "message": "MarkSnip está intentando conectarse al complemento local."
+  },
+  "options_agent_bridge_hint_disabled": {
+    "message": "MarkSnip no usará la conexión local mientras esté desactivada, aunque el permiso del navegador siga concedido."
+  },
+  "options_agent_bridge_toggle_hint_on": {
+    "message": "MarkSnip abre una conexión de mensajería nativa mientras este interruptor está activado."
+  },
+  "options_agent_bridge_toggle_hint_off": {
+    "message": "Si está desactivado, MarkSnip no abrirá una conexión con el complemento local."
+  },
+  "options_template_preview_title": {
+    "message": "Artículo de ejemplo"
+  },
+  "options_template_preview_excerpt_heading": {
+    "message": "Extracto"
+  },
+  "options_template_preview_excerpt": {
+    "message": "Un resumen de ejemplo compacto para la vista previa de la plantilla."
+  },
+  "options_template_preview_author": {
+    "message": "Jane Doe"
+  },
+  "options_template_preview_keyword_example": {
+    "message": "ejemplo"
+  },
+  "options_template_preview_keyword_markdown": {
+    "message": "markdown"
+  },
+  "options_template_preview_keyword_templates": {
+    "message": "plantillas"
+  },
+  "options_template_preview_site_name": {
+    "message": "Sitio de ejemplo"
+  },
+  "options_custom_send_to_empty_state": {
+    "message": "Todavía no hay destinos de asistente personalizados. ChatGPT, Claude y Perplexity siempre están disponibles."
+  },
+  "options_downloads_api_unavailable": {
+    "message": "La API de descargas no está disponible en este navegador."
+  },
+  "guide_page_title": {
+    "message": "Guía de usuario de MarkSnip"
+  },
+  "guide_skip_to_content": {
+    "message": "Saltar al contenido"
+  },
+  "guide_header_subtitle": {
+    "message": "Guía de usuario"
+  },
+  "guide_search_placeholder": {
+    "message": "Buscar en la guía..."
+  },
+  "guide_search_aria": {
+    "message": "Buscar en la guía de usuario"
+  },
+  "guide_open_settings_title": {
+    "message": "Abrir configuración"
+  },
+  "guide_open_settings_label": {
+    "message": "Configuración"
+  },
+  "guide_toc_aria": {
+    "message": "Tabla de contenido"
+  },
+  "guide_search_results_aria": {
+    "message": "Resultados de búsqueda"
+  },
+  "guide_search_clear_aria": {
+    "message": "Borrar búsqueda"
+  },
+  "guide_search_clear_label": {
+    "message": "Borrar"
+  },
+  "guide_search_no_results": {
+    "message": "No hay resultados para \"$1\""
+  },
+  "guide_search_no_results_hint": {
+    "message": "Prueba con otras palabras clave o navega por la tabla de contenido."
+  },
+  "guide_welcome_title": {
+    "message": "¡Te damos la bienvenida a MarkSnip!"
+  },
+  "guide_welcome_body": {
+    "message": "Gracias por instalar MarkSnip. Esta guía te ayudará a empezar a recortar páginas web como Markdown limpio."
+  },
+  "guide_welcome_body_followup": {
+    "message": "Empieza con la sección Inicio rápido de abajo o navega por la tabla de contenido de la izquierda."
+  },
+  "guide_welcome_dismiss_aria": {
+    "message": "Cerrar mensaje de bienvenida"
+  },
+  "guide_toc_quick_start": {
+    "message": "Inicio rápido"
+  },
+  "guide_toc_using_popup": {
+    "message": "Uso del popup"
+  },
+  "guide_toc_quick_settings": {
+    "message": "Ajustes rápidos"
+  },
+  "guide_toc_clipping_scope": {
+    "message": "Alcance del recorte"
+  },
+  "guide_toc_editing_title": {
+    "message": "Editar el título"
+  },
+  "guide_toc_markdown_preview": {
+    "message": "Vista previa de Markdown"
+  },
+  "guide_toc_action_buttons": {
+    "message": "Botones de acción"
+  },
+  "guide_toc_batch_processing": {
+    "message": "Procesamiento por lotes"
+  },
+  "guide_toc_adding_urls": {
+    "message": "Añadir URL"
+  },
+  "guide_toc_pick_links": {
+    "message": "Elegir enlaces de la página"
+  },
+  "guide_toc_output_format": {
+    "message": "Formato de salida"
+  },
+  "guide_toc_context_menus": {
+    "message": "Menús contextuales y atajos"
+  },
+  "guide_toc_download_actions": {
+    "message": "Acciones de descarga"
+  },
+  "guide_toc_copy_actions": {
+    "message": "Acciones de copia"
+  },
+  "guide_toc_obsidian_actions": {
+    "message": "Acciones de Obsidian"
+  },
+  "guide_toc_keyboard_shortcuts": {
+    "message": "Atajos de teclado"
+  },
+  "guide_toc_settings": {
+    "message": "Configuración y personalización"
+  },
+  "guide_toc_templates": {
+    "message": "Plantillas"
+  },
+  "guide_toc_download_settings": {
+    "message": "Descargas"
+  },
+  "guide_toc_markdown_options": {
+    "message": "Opciones de Markdown"
+  },
+  "guide_toc_table_options": {
+    "message": "Opciones de tablas"
+  },
+  "guide_toc_import_export": {
+    "message": "Importar / Exportar"
+  },
+  "guide_toc_obsidian_downloads": {
+    "message": "Obsidian y descargas"
+  },
+  "guide_toc_obsidian_integration": {
+    "message": "Integración con Obsidian"
+  },
+  "guide_toc_download_mode": {
+    "message": "Modo de descarga"
+  },
+  "guide_toc_image_downloads": {
+    "message": "Descarga de imágenes"
+  },
+  "guide_toc_permissions_privacy": {
+    "message": "Permisos y privacidad"
+  },
+  "guide_toc_site_access_permission": {
+    "message": "Acceso al sitio"
+  },
+  "guide_toc_other_core_permissions": {
+    "message": "Otros permisos básicos"
+  },
+  "guide_toc_agent_bridge_permission": {
+    "message": "Permiso de Agent Bridge"
+  },
+  "guide_toc_troubleshooting": {
+    "message": "Solución de problemas / Preguntas frecuentes"
+  },
+  "guide_toc_text_substitutions": {
+    "message": "Sustituciones de texto"
+  },
+  "guide_section_quick_start": {
+    "message": "Inicio rápido"
+  },
+  "guide_summary_quick_start": {
+    "message": "Empieza con MarkSnip en tres pasos"
+  },
+  "guide_keywords_quick_start": {
+    "message": "inicio rápido,introducción,resumen,empezar,primeros pasos,cómo usar"
+  },
+  "guide_section_batch_processing": {
+    "message": "Procesamiento por lotes"
+  },
+  "guide_summary_batch_processing": {
+    "message": "Convierte varias URL en un ZIP de Markdown en una sola ejecución"
+  },
+  "guide_keywords_batch_processing": {
+    "message": "lote,múltiples url,zip,exportación masiva,lista de urls"
+  },
+  "guide_section_output_format": {
+    "message": "Formato de salida"
+  },
+  "guide_summary_output_format": {
+    "message": "Elige entre enlaces Markdown, títulos o archivos descargados"
+  },
+  "guide_keywords_output_format": {
+    "message": "salida,zip,lista,enlaces,enlaces markdown,descarga"
+  },
+  "guide_section_keyboard_shortcuts": {
+    "message": "Atajos de teclado"
+  },
+  "guide_summary_keyboard_shortcuts": {
+    "message": "Comandos de atajo integrados para popup, copia y descarga"
+  },
+  "guide_keywords_keyboard_shortcuts": {
+    "message": "atajo de teclado,atajos,tecla rápida,comandos"
+  },
+  "guide_section_obsidian_integration": {
+    "message": "Integración con Obsidian"
+  },
+  "guide_summary_obsidian_integration": {
+    "message": "Copia Markdown en Obsidian con el complemento Advanced URI"
+  },
+  "guide_keywords_obsidian_integration": {
+    "message": "obsidian,vault,advanced uri,plugin"
+  },
+  "guide_section_troubleshooting": {
+    "message": "Solución de problemas"
+  },
+  "guide_summary_troubleshooting": {
+    "message": "Soluciones comunes para recortes, descargas e integraciones"
+  },
+  "guide_keywords_troubleshooting": {
+    "message": "preguntas frecuentes,problema,error,depurar,ayuda"
+  },
+  "menu_download_markdown_tab": {
+    "message": "Descargar pestaña como Markdown"
+  },
+  "menu_tab_download_markdown_alltabs": {
+    "message": "Descargar todas las pestañas como Markdown"
+  },
+  "menu_copy_tab_as_markdown_link_tab": {
+    "message": "Copiar la URL de la pestaña como enlace Markdown"
+  },
+  "menu_copy_tab_as_markdown_link_all_tab": {
+    "message": "Copiar las URL de todas las pestañas como lista de enlaces Markdown"
+  },
+  "menu_copy_tab_as_markdown_link_selected_tab": {
+    "message": "Copiar las URL de las pestañas seleccionadas como lista de enlaces Markdown"
+  },
+  "menu_toggle_include_template": {
+    "message": "Incluir plantilla frontal/final"
+  },
+  "menu_toggle_download_images": {
+    "message": "Descargar imágenes"
+  },
+  "menu_download_markdown_alltabs": {
+    "message": "Descargar todas las pestañas como Markdown"
+  },
+  "menu_download_markdown_selection": {
+    "message": "Descargar selección como Markdown"
+  },
+  "menu_download_markdown_all": {
+    "message": "Descargar pestaña como Markdown"
+  },
+  "menu_copy_markdown_selection": {
+    "message": "Copiar selección como Markdown"
+  },
+  "menu_copy_markdown_link": {
+    "message": "Copiar enlace como Markdown"
+  },
+  "menu_copy_markdown_image": {
+    "message": "Copiar imagen como Markdown"
+  },
+  "menu_copy_markdown_all": {
+    "message": "Copiar pestaña como Markdown"
+  },
+  "menu_copy_tab_as_markdown_link": {
+    "message": "Copiar la URL de la pestaña como enlace Markdown"
+  },
+  "menu_copy_tab_as_markdown_link_all": {
+    "message": "Copiar las URL de todas las pestañas como lista de enlaces Markdown"
+  },
+  "menu_copy_tab_as_markdown_link_selected": {
+    "message": "Copiar las URL de las pestañas seleccionadas como lista de enlaces Markdown"
+  },
+  "menu_copy_markdown_obsidian": {
+    "message": "Enviar la selección de texto a Obsidian"
+  },
+  "menu_copy_markdown_obsall": {
+    "message": "Enviar pestaña a Obsidian"
+  },
+  "notification_open_link": {
+    "message": "Abrir enlace"
+  },
+  "notification_update_title": {
+    "message": "MarkSnip se actualizó a la versión $1"
+  },
+  "notification_update_message_with_previous": {
+    "message": "Actualizado de la versión $1 a la $2."
+  },
+  "notification_update_message_without_previous": {
+    "message": "MarkSnip se actualizó a la versión $1."
+  },
+  "notification_action_support": {
+    "message": "Invítame a un café"
+  },
+  "notification_action_release_notes": {
+    "message": "Ver notas de la versión"
+  },
+  "notification_support_title": {
+    "message": "$1 páginas exportadas"
+  },
+  "notification_support_message": {
+    "message": "MarkSnip ha ayudado a exportar más de $1 páginas. Si te ha resultado útil, apoya el desarrollo continuo."
+  },
+  "notification_eyebrow_update": {
+    "message": "Actualización de MarkSnip"
+  },
+  "notification_eyebrow_milestone": {
+    "message": "Hito"
+  },
+  "notification_milestone_label": {
+    "message": "páginas exportadas"
+  },
+  "notification_fallback_title": {
+    "message": "Notificación de MarkSnip"
+  },
+  "batch_overlay_title": {
+    "message": "MarkSnip — Procesamiento por lotes"
+  },
+  "batch_overlay_cancel": {
+    "message": "Cancelar lote"
+  },
+  "batch_overlay_cancelling": {
+    "message": "Cancelando..."
+  },
+  "notification_dismiss_aria": {
+    "message": "Cerrar notificacion"
+  },
+  "popup_send_to_target": {
+    "message": "Enviar a $1"
+  },
+  "popup_send_selection_to_target": {
+    "message": "Enviar seleccion a $1"
+  },
+  "popup_batch_cancel": {
+    "message": "Cancelar"
+  },
+  "popup_library_empty_manual": {
+    "message": "El modo manual esta activado. Usa \"Guardar clip\" para anadir la pagina actual a tu biblioteca local."
+  },
+  "popup_action_nothing_to_send": {
+    "message": "Nada que enviar"
+  },
+  "popup_action_failed": {
+    "message": "Fallo"
+  },
+  "popup_batch_status_started_zip": {
+    "message": "Lote iniciado (modo ZIP)..."
+  },
+  "popup_batch_status_started": {
+    "message": "Lote iniciado..."
+  },
+  "popup_batch_status_loading": {
+    "message": "Cargando pagina..."
+  },
+  "popup_batch_status_converting": {
+    "message": "Convirtiendo pagina..."
+  },
+  "popup_batch_status_retrying": {
+    "message": "Reintentando la captura de la pagina..."
+  },
+  "popup_batch_status_zipping": {
+    "message": "Creando archivo ZIP..."
+  },
+  "popup_batch_status_warning": {
+    "message": "Aviso durante la conversion"
+  },
+  "popup_batch_status_item_error": {
+    "message": "Error: $1"
+  },
+  "popup_batch_status_failed_url": {
+    "message": "URL fallida"
+  },
+  "popup_batch_status_cancelled": {
+    "message": "Lote cancelado"
+  },
+  "popup_batch_status_failed": {
+    "message": "El lote fallo: $1"
+  },
+  "popup_batch_status_unknown_error": {
+    "message": "Error desconocido"
+  },
+  "popup_batch_status_finished_errors": {
+    "message": "Finalizado con $1 error(es)"
+  },
+  "popup_batch_status_finished_zip": {
+    "message": "ZIP descargado"
+  },
+  "popup_batch_status_finished": {
+    "message": "Lote completado"
+  },
+  "options_error_url_template_required": {
+    "message": "La plantilla de URL es obligatoria"
+  },
+  "options_error_url_template_prompt_once": {
+    "message": "La plantilla de URL debe contener exactamente un marcador {prompt}"
+  },
+  "options_error_url_template_prompt_query": {
+    "message": "{prompt} debe aparecer en la parte de consulta de la URL"
+  },
+  "options_error_url_template_https": {
+    "message": "La plantilla de URL debe comenzar con https://"
+  },
+  "options_error_url_template_valid_https": {
+    "message": "La plantilla de URL debe ser una URL HTTPS valida"
+  },
+  "options_error_site_rule_pattern_required": {
+    "message": "El patron es obligatorio"
+  },
+  "options_error_site_rule_scheme_supported": {
+    "message": "Solo se admiten http://, https:// o sin esquema"
+  },
+  "options_error_site_rule_scheme_invalid": {
+    "message": "El patron tiene un esquema no compatible"
+  },
+  "options_error_site_rule_host_required": {
+    "message": "El host del patron es obligatorio"
+  },
+  "options_toast_assistant_target_added": {
+    "message": "Se anadio \"$1\""
+  },
+  "options_toast_assistant_target_removed": {
+    "message": "Se elimino \"$1\""
+  },
+  "options_template_preview_empty": {
+    "message": "Todavia no hay nada que previsualizar."
+  },
+  "options_agent_bridge_action_grant_permission": {
+    "message": "Conceder permiso"
+  },
+  "options_agent_bridge_action_grant_permission_aria": {
+    "message": "Conceder permiso de native messaging para Agent Bridge"
+  },
+  "options_agent_bridge_action_check_connection": {
+    "message": "Comprobar conexion"
+  },
+  "options_agent_bridge_state_reloading": {
+    "message": "Recargando la extension"
+  },
+  "options_agent_bridge_action_reloading": {
+    "message": "Recargando..."
+  },
+  "options_agent_bridge_action_requesting": {
+    "message": "Solicitando..."
+  },
+  "options_agent_bridge_action_continue": {
+    "message": "Continuar"
+  },
+  "options_agent_bridge_state_disabled": {
+    "message": "Desactivado"
+  },
+  "options_agent_bridge_state_permission_needed": {
+    "message": "Permiso necesario"
+  },
+  "options_agent_bridge_state_checking": {
+    "message": "Comprobando conexion"
+  },
+  "options_agent_bridge_state_connected": {
+    "message": "Conectado"
+  },
+  "options_agent_bridge_state_connected_via": {
+    "message": "Conectado mediante $1"
+  },
+  "options_agent_bridge_hint_connected": {
+    "message": "La CLI local puede solicitar la pagina actual mientras este navegador este abierto."
+  },
+  "options_agent_bridge_state_waiting": {
+    "message": "Esperando al companion"
+  },
+  "options_agent_bridge_hint_unreachable": {
+    "message": "No se pudo acceder al companion local. Revisa la guia de configuracion y vuelve a intentarlo."
+  },
+  "options_agent_bridge_state_starting": {
+    "message": "Iniciando"
+  },
+  "options_agent_bridge_host_version": {
+    "message": "Host $1"
+  },
+  "options_agent_bridge_action_granting": {
+    "message": "Concediendo..."
+  },
+  "options_agent_bridge_action_checking": {
+    "message": "Comprobando..."
+  },
+  "options_reset_button": {
+    "message": "Restablecer"
+  },
+  "options_reset_button_title": {
+    "message": "Restablecer al valor predeterminado"
+  },
+  "options_search_status_no_results": {
+    "message": "Ningun ajuste coincide con \"$1\""
+  },
+  "options_search_status_results": {
+    "message": "Mostrando $1 de $2 ajustes"
+  },
+  "options_search_no_results_html": {
+    "message": "Ningun ajuste coincide con \"<span id=\"search-no-results-query\"></span>\""
+  },
+  "guide_search_results_count_one": {
+    "message": "$1 resultado"
+  },
+  "guide_search_results_count_many": {
+    "message": "$1 resultados"
+  },
+  "guide_search_no_results_html": {
+    "message": "No hay resultados para \"<span id=\"search-no-results-query\"></span>\""
+  },
+  "options_language_title": {
+    "message": "Idioma"
+  },
+  "options_language_desc": {
+    "message": "Elige el idioma usado por las páginas, menús y notificaciones de MarkSnip."
+  },
+  "options_language_label": {
+    "message": "Idioma de la extensión"
+  },
+  "options_language_option_browser": {
+    "message": "Idioma del navegador"
+  },
+  "options_language_option_en": {
+    "message": "English"
+  },
+  "options_language_option_es": {
+    "message": "Español"
+  },
+  "options_language_option_fr": {
+    "message": "Français"
+  },
+  "options_language_option_de": {
+    "message": "Deutsch"
+  },
+  "options_language_help": {
+    "message": "Los nombres y etiquetas de la extensión que proporciona el navegador siguen el idioma del navegador."
+  },
+  "options_language_search_keywords": {
+    "message": "idioma,locale,traducción,navegador,predeterminado,inglés,español,francés,alemán"
+  }
+}

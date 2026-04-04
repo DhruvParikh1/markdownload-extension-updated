@@ -3,6 +3,7 @@
 if (typeof importScripts === 'function') {
   importScripts(
     'browser-polyfill.min.js',
+    'shared/i18n.js',
     'background/moment.min.js',
     'background/apache-mime-types.js',
     'shared/notifications.js',
@@ -25,7 +26,7 @@ browser.runtime.getPlatformInfo().then(async platformInfo => {
 // Initialize listeners synchronously
 browser.runtime.onMessage.addListener(handleMessages);
 browser.runtime.onInstalled.addListener((details) => {
-  handleInstalled(details).catch((error) => {
+  ensureI18nReady().then(() => handleInstalled(details)).catch((error) => {
     console.error('[Notifications] Failed to handle install event:', error);
   });
 });
@@ -54,7 +55,12 @@ if (browser.tabs?.onUpdated?.addListener) {
 }
 
 // Create context menus when service worker starts
-createMenus();
+ensureI18nReady()
+  .then(() => createMenus())
+  .catch((error) => {
+    console.warn('[i18n] Failed to initialize locale preference:', error);
+    return createMenus();
+  });
 initializeAgentBridge().catch((error) => {
   console.error('[Agent Bridge] Failed to initialize:', error);
 });
@@ -79,6 +85,22 @@ let agentBridgeConnectPromise = null;
 let agentBridgeReconnectTimer = null;
 let agentBridgeSuccessfulConnect = false;
 let agentBridgeOffscreenReady = false;
+const i18nApi = globalThis.markSnipI18n || null;
+
+function t(key, substitutions) {
+  return i18nApi?.getMessage?.(key, substitutions) || '';
+}
+
+async function ensureI18nReady(force = false) {
+  if (!i18nApi?.initialize) {
+    return null;
+  }
+
+  return await i18nApi.initialize({
+    force,
+    persistCache: false
+  });
+}
 
 function runNotificationStateTask(task) {
   const run = notificationStateTaskChain.then(() => task(), () => task());
@@ -469,7 +491,7 @@ async function showPendingNotificationInTab(tabId, notification = null) {
   try {
     await browser.scripting.executeScript({
       target: { tabId: tab.id },
-      files: ['/notifications/notification-host.js']
+      files: ['/shared/i18n.js', '/notifications/notification-host.js']
     });
     return true;
   } catch (error) {
@@ -1135,10 +1157,13 @@ async function handleLibraryExportIndividualRequest(message, sender) {
 // even though the popup closes when a new tab takes focus.
 
 async function injectBatchProgressOverlay(tabId, current, total, url, pageTitle, accentColors) {
+  const titleText = t('batch_overlay_title') || 'MarkSnip - Batch Processing';
+  const cancelText = t('batch_overlay_cancel') || 'Cancel Batch';
+  const cancellingText = t('batch_overlay_cancelling') || 'Cancelling...';
   try {
     await browser.scripting.executeScript({
       target: { tabId },
-      func: (current, total, url, pageTitle, colors) => {
+      func: (current, total, url, pageTitle, colors, titleText, cancelText, cancellingText) => {
         // Remove any previous overlay
         const existing = document.getElementById('marksnip-batch-overlay');
         if (existing) existing.remove();
@@ -1221,17 +1246,18 @@ async function injectBatchProgressOverlay(tabId, current, total, url, pageTitle,
           <div class="marksnip-bo-count">${current} / ${total}</div>
           <div class="marksnip-bo-url" title="${url}">${displayText}</div>
           <div class="marksnip-bo-bar-bg"><div class="marksnip-bo-bar" style="width:${pct}%"></div></div>
-          <button class="marksnip-bo-cancel" id="marksnip-bo-cancel-btn">Cancel Batch</button>
+          <button class="marksnip-bo-cancel" id="marksnip-bo-cancel-btn">${cancelText}</button>
         `;
         document.body.appendChild(panel);
+        panel.querySelector('.marksnip-bo-title').textContent = titleText;
 
         document.getElementById('marksnip-bo-cancel-btn').addEventListener('click', () => {
           const btn = document.getElementById('marksnip-bo-cancel-btn');
-          if (btn) { btn.textContent = 'Cancelling...'; btn.disabled = true; }
+          if (btn) { btn.textContent = cancellingText; btn.disabled = true; }
           browser.runtime.sendMessage({ type: 'cancel-batch' }).catch(() => {});
         });
       },
-      args: [current, total, url, pageTitle, accentColors]
+      args: [current, total, url, pageTitle, accentColors, titleText, cancelText, cancellingText]
     });
   } catch (e) {
     console.debug('[Batch] Could not inject progress overlay:', e);
@@ -1239,10 +1265,11 @@ async function injectBatchProgressOverlay(tabId, current, total, url, pageTitle,
 }
 
 async function updateBatchProgressOverlay(tabId, current, total, url, pageTitle, statusText) {
+  const titlePrefix = t('batch_overlay_title') || 'MarkSnip - Batch Processing';
   try {
     await browser.scripting.executeScript({
       target: { tabId },
-      func: (current, total, url, pageTitle, statusText) => {
+      func: (current, total, url, pageTitle, statusText, titlePrefix) => {
         const panel = document.getElementById('marksnip-batch-overlay');
         if (!panel) return;
         const pct = total > 0 ? Math.round((current / total) * 100) : 0;
@@ -1253,9 +1280,9 @@ async function updateBatchProgressOverlay(tabId, current, total, url, pageTitle,
         if (countEl) countEl.textContent = `${current} / ${total}`;
         if (urlEl) { urlEl.textContent = pageTitle || url; urlEl.title = url; }
         if (barEl) barEl.style.width = `${pct}%`;
-        if (titleEl && statusText) titleEl.textContent = `MarkSnip — ${statusText}`;
+        if (titleEl && statusText) titleEl.textContent = `${titlePrefix} - ${statusText}`;
       },
-      args: [current, total, url, pageTitle, statusText]
+      args: [current, total, url, pageTitle, statusText, titlePrefix]
     });
   } catch (e) {
     // Tab may have navigated or closed
@@ -2321,6 +2348,9 @@ async function handleCommands(command) {
 async function handleStorageChange(changes, areaName) {
   // Only handle sync storage changes
   if (areaName === 'sync') {
+    if (changes.uiLanguage) {
+      await ensureI18nReady(true);
+    }
     console.log('Options changed, recreating context menus...');
     // Recreate all context menus with updated options
     await createMenus();

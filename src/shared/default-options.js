@@ -1,56 +1,70 @@
-// these are the default options
-const defaultOptions = {
-  headingStyle: "atx",
-  hr: "___",
-  bulletListMarker: "-",
-  codeBlockStyle: "fenced",
-  fence: "```",
-  preserveCodeFormatting: false,
-  autoDetectCodeLanguage: true,
-  emDelimiter: "_",
-  strongDelimiter: "**",
-  linkStyle: "inlined",
-  linkReferenceStyle: "full",
-  imageStyle: "markdown",
-  imageRefStyle: "inlined",
-  tableFormatting: {
-    stripLinks: true,
-    stripFormatting: false,
-    prettyPrint: true,
-    centerText: true
-  },
-  frontmatter: "---\ncreated: {date:YYYY-MM-DDTHH:mm:ss} (UTC {date:Z})\ntags: [{keywords}]\nsource: {pageURL}\nauthor: {byline}\n---\n\n# {pageTitle}\n\n> ## Excerpt\n> {excerpt}\n\n---",
-  backmatter: "",
-  title: "{pageTitle}",
-  includeTemplate: false,
-  saveAs: false,
-  downloadImages: false,
-  imagePrefix: '{pageTitle}/',
-  mdClipsFolder: null,
-  disallowedChars: '[]#^',
-  downloadMode: 'downloadsApi',
-  defaultExportType: 'markdown',
-  defaultSendToTarget: 'chatgpt',
-  sendToCustomTargets: [],
-  sendToMaxUrlLength: 3600,
-  turndownEscape: true,
-  hashtagHandling: 'keep',
-  contextMenus: true,
-  batchProcessingEnabled: true,
-  obsidianIntegration: false,
-  obsidianVault: "",
-  obsidianFolder: "",
-  popupTheme: 'system',
-  specialTheme: 'none',
-  colorBlindTheme: 'deuteranopia',
-  specialThemeIcon: true,
-  popupAccent: 'sage',
-  compactMode: false,
-  showThemeToggleInPopup: true,
-  showUserGuideIcon: true,
-  editorTheme: 'default',
-  siteRules: [],
+function getI18nApi() {
+  return globalThis.markSnipI18n || null;
 }
+
+function buildDefaultFrontmatter(i18nApi = getI18nApi()) {
+  const excerptLabel = i18nApi?.getMessage?.('options_template_preview_excerpt_heading') || 'Excerpt';
+  return `---\ncreated: {date:YYYY-MM-DDTHH:mm:ss} (UTC {date:Z})\ntags: [{keywords}]\nsource: {pageURL}\nauthor: {byline}\n---\n\n# {pageTitle}\n\n> ## ${excerptLabel}\n> {excerpt}\n\n---`;
+}
+
+function createDefaultOptions(i18nApi = getI18nApi()) {
+  return {
+    headingStyle: "atx",
+    hr: "___",
+    bulletListMarker: "-",
+    codeBlockStyle: "fenced",
+    fence: "```",
+    preserveCodeFormatting: false,
+    autoDetectCodeLanguage: true,
+    emDelimiter: "_",
+    strongDelimiter: "**",
+    linkStyle: "inlined",
+    linkReferenceStyle: "full",
+    imageStyle: "markdown",
+    imageRefStyle: "inlined",
+    tableFormatting: {
+      stripLinks: true,
+      stripFormatting: false,
+      prettyPrint: true,
+      centerText: true
+    },
+    frontmatter: buildDefaultFrontmatter(i18nApi),
+    backmatter: "",
+    title: "{pageTitle}",
+    includeTemplate: false,
+    saveAs: false,
+    downloadImages: false,
+    imagePrefix: '{pageTitle}/',
+    mdClipsFolder: null,
+    disallowedChars: '[]#^',
+    downloadMode: 'downloadsApi',
+    defaultExportType: 'markdown',
+    defaultSendToTarget: 'chatgpt',
+    sendToCustomTargets: [],
+    sendToMaxUrlLength: 3600,
+    turndownEscape: true,
+    hashtagHandling: 'keep',
+    contextMenus: true,
+    batchProcessingEnabled: true,
+    uiLanguage: 'browser',
+    obsidianIntegration: false,
+    obsidianVault: "",
+    obsidianFolder: "",
+    popupTheme: 'system',
+    specialTheme: 'none',
+    colorBlindTheme: 'deuteranopia',
+    specialThemeIcon: true,
+    popupAccent: 'sage',
+    compactMode: false,
+    showThemeToggleInPopup: true,
+    showUserGuideIcon: true,
+    editorTheme: 'default',
+    siteRules: [],
+  };
+}
+
+const defaultOptions = createDefaultOptions();
+globalThis.defaultOptions = defaultOptions;
 
 const LEGACY_DEFAULT_FRONTMATTER = "---\ncreated: {date:YYYY-MM-DDTHH:mm:ss} (UTC {date:Z})\ntags: [{keywords}]\nsource: {baseURI}\nauthor: {byline}\n---\n\n# {pageTitle}\n\n> ## Excerpt\n> {excerpt}\n\n---";
 
@@ -72,14 +86,15 @@ function getSiteRulesApi() {
 
 // function to get the options from storage and substitute default options if it fails
 async function getOptions() {
-  let options = defaultOptions;
+  const defaults = createDefaultOptions();
+  let options = defaults;
   try {
-    options = await browser.storage.sync.get(defaultOptions);
+    options = await browser.storage.sync.get(defaults);
   } catch (err) {
     console.error(err);
   }
   if (options.frontmatter === LEGACY_DEFAULT_FRONTMATTER) {
-    options.frontmatter = defaultOptions.frontmatter;
+    options.frontmatter = defaults.frontmatter;
   }
   const siteRulesApi = getSiteRulesApi();
   if (siteRulesApi?.normalizeSiteRules) {

@@ -12,6 +12,8 @@
   'use strict';
 
   const core = globalThis.markSnipSearchCore;
+  const i18nApi = globalThis.markSnipI18n || null;
+  const t = (key, substitutions, fallback = '') => i18nApi?.getMessage?.(key, substitutions) || fallback;
   const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude', 'special-theme-perplexity', 'special-theme-openai', 'special-theme-atla', 'special-theme-ben10', 'special-theme-colorblind'];
   const COLORBLIND_VARIANT_CLASS_NAMES = ['colorblind-theme-deuteranopia', 'colorblind-theme-protanopia', 'colorblind-theme-tritanopia'];
   const ACCENT_CLASS_NAMES = ['accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber'];
@@ -45,7 +47,16 @@
 
   function loadSettings() {
     if (typeof browser === 'undefined' || !browser?.storage?.sync) return;
-    browser.storage.sync.get(defaultOptions).then(opts => {
+    browser.storage.sync.get(defaultOptions).then(async (opts) => {
+      if (i18nApi?.applyLocalePreference && i18nApi?.getLocalePreference) {
+        const desiredPreference = i18nApi.normalizeLocalePreference?.(opts.uiLanguage) || 'browser';
+        if (i18nApi.getLocalePreference() !== desiredPreference) {
+          await i18nApi.applyLocalePreference(desiredPreference, { persistCache: true });
+          window.location.reload();
+          return;
+        }
+      }
+
       applyThemeSettings(opts);
     }).catch(() => {});
   }
@@ -147,7 +158,7 @@
 
       if (result.matches.length === 0) {
         resultsList.innerHTML = '';
-        resultsCount.textContent = '0 results';
+        resultsCount.textContent = t('guide_search_results_count_many', '0', '0 results');
         noResults.style.display = '';
         noResultsQ.textContent = query;
         return;
@@ -156,7 +167,9 @@
       noResults.style.display = 'none';
       const sorted = result.matches.slice().sort((a, b) => b.score - a.score);
 
-      resultsCount.textContent = sorted.length + ' result' + (sorted.length !== 1 ? 's' : '');
+      resultsCount.textContent = sorted.length === 1
+        ? t('guide_search_results_count_one', '1', '1 result')
+        : t('guide_search_results_count_many', String(sorted.length), `${sorted.length} results`);
 
       resultsList.innerHTML = sorted.map(m => {
         const el = m.element;
@@ -325,6 +338,7 @@
      Init
      ════════════════════════════════════════ */
   function init() {
+    i18nApi?.localizeDocument?.(document);
     loadSettings();
     initWelcomeBanner();
     initSearch();

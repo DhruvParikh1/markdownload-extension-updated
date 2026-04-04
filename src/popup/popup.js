@@ -48,6 +48,9 @@ const POPUP_VIEW_TRANSITION_MS = 180;
 const POPUP_THEME_CACHE_KEY = 'marksnip-popup-theme-cache-v1';
 const THEME_TRANSITION_FALLBACK_MS = 220;
 const countUtils = globalThis.markSnipCountUtils;
+const i18nApi = globalThis.markSnipI18n || null;
+const t = (key, substitutions, fallback = '') => i18nApi?.getMessage?.(key, substitutions) || fallback;
+i18nApi?.localizeDocument?.(document);
 const COUNT_MODES = Array.isArray(countUtils?.COUNT_MODES) && countUtils.COUNT_MODES.length > 0
     ? countUtils.COUNT_MODES
     : ['chars', 'words', 'minRead', 'tokens'];
@@ -129,31 +132,31 @@ const EXPORT_BUTTON_ICONS = {
 };
 const EXPORT_TYPE_CONFIG = {
     markdown: {
-        mainLabel: 'Download',
-        selectionLabel: 'Download Selection',
-        dropdownLabel: 'Markdown (.md)',
+        mainLabel: t('popup_export_markdown_main', null, 'Download'),
+        selectionLabel: t('popup_export_markdown_selection', null, 'Download Selection'),
+        dropdownLabel: t('popup_export_markdown_dropdown', null, 'Markdown (.md)'),
         icon: 'download'
     },
     text: {
-        mainLabel: 'Download TXT',
-        selectionLabel: 'Download Selection as TXT',
-        dropdownLabel: 'Plain Text (.txt)',
+        mainLabel: t('popup_export_text_main', null, 'Download TXT'),
+        selectionLabel: t('popup_export_text_selection', null, 'Download Selection as TXT'),
+        dropdownLabel: t('popup_export_text_dropdown', null, 'Plain Text (.txt)'),
         icon: 'download',
         fileExtension: 'txt',
         mimeType: 'text/plain;charset=utf-8'
     },
     html: {
-        mainLabel: 'Download HTML',
-        selectionLabel: 'Download Selection as HTML',
-        dropdownLabel: 'HTML (.html)',
+        mainLabel: t('popup_export_html_main', null, 'Download HTML'),
+        selectionLabel: t('popup_export_html_selection', null, 'Download Selection as HTML'),
+        dropdownLabel: t('popup_export_html_dropdown', null, 'HTML (.html)'),
         icon: 'download',
         fileExtension: 'html',
         mimeType: 'text/html;charset=utf-8'
     },
     pdf: {
-        mainLabel: 'Save as PDF',
-        selectionLabel: 'Save Selection as PDF',
-        dropdownLabel: 'Save as PDF',
+        mainLabel: t('popup_export_pdf_main', null, 'Save as PDF'),
+        selectionLabel: t('popup_export_pdf_selection', null, 'Save Selection as PDF'),
+        dropdownLabel: t('popup_export_pdf_dropdown', null, 'Save as PDF'),
         icon: 'file'
     }
 };
@@ -257,7 +260,7 @@ function normalizeDefaultSendToTarget(value, customTargets = normalizeSendToCust
         : DEFAULT_SEND_TO_TARGET;
 }
 
-function normalizeSendToMaxUrlLength(value, fallbackValue = defaultOptions?.sendToMaxUrlLength ?? DEFAULT_SEND_TO_MAX_URL_LENGTH) {
+function normalizeSendToMaxUrlLength(value, fallbackValue = popupDefaultOptions?.sendToMaxUrlLength ?? DEFAULT_SEND_TO_MAX_URL_LENGTH) {
     const optionsStateApi = getOptionsStateApi();
     if (optionsStateApi?.normalizeSendToMaxUrlLength) {
         return optionsStateApi.normalizeSendToMaxUrlLength(value, fallbackValue);
@@ -275,11 +278,11 @@ function normalizeSendToMaxUrlLength(value, fallbackValue = defaultOptions?.send
 function normalizePopupOptions(source = {}) {
     const optionsStateApi = getOptionsStateApi();
     if (optionsStateApi?.normalizeImportedOptions) {
-        return optionsStateApi.normalizeImportedOptions(source, defaultOptions);
+        return optionsStateApi.normalizeImportedOptions(source, popupDefaultOptions);
     }
 
     const normalizedOptions = {
-        ...defaultOptions,
+        ...popupDefaultOptions,
         ...(source || {})
     };
     normalizedOptions.sendToCustomTargets = normalizeSendToCustomTargets(normalizedOptions.sendToCustomTargets);
@@ -289,11 +292,11 @@ function normalizePopupOptions(source = {}) {
     );
     normalizedOptions.sendToMaxUrlLength = normalizeSendToMaxUrlLength(
         normalizedOptions.sendToMaxUrlLength,
-        defaultOptions?.sendToMaxUrlLength
+        popupDefaultOptions?.sendToMaxUrlLength
     );
     normalizedOptions.defaultExportType = POPUP_PRIMARY_ACTION_SET.has(normalizedOptions.defaultExportType)
         ? normalizedOptions.defaultExportType
-        : defaultOptions.defaultExportType;
+        : popupDefaultOptions.defaultExportType;
     return normalizedOptions;
 }
 
@@ -434,7 +437,7 @@ const progressUI = {
     showCancelButton() {
         this.cancelBtn.style.display = 'block';
         this.cancelBtn.disabled = false;
-        this.cancelBtn.textContent = 'Cancel';
+        this.cancelBtn.textContent = t('popup_batch_cancel', null, 'Cancel');
     },
 
     hideCancelButton() {
@@ -460,16 +463,16 @@ function getPopupPrimaryActionConfig(options = currentOptions) {
     if (primaryActionType === 'sendTo') {
         const target = resolveSendToTarget(undefined, options);
         return {
-            mainLabel: `Send to ${target.label}`,
-            selectionLabel: `Send Selection to ${target.label}`,
+            mainLabel: t('popup_send_to_target', target.label, `Send to ${target.label}`),
+            selectionLabel: t('popup_send_selection_to_target', target.label, `Send Selection to ${target.label}`),
             icon: target.iconKey || 'send'
         };
     }
 
     if (primaryActionType === 'copy') {
         return {
-            mainLabel: 'Copy',
-            selectionLabel: 'Copy Selection',
+            mainLabel: t('popup_export_copy_main', null, 'Copy'),
+            selectionLabel: t('popup_export_copy_selection', null, 'Copy Selection'),
             icon: 'copy'
         };
     }
@@ -1580,7 +1583,7 @@ function resolveEditorTheme(editorTheme, isDark, specialTheme = 'none', colorBli
     return isDark ? entry.dark : entry.light;
 }
 
-function buildPopupThemeCacheSnapshot(options = currentOptions || defaultOptions) {
+function buildPopupThemeCacheSnapshot(options = currentOptions || popupDefaultOptions) {
     return {
         popupTheme: options?.popupTheme || 'system',
         specialTheme: options?.specialTheme || 'none',
@@ -1592,7 +1595,7 @@ function buildPopupThemeCacheSnapshot(options = currentOptions || defaultOptions
     };
 }
 
-function persistPopupThemeCache(options = currentOptions || defaultOptions) {
+function persistPopupThemeCache(options = currentOptions || popupDefaultOptions) {
     try {
         localStorage.setItem(POPUP_THEME_CACHE_KEY, JSON.stringify(buildPopupThemeCacheSnapshot(options)));
     } catch (error) {
@@ -1913,31 +1916,21 @@ async function activateLinkPicker(e) {
 
     } catch (error) {
         console.error("Error activating link picker:", error);
-        alert("Failed to activate link picker. Please try again.");
+        alert(t('popup_link_picker_failed', null, 'Failed to activate link picker. Please try again.'));
     }
 }
 
-const defaultOptions = {
-    includeTemplate: false,
+const popupDefaultOptions = {
+    ...(typeof globalThis.createDefaultOptions === 'function'
+        ? globalThis.createDefaultOptions(i18nApi)
+        : (globalThis.defaultOptions || {})),
     clipSelection: true,
-    downloadImages: false,
-    defaultExportType: 'markdown',
     defaultSendToTarget: DEFAULT_SEND_TO_TARGET,
     sendToCustomTargets: [],
     sendToMaxUrlLength: DEFAULT_SEND_TO_MAX_URL_LENGTH,
-    obsidianIntegration: false,
-    batchProcessingEnabled: true,
-    popupTheme: 'system',
-    specialTheme: 'none',
-    colorBlindTheme: 'deuteranopia',
-    specialThemeIcon: true,
-    popupAccent: 'sage',
-    compactMode: false,
-    showThemeToggleInPopup: true,
-    showUserGuideIcon: true,
-    editorTheme: 'default',
-}
-currentOptions = normalizePopupOptions({ ...defaultOptions });
+    batchProcessingEnabled: true
+};
+currentOptions = normalizePopupOptions({ ...popupDefaultOptions });
 
 const updateObsidianButtonVisibility = (options) => {
     if (!dom.sendToObsidianButton) return;
@@ -1995,7 +1988,7 @@ function updateCurrentClipState(nextState = {}) {
     queuePersistAgentBridgeClip(currentClipState);
 }
 
-function clonePopupOptionsSnapshot(source = currentOptions || defaultOptions) {
+function clonePopupOptionsSnapshot(source = currentOptions || popupDefaultOptions) {
     const nextOptions = {
         ...(source || {})
     };
@@ -2019,7 +2012,7 @@ function isActiveRuleOverriding(fieldName) {
 }
 
 function getPopupExportOptions() {
-    const base = activeSiteRuleState.effectiveOptions || currentOptions || defaultOptions;
+    const base = activeSiteRuleState.effectiveOptions || currentOptions || popupDefaultOptions;
     const nextOptions = clonePopupOptionsSnapshot(base);
 
     if (dom.includeTemplate) {
@@ -2045,8 +2038,8 @@ function updateRuleOverrideHint(fieldName, hintEl, inputEl) {
     inputEl.closest('.toggle-label')?.classList.toggle('is-locked', overridden);
 }
 
-function applyActiveSiteRuleUi(sourceOptions = currentOptions || defaultOptions) {
-    const effectiveOptions = activeSiteRuleState.effectiveOptions || sourceOptions || defaultOptions;
+function applyActiveSiteRuleUi(sourceOptions = currentOptions || popupDefaultOptions) {
+    const effectiveOptions = activeSiteRuleState.effectiveOptions || sourceOptions || popupDefaultOptions;
 
     if (dom.includeTemplate) {
         dom.includeTemplate.checked = Boolean(effectiveOptions.includeTemplate);
@@ -2072,7 +2065,7 @@ function setActiveSiteRuleState(matchedRule = null, overriddenKeys = [], effecti
         effectiveOptions: effectiveOptions ? clonePopupOptionsSnapshot(effectiveOptions) : null
     };
 
-    applyActiveSiteRuleUi(currentOptions || defaultOptions);
+    applyActiveSiteRuleUi(currentOptions || popupDefaultOptions);
 }
 
 function hasSavableClip() {
@@ -2252,8 +2245,8 @@ function renderLibraryItems(options = {}) {
 
     const autoSaveEnabled = librarySettings?.autoSaveOnPopupOpen !== false;
     libraryUI.emptyText.textContent = autoSaveEnabled
-        ? 'Open the popup on any page and the current clip will be saved here automatically.'
-        : 'Manual mode is on. Use "Save Clip" to add the current page to your local library.';
+        ? t('popup_library_empty_auto_save', null, 'Open the popup on any page and the current clip will be saved here automatically.')
+        : t('popup_library_empty_manual', null, 'Manual mode is on. Use "Save Clip" to add the current page to your local library.');
     libraryUI.emptyState.hidden = libraryItems.length > 0;
 
     const nextRenderStateKey = getLibraryRenderStateKey();
@@ -3240,7 +3233,7 @@ async function handleBatchConversion(e) {
 
 const checkInitialSettings = options => {
     currentOptions = normalizePopupOptions({
-        ...defaultOptions,
+        ...popupDefaultOptions,
         ...options
     });
 
@@ -3354,9 +3347,9 @@ const clipSite = id => {
                     ...currentOptions
                 });
 	            }
-	            return browser.storage.sync.get(defaultOptions).then(options => {
+	            return browser.storage.sync.get(popupDefaultOptions).then(options => {
 	                currentOptions = normalizePopupOptions({
-	                    ...defaultOptions,
+	                    ...popupDefaultOptions,
 	                    ...options
 	                });
 	                return browser.runtime.sendMessage({
@@ -3368,7 +3361,7 @@ const clipSite = id => {
                 showError(err)
                 return browser.runtime.sendMessage({
                     ...message,
-                    ...defaultOptions
+                    ...popupDefaultOptions
                 });
             });
         }
@@ -3437,10 +3430,19 @@ async function restoreBatchState() {
 async function initializePopup() {
     try {
         const [options, localState, activeTab] = await Promise.all([
-            browser.storage.sync.get(defaultOptions).catch(() => ({ ...defaultOptions })),
+            browser.storage.sync.get(popupDefaultOptions).catch(() => ({ ...popupDefaultOptions })),
             browser.storage.local.get('countMode').catch(() => ({})),
             getActiveTab()
         ]);
+
+        if (i18nApi?.applyLocalePreference && i18nApi?.getLocalePreference) {
+            const desiredPreference = normalizePopupOptions(options).uiLanguage || 'browser';
+            if (i18nApi.getLocalePreference() !== desiredPreference) {
+                await i18nApi.applyLocalePreference(desiredPreference, { persistCache: true });
+                window.location.reload();
+                return;
+            }
+        }
 
         if (localState.countMode && COUNT_MODES.includes(localState.countMode)) {
             countMode = localState.countMode;
@@ -3494,11 +3496,20 @@ browser.runtime.onMessage.addListener(notify);
 
 browser.storage.onChanged.addListener((changes, areaName) => {
     if (areaName === "sync") {
+        if (changes.uiLanguage) {
+            const nextPreference = i18nApi?.normalizeLocalePreference?.(changes.uiLanguage.newValue) || 'browser';
+            i18nApi?.applyLocalePreference?.(nextPreference, { persistCache: true })
+                .finally(() => {
+                    window.location.reload();
+                });
+            return;
+        }
+
         const themeSettingKeys = ['popupTheme', 'specialTheme', 'colorBlindTheme', 'specialThemeIcon', 'popupAccent', 'compactMode', 'showThemeToggleInPopup', 'editorTheme'];
         const popupActionKeys = ['defaultExportType', 'defaultSendToTarget', 'sendToCustomTargets', 'sendToMaxUrlLength'];
         if (themeSettingKeys.some((key) => Object.prototype.hasOwnProperty.call(changes, key))) {
             currentOptions = normalizePopupOptions({
-                ...defaultOptions,
+                ...popupDefaultOptions,
                 ...currentOptions,
                 ...themeSettingKeys.reduce((nextOptions, key) => {
                     if (Object.prototype.hasOwnProperty.call(changes, key)) {
@@ -3713,7 +3724,7 @@ async function handleSendToAction(targetId = currentOptions?.defaultSendToTarget
     const content = selectionOnly ? getEditorSelection() : getEditorValue();
     if (!String(content || '').trim()) {
         if (triggerButton) {
-            setPrimaryActionFeedback(triggerButton, 'Nothing to send', 'error');
+            setPrimaryActionFeedback(triggerButton, t('popup_action_nothing_to_send', null, 'Nothing to send'), 'error');
             setTimeout(resetPrimaryActionFeedback, 1800);
         }
         return;
@@ -3731,8 +3742,8 @@ async function handleSendToAction(targetId = currentOptions?.defaultSendToTarget
             setPrimaryActionFeedback(
                 triggerButton,
                 requiresClipboardFallback
-                    ? `Copied. Opening ${target.label}...`
-                    : `Opening ${target.label}...`,
+                    ? t('popup_copying_then_opening_assistant', target.label, `Copied. Opening ${target.label}...`)
+                    : t('popup_opening_assistant', target.label, `Opening ${target.label}...`),
                 'success',
                 target.iconKey || 'send'
             );
@@ -3744,7 +3755,7 @@ async function handleSendToAction(targetId = currentOptions?.defaultSendToTarget
         window.close();
     } catch (error) {
         if (triggerButton) {
-            setPrimaryActionFeedback(triggerButton, 'Failed', 'error');
+            setPrimaryActionFeedback(triggerButton, t('popup_action_failed', null, 'Failed'), 'error');
             setTimeout(resetPrimaryActionFeedback, 2200);
         }
         throw error;
@@ -4032,7 +4043,7 @@ async function sendToObsidian(e) {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="20 6 9 17 4 12"/>
             </svg>
-            Sent to Obsidian!
+            ${t('popup_sent_to_obsidian', null, 'Sent to Obsidian!')}
         `;
         obsidianButton.classList.add("success");
 
@@ -4110,44 +4121,52 @@ function notify(message) {
 
         switch (message.status) {
             case 'started':
-                progressUI.setStatus(message.batchSaveMode === 'zip' ? 'Batch started (ZIP mode)...' : 'Batch started...');
+                progressUI.setStatus(
+                    message.batchSaveMode === 'zip'
+                        ? t('popup_batch_status_started_zip', null, 'Batch started (ZIP mode)...')
+                        : t('popup_batch_status_started', null, 'Batch started...')
+                );
                 progressUI.showCancelButton();
                 break;
             case 'loading':
-                progressUI.setStatus('Loading page...');
+                progressUI.setStatus(t('popup_batch_status_loading', null, 'Loading page...'));
                 break;
             case 'converting':
-                progressUI.setStatus('Converting page...');
+                progressUI.setStatus(t('popup_batch_status_converting', null, 'Converting page...'));
                 break;
             case 'retrying':
-                progressUI.setStatus('Retrying page capture...');
+                progressUI.setStatus(t('popup_batch_status_retrying', null, 'Retrying page capture...'));
                 break;
             case 'zipping':
-                progressUI.setStatus('Creating ZIP archive...');
+                progressUI.setStatus(t('popup_batch_status_zipping', null, 'Creating ZIP archive...'));
                 break;
             case 'warning':
-                progressUI.setStatus(message.message || 'Warning during conversion');
+                progressUI.setStatus(message.message || t('popup_batch_status_warning', null, 'Warning during conversion'));
                 break;
             case 'item-error':
-                progressUI.setStatus(`Error: ${message.error || 'Failed URL'}`);
+                progressUI.setStatus(t('popup_batch_status_item_error', message.error || t('popup_batch_status_failed_url', null, 'Failed URL'), `Error: ${message.error || 'Failed URL'}`));
                 break;
             case 'cancelled':
-                progressUI.setStatus('Batch cancelled');
+                progressUI.setStatus(t('popup_batch_status_cancelled', null, 'Batch cancelled'));
                 progressUI.hideCancelButton();
                 dom.spinner.style.display = 'none';
                 dom.convertUrlsButton.style.display = 'block';
                 break;
             case 'failed':
-                progressUI.setStatus(`Batch failed: ${message.error || 'Unknown error'}`);
+                progressUI.setStatus(t('popup_batch_status_failed', message.error || t('popup_batch_status_unknown_error', null, 'Unknown error'), `Batch failed: ${message.error || 'Unknown error'}`));
                 progressUI.hideCancelButton();
                 dom.spinner.style.display = 'none';
                 dom.convertUrlsButton.style.display = 'block';
                 break;
             case 'finished':
                 if (message.failed > 0) {
-                    progressUI.setStatus(`Finished with ${message.failed} error(s)`);
+                    progressUI.setStatus(t('popup_batch_status_finished_errors', String(message.failed), `Finished with ${message.failed} error(s)`));
                 } else {
-                    progressUI.setStatus(message.batchSaveMode === 'zip' ? 'ZIP downloaded' : 'Batch complete');
+                    progressUI.setStatus(
+                        message.batchSaveMode === 'zip'
+                            ? t('popup_batch_status_finished_zip', null, 'ZIP downloaded')
+                            : t('popup_batch_status_finished', null, 'Batch complete')
+                    );
                 }
                 progressUI.hideCancelButton();
                 dom.spinner.style.display = 'none';

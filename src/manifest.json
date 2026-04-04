@@ -1,9 +1,10 @@
 {
   "manifest_version": 3,
-  "name": "MarkSnip - Markdown Web Clipper",
+  "name": "__MSG_manifest_name__",
   "version": "4.4.0",
   "author": "Dhruv Parikh",
-  "description": "One-click Markdown web clipper. Save articles, docs, code & tables as clean Markdown for AI agents & LLMs. Supports Obsidian & more.",
+  "description": "__MSG_manifest_description__",
+  "default_locale": "en",
   "icons": {
     "16": "icons/favicon-16x16.png",
     "32": "icons/favicon-32x32.png",
@@ -28,7 +29,7 @@
     "<all_urls>"
   ],
   "action": {
-    "default_title": "MarkSnip",
+    "default_title": "__MSG_manifest_action_title__",
     "default_popup": "popup/popup.html",
     "default_icon": {
       "16": "icons/favicon-16x16.png",
@@ -55,31 +56,31 @@
       "suggested_key": {
         "default": "Alt+Shift+D"
       },
-      "description": "Save current tab as Markdown"
+      "description": "__MSG_manifest_command_download_tab_as_markdown__"
     },
     "copy_tab_as_markdown": {
       "suggested_key": {
         "default": "Alt+Shift+C"
       },
-      "description": "Copy current tab as Markdown to the clipboard"
+      "description": "__MSG_manifest_command_copy_tab_as_markdown__"
     },
     "copy_selection_as_markdown": {
-      "description": "Copy current selection as Markdown to the clipboard"
+      "description": "__MSG_manifest_command_copy_selection_as_markdown__"
     },
     "copy_tab_as_markdown_link": {
       "suggested_key": {
         "default": "Alt+Shift+L"
       },
-      "description": "Copy current tab URL as Markdown link to the clipboard"
+      "description": "__MSG_manifest_command_copy_tab_as_markdown_link__"
     },
     "copy_selected_tab_as_markdown_link": {
-      "description": "Copy selected tabs URL as Markdown link to the clipboard"
+      "description": "__MSG_manifest_command_copy_selected_tab_as_markdown_link__"
     },
     "copy_selection_to_obsidian": {
-      "description": "Copy current selection as Markdown to Obsidian"
+      "description": "__MSG_manifest_command_copy_selection_to_obsidian__"
     },
     "copy_tab_to_obsidian": {
-      "description": "Copy current tab as Markdown to Obsidian"
+      "description": "__MSG_manifest_command_copy_tab_to_obsidian__"
     }
   },
   "web_accessible_resources": [

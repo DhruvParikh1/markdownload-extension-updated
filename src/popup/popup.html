@@ -3,118 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MarkSnip</title>
+  <title data-i18n="manifest_action_title">MarkSnip</title>
   <link rel="stylesheet" href="../shared/fonts.css">
   <link rel="stylesheet" href="lib/codemirror.css">
-  <script>
-    (function () {
-      const CACHE_KEY = 'marksnip-popup-theme-cache-v1';
-      const root = document.documentElement;
-      const specialThemeClassNames = ['special-theme-claude', 'special-theme-perplexity', 'special-theme-openai', 'special-theme-atla', 'special-theme-ben10', 'special-theme-colorblind'];
-      const colorBlindVariantClassNames = ['colorblind-theme-deuteranopia', 'colorblind-theme-protanopia', 'colorblind-theme-tritanopia'];
-      const accentClassNames = ['accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber'];
-      const normalizeColorBlindTheme = (value) => ['deuteranopia', 'protanopia', 'tritanopia'].includes(value) ? value : 'deuteranopia';
-      const getResolvedSpecialThemeKey = (specialTheme, colorBlindTheme) => {
-        if (specialTheme === 'colorblind') {
-          return `colorblind-${normalizeColorBlindTheme(colorBlindTheme)}`;
-        }
-        return specialTheme;
-      };
-      const editorThemeMap = {
-        default:   { dark: 'xq-dark', light: 'xq-light' },
-        claude:    { dark: 'claude-dark', light: 'claude-light' },
-        perplexity:{ dark: 'perplexity-dark', light: 'perplexity-light' },
-        openai:    { dark: 'openai-dark', light: 'openai-light' },
-        atla:      { dark: 'atla-dark', light: 'atla-light' },
-        ben10:     { dark: 'ben10-dark', light: 'ben10-light' },
-        'colorblind-deuteranopia': { dark: 'colorblind-deuteranopia-dark', light: 'colorblind-deuteranopia-light' },
-        'colorblind-protanopia': { dark: 'colorblind-protanopia-dark', light: 'colorblind-protanopia-light' },
-        'colorblind-tritanopia': { dark: 'colorblind-tritanopia-dark', light: 'colorblind-tritanopia-light' },
-        dracula:   { dark: 'dracula', light: 'dracula' },
-        material:  { dark: 'material-darker', light: 'material' },
-        monokai:   { dark: 'monokai', light: 'xq-light' },
-        nord:      { dark: 'nord', light: 'xq-light' },
-        solarized: { dark: 'solarized dark', light: 'solarized light' },
-        twilight:  { dark: 'twilight', light: 'xq-light' }
-      };
-      const editorThemeStylesheetMap = {
-        'xq-dark': 'lib/xq-dark.css',
-        'xq-light': 'lib/xq-light.css',
-        'claude-dark': 'lib/claude-dark.css',
-        'claude-light': 'lib/claude-light.css',
-        'perplexity-dark': 'lib/perplexity-dark.css',
-        'perplexity-light': 'lib/perplexity-light.css',
-        'openai-dark': 'lib/openai-dark.css',
-        'openai-light': 'lib/openai-light.css',
-        'atla-dark': 'lib/atla-dark.css',
-        'atla-light': 'lib/atla-light.css',
-        'ben10-dark': 'lib/ben10-dark.css',
-        'ben10-light': 'lib/ben10-light.css',
-        'colorblind-deuteranopia-dark': 'lib/colorblind-deuteranopia-dark.css',
-        'colorblind-deuteranopia-light': 'lib/colorblind-deuteranopia-light.css',
-        'colorblind-protanopia-dark': 'lib/colorblind-protanopia-dark.css',
-        'colorblind-protanopia-light': 'lib/colorblind-protanopia-light.css',
-        'colorblind-tritanopia-dark': 'lib/colorblind-tritanopia-dark.css',
-        'colorblind-tritanopia-light': 'lib/colorblind-tritanopia-light.css',
-        'dracula': 'lib/dracula.css',
-        'material': 'lib/material.css',
-        'material-darker': 'lib/material-darker.css',
-        'monokai': 'lib/monokai.css',
-        'nord': 'lib/nord.css',
-        'solarized dark': 'lib/solarized.css',
-        'solarized light': 'lib/solarized.css',
-        'twilight': 'lib/twilight.css'
-      };
-
-      try {
-        const raw = localStorage.getItem(CACHE_KEY);
-        const cached = raw ? JSON.parse(raw) : null;
-        const popupTheme = typeof cached?.popupTheme === 'string' ? cached.popupTheme : 'system';
-        const specialTheme = typeof cached?.specialTheme === 'string' ? cached.specialTheme : 'none';
-        const colorBlindTheme = normalizeColorBlindTheme(cached?.colorBlindTheme);
-        const popupAccent = typeof cached?.popupAccent === 'string' ? cached.popupAccent : 'sage';
-        const editorTheme = typeof cached?.editorTheme === 'string' ? cached.editorTheme : 'default';
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const isDark = popupTheme === 'dark' || (popupTheme !== 'light' && prefersDark);
-        const resolvedSpecialTheme = getResolvedSpecialThemeKey(specialTheme, colorBlindTheme);
-        const themeEntry = editorThemeMap[specialTheme !== 'none' ? resolvedSpecialTheme : editorTheme] || editorThemeMap.default;
-        const themeName = isDark ? themeEntry.dark : themeEntry.light;
-        const themeHref = editorThemeStylesheetMap[themeName];
-
-        root.classList.remove('theme-light', 'theme-dark', 'theme-system');
-        root.classList.add('theme-' + popupTheme);
-
-        root.classList.remove(...specialThemeClassNames);
-        root.classList.remove(...colorBlindVariantClassNames);
-        if (specialTheme !== 'none') {
-          root.classList.add('special-theme-' + specialTheme);
-          if (specialTheme === 'colorblind') {
-            root.classList.add('colorblind-theme-' + colorBlindTheme);
-          }
-        }
-
-        root.classList.toggle('hide-theme-icon', cached?.specialThemeIcon === false);
-        root.classList.toggle('hide-popup-theme-toggle', cached?.showThemeToggleInPopup === false);
-
-        root.classList.remove(...accentClassNames);
-        if (specialTheme === 'none' && popupAccent !== 'sage') {
-          root.classList.add('accent-' + popupAccent);
-        }
-
-        if (themeHref) {
-          const link = document.createElement('link');
-          link.id = 'cm-theme-stylesheet';
-          link.rel = 'stylesheet';
-          link.href = themeHref;
-          link.setAttribute('data-theme-name', themeName);
-          document.head.appendChild(link);
-        }
-      } catch (error) {
-        root.classList.remove('theme-light', 'theme-dark', 'theme-system');
-        root.classList.add('theme-system');
-      }
-    })();
-  </script>
+  <script src="theme-preload.js"></script>
   <link rel="stylesheet" href="popup.css">
 </head>
 
@@ -157,7 +49,7 @@
     </div>
     <div class="loading-indicator" role="status" aria-live="polite">
       <div class="loading-indicator__spinner" aria-hidden="true"></div>
-      <p class="loading-text">Processing page...</p>
+      <p class="loading-text" data-i18n="popup_loading_text">Processing page...</p>
     </div>
   </div>
 
@@ -167,7 +59,7 @@
     <header class="header">
       <div class="header-content">
         <div class="header-brand">
-          <img src="../icons/favicon-32x32.png" alt="MarkSnip logo" class="header-logo">
+          <img src="../icons/favicon-32x32.png" alt="MarkSnip logo" class="header-logo" data-i18n-attr-alt="popup_logo_alt">
           <h1 class="app-title">MarkSnip</h1>
           <!-- Appa mascot – visible only with ATLA theme -->
           <svg class="appa-mascot" viewBox="120 210 250 155" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -235,6 +127,8 @@
           type="button"
           title="Switch to dark mode"
           aria-label="Switch to dark mode"
+          data-i18n-attr-title="popup_theme_toggle_title"
+          data-i18n-attr-aria-label="popup_theme_toggle_aria"
           aria-pressed="false"
         >
           <svg class="theme-toggle-icon theme-toggle-icon--moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -254,7 +148,9 @@
         </button>
         <div class="guide-dropdown-wrap" id="guideDropdownWrap">
           <button id="openGuide" class="icon-btn" title="User Guide"
-                  aria-haspopup="true" aria-expanded="false">
+                  aria-haspopup="true" aria-expanded="false"
+                  data-i18n-attr-title="popup_open_guide_title"
+                  data-i18n-attr-aria-label="popup_open_guide_aria">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"/>
               <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
@@ -267,7 +163,7 @@
                 <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
                 <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
               </svg>
-              <span class="dd-item__label">User Guide</span>
+              <span class="dd-item__label" data-i18n="popup_open_guide_menu_label">User Guide</span>
             </a>
             <button id="showShortcuts" class="dd-item">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -278,20 +174,20 @@
             </button>
           </div>
         </div>
-        <a href="#" id="batchProcess" class="icon-btn" title="Batch Processing">
+        <a href="#" id="batchProcess" class="icon-btn" title="Batch Processing" data-i18n-attr-title="popup_batch_processing_title" data-i18n-attr-aria-label="popup_batch_processing_aria">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polygon points="12 2 2 7 12 12 22 7 12 2"/>
             <polyline points="2 12 12 17 22 12"/>
             <polyline points="2 17 12 22 22 17"/>
           </svg>
         </a>
-        <a href="#" id="libraryViewToggle" class="icon-btn" title="Library" aria-label="Open Library" style="display: none;">
+        <a href="#" id="libraryViewToggle" class="icon-btn" title="Library" aria-label="Open Library" style="display: none;" data-i18n-attr-title="popup_library_title" data-i18n-attr-aria-label="popup_library_aria">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
             <polyline points="10 2 10 10 13 7 16 10 16 2"/>
           </svg>
         </a>
-        <a href="/options/options.html" id="options" target="_blank" class="icon-btn" title="Settings">
+        <a href="/options/options.html" id="options" target="_blank" class="icon-btn" title="Settings" data-i18n-attr-title="popup_settings_title" data-i18n-attr-aria-label="popup_settings_aria">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
             <circle cx="12" cy="12" r="3"/>
@@ -327,7 +223,7 @@
 
       <div class="setting-row" id="clipOption">
         <span class="setting-text-static">Content:</span>
-        <div class="segmented-control" role="group" aria-label="Content scope">
+        <div class="segmented-control" role="group" aria-label="Content scope" data-i18n-attr-aria-label="popup_content_scope_aria">
           <button class="segment" id="selected" type="button" data-value="selection" aria-pressed="true">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
               <path d="M9 2v2H7c-1.1 0-2 .9-2 2v2H3c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2v-2h2c1.1 0 2-.9 2-2v-2h2c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-2V2c0-1.1-.9-2-2-2h-2c-1.1 0-2 .9-2 2zm10 4v8h-2v-2c0-1.1-.9-2-2-2h-2V6h6zM7 10h8v8H7v-8z"/>
@@ -347,7 +243,7 @@
     <!-- Title Input -->
     <section class="title-section">
       <label for="title" class="input-label">Title</label>
-      <input type="text" id="title" class="title-input" placeholder="Document title...">
+      <input type="text" id="title" class="title-input" placeholder="Document title..." data-i18n-attr-placeholder="popup_title_placeholder">
     </section>
 
     <!-- Editor Section -->
@@ -356,7 +252,7 @@
         <span class="editor-label">Markdown</span>
         <span id="char-count" class="char-count"></span>
         <div class="editor-actions">
-          <button id="previewToggle" class="editor-btn" title="Toggle preview" aria-pressed="false">
+          <button id="previewToggle" class="editor-btn" title="Toggle preview" aria-pressed="false" data-i18n-attr-title="popup_preview_toggle_title">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
               <circle cx="12" cy="12" r="3"/>
@@ -368,14 +264,14 @@
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
             </svg>
-            Copy Selection
+            <span data-i18n="popup_copy_selection_button">Copy Selection</span>
           </button>
           <button id="copy" class="editor-btn">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
             </svg>
-            Copy
+            <span data-i18n="popup_copy_button">Copy</span>
           </button>
         </div>
       </div>
@@ -395,7 +291,7 @@
           <polyline points="7 10 12 15 17 10"/>
           <line x1="12" y1="15" x2="12" y2="3"/>
         </svg>
-        Download Selection
+        <span data-i18n="popup_download_selection_button">Download Selection</span>
       </button>
       <button id="sendToObsidian" class="btn btn-secondary">
         <svg alt="Obsidian" width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -415,7 +311,7 @@
                 <polyline points="7 10 12 15 17 10"/>
                 <line x1="12" y1="15" x2="12" y2="3"/>
               </svg>
-              Download
+              <span data-i18n="popup_download_button">Download</span>
             </button>
             <div class="split-btn__divider" aria-hidden="true"></div>
             <button
@@ -426,6 +322,7 @@
               aria-expanded="false"
               aria-controls="splitDropdown"
               title="More export options"
+              data-i18n-attr-title="popup_more_export_options_title"
             >
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="6 9 12 15 18 9"/>
@@ -509,7 +406,7 @@
   <!-- Batch Processing Container -->
   <div id="batchContainer" class="batch-container">
     <header class="batch-header">
-      <h2 class="batch-title">Batch Processing</h2>
+      <h2 class="batch-title" data-i18n="popup_batch_processing_title">Batch Processing</h2>
       <button id="cancelBatch" class="icon-btn">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="18" y1="6" x2="6" y2="18"/>
@@ -520,7 +417,7 @@
     
     <div class="batch-content">
       <label for="urlList" class="input-label">URLs (one per line)</label>
-      <textarea id="urlList" class="url-textarea" placeholder="https://example.com/page1&#10;https://example.com/page2&#10;&#10;Or use markdown links:&#10;[Page Title](https://example.com)"></textarea>
+      <textarea id="urlList" class="url-textarea" placeholder="https://example.com/page1&#10;https://example.com/page2&#10;&#10;Or use markdown links:&#10;[Page Title](https://example.com)" data-i18n-attr-placeholder="popup_url_list_placeholder"></textarea>
 
       <div id="urlValidation" class="url-validation" style="display: none;"></div>
 
@@ -549,7 +446,7 @@
 
       <div id="progressContainer" class="progress-container" style="display: none;">
         <div class="progress-header">
-          <span id="progressStatus" class="progress-label">Processing...</span>
+          <span id="progressStatus" class="progress-label" data-i18n="popup_loading_text">Processing...</span>
           <span id="progressCount" class="progress-count">0/0</span>
         </div>
         <div class="progress-bar-bg">
@@ -576,10 +473,10 @@
   <div id="libraryContainer" class="library-container" aria-hidden="true">
     <header class="library-header">
       <div class="library-header-title">
-        <h2 class="library-title">Library</h2>
+        <h2 class="library-title" data-i18n="popup_library_title">Library</h2>
         <span id="libraryCountBadge" class="library-count-badge">0</span>
       </div>
-      <button id="closeLibraryView" class="icon-btn" aria-label="Close Library">
+      <button id="closeLibraryView" class="icon-btn" aria-label="Close Library" data-i18n-attr-aria-label="popup_close_library_aria">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="18" y1="6" x2="6" y2="18"/>
           <line x1="6" y1="6" x2="18" y2="18"/>
@@ -668,6 +565,8 @@
   </div>
 
   <script type="application/javascript" src="../browser-polyfill.min.js"></script>
+  <script type="application/javascript" src="../shared/i18n.js"></script>
+  <script type="application/javascript" src="../shared/default-options.js"></script>
   <script type="application/javascript" src="lib/codemirror.js"></script>
   <script type="application/javascript" src="lib/modes/markdown/markdown.js"></script>
   <script type="application/javascript" src="../shared/obsidian-utils.js"></script>

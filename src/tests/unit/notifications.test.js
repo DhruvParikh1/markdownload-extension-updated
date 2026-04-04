@@ -1,4 +1,5 @@
 const notifications = require('../../shared/notifications');
+require('../../shared/i18n.js');
 
 describe('notification helpers', () => {
   test('queues only the next unseen support threshold when exports jump', () => {
@@ -84,5 +85,17 @@ describe('notification helpers', () => {
         lastShownAt: 12345
       })
     );
+  });
+
+  test('creates spanish support notifications with localized copy and locale-aware counts', () => {
+    browser.i18n._setLocale('es');
+
+    const notification = notifications.createSupportNotification({ milestone: 12345 });
+
+    expect(notification.title).toBe(browser.i18n.getMessage('notification_support_title', new Intl.NumberFormat('es').format(12345)));
+    expect(notification.message).toContain(new Intl.NumberFormat('es').format(12345));
+    expect(notification.primaryAction.label).toBe(browser.i18n.getMessage('notification_action_support'));
+
+    browser.i18n._reset();
   });
 });

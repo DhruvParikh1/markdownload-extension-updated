@@ -21,6 +21,9 @@ let agentBridgeStatus = {
 let agentBridgeInstallCommand = 'marksnip install-host';
 let keyupTimeout = null;
 let templatePreviewListenersBound = false;
+const i18nApi = globalThis.markSnipI18n || null;
+const t = (key, substitutions, fallback = '') => i18nApi?.getMessage?.(key, substitutions) || fallback;
+i18nApi?.localizeDocument?.(document);
 const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude', 'special-theme-perplexity', 'special-theme-openai', 'special-theme-atla', 'special-theme-ben10', 'special-theme-colorblind'];
 const COLORBLIND_VARIANT_CLASS_NAMES = ['colorblind-theme-deuteranopia', 'colorblind-theme-protanopia', 'colorblind-theme-tritanopia'];
 const ACCENT_CLASS_NAMES = ['accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber'];
@@ -115,7 +118,7 @@ function getLibraryStateApi() {
 	    const normalizedPattern = String(pattern || '').trim();
 	    return {
 	        valid: Boolean(normalizedPattern),
-	        error: normalizedPattern ? '' : 'Pattern is required',
+	        error: normalizedPattern ? '' : t('options_error_site_rule_pattern_required', null, 'Pattern is required'),
 	        normalizedPattern
 	    };
 	}
@@ -145,12 +148,16 @@ function getSendToUrlValidationState(value) {
 
     const normalizedValue = String(value || '').trim();
     if (!normalizedValue) {
-        return { valid: false, normalizedValue: '', error: 'URL template is required' };
+        return { valid: false, normalizedValue: '', error: t('options_error_url_template_required', null, 'URL template is required') };
     }
 
     const matches = normalizedValue.match(/\{prompt\}/g) || [];
     if (matches.length !== 1) {
-        return { valid: false, normalizedValue, error: 'URL template must contain exactly one {prompt} placeholder' };
+        return {
+            valid: false,
+            normalizedValue,
+            error: t('options_error_url_template_prompt_once', null, 'URL template must contain exactly one {prompt} placeholder')
+        };
     }
 
     const queryStartIndex = normalizedValue.indexOf('?');
@@ -158,16 +165,20 @@ function getSendToUrlValidationState(value) {
     const promptIndex = normalizedValue.indexOf('{prompt}');
     const queryEndIndex = hashStartIndex === -1 ? normalizedValue.length : hashStartIndex;
     if (queryStartIndex === -1 || promptIndex < queryStartIndex || promptIndex >= queryEndIndex) {
-        return { valid: false, normalizedValue, error: '{prompt} must appear in the query portion of the URL' };
+        return {
+            valid: false,
+            normalizedValue,
+            error: t('options_error_url_template_prompt_query', null, '{prompt} must appear in the query portion of the URL')
+        };
     }
 
     try {
         const parsedUrl = new URL(normalizedValue.replace('{prompt}', '__MARKSNIP_PROMPT__'));
         if (parsedUrl.protocol !== 'https:') {
-            return { valid: false, normalizedValue, error: 'URL template must start with https://' };
+            return { valid: false, normalizedValue, error: t('options_error_url_template_https', null, 'URL template must start with https://') };
         }
     } catch {
-        return { valid: false, normalizedValue, error: 'URL template must be a valid HTTPS URL' };
+        return { valid: false, normalizedValue, error: t('options_error_url_template_valid_https', null, 'URL template must be a valid HTTPS URL') };
     }
 
     return { valid: true, normalizedValue, error: '' };
@@ -300,7 +311,11 @@ function renderAssistantTargetsList() {
     if (targets.length === 0) {
         const emptyState = document.createElement('p');
         emptyState.className = 'assistant-targets-empty';
-        emptyState.textContent = 'No custom assistant targets yet. ChatGPT, Claude, and Perplexity are always available.';
+        emptyState.textContent = t(
+            'options_custom_send_to_empty_state',
+            null,
+            'No custom assistant targets yet. ChatGPT, Claude, and Perplexity are always available.'
+        );
         list.appendChild(emptyState);
         return;
     }
@@ -355,13 +370,13 @@ async function handleAddCustomSendToTarget() {
     const validation = getSendToUrlValidationState(urlInput?.value || '');
 
     if (!name) {
-        showToast('Please enter a target name', 'error');
+        showToast(t('options_error_target_name_required', null, 'Please enter a target name'), 'error');
         nameInput?.focus();
         return;
     }
 
     if (!validation.valid) {
-        showToast(validation.error || 'Please enter a valid URL template', 'error');
+        showToast(validation.error || t('options_error_valid_url_template_required', null, 'Please enter a valid URL template'), 'error');
         urlInput?.focus();
         return;
     }
@@ -387,7 +402,7 @@ async function handleAddCustomSendToTarget() {
         urlInput.value = '';
     }
 
-    save({ message: `Added "${name}"`, type: 'success' });
+    save({ message: t('options_toast_assistant_target_added', name, `Added "${name}"`), type: 'success' });
     nameInput?.focus();
 }
 
@@ -406,7 +421,7 @@ function removeCustomSendToTarget(targetId) {
 
     renderDefaultSendToTargetOptions();
     renderAssistantTargetsList();
-    save({ message: `Removed "${removedTarget.name}"`, type: 'success' });
+    save({ message: t('options_toast_assistant_target_removed', removedTarget.name, `Removed "${removedTarget.name}"`), type: 'success' });
 }
 
 function initSendToControls() {
@@ -414,7 +429,7 @@ function initSendToControls() {
     document.getElementById('addSendToCustomTarget')?.addEventListener('click', () => {
         handleAddCustomSendToTarget().catch((error) => {
             console.error('Failed to add custom assistant target:', error);
-            showToast('Failed to add assistant target', 'error');
+            showToast(t('options_error_add_assistant_target_failed', null, 'Failed to add assistant target'), 'error');
         });
     });
     document.getElementById('assistantTargetsList')?.addEventListener('click', (event) => {
@@ -433,7 +448,7 @@ function initSendToControls() {
             event.preventDefault();
             handleAddCustomSendToTarget().catch((error) => {
                 console.error('Failed to add custom assistant target:', error);
-                showToast('Failed to add assistant target', 'error');
+                showToast(t('options_error_add_assistant_target_failed', null, 'Failed to add assistant target'), 'error');
             });
         });
     });
@@ -690,7 +705,7 @@ function initSendToControls() {
 	            feedback.classList.remove('is-success');
 	            feedback.classList.add('is-error');
 	        }
-	        showToast(validation.error || 'Invalid site rule pattern', 'error');
+	        showToast(validation.error || t('options_error_invalid_site_rule_pattern', null, 'Invalid site rule pattern'), 'error');
 	        return;
 	    }
 
@@ -863,13 +878,13 @@ function updateAgentBridgeActionButton(state = 'disabled') {
     }
 
     if (state === 'permission-needed') {
-        button.textContent = 'Grant Permission';
-        button.setAttribute('aria-label', 'Grant native messaging permission for Agent Bridge');
+        button.textContent = t('options_agent_bridge_action_grant_permission', null, 'Grant Permission');
+        button.setAttribute('aria-label', t('options_agent_bridge_action_grant_permission_aria', null, 'Grant native messaging permission for Agent Bridge'));
         return;
     }
 
-    button.textContent = 'Check Connection';
-    button.setAttribute('aria-label', 'Check Agent Bridge connection status');
+    button.textContent = t('options_agent_bridge_action_check_connection', null, 'Check Connection');
+    button.setAttribute('aria-label', t('options_agent_bridge_check_connection_aria', null, 'Check Agent Bridge connection status'));
 }
 
 async function resolveAgentBridgeInstallCommand() {
@@ -1036,7 +1051,7 @@ async function refreshAgentBridgeStatusState() {
 
 async function requestAgentBridgePermission() {
     if (!browser.permissions?.request) {
-        showToast("This browser cannot request native messaging permission here", "error");
+        showToast(t('options_error_native_permission_unavailable', null, 'This browser cannot request native messaging permission here'), "error");
         return { granted: false, reloadRequired: false };
     }
 
@@ -1048,7 +1063,7 @@ async function requestAgentBridgePermission() {
     });
 
     if (!granted) {
-        showToast("Agent Bridge permission was not granted", "error");
+        showToast(t('options_error_native_permission_denied', null, 'Agent Bridge permission was not granted'), "error");
         return { granted: false, reloadRequired: false };
     }
 
@@ -1070,14 +1085,14 @@ async function reloadExtensionForAgentBridgePermissionGrant() {
     }
     hidePermissionPanel();
     if (statusText) {
-        statusText.textContent = 'Reloading extension';
+        statusText.textContent = t('options_agent_bridge_state_reloading', null, 'Reloading extension');
     }
     if (statusHint) {
-        statusHint.textContent = 'Permission granted. MarkSnip is reloading once to finish enabling the Agent Bridge.';
+        statusHint.textContent = t('options_permission_granted_reload_hint', null, 'Permission granted. MarkSnip is reloading once to finish enabling the Agent Bridge.');
     }
     if (refreshBtn) {
         refreshBtn.disabled = true;
-        refreshBtn.textContent = 'Reloading...';
+        refreshBtn.textContent = t('options_agent_bridge_action_reloading', null, 'Reloading...');
     }
 
     await new Promise((resolve) => setTimeout(resolve, 150));
@@ -1119,7 +1134,7 @@ async function handlePermissionContinue() {
     const continueBtn = document.getElementById('agentBridgePermContinue');
     if (continueBtn) {
         continueBtn.disabled = true;
-        continueBtn.textContent = 'Requesting...';
+        continueBtn.textContent = t('options_agent_bridge_action_requesting', null, 'Requesting...');
     }
 
     try {
@@ -1146,14 +1161,14 @@ async function handlePermissionContinue() {
 
         const refreshedStatus = await refreshAgentBridgeStatusState();
         setCurrentAgentBridgeChoice(agentBridgeSettings, refreshedStatus);
-        showToast("Agent Bridge enabled", "success");
+        showToast(t('options_toast_agent_bridge_enabled', null, 'Agent Bridge enabled'), "success");
     } catch (error) {
         console.error('Failed to request Agent Bridge permission:', error);
         showPermissionPanel('denied');
     } finally {
         if (continueBtn) {
             continueBtn.disabled = false;
-            continueBtn.textContent = 'Continue';
+            continueBtn.textContent = t('options_agent_bridge_action_continue', null, 'Continue');
         }
     }
 }
@@ -1515,9 +1530,10 @@ const saveOptions = e => {
         colorBlindTheme: normalizeColorBlindTheme(document.querySelector("[name='colorBlindTheme']")?.value),
         specialThemeIcon: document.querySelector("[name='specialThemeIcon']").checked,
 	        popupAccent: getCheckedValue(document.querySelectorAll("input[name='popupAccent']")),
-	        compactMode: document.querySelector("[name='compactMode']").checked,
+        compactMode: document.querySelector("[name='compactMode']").checked,
 	        showThemeToggleInPopup: document.querySelector("[name='showThemeToggleInPopup']").checked,
 	        showUserGuideIcon: document.querySelector("[name='showUserGuideIcon']").checked,
+            uiLanguage: document.querySelector("[name='uiLanguage']").value,
 	        editorTheme: getCheckedValue(document.querySelectorAll("input[name='editorTheme']")),
 	        siteRules: normalizeSiteRulesState(options.siteRules),
 	    }
@@ -1525,11 +1541,12 @@ const saveOptions = e => {
     save();
 }
 
-const save = (feedback = { message: "Options Saved 💾", type: "success" }) => {
+const save = async (feedback = { message: t('options_toast_saved', null, 'Options Saved'), type: "success" }) => {
 	    const spinner = document.getElementById("spinner");
 	    spinner.style.display = "block";
         options = normalizeImportedOptionsState(options);
 	    options.siteRules = normalizeSiteRulesState(options.siteRules);
+        const previousLocalePreference = i18nApi?.getLocalePreference?.() || 'browser';
 
 	    const safeUpdateMenu = (id, update) => {
         if (!browser.contextMenus || typeof browser.contextMenus.update !== "function") {
@@ -1543,12 +1560,14 @@ const save = (feedback = { message: "Options Saved 💾", type: "success" }) => 
         });
     };
 
-    browser.storage.sync.set(options)
-        .then(() => {
-            if (!options.contextMenus) {
-                return Promise.resolve();
-            }
-            return Promise.allSettled([
+    try {
+        await browser.storage.sync.set(options);
+        if (i18nApi?.applyLocalePreference) {
+            await i18nApi.applyLocalePreference(options.uiLanguage, { persistCache: true });
+        }
+
+        if (options.contextMenus) {
+            await Promise.allSettled([
                 safeUpdateMenu("toggle-includeTemplate", {
                     checked: options.includeTemplate
                 }),
@@ -1562,17 +1581,23 @@ const save = (feedback = { message: "Options Saved 💾", type: "success" }) => 
                     checked: options.downloadImages
                 })
             ]);
-        })
-        .then(() => {
-                if (feedback !== false) {
-                    showToast(feedback?.message || "Options Saved 💾", feedback?.type || "success");
-                }
-            spinner.style.display = "none";
-        })
-        .catch(err => {
-            showToast(String(err), "error");
-            spinner.style.display = "none";
-        });
+        }
+
+        spinner.style.display = "none";
+
+        const localeChanged = (i18nApi?.getLocalePreference?.() || previousLocalePreference) !== previousLocalePreference;
+        if (localeChanged) {
+            window.location.reload();
+            return;
+        }
+
+        if (feedback !== false) {
+            showToast(feedback?.message || t('options_toast_saved', null, 'Options Saved'), feedback?.type || "success");
+        }
+    } catch (err) {
+        showToast(String(err), "error");
+        spinner.style.display = "none";
+    }
 }
 
 // Toast notification system
@@ -1595,16 +1620,20 @@ function buildTemplatePreviewSampleArticle() {
     const samplePageUrl = new URL('https://example.com/article');
 
     return {
-        title: 'Example Article',
-        pageTitle: 'Example Article',
+        title: t('options_template_preview_title', null, 'Example Article'),
+        pageTitle: t('options_template_preview_title', null, 'Example Article'),
         length: '1842',
-        excerpt: 'A compact sample summary for template preview output.',
-        description: 'A compact sample summary for template preview output.',
-        byline: 'Jane Doe',
-        author: 'Jane Doe',
+        excerpt: t('options_template_preview_excerpt', null, 'A compact sample summary for template preview output.'),
+        description: t('options_template_preview_excerpt', null, 'A compact sample summary for template preview output.'),
+        byline: t('options_template_preview_author', null, 'Jane Doe'),
+        author: t('options_template_preview_author', null, 'Jane Doe'),
         dir: 'ltr',
-        keywords: ['example', 'markdown', 'templates'],
-        siteName: 'Example Site',
+        keywords: [
+            t('options_template_preview_keyword_example', null, 'example'),
+            t('options_template_preview_keyword_markdown', null, 'markdown'),
+            t('options_template_preview_keyword_templates', null, 'templates')
+        ],
+        siteName: t('options_template_preview_site_name', null, 'Example Site'),
         baseURI: sampleUrl.href,
         pageURL: samplePageUrl.href,
         tabURL: samplePageUrl.href,
@@ -1635,7 +1664,7 @@ function renderTemplatePreviewOutput(outputId, templateValue) {
 
     const normalizedTemplate = String(templateValue || '');
     if (!normalizedTemplate.trim()) {
-        output.textContent = 'Nothing to preview yet.';
+        output.textContent = t('options_template_preview_empty', null, 'Nothing to preview yet.');
         output.classList.add('is-empty');
         return;
     }
@@ -1682,7 +1711,7 @@ const setCurrentChoice = result => {
     if (!browser.downloads) {
         options.downloadMode = 'contentLink';
         document.querySelectorAll("[name='downloadMode']").forEach(el => el.disabled = true)
-        document.querySelector('#downloadMode .card-desc').innerText = "The Downloads API is unavailable in this browser."
+        document.querySelector('#downloadMode .card-desc').innerText = t('options_downloads_api_unavailable', null, 'The Downloads API is unavailable in this browser.')
     }
 
     const downloadImages = options.downloadImages && options.downloadMode == 'downloadsApi';
@@ -1710,6 +1739,7 @@ const setCurrentChoice = result => {
     document.querySelector("[name='obsidianVault']").value = options.obsidianVault;
     document.querySelector("[name='obsidianFolder']").value = options.obsidianFolder;
     document.querySelector("[name='sendToMaxUrlLength']").value = options.sendToMaxUrlLength;
+    document.querySelector("[name='uiLanguage']").value = options.uiLanguage || 'browser';
 
     // Set preserveCodeFormatting checkbox
     document.querySelector("[name='preserveCodeFormatting']").checked = options.preserveCodeFormatting;
@@ -1778,33 +1808,35 @@ const setCurrentAgentBridgeChoice = (settingsResult, statusResult = agentBridgeS
     const toggleHint = document.getElementById('agentBridgeToggleHint');
     const versionEl = document.getElementById('agentBridgeHostVersion');
 
-    let text = 'Disabled';
-    let hint = 'Enable the Agent Bridge to let MarkSnip connect to the local companion.';
+    let text = t('options_agent_bridge_state_disabled', null, 'Disabled');
+    let hint = t('options_agent_bridge_hint_default', null, 'Enable the Agent Bridge to let MarkSnip connect to the local companion.');
     let state = 'disabled';
 
     if (usesOptionalNativeMessagingPermission() && agentBridgeSettings.enabled && !agentBridgeStatus.permissionGranted) {
-        text = 'Permission needed';
-        hint = 'Grant native messaging permission to let MarkSnip connect to the local companion.';
+        text = t('options_agent_bridge_state_permission_needed', null, 'Permission needed');
+        hint = t('options_agent_bridge_hint_permission', null, 'Grant native messaging permission to let MarkSnip connect to the local companion.');
         state = 'permission-needed';
     } else if (agentBridgeSettings.enabled && agentBridgeStatus.connecting) {
-        text = 'Checking connection';
-        hint = 'MarkSnip is waiting for the local companion to respond.';
+        text = t('options_agent_bridge_state_checking', null, 'Checking connection');
+        hint = t('options_agent_bridge_hint_waiting', null, 'MarkSnip is waiting for the local companion to respond.');
         state = 'starting';
     } else if (agentBridgeSettings.enabled && agentBridgeStatus.connected) {
-        text = `Connected${agentBridgeStatus.browser ? ` via ${agentBridgeStatus.browser}` : ''}`;
-        hint = 'The local CLI can request the current page while this browser is open.';
+        text = agentBridgeStatus.browser
+            ? t('options_agent_bridge_state_connected_via', agentBridgeStatus.browser, `Connected via ${agentBridgeStatus.browser}`)
+            : t('options_agent_bridge_state_connected', null, 'Connected');
+        hint = t('options_agent_bridge_hint_connected', null, 'The local CLI can request the current page while this browser is open.');
         state = 'connected';
     } else if (agentBridgeSettings.enabled && agentBridgeStatus.lastError) {
-        text = 'Waiting for companion';
-        hint = 'The local companion could not be reached. Check the setup guide and try again.';
+        text = t('options_agent_bridge_state_waiting', null, 'Waiting for companion');
+        hint = t('options_agent_bridge_hint_unreachable', null, 'The local companion could not be reached. Check the setup guide and try again.');
         state = 'waiting';
     } else if (agentBridgeSettings.enabled) {
-        text = 'Starting';
-        hint = 'MarkSnip is trying to connect to the local companion.';
+        text = t('options_agent_bridge_state_starting', null, 'Starting');
+        hint = t('options_agent_bridge_hint_connecting', null, 'MarkSnip is trying to connect to the local companion.');
         state = 'starting';
     } else if (!agentBridgeSettings.enabled && agentBridgeStatus.permissionGranted) {
         // Disabled after prior grant
-        hint = 'MarkSnip will not use the local connection while disabled, even if the browser-level permission remains granted.';
+        hint = t('options_agent_bridge_hint_disabled', null, 'MarkSnip will not use the local connection while disabled, even if the browser-level permission remains granted.');
     }
 
     if (container) {
@@ -1822,21 +1854,36 @@ const setCurrentAgentBridgeChoice = (settingsResult, statusResult = agentBridgeS
     // Update toggle hint based on enabled state
     if (toggleHint) {
         if (agentBridgeSettings.enabled) {
-            toggleHint.textContent = 'MarkSnip opens a native messaging connection while this toggle is on.';
+            toggleHint.textContent = t('options_agent_bridge_toggle_hint_on', null, 'MarkSnip opens a native messaging connection while this toggle is on.');
         } else {
-            toggleHint.textContent = 'When off, MarkSnip will not open a local companion connection.';
+            toggleHint.textContent = t('options_agent_bridge_toggle_hint_off', null, 'When off, MarkSnip will not open a local companion connection.');
         }
     }
 
     if (versionEl) {
         if (agentBridgeStatus.hostVersion) {
-            versionEl.textContent = `Host ${agentBridgeStatus.hostVersion}`;
+            versionEl.textContent = t('options_agent_bridge_host_version', agentBridgeStatus.hostVersion, `Host ${agentBridgeStatus.hostVersion}`);
             versionEl.hidden = false;
         } else {
             versionEl.textContent = '';
             versionEl.hidden = true;
         }
     }
+}
+
+async function ensureOptionsLocalePreference(syncOptions) {
+    if (!i18nApi?.applyLocalePreference || !i18nApi?.getLocalePreference) {
+        return false;
+    }
+
+    const desiredPreference = normalizeImportedOptionsState(syncOptions).uiLanguage || 'browser';
+    if (i18nApi.getLocalePreference() === desiredPreference) {
+        return false;
+    }
+
+    await i18nApi.applyLocalePreference(desiredPreference, { persistCache: true });
+    window.location.reload();
+    return true;
 }
 
 const restoreOptions = () => {
@@ -1851,7 +1898,10 @@ const restoreOptions = () => {
         loadLibrarySettingsState(),
         loadAgentBridgeSettingsState(),
         loadAgentBridgeStatusState()
-    ]).then(([syncOptions, localLibrarySettings, localAgentBridgeSettings, localAgentBridgeStatus]) => {
+    ]).then(async ([syncOptions, localLibrarySettings, localAgentBridgeSettings, localAgentBridgeStatus]) => {
+        if (await ensureOptionsLocalePreference(syncOptions)) {
+            return;
+        }
         setCurrentChoice(syncOptions);
         setCurrentLibraryChoice(localLibrarySettings);
         setCurrentAgentBridgeChoice(localAgentBridgeSettings, localAgentBridgeStatus);
@@ -1943,7 +1993,7 @@ const inputChange = async (e) => {
 
             await saveLibrarySettingsState(librarySettings);
             setCurrentLibraryChoice(librarySettings);
-            showToast("Library settings saved", "success");
+            showToast(t('options_toast_library_saved', null, 'Library settings saved'), "success");
         }
         else if (key === 'agentBridgeEnabled') {
             const nextEnabled = Boolean(e.target.checked);
@@ -1965,7 +2015,12 @@ const inputChange = async (e) => {
             }
             const refreshedStatus = await refreshAgentBridgeStatusState();
             setCurrentAgentBridgeChoice(agentBridgeSettings, refreshedStatus);
-            showToast(nextEnabled ? "Agent Bridge enabled" : "Agent Bridge disabled", "success");
+            showToast(
+                nextEnabled
+                    ? t('options_toast_agent_bridge_enabled', null, 'Agent Bridge enabled')
+                    : t('options_toast_agent_bridge_disabled', null, 'Agent Bridge disabled'),
+                "success"
+            );
         }
         else {
             if (e.target.type == "checkbox") value = e.target.checked;
@@ -1988,7 +2043,7 @@ const inputChange = async (e) => {
                 else { browser.contextMenus.removeAll() }
             }
     
-            save();
+            await save();
             refreshElements();
         }
     }
@@ -2024,7 +2079,7 @@ const buttonClick = async (e) => {
         if (needsPermission) {
             if (refreshBtn) {
                 refreshBtn.disabled = true;
-                refreshBtn.textContent = 'Granting...';
+                refreshBtn.textContent = t('options_agent_bridge_action_granting', null, 'Granting...');
             }
 
             try {
@@ -2041,7 +2096,7 @@ const buttonClick = async (e) => {
 
                 const status = await refreshAgentBridgeStatusState();
                 setCurrentAgentBridgeChoice(agentBridgeSettings, status);
-                showToast("Agent Bridge permission granted", "success");
+                showToast(t('options_toast_agent_bridge_permission_granted', null, 'Agent Bridge permission granted'), "success");
             } catch (error) {
                 console.error('Failed to request Agent Bridge permission:', error);
                 setCurrentAgentBridgeChoice(agentBridgeSettings, agentBridgeStatus);
@@ -2057,7 +2112,7 @@ const buttonClick = async (e) => {
 
         if (refreshBtn) {
             refreshBtn.disabled = true;
-            refreshBtn.textContent = 'Checking...';
+            refreshBtn.textContent = t('options_agent_bridge_action_checking', null, 'Checking...');
         }
         setCurrentAgentBridgeChoice(agentBridgeSettings, {
             ...agentBridgeStatus,
@@ -2069,7 +2124,7 @@ const buttonClick = async (e) => {
         refreshAgentBridgeStatusState()
             .then((status) => {
                 setCurrentAgentBridgeChoice(agentBridgeSettings, status);
-                showToast("Agent Bridge status refreshed", "success");
+                showToast(t('options_toast_agent_bridge_status_refreshed', null, 'Agent Bridge status refreshed'), "success");
             })
             .catch((error) => {
                 console.error('Failed to refresh Agent Bridge status:', error);
@@ -2087,11 +2142,11 @@ const buttonClick = async (e) => {
         const command = document.getElementById('agentBridgeInstallCommand')?.textContent?.trim() || agentBridgeInstallCommand;
         navigator.clipboard.writeText(command)
             .then(() => {
-                showToast("Install command copied", "success");
+                showToast(t('options_toast_install_command_copied', null, 'Install command copied'), "success");
             })
             .catch((error) => {
                 console.error('Failed to copy Agent Bridge install command:', error);
-                showToast("Failed to copy install command", "error");
+                showToast(t('options_toast_install_command_copy_failed', null, 'Failed to copy install command'), "error");
             });
     }
 }
@@ -2104,7 +2159,7 @@ async function clearLibraryItems() {
 
     try {
         await clearLibraryItemsState();
-        showToast("Library cleared", "success");
+        showToast(t('options_toast_library_cleared', null, 'Library cleared'), "success");
     } catch (error) {
         console.error('Failed to clear library:', error);
         showToast(String(error), "error");
@@ -2203,8 +2258,8 @@ function injectResetLinks() {
         const resetBtn = document.createElement('button');
         resetBtn.type = 'button';
         resetBtn.className = 'reset-setting-link';
-        resetBtn.textContent = 'Reset';
-        resetBtn.title = 'Reset to default';
+        resetBtn.textContent = t('options_reset_button', null, 'Reset');
+        resetBtn.title = t('options_reset_button_title', null, 'Reset to default');
 
         // If card has a card-title, wrap title + reset in a row
         const titleEl = card.querySelector(':scope > .card-title');
@@ -2241,7 +2296,7 @@ async function resetSettingByCard(card) {
         }
         await saveLibrarySettingsState(librarySettings);
         setCurrentLibraryChoice(librarySettings);
-        showToast("Setting reset to default", "success");
+        showToast(t('options_toast_setting_reset', null, 'Setting reset to default'), "success");
         return;
     }
 
@@ -2251,7 +2306,7 @@ async function resetSettingByCard(card) {
     setCurrentChoice(options);
     applyContextMenuTransition(resetResult.contextMenuAction);
     save();
-    showToast("Setting reset to default", "success");
+    showToast(t('options_toast_setting_reset', null, 'Setting reset to default'), "success");
 }
 
 async function resetAllSettings() {
@@ -2263,7 +2318,7 @@ async function resetAllSettings() {
     await resetLibrarySettingsState();
     setCurrentLibraryChoice(librarySettings);
     save();
-    showToast("All settings reset to defaults", "success");
+    showToast(t('options_toast_all_reset', null, 'All settings reset to defaults'), "success");
 }
 
 const loaded = () => {
@@ -2512,10 +2567,16 @@ function initSearch() {
         if (totalMatches === 0) {
             noResultsQuery.textContent = query.trim();
             noResults.classList.add('visible');
-            updateSearchStatus(`No settings match "${query.trim()}"`);
+            updateSearchStatus(t('options_search_status_no_results', query.trim(), `No settings match "${query.trim()}"`));
         } else {
             noResults.classList.remove('visible');
-            updateSearchStatus(`Showing ${totalMatches} of ${totalSettings} settings`);
+            updateSearchStatus(
+                t(
+                    'options_search_status_results',
+                    [String(totalMatches), String(totalSettings)],
+                    `Showing ${totalMatches} of ${totalSettings} settings`
+                )
+            );
         }
     }
 

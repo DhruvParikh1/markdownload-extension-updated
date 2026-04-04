@@ -1,13 +1,26 @@
 (function (root) {
+  function getMessage(key) {
+    if (root.markSnipI18n?.getMessage) {
+      return root.markSnipI18n.getMessage(key) || key;
+    }
+    if (root.browser?.i18n?.getMessage) {
+      return root.browser.i18n.getMessage(key) || key;
+    }
+    if (root.chrome?.i18n?.getMessage) {
+      return root.chrome.i18n.getMessage(key) || key;
+    }
+    return key;
+  }
+
   const COMMAND_LABELS = {
-    '_execute_action':                    'Open MarkSnip popup',
-    'download_tab_as_markdown':           'Download tab as Markdown',
-    'copy_tab_as_markdown':               'Copy tab as Markdown',
-    'copy_tab_as_markdown_link':          'Copy tab URL as Markdown link',
-    'copy_selection_as_markdown':         'Copy selection as Markdown',
-    'copy_selected_tab_as_markdown_link': 'Copy selected tabs as Markdown links',
-    'copy_selection_to_obsidian':         'Copy selection to Obsidian',
-    'copy_tab_to_obsidian':              'Copy tab to Obsidian',
+    '_execute_action':                    getMessage('popup_shortcut_execute_action'),
+    'download_tab_as_markdown':           getMessage('popup_shortcut_download_tab_as_markdown'),
+    'copy_tab_as_markdown':               getMessage('popup_shortcut_copy_tab_as_markdown'),
+    'copy_tab_as_markdown_link':          getMessage('popup_shortcut_copy_tab_as_markdown_link'),
+    'copy_selection_as_markdown':         getMessage('popup_shortcut_copy_selection_as_markdown'),
+    'copy_selected_tab_as_markdown_link': getMessage('popup_shortcut_copy_selected_tab_as_markdown_link'),
+    'copy_selection_to_obsidian':         getMessage('popup_shortcut_copy_selection_to_obsidian'),
+    'copy_tab_to_obsidian':               getMessage('popup_shortcut_copy_tab_to_obsidian'),
   };
 
   const COMMAND_ORDER = [
@@ -74,7 +87,7 @@
       label.className = 'shortcuts-section-label';
       label.dataset.action = 'open-shortcut-settings';
       const labelText = document.createElement('span');
-      labelText.textContent = 'Assign in browser shortcuts';
+      labelText.textContent = getMessage('popup_shortcuts_assign');
       const labelIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
       labelIcon.setAttribute('width', '10');
       labelIcon.setAttribute('height', '10');

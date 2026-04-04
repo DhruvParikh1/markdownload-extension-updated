@@ -5,7 +5,7 @@
   }
 
   root.markSnipSiteRules = factory(root);
-})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (root) {
   const BOOLEAN_OVERRIDE_KEYS = ['includeTemplate', 'downloadImages'];
   const TEXT_OVERRIDE_KEYS = ['frontmatter', 'backmatter', 'title', 'imagePrefix', 'mdClipsFolder'];
   const ENUM_OVERRIDE_VALUES = {
@@ -14,6 +14,11 @@
   };
   const TABLE_FORMATTING_KEYS = ['stripLinks', 'stripFormatting', 'prettyPrint', 'centerText'];
   const DEFAULT_RULE_NAME_PREFIX = 'Site Rule';
+  const i18nApi = root.markSnipI18n || null;
+
+  function t(key, fallback) {
+    return i18nApi?.getMessage?.(key) || fallback;
+  }
 
   function isPlainObject(value) {
     return Object.prototype.toString.call(value) === '[object Object]';
@@ -60,7 +65,7 @@
     if (!rawPattern) {
       return {
         valid: false,
-        error: 'Pattern is required',
+        error: t('options_error_site_rule_pattern_required', 'Pattern is required'),
         normalizedPattern: ''
       };
     }
@@ -76,14 +81,14 @@
       if (!['http', 'https', '*'].includes(scheme)) {
         return {
           valid: false,
-          error: 'Only http://, https://, or no scheme are supported',
+          error: t('options_error_site_rule_scheme_supported', 'Only http://, https://, or no scheme are supported'),
           normalizedPattern: rawPattern
         };
       }
     } else if (sanitizedPattern.includes('://')) {
       return {
         valid: false,
-        error: 'Pattern has an unsupported scheme',
+        error: t('options_error_site_rule_scheme_invalid', 'Pattern has an unsupported scheme'),
         normalizedPattern: rawPattern
       };
     }
@@ -98,7 +103,7 @@
     if (!host) {
       return {
         valid: false,
-        error: 'Pattern host is required',
+        error: t('options_error_site_rule_host_required', 'Pattern host is required'),
         normalizedPattern: rawPattern
       };
     }

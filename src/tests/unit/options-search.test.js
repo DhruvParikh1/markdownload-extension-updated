@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { JSDOM } = require('jsdom');
+const i18n = require('../../shared/i18n.js');
 
 // Load search-core first — options-search depends on globalThis.markSnipSearchCore
 require('../../shared/search-core.js');
@@ -109,10 +110,13 @@ function getCardLabel(card) {
   );
 }
 
-function loadOptionsDocument() {
-  return new JSDOM(optionsHtml, {
+function loadOptionsDocument(locale = 'en') {
+  browser.i18n._setLocale(locale);
+  const dom = new JSDOM(optionsHtml, {
     url: 'https://example.com/options.html'
   });
+  i18n.localizeDocument(dom.window.document);
+  return dom;
 }
 
 function getMatchIds(index, query) {
@@ -141,7 +145,8 @@ async function waitForMicrotasks() {
   await Promise.resolve();
 }
 
-function createOptionsPageDom(optionOverrides = {}, libraryOverrides = {}) {
+function createOptionsPageDom(optionOverrides = {}, libraryOverrides = {}, locale = 'en') {
+  global.browser.i18n._setLocale(locale);
   const dom = new JSDOM(optionsHtml, {
     url: 'https://example.com/options.html',
     pretendToBeVisual: true,
@@ -202,6 +207,7 @@ function createOptionsPageDom(optionOverrides = {}, libraryOverrides = {}) {
 
   dom.window.browser = browser;
   dom.window.chrome = browser;
+  dom.window.markSnipI18n = i18n;
   dom.window.moment = moment;
   dom.window.createMenus = jest.fn();
   dom.window.eval(`var defaultOptions = ${JSON.stringify(storedOptions)};`);
@@ -314,6 +320,37 @@ describe('Options search helper', () => {
     expect(getMatchIds(index, 'google')).toEqual([]);
     expect(getMatchIds(index, 'format reference')).toEqual([]);
     expect(getMatchIds(index, 'preview uses example metadata')).toEqual([]);
+  });
+});
+
+describe('Options localization smoke', () => {
+  afterEach(() => {
+    browser.i18n._reset();
+  });
+
+  test('spanish localization updates placeholders, no-results copy, and search index content', async () => {
+    const { dom } = createOptionsPageDom({}, {}, 'es');
+    const { document } = dom.window;
+
+    document.dispatchEvent(new dom.window.Event('DOMContentLoaded', { bubbles: true }));
+    await waitForMicrotasks();
+
+    const searchInput = document.getElementById('settings-search');
+    const searchStatus = document.getElementById('settings-search-status');
+    const noResultsLabel = document.getElementById('search-no-results-label');
+    const downloadsSectionTitle = document.querySelector('#section-downloads .section-title');
+
+    expect(searchInput.getAttribute('placeholder')).toBe(browser.i18n.getMessage('options_search_placeholder'));
+    expect(downloadsSectionTitle.textContent).toBe(browser.i18n.getMessage('options_sidebar_downloads'));
+
+    searchInput.value = 'sin-coincidencias';
+    searchInput.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
+    await waitFor(dom.window, 200);
+
+    expect(searchStatus.textContent).toBe(browser.i18n.getMessage('options_search_status_no_results', 'sin-coincidencias'));
+    expect(noResultsLabel.textContent).toContain('sin-coincidencias');
+
+    dom.window.close();
   });
 });
 

@@ -9,6 +9,11 @@
     location.protocol === 'chrome-extension:' ||
     location.protocol === 'moz-extension:'
   ) ? 0 : 1000;
+  const i18nApi = globalThis.markSnipI18n || null;
+
+  function t(key, substitutions, fallback = '') {
+    return i18nApi?.getMessage?.(key, substitutions) || fallback;
+  }
 
   function delay(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -407,12 +412,14 @@
 
       const eyebrow = document.createElement('div');
       eyebrow.className = 'eyebrow';
-      eyebrow.textContent = isVersionUpdate ? 'MarkSnip Update' : 'Milestone';
+      eyebrow.textContent = isVersionUpdate
+        ? t('notification_eyebrow_update', null, 'MarkSnip Update')
+        : t('notification_eyebrow_milestone', null, 'Milestone');
 
       const close = document.createElement('button');
       close.className = 'close';
       close.type = 'button';
-      close.setAttribute('aria-label', 'Dismiss notification');
+      close.setAttribute('aria-label', t('notification_dismiss_aria', null, 'Dismiss notification'));
       close.textContent = '✕';
       close.addEventListener('pointerdown', (event) => {
         event.stopPropagation();
@@ -439,11 +446,12 @@
 
         const number = document.createElement('div');
         number.className = 'milestone-number';
-        number.textContent = new Intl.NumberFormat('en-US').format(this.notification.milestone);
+        number.textContent = i18nApi?.formatNumber?.(this.notification.milestone)
+          || new Intl.NumberFormat().format(this.notification.milestone);
 
         const label = document.createElement('div');
         label.className = 'milestone-label';
-        label.textContent = 'pages exported';
+        label.textContent = t('notification_milestone_label', null, 'pages exported');
 
         // Sparkle particles
         for (let i = 1; i <= 3; i++) {
@@ -465,7 +473,7 @@
       // ── Title ──
       const title = document.createElement('h2');
       title.className = 'title';
-      title.textContent = this.notification.title || 'MarkSnip notification';
+      title.textContent = this.notification.title || t('notification_fallback_title', null, 'MarkSnip notification');
       body.appendChild(title);
 
       // ── Version badge (version-update only) ──

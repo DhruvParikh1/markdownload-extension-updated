@@ -10,6 +10,7 @@ const defaultOptions = {
   defaultSendToTarget: 'chatgpt',
   sendToCustomTargets: [],
   sendToMaxUrlLength: 3600,
+  uiLanguage: 'browser',
   specialTheme: 'none',
   colorBlindTheme: 'deuteranopia',
   showUserGuideIcon: true,
@@ -154,6 +155,22 @@ const defaultOptions = {
     expect(normalized.sendToMaxUrlLength).toBe(3600);
   });
 
+  test('normalizeImportedOptions keeps valid UI language overrides', () => {
+    const normalized = optionsState.normalizeImportedOptions({
+      uiLanguage: 'fr'
+    }, defaultOptions);
+
+    expect(normalized.uiLanguage).toBe('fr');
+  });
+
+  test('normalizeImportedOptions falls back to browser locale when uiLanguage is invalid', () => {
+    const normalized = optionsState.normalizeImportedOptions({
+      uiLanguage: 'pt-BR'
+    }, defaultOptions);
+
+    expect(normalized.uiLanguage).toBe('browser');
+  });
+
   test('resetOptionKeys resets top-level and tableFormatting keys', () => {
     const currentOptions = {
       ...defaultOptions,
@@ -216,7 +233,8 @@ test('normalizeImportedOptions ignores non-plain option inputs', () => {
     defaultExportType: 'markdown',
     defaultSendToTarget: 'chatgpt',
     sendToCustomTargets: [],
-    sendToMaxUrlLength: 3600
+    sendToMaxUrlLength: 3600,
+    uiLanguage: 'browser'
   });
 });
 
@@ -248,7 +266,8 @@ test('resetAllOptions handles non-plain defaults without blowing up', () => {
     defaultExportType: 'markdown',
     defaultSendToTarget: 'chatgpt',
     sendToCustomTargets: [],
-    sendToMaxUrlLength: 3600
+    sendToMaxUrlLength: 3600,
+    uiLanguage: 'browser'
   });
   expect(result.contextMenuAction).toBe('remove');
 });
