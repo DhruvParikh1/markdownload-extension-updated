@@ -119,7 +119,7 @@
                         <polyline points="7 10 12 15 17 10"/>
                         <line x1="12" y1="15" x2="12" y2="3"/>
                     </svg>
-                    <span class="sidebar-label">Downloads</span>
+                    <span class="sidebar-label">Exports &amp; Integrations</span>
                 </li>
                 <li class="sidebar-item" id="tab-library" data-section="library" role="tab" tabindex="-1" aria-selected="false" aria-controls="section-library">
                     <svg class="sidebar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -308,15 +308,6 @@
                     <div class="input-group">
                         <label class="input-label" for="title">Template for title / filename</label>
                         <input type="text" id="title" name="title" class="text-input" role="textbox" />
-                    </div>
-                </div>
-
-                <!-- Clips folder -->
-                <div class="setting-card" id="mdClipsFolder" data-setting-key="mdClipsFolder">
-                    <h3 class="card-title">Clips folder</h3>
-                    <div class="input-group">
-                        <label class="input-label" for="mdClipsFolder">Folder inside <code>Downloads/</code> to store MarkSnip clips</label>
-                        <input type="text" name="mdClipsFolder" class="text-input" role="textbox" />
                     </div>
                 </div>
 
@@ -566,41 +557,45 @@
                     </div>
                 </div>
 
-                <!-- Compact Mode -->
-                <div class="setting-card" id="compactMode-container" data-setting-key="compactMode">
-                    <div class="toggle-row">
-                        <div class="toggle-info">
-                            <label class="toggle-label-text" for="compactMode">Compact Mode</label>
-                            <p class="toggle-hint">Hides quick settings panel and reduces padding for a minimal popup. The settings icon remains accessible in the header.</p>
+                <!-- Popup Behavior -->
+                <div class="setting-card"
+                    data-search-keywords="guide,help,user guide,question mark,icon,header,popup,compact"
+                    data-setting-key="compactMode,showUserGuideIcon">
+                    <h3 class="card-title">Popup Behavior</h3>
+                    <div id="compactMode-container">
+                        <div class="toggle-row">
+                            <div class="toggle-info">
+                                <label class="toggle-label-text" for="compactMode">Compact Mode</label>
+                                <p class="toggle-hint">Hides quick settings panel and reduces padding for a minimal popup. The settings icon remains accessible in the header.</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input name="compactMode" id="compactMode" type="checkbox" />
+                                <span class="toggle-slider"></span>
+                            </label>
                         </div>
-                        <label class="toggle-switch">
-                            <input name="compactMode" id="compactMode" type="checkbox" />
-                            <span class="toggle-slider"></span>
-                        </label>
                     </div>
-                </div>
-
-                <div class="setting-card" id="showUserGuideIcon-container" data-setting-key="showUserGuideIcon" data-search-keywords="guide,help,user guide,question mark,icon,header,popup">
-                    <div class="toggle-row">
-                        <div class="toggle-info">
-                            <label class="toggle-label-text" for="showUserGuideIcon">Show User Guide icon</label>
-                            <p class="toggle-hint">Displays the User Guide button in the popup header for quick access to help.</p>
+                    <div id="showUserGuideIcon-container">
+                        <div class="toggle-row">
+                            <div class="toggle-info">
+                                <label class="toggle-label-text" for="showUserGuideIcon">Show User Guide icon</label>
+                                <p class="toggle-hint">Displays the User Guide button in the popup header for quick access to help.</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input name="showUserGuideIcon" id="showUserGuideIcon" type="checkbox" />
+                                <span class="toggle-slider"></span>
+                            </label>
                         </div>
-                        <label class="toggle-switch">
-                            <input name="showUserGuideIcon" id="showUserGuideIcon" type="checkbox" />
-                            <span class="toggle-slider"></span>
-                        </label>
                     </div>
                 </div>
             </div>
 
 
             <!-- ────────────────────────────────────────────
-                 SECTION: Downloads
+                 SECTION: Exports & Integrations
                  ──────────────────────────────────────────── -->
-            <div class="section" id="section-downloads" data-section-label="Downloads" role="tabpanel" tabindex="0" aria-labelledby="tab-downloads">
-                <h2 class="section-title">Downloads</h2>
-                <p class="section-desc">Configure how files are downloaded and integrate with Obsidian.</p>
+            <div class="section" id="section-downloads" data-section-label="Exports &amp; Integrations" role="tabpanel" tabindex="0" aria-labelledby="tab-downloads">
+                <h2 class="section-title">Exports &amp; Integrations</h2>
+                <p class="section-desc">Configure how files are exported and manage integrations with Obsidian, assistants, and the Agent Bridge.</p>
 
                 <!-- Context Menus -->
                 <div class="setting-card" id="contextMenus-container" data-setting-key="contextMenus">
@@ -628,26 +623,6 @@
                             <input name="batchProcessingEnabled" id="batchProcessingEnabled" type="checkbox" />
                             <span class="toggle-slider"></span>
                         </label>
-                    </div>
-                </div>
-
-                <!-- Download Mode -->
-                <div class="setting-card" id="downloadMode"
-                    data-search-keywords="download,dwnld,downloads api,content link"
-                    data-setting-key="downloadMode">
-                    <h3 class="card-title">Download Mode</h3>
-                    <p class="card-desc">Method to use for downloading Markdown files. Set to "Content Link" if you're having trouble with the Downloads API
-                        (Sometimes conflicts can occur with other download extensions, leading to randomly generated filenames and other symptoms).</p>
-                    <p class="option-note"><strong>Note:</strong> "Content Link" mode disables some functionality such as downloading images or using subfolders in the filename.</p>
-                    <div class="radio-group">
-                        <div class="radio-pill">
-                            <input type="radio" name="downloadMode" id="downloadsApi" value="downloadsApi" />
-                            <label for="downloadsApi">Downloads API (recommended)</label>
-                        </div>
-                        <div class="radio-pill">
-                            <input type="radio" name="downloadMode" id="contentLink" value="contentLink" />
-                            <label for="contentLink">Content Link</label>
-                        </div>
                     </div>
                 </div>
 
@@ -680,6 +655,72 @@
                         <div class="radio-pill">
                             <input type="radio" name="defaultExportType" id="export-send-to" value="sendTo" />
                             <label for="export-send-to">Send to Assistant</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Download Mode -->
+                <div class="setting-card" id="downloadMode"
+                    data-search-keywords="download,dwnld,downloads api,content link"
+                    data-setting-key="downloadMode">
+                    <h3 class="card-title">Download Mode</h3>
+                    <p class="card-desc">Method to use for downloading Markdown files. Set to "Content Link" if you're having trouble with the Downloads API
+                        (Sometimes conflicts can occur with other download extensions, leading to randomly generated filenames and other symptoms).</p>
+                    <p class="option-note"><strong>Note:</strong> "Content Link" mode disables some functionality such as downloading images or using subfolders in the filename.</p>
+                    <div class="radio-group">
+                        <div class="radio-pill">
+                            <input type="radio" name="downloadMode" id="downloadsApi" value="downloadsApi" />
+                            <label for="downloadsApi">Downloads API (recommended)</label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="downloadMode" id="contentLink" value="contentLink" />
+                            <label for="contentLink">Content Link</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Downloads API sub-options -->
+                <div id="downloadModeGroup">
+                    <div class="setting-card" id="saveAs-container" data-setting-key="saveAs">
+                        <div class="toggle-row">
+                            <div class="toggle-info">
+                                <label class="toggle-label-text" for="saveAs">Always show Save As dialog</label>
+                                <p class="toggle-hint">Regardless of browser setting</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input name="saveAs" id="saveAs" type="checkbox" />
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="setting-card" id="downloadImages-container"
+                        data-search-keywords="download images,dwnld,image download,image downloads"
+                        data-setting-key="downloadImages">
+                        <div class="toggle-row">
+                            <div class="toggle-info">
+                                <label class="toggle-label-text" for="downloadImages">Download images alongside markdown files</label>
+                                <p class="toggle-hint">In Downloads API mode, image files are saved too and markdown image links are rewritten to those local files.</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input name="downloadImages" id="downloadImages" type="checkbox" />
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="setting-card" id="imagePrefix" data-setting-key="imagePrefix">
+                        <div class="input-group">
+                            <label class="input-label" for="imagePrefix">Image filename prefix template</label>
+                            <input type="text" name="imagePrefix" class="text-input" role="textbox" />
+                        </div>
+                    </div>
+
+                    <div class="setting-card" id="mdClipsFolder" data-setting-key="mdClipsFolder">
+                        <h3 class="card-title">Clips folder</h3>
+                        <div class="input-group">
+                            <label class="input-label" for="mdClipsFolder">Folder inside <code>Downloads/</code> to store MarkSnip clips</label>
+                            <input type="text" name="mdClipsFolder" class="text-input" role="textbox" />
                         </div>
                     </div>
                 </div>
@@ -737,44 +778,6 @@
                     </div>
                 </div>
 
-                <!-- Downloads API sub-options -->
-                <div id="downloadModeGroup">
-                    <div class="setting-card" id="saveAs-container" data-setting-key="saveAs">
-                        <div class="toggle-row">
-                            <div class="toggle-info">
-                                <label class="toggle-label-text" for="saveAs">Always show Save As dialog</label>
-                                <p class="toggle-hint">Regardless of browser setting</p>
-                            </div>
-                            <label class="toggle-switch">
-                                <input name="saveAs" id="saveAs" type="checkbox" />
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="setting-card" id="downloadImages-container"
-                        data-search-keywords="download images,dwnld,image download,image downloads"
-                        data-setting-key="downloadImages">
-                        <div class="toggle-row">
-                            <div class="toggle-info">
-                                <label class="toggle-label-text" for="downloadImages">Download images alongside markdown files</label>
-                                <p class="toggle-hint">In Downloads API mode, image files are saved too and markdown image links are rewritten to those local files.</p>
-                            </div>
-                            <label class="toggle-switch">
-                                <input name="downloadImages" id="downloadImages" type="checkbox" />
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="setting-card" id="imagePrefix" data-setting-key="imagePrefix">
-                        <div class="input-group">
-                            <label class="input-label" for="imagePrefix">Image filename prefix template</label>
-                            <input type="text" name="imagePrefix" class="text-input" role="textbox" />
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Obsidian Integration -->
                 <div class="setting-card" id="obsidian-container"
                     data-search-keywords="obsidian,obsdn,advanced uri,obsidian uri"
@@ -806,49 +809,6 @@
                         <label class="input-label">Obsidian Folder Name</label>
                         <input type="text" name="obsidianFolder" class="text-input" role="textbox" placeholder="Enter Folder Name eg. Clippers" />
                     </div>
-                </div>
-
-                <!-- Permissions & Privacy (read-only info card) -->
-                <div class="setting-card permissions-privacy-card" id="permissions-privacy-container"
-                    data-search-keywords="permissions,privacy,site access,all urls,native messaging,local companion,data,security,what does marksnip access">
-                    <h3 class="card-title">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                        </svg>
-                        Permissions &amp; Privacy
-                    </h3>
-                    <p class="card-desc">MarkSnip processes pages locally and only accesses page content when you trigger a clip.</p>
-
-                    <details class="permission-row" id="permissionRowSiteAccess">
-                        <summary class="permission-row-header">
-                            <span class="permission-row-title">Site access for clipping</span>
-                            <span class="permission-badge permission-badge--included">Included with extension</span>
-                        </summary>
-                        <div class="permission-row-body">
-                            <ul class="permission-explainer-list">
-                                <li>Needed so MarkSnip can clip any page you ask it to clip.</li>
-                                <li>Not used for passive browsing monitoring.</li>
-                                <li>Page content is not sent to external servers.</li>
-                                <li>This is managed by the browser as part of the extension install.</li>
-                            </ul>
-                        </div>
-                    </details>
-
-                    <details class="permission-row" id="permissionRowLocalCompanion">
-                        <summary class="permission-row-header">
-                            <span class="permission-row-title">Local companion access</span>
-                            <span class="permission-badge permission-badge--optional">Optional</span>
-                        </summary>
-                        <div class="permission-row-body">
-                            <ul class="permission-explainer-list">
-                                <li>Only used for Agent Bridge.</li>
-                                <li>Only talks to the local MarkSnip companion installed on this machine.</li>
-                                <li>Regular clipping works without it.</li>
-                                <li>Can be stopped by turning Agent Bridge off.</li>
-                            </ul>
-                        </div>
-                    </details>
                 </div>
 
                 <!-- Agent Bridge -->
@@ -1071,9 +1031,11 @@
                     </div>
                 </div>
 
-                <!-- Code Block Style -->
-                <div class="setting-card" id="codeBlockStyle" data-setting-key="codeBlockStyle">
-                    <h3 class="card-title">Code Block Style</h3>
+                <!-- Code Blocks -->
+                <div class="setting-card" id="codeBlockStyle"
+                    data-search-keywords="highlight,highlight js,highlightjs,highlight.js,syntax highlighting,language detection"
+                    data-setting-key="codeBlockStyle,preserveCodeFormatting,autoDetectCodeLanguage,fence">
+                    <h3 class="card-title">Code Blocks</h3>
                     <div class="radio-card-group">
                         <div class="radio-card">
                             <input type="radio" name="codeBlockStyle" id="indented" value="indented" />
@@ -1096,47 +1058,44 @@ const helloWorld = () => {
                             </label>
                         </div>
                     </div>
-                </div>
 
-                <!-- Code formatting toggles -->
-                <div class="setting-card" id="preserveCodeFormatting-container" data-setting-key="preserveCodeFormatting">
-                    <div class="toggle-row">
-                        <div class="toggle-info">
-                            <label class="toggle-label-text" for="preserveCodeFormatting">Preserve Code Block HTML Formatting</label>
-                            <p class="toggle-hint">When enabled, preserves original HTML formatting within code blocks. This can be useful for maintaining exact visual formatting, but may make the Markdown harder to read and use in other tools. When disabled (default), produces clean code blocks.</p>
+                    <div id="preserveCodeFormatting-container">
+                        <div class="toggle-row">
+                            <div class="toggle-info">
+                                <label class="toggle-label-text" for="preserveCodeFormatting">Preserve Code Block HTML Formatting</label>
+                                <p class="toggle-hint">When enabled, preserves original HTML formatting within code blocks. This can be useful for maintaining exact visual formatting, but may make the Markdown harder to read and use in other tools. When disabled (default), produces clean code blocks.</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input name="preserveCodeFormatting" id="preserveCodeFormatting" type="checkbox" />
+                                <span class="toggle-slider"></span>
+                            </label>
                         </div>
-                        <label class="toggle-switch">
-                            <input name="preserveCodeFormatting" id="preserveCodeFormatting" type="checkbox" />
-                            <span class="toggle-slider"></span>
-                        </label>
                     </div>
-                </div>
 
-                <div class="setting-card" id="autoDetectCodeLanguage-container" data-setting-key="autoDetectCodeLanguage"
-                    data-search-keywords="highlight,highlight js,highlightjs,highlight.js,syntax highlighting,language detection">
-                    <div class="toggle-row">
-                        <div class="toggle-info">
-                            <label class="toggle-label-text" for="autoDetectCodeLanguage">Auto-detect code block language</label>
-                            <p class="toggle-hint">Uses highlight.js to infer fenced code block language when no explicit language is present. Disable this if snippets are frequently labeled with incorrect languages.</p>
+                    <div id="autoDetectCodeLanguage-container">
+                        <div class="toggle-row">
+                            <div class="toggle-info">
+                                <label class="toggle-label-text" for="autoDetectCodeLanguage">Auto-detect code block language</label>
+                                <p class="toggle-hint">Uses highlight.js to infer fenced code block language when no explicit language is present. Disable this if snippets are frequently labeled with incorrect languages.</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input name="autoDetectCodeLanguage" id="autoDetectCodeLanguage" type="checkbox" />
+                                <span class="toggle-slider"></span>
+                            </label>
                         </div>
-                        <label class="toggle-switch">
-                            <input name="autoDetectCodeLanguage" id="autoDetectCodeLanguage" type="checkbox" />
-                            <span class="toggle-slider"></span>
-                        </label>
                     </div>
-                </div>
 
-                <!-- Code Block Fence -->
-                <div class="setting-card" id="fence" data-setting-key="fence">
-                    <h3 class="card-title">Code Block Fence</h3>
-                    <div class="radio-group">
-                        <div class="radio-pill">
-                            <input type="radio" name="fence" id="```" value="```" />
-                            <label for="```"><code>```</code></label>
-                        </div>
-                        <div class="radio-pill">
-                            <input type="radio" name="fence" id="~~~" value="~~~" />
-                            <label for="~~~"><code>~~~</code></label>
+                    <div id="fence" data-search-reveal>
+                        <label class="input-label">Code Block Fence</label>
+                        <div class="radio-group">
+                            <div class="radio-pill">
+                                <input type="radio" name="fence" id="```" value="```" />
+                                <label for="```"><code>```</code></label>
+                            </div>
+                            <div class="radio-pill">
+                                <input type="radio" name="fence" id="~~~" value="~~~" />
+                                <label for="~~~"><code>~~~</code></label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1678,6 +1637,49 @@ const helloWorld = () => {
 	            <div class="section" id="section-import-export" data-section-label="Import / Export" role="tabpanel" tabindex="0" aria-labelledby="tab-import-export">
                 <h2 class="section-title">Import / Export</h2>
                 <p class="section-desc">Back up your settings or restore from a previous backup.</p>
+
+                <!-- Permissions & Privacy (read-only info card) -->
+                <div class="setting-card permissions-privacy-card" id="permissions-privacy-container"
+                    data-search-keywords="permissions,privacy,site access,all urls,native messaging,local companion,data,security,what does marksnip access">
+                    <h3 class="card-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                        Permissions &amp; Privacy
+                    </h3>
+                    <p class="card-desc">MarkSnip processes pages locally and only accesses page content when you trigger a clip.</p>
+
+                    <details class="permission-row" id="permissionRowSiteAccess">
+                        <summary class="permission-row-header">
+                            <span class="permission-row-title">Site access for clipping</span>
+                            <span class="permission-badge permission-badge--included">Included with extension</span>
+                        </summary>
+                        <div class="permission-row-body">
+                            <ul class="permission-explainer-list">
+                                <li>Needed so MarkSnip can clip any page you ask it to clip.</li>
+                                <li>Not used for passive browsing monitoring.</li>
+                                <li>Page content is not sent to external servers.</li>
+                                <li>This is managed by the browser as part of the extension install.</li>
+                            </ul>
+                        </div>
+                    </details>
+
+                    <details class="permission-row" id="permissionRowLocalCompanion">
+                        <summary class="permission-row-header">
+                            <span class="permission-row-title">Local companion access</span>
+                            <span class="permission-badge permission-badge--optional">Optional</span>
+                        </summary>
+                        <div class="permission-row-body">
+                            <ul class="permission-explainer-list">
+                                <li>Only used for Agent Bridge.</li>
+                                <li>Only talks to the local MarkSnip companion installed on this machine.</li>
+                                <li>Regular clipping works without it.</li>
+                                <li>Can be stopped by turning Agent Bridge off.</li>
+                            </ul>
+                        </div>
+                    </details>
+                </div>
 
                 <div class="setting-card">
                     <h3 class="card-title">Import</h3>

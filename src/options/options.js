@@ -2471,6 +2471,15 @@ function initSearch() {
                 card.style.display = '';
                 card.style.opacity = '1';
 
+                // Force-show any conditionally hidden children so they are interactable in search results
+                card.querySelectorAll('[data-search-reveal]').forEach(child => {
+                    if (child.style.display === 'none') {
+                        child.style.display = '';
+                        child.style.opacity = '1';
+                        child.setAttribute('data-search-force-shown', '');
+                    }
+                });
+
                 const sectionLabel = section.querySelector('.section-title')?.textContent?.trim()
                     || section.dataset.sectionLabel || '';
                 const cardTitle = card.querySelector('.card-title')?.textContent?.trim() || '';
@@ -2610,6 +2619,14 @@ function initSearchLegacy() {
                 // Override any inline display:none from show() / refreshElements()
                 card.style.display = '';
                 card.style.opacity = '1';
+                // Force-show any conditionally hidden children so they are interactable in search results
+                card.querySelectorAll('[data-search-reveal]').forEach(child => {
+                    if (child.style.display === 'none') {
+                        child.style.display = '';
+                        child.style.opacity = '1';
+                        child.setAttribute('data-search-force-shown', '');
+                    }
+                });
                 // Also ensure parent wrappers (like #downloadModeGroup) are visible
                 let parent = card.parentElement;
                 while (parent && parent !== contentPanel) {
