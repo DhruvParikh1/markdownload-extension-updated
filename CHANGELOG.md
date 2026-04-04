@@ -1,5 +1,24 @@
 # Changelog
 
+## 4.5.0
+
+### User Highlights
+
+- The popup can now use Copy to Clipboard or Send to Assistant as its main action, with built-in targets for ChatGPT, Claude, and Perplexity plus custom assistant URLs.
+- A new OpenAI special theme joins the extension, and the popup can show a one-click light/dark theme toggle in the header.
+- Settings are easier to navigate with a reorganized Exports & Integrations area, grouped popup behavior controls, and cleaner code-block settings.
+- Clipping now fails more gracefully on restricted browser pages, with clearer popup messaging instead of CSP-related errors.
+- Permissions and privacy guidance is more complete across the guide and settings, with clearer explanations of what MarkSnip can access and why.
+
+### Technical Notes
+
+- **Assistant Send Flow**: Added `copy` and `sendTo` popup primary actions, built-in ChatGPT/Claude/Perplexity targets, custom HTTPS assistant URL templates with `{prompt}` validation, and a configurable URL-length cap that falls back to clipboard plus assistant landing-page launch.
+- **OpenAI Theme & Theme Toggle**: Added an OpenAI special theme across popup, options, and guide surfaces, plus a popup header theme toggle that can be enabled or hidden from settings. Added cached theme bootstrap loading so the popup can apply the last-used theme earlier during startup.
+- **Options Information Architecture**: Reorganized the Downloads area into **Exports & Integrations**, grouped related popup and code-block controls, moved the clips-folder setting closer to download settings, and added settings search coverage for the new assistant and theme controls.
+- **Restricted Page Handling**: The popup now detects restricted tabs earlier and shows a clearer message instead of attempting injection that can trigger CSP violations or failed clipping flows.
+- **Permissions & Manifest Hardening**: Expanded permissions documentation and guide coverage for core browser permissions, and removed `guide/guide.html` from `web_accessible_resources` so only the page-context capture script remains exposed.
+- **Regression Coverage**: Added unit, integration, and end-to-end coverage for assistant target settings, popup startup assets, guide discoverability, and restricted-tab popup behavior.
+
 ## 4.4.0
 
 ### User Highlights

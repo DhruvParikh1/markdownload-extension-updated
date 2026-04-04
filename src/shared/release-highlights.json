@@ -1,7 +1,14 @@
 {
-  "generatedAt": "2026-03-31T03:03:53.785Z",
+  "generatedAt": "2026-04-04T22:50:12.498Z",
   "source": "CHANGELOG.md",
   "versions": {
+    "4.5.0": [
+      "The popup can now use Copy to Clipboard or Send to Assistant as its main action, with built-in targets for ChatGPT, Claude, and Perplexity plus custom assistant URLs.",
+      "A new OpenAI special theme joins the extension, and the popup can show a one-click light/dark theme toggle in the header.",
+      "Settings are easier to navigate with a reorganized Exports & Integrations area, grouped popup behavior controls, and cleaner code-block settings.",
+      "Clipping now fails more gracefully on restricted browser pages, with clearer popup messaging instead of CSP-related errors.",
+      "Permissions and privacy guidance is more complete across the guide and settings, with clearer explanations of what MarkSnip can access and why."
+    ],
     "4.4.0": [
       "Popup exports now support Markdown, plain text, HTML, PDF, and Print, with a configurable default format.",
       "New Site Rules add per-site clipping overrides for templates, images, downloads, and table formatting.",

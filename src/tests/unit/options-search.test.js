@@ -289,15 +289,15 @@ describe('Options search helper', () => {
     expect(getMatchLabels(index, 'frontmatter')).toContain('Front-matter template');
     expect(getMatchLabels(index, 'backmatter')).toContain('Back-matter template');
     expect(getMatchIds(index, 'base64')).toContain('imageOptions');
-    expect(getMatchIds(index, 'highlight')).toContain('autoDetectCodeLanguage-container');
-    expect(getMatchIds(index, 'highlightjs')).toContain('autoDetectCodeLanguage-container');
-    expect(getMatchIds(index, 'highlight.js')).toContain('autoDetectCodeLanguage-container');
+    expect(getMatchIds(index, 'highlight')).toContain('codeBlockStyle');
+    expect(getMatchIds(index, 'highlightjs')).toContain('codeBlockStyle');
+    expect(getMatchIds(index, 'highlight.js')).toContain('codeBlockStyle');
     expect(getMatchIds(index, 'shortcut')).toContain('linkReferenceStyle');
     expect(getMatchIds(index, 'hashtag')).toContain('hashtagHandling-container');
     expect(getMatchIds(index, 'batch processing')).toContain('batchProcessingEnabled-container');
     expect(getMatchIds(index, 'obsidian vault')).toContain('obsidianVault');
     expect(getMatchIds(index, 'download images')).toContain('downloadImages-container');
-    expect(getMatchIds(index, 'guide icon')).toContain('showUserGuideIcon-container');
+    expect(getMatchIds(index, 'guide icon')).toContain('popupBehaviorGroup');
   });
 
   test('library search surfaces the new local-only library controls', () => {
