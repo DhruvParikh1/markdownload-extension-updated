@@ -1569,6 +1569,47 @@ async function getActiveTabId(forceRefresh = false) {
     return (await getActiveTab(forceRefresh))?.id ?? null;
 }
 
+function isRestrictedTabUrl(url) {
+    if (!url) {
+        return false;
+    }
+
+    return url.startsWith('chrome://') ||
+        url.startsWith('edge://') ||
+        url.startsWith('about:') ||
+        url.startsWith('moz-extension://') ||
+        url.startsWith('chrome-extension://') ||
+        url.startsWith('view-source:');
+}
+
+function getRestrictedPageMessage(url) {
+    if (!url) {
+        return 'MarkSnip cannot clip this page.';
+    }
+
+    return `MarkSnip cannot clip this page: ${url}`;
+}
+
+async function resolveClipTargetTab(id) {
+    if (!id) {
+        return getActiveTab();
+    }
+
+    if (activeTabCache?.id === id) {
+        return activeTabCache;
+    }
+
+    const tab = await browser.tabs.get(id).catch(() => null);
+    if (tab?.id === id) {
+        if (tab.active) {
+            activeTabCache = tab;
+        }
+        return tab;
+    }
+
+    return null;
+}
+
 function resolveEditorTheme(editorTheme, isDark, specialTheme = 'none', colorBlindTheme = currentOptions?.colorBlindTheme) {
     const resolvedSpecialTheme = getResolvedSpecialThemeKey(specialTheme, colorBlindTheme);
     if (specialTheme !== 'none' && EDITOR_THEME_MAP[resolvedSpecialTheme]) {
@@ -3316,62 +3357,63 @@ const showOrHideClipOption = selection => {
 
 // Updated clipSite function to use scripting API
 const clipSite = id => {
-    // If no id is provided, get the active tab's id first
-    if (!id) {
-        return getActiveTab().then(tab => {
-            if (tab?.id) {
-                return clipSite(tab.id);
-            }
+    return resolveClipTargetTab(id).then((tab) => {
+        if (!tab?.id) {
             throw new Error("No active tab found");
-        });
-    }
+        }
 
-    // Rest of the function remains the same
-    return browser.scripting.executeScript({
-        target: { tabId: id },
-        func: async () => {
-            if (typeof marksnipPrepareForCapture === 'function') {
-                await marksnipPrepareForCapture();
-            }
-            if (typeof getSelectionAndDom === 'function') {
-                return getSelectionAndDom();
-            }
+        if (isRestrictedTabUrl(tab.url || '')) {
+            showOrHideClipOption(false);
+            showError(getRestrictedPageMessage(tab.url || ''));
             return null;
         }
-    })
-    .then((result) => {
-        if (result && result[0]?.result) {
-            showOrHideClipOption(result[0].result.selection);
-            let message = {
-                type: "clip",
-                dom: result[0].result.dom,
-                selection: result[0].result.selection,
-                pageUrl: result[0].result.pageUrl || null
+
+        return browser.scripting.executeScript({
+            target: { tabId: tab.id },
+            func: async () => {
+                if (typeof marksnipPrepareForCapture === 'function') {
+                    await marksnipPrepareForCapture();
+                }
+                if (typeof getSelectionAndDom === 'function') {
+                    return getSelectionAndDom();
+                }
+                return null;
             }
-            if (currentOptions) {
-                return browser.runtime.sendMessage({
-                    ...message,
-                    ...currentOptions
+        })
+        .then((result) => {
+            if (result && result[0]?.result) {
+                showOrHideClipOption(result[0].result.selection);
+                let message = {
+                    type: "clip",
+                    dom: result[0].result.dom,
+                    selection: result[0].result.selection,
+                    pageUrl: result[0].result.pageUrl || null
+                }
+                if (currentOptions) {
+                    return browser.runtime.sendMessage({
+                        ...message,
+                        ...currentOptions
+                    });
+                }
+                return browser.storage.sync.get(defaultOptions).then(options => {
+                    currentOptions = normalizePopupOptions({
+                        ...defaultOptions,
+                        ...options
+                    });
+                    return browser.runtime.sendMessage({
+                        ...message,
+                        ...currentOptions
+                    });
+                }).catch(err => {
+                    console.error(err);
+                    showError(err)
+                    return browser.runtime.sendMessage({
+                        ...message,
+                        ...defaultOptions
+                    });
                 });
-	            }
-	            return browser.storage.sync.get(defaultOptions).then(options => {
-	                currentOptions = normalizePopupOptions({
-	                    ...defaultOptions,
-	                    ...options
-	                });
-	                return browser.runtime.sendMessage({
-	                    ...message,
-	                    ...currentOptions
-                });
-            }).catch(err => {
-                console.error(err);
-                showError(err)
-                return browser.runtime.sendMessage({
-                    ...message,
-                    ...defaultOptions
-                });
-            });
-        }
+            }
+        });
     }).catch(err => {
         console.error(err);
         showError(err)
@@ -3471,7 +3513,16 @@ async function initializePopup() {
         scheduleDeferredStartupTasks();
 
         if (!activeTab?.id) {
-            throw new Error("No active tab found");
+            showError("No active tab found");
+            await editorPromise;
+            return;
+        }
+
+        if (isRestrictedTabUrl(activeTab.url || '')) {
+            showOrHideClipOption(false);
+            showError(getRestrictedPageMessage(activeTab.url || ''));
+            await editorPromise;
+            return;
         }
 
         const clipPromise = ensureContentScriptInjected(activeTab.id).then(() => {
