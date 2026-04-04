@@ -1,13 +1,13 @@
 (function (root) {
   const COMMAND_LABELS = {
-    '_execute_action':                    'Open MarkSnip popup',
-    'download_tab_as_markdown':           'Download tab as Markdown',
-    'copy_tab_as_markdown':               'Copy tab as Markdown',
-    'copy_tab_as_markdown_link':          'Copy tab URL as Markdown link',
-    'copy_selection_as_markdown':         'Copy selection as Markdown',
-    'copy_selected_tab_as_markdown_link': 'Copy selected tabs as Markdown links',
-    'copy_selection_to_obsidian':         'Copy selection to Obsidian',
-    'copy_tab_to_obsidian':              'Copy tab to Obsidian',
+    '_execute_action':                    'shortcut_open_popup',
+    'download_tab_as_markdown':           'shortcut_download_tab',
+    'copy_tab_as_markdown':               'shortcut_copy_tab',
+    'copy_tab_as_markdown_link':          'shortcut_copy_tab_link',
+    'copy_selection_as_markdown':         'shortcut_copy_selection',
+    'copy_selected_tab_as_markdown_link': 'shortcut_copy_selected_tabs_links',
+    'copy_selection_to_obsidian':         'shortcut_copy_selection_obsidian',
+    'copy_tab_to_obsidian':               'shortcut_copy_tab_obsidian',
   };
 
   const COMMAND_ORDER = [
@@ -36,8 +36,17 @@
     return { withShortcut, withoutShortcut };
   }
 
+  function resolveLabel(commandName, translate) {
+    const key = COMMAND_LABELS[commandName];
+    if (typeof translate === 'function' && key) {
+      return translate(key);
+    }
+    return key || commandName;
+  }
+
   // Builds and returns a DocumentFragment using the provided document
-  function buildShortcutsFragment(document, commands) {
+  function buildShortcutsFragment(document, commands, options = {}) {
+    const translate = typeof options.translate === 'function' ? options.translate : null;
     const { withShortcut, withoutShortcut } = groupCommands(commands);
     const frag = document.createDocumentFragment();
 
@@ -57,7 +66,7 @@
         keyTd.appendChild(span);
       }
       const descTd = document.createElement('td');
-      descTd.textContent = COMMAND_LABELS[cmd.name] ?? cmd.description ?? cmd.name;
+      descTd.textContent = resolveLabel(cmd.name, translate) || cmd.description || cmd.name;
       tr.appendChild(keyTd);
       tr.appendChild(descTd);
       return tr;
@@ -74,7 +83,7 @@
       label.className = 'shortcuts-section-label';
       label.dataset.action = 'open-shortcut-settings';
       const labelText = document.createElement('span');
-      labelText.textContent = 'Assign in browser shortcuts';
+      labelText.textContent = translate ? translate('shortcut_assign_in_browser') : 'Assign in browser shortcuts';
       const labelIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
       labelIcon.setAttribute('width', '10');
       labelIcon.setAttribute('height', '10');
@@ -106,7 +115,7 @@
     return frag;
   }
 
-  const api = { COMMAND_LABELS, COMMAND_ORDER, splitShortcut, groupCommands, buildShortcutsFragment };
+  const api = { COMMAND_LABELS, COMMAND_ORDER, splitShortcut, groupCommands, buildShortcutsFragment, resolveLabel };
   root.markSnipPopupShortcuts = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

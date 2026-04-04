@@ -1,6 +1,27 @@
 const notifications = require('../../shared/notifications');
 
 describe('notification helpers', () => {
+  test('localizes support notifications with provided translator', () => {
+    const notification = notifications.createSupportNotification({
+      milestone: 25,
+      numberLocale: 'hi-IN',
+      t(key, substitutions = {}) {
+        const map = {
+          notif_support_title: `समर्थन ${substitutions.count}`,
+          notif_support_message: `${substitutions.count} पेज`,
+          notif_action_buy_me_coffee: 'सपोर्ट करें',
+          notif_action_view_release_notes: 'रिलीज़ नोट्स'
+        };
+        return map[key] || key;
+      }
+    });
+
+    expect(notification.title).toContain('समर्थन');
+    expect(notification.message).toContain('25');
+    expect(notification.primaryAction.label).toBe('सपोर्ट करें');
+    expect(notification.secondaryAction.label).toBe('रिलीज़ नोट्स');
+  });
+
   test('queues only the next unseen support threshold when exports jump', () => {
     let state = notifications.applyMetricDelta(
       notifications.ensureNotificationState(),

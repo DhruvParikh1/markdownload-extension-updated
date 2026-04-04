@@ -1,0 +1,1173 @@
+{
+  "extension_name": {
+    "message": "MarkSnip - Markdown Web Clipper"
+  },
+  "extension_description": {
+    "message": "एक-क्लिक Markdown वेब क्लिपर। लेख, डॉक्स, कोड और तालिकाओं को AI एजेंट्स और LLMs के लिए साफ़ Markdown में सहेजें। Obsidian और अन्य के साथ काम करता है।"
+  },
+  "action_title": {
+    "message": "MarkSnip"
+  },
+  "command_download_tab_as_markdown": {
+    "message": "वर्तमान टैब को Markdown के रूप में सहेजें"
+  },
+  "command_copy_tab_as_markdown": {
+    "message": "वर्तमान टैब को Markdown के रूप में क्लिपबोर्ड पर कॉपी करें"
+  },
+  "command_copy_selection_as_markdown": {
+    "message": "वर्तमान चयन को Markdown के रूप में क्लिपबोर्ड पर कॉपी करें"
+  },
+  "command_copy_tab_as_markdown_link": {
+    "message": "वर्तमान टैब URL को Markdown लिंक के रूप में क्लिपबोर्ड पर कॉपी करें"
+  },
+  "command_copy_selected_tab_as_markdown_link": {
+    "message": "चयनित टैब URLs को Markdown लिंक के रूप में क्लिपबोर्ड पर कॉपी करें"
+  },
+  "command_copy_selection_to_obsidian": {
+    "message": "वर्तमान चयन को Markdown के रूप में Obsidian में कॉपी करें"
+  },
+  "command_copy_tab_to_obsidian": {
+    "message": "वर्तमान टैब को Markdown के रूप में Obsidian में कॉपी करें"
+  },
+  "popup_loading_processing_page": {
+    "message": "पेज प्रोसेस किया जा रहा है..."
+  },
+  "popup_toggle_dark_mode": {
+    "message": "डार्क मोड पर स्विच करें"
+  },
+  "popup_title": {
+    "message": "MarkSnip"
+  },
+  "popup_open_guide": {
+    "message": "यूज़र गाइड"
+  },
+  "popup_keyboard_shortcuts": {
+    "message": "कीबोर्ड शॉर्टकट्स"
+  },
+  "popup_batch_processing": {
+    "message": "बैच प्रोसेसिंग"
+  },
+  "popup_library": {
+    "message": "लाइब्रेरी"
+  },
+  "popup_settings": {
+    "message": "सेटिंग्स"
+  },
+  "popup_images": {
+    "message": "इमेजेज"
+  },
+  "popup_template": {
+    "message": "टेम्पलेट"
+  },
+  "popup_content_scope": {
+    "message": "कॉन्टेंट स्कोप"
+  },
+  "popup_scope_selection": {
+    "message": "चयन"
+  },
+  "popup_scope_document": {
+    "message": "दस्तावेज़"
+  },
+  "popup_title_label": {
+    "message": "शीर्षक"
+  },
+  "popup_title_placeholder": {
+    "message": "दस्तावेज़ शीर्षक..."
+  },
+  "popup_toggle_preview": {
+    "message": "प्रिव्यू टॉगल करें"
+  },
+  "popup_copy_selection": {
+    "message": "चयन कॉपी करें"
+  },
+  "popup_copy": {
+    "message": "कॉपी करें"
+  },
+  "popup_download_selection": {
+    "message": "चयन डाउनलोड करें"
+  },
+  "popup_send_to_obsidian": {
+    "message": "Obsidian को भेजें"
+  },
+  "popup_download": {
+    "message": "डाउनलोड"
+  },
+  "popup_more_export_options": {
+    "message": "और एक्सपोर्ट विकल्प"
+  },
+  "popup_send_to_heading": {
+    "message": "इन्हें भेजें"
+  },
+  "popup_export_as_heading": {
+    "message": "इस रूप में एक्सपोर्ट करें"
+  },
+  "popup_export_markdown": {
+    "message": "Markdown (.md)"
+  },
+  "popup_export_text": {
+    "message": "सादा टेक्स्ट (.txt)"
+  },
+  "popup_export_html": {
+    "message": "HTML (.html)"
+  },
+  "popup_export_pdf": {
+    "message": "PDF के रूप में सहेजें"
+  },
+  "popup_export_pdf_note": {
+    "message": "प्रिंट के माध्यम से"
+  },
+  "popup_export_print": {
+    "message": "प्रिंट"
+  },
+  "popup_batch_title": {
+    "message": "बैच प्रोसेसिंग"
+  },
+  "popup_batch_urls_label": {
+    "message": "URLs (प्रत्येक पंक्ति में एक)"
+  },
+  "popup_batch_urls_placeholder": {
+    "message": "https://example.com/page1\nhttps://example.com/page2\n\nया Markdown लिंक का उपयोग करें:\n[Page Title](https://example.com)"
+  },
+  "popup_batch_pick_links": {
+    "message": "पेज से लिंक चुनें"
+  },
+  "popup_batch_zip_mode": {
+    "message": "ZIP फ़ाइल"
+  },
+  "popup_batch_individual_mode": {
+    "message": "अलग-अलग"
+  },
+  "popup_batch_progress_processing": {
+    "message": "प्रोसेस हो रहा है..."
+  },
+  "popup_batch_convert_all": {
+    "message": "सभी URLs कन्वर्ट करें"
+  },
+  "popup_library_title": {
+    "message": "लाइब्रेरी"
+  },
+  "popup_library_close": {
+    "message": "लाइब्रेरी बंद करें"
+  },
+  "popup_library_save_clip": {
+    "message": "क्लिप सहेजें"
+  },
+  "popup_library_export_all": {
+    "message": "सभी एक्सपोर्ट करें"
+  },
+  "popup_library_exporting": {
+    "message": "एक्सपोर्ट हो रहा है..."
+  },
+  "popup_library_export_zip": {
+    "message": "ZIP के रूप में डाउनलोड करें"
+  },
+  "popup_library_export_individual": {
+    "message": "अलग-अलग .md फ़ाइलें"
+  },
+  "popup_library_export_links": {
+    "message": "सभी लिंक कॉपी करें"
+  },
+  "popup_library_empty_title": {
+    "message": "अभी तक कोई सहेजी गई क्लिप नहीं है"
+  },
+  "popup_shortcuts_title": {
+    "message": "कीबोर्ड शॉर्टकट्स"
+  },
+  "popup_shortcuts_close": {
+    "message": "शॉर्टकट्स बंद करें"
+  },
+  "popup_runtime_processing_urls": {
+    "message": "URLs प्रोसेस किए जा रहे हैं..."
+  },
+  "popup_runtime_cancel": {
+    "message": "रद्द करें"
+  },
+  "popup_runtime_batch_disabled": {
+    "message": "बैच प्रोसेसिंग सेटिंग्स में बंद है"
+  },
+  "popup_runtime_invalid_urls": {
+    "message": "कृपया वैध URLs या Markdown लिंक दर्ज करें (प्रत्येक पंक्ति में एक)"
+  },
+  "popup_runtime_link_picker_failed": {
+    "message": "लिंक पिकर सक्रिय नहीं हो सका। कृपया फिर से प्रयास करें।"
+  },
+  "popup_runtime_loading": {
+    "message": "लोड हो रहा है…"
+  },
+  "popup_runtime_shortcuts_load_failed": {
+    "message": "शॉर्टकट्स लोड नहीं हो सके।"
+  },
+  "popup_runtime_overridden_by": {
+    "message": "$ruleName$ द्वारा ओवरराइड किया गया",
+    "placeholders": {
+      "ruleName": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_library_removed": {
+    "message": "\"$title$\" हटाया गया",
+    "placeholders": {
+      "title": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_library_remove_failed": {
+    "message": "क्लिप हटाई नहीं जा सकी"
+  },
+  "popup_runtime_library_empty_auto": {
+    "message": "किसी भी पेज पर पॉपअप खोलें और वर्तमान क्लिप यहाँ अपने-आप सहेजी जाएगी।"
+  },
+  "popup_runtime_library_empty_manual": {
+    "message": "मैनुअल मोड चालू है। वर्तमान पेज को अपनी लोकल लाइब्रेरी में जोड़ने के लिए \"क्लिप सहेजें\" का उपयोग करें।"
+  },
+  "popup_runtime_library_delete_clip": {
+    "message": "क्लिप हटाएँ: $title$",
+    "placeholders": {
+      "title": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_delete": {
+    "message": "हटाएँ"
+  },
+  "popup_runtime_current_page": {
+    "message": "वर्तमान पेज"
+  },
+  "popup_runtime_library_toolbar_manual": {
+    "message": "मैनुअल मोड चालू है। वर्तमान पेज सहेजने के लिए \"क्लिप सहेजें\" दबाएँ।"
+  },
+  "popup_runtime_library_toolbar_auto": {
+    "message": "यह लाइब्रेरी इस पॉपअप से पेज पहली बार लोड होने पर उसे अपने-आप सहेजती है।"
+  },
+  "popup_runtime_library_saved": {
+    "message": "वर्तमान क्लिप लाइब्रेरी में सहेजी गई"
+  },
+  "popup_runtime_library_save_failed": {
+    "message": "क्लिप लाइब्रेरी में सहेजी नहीं जा सकी"
+  },
+  "popup_runtime_library_export_failed": {
+    "message": "लाइब्रेरी एक्सपोर्ट नहीं हो सकी"
+  },
+  "popup_runtime_library_export_files_failed": {
+    "message": "फ़ाइलें एक्सपोर्ट नहीं हो सकीं"
+  },
+  "popup_runtime_library_links_copied_one": {
+    "message": "$count$ लिंक क्लिपबोर्ड पर कॉपी किया गया",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_library_links_copied_other": {
+    "message": "$count$ लिंक क्लिपबोर्ड पर कॉपी किए गए",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_library_links_failed": {
+    "message": "लिंक्स क्लिपबोर्ड पर कॉपी नहीं किए जा सके"
+  },
+  "popup_runtime_nothing_to_send": {
+    "message": "भेजने के लिए कुछ नहीं है"
+  },
+  "popup_runtime_opening_target": {
+    "message": "कॉपी किया गया। $target$ खोला जा रहा है...",
+    "placeholders": {
+      "target": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_failed": {
+    "message": "विफल"
+  },
+  "popup_runtime_nothing_to_copy": {
+    "message": "कॉपी करने के लिए कुछ नहीं है"
+  },
+  "popup_runtime_copied_selection": {
+    "message": "चयन कॉपी हो गया!"
+  },
+  "popup_runtime_copied": {
+    "message": "कॉपी हो गया!"
+  },
+  "popup_runtime_saved": {
+    "message": "सहेजा गया!"
+  },
+  "popup_runtime_loading_page": {
+    "message": "पेज लोड हो रहा है..."
+  },
+  "popup_runtime_converting_page": {
+    "message": "पेज कन्वर्ट हो रहा है..."
+  },
+  "popup_runtime_retrying_page": {
+    "message": "पेज कैप्चर दोबारा किया जा रहा है..."
+  },
+  "popup_runtime_processing": {
+    "message": "प्रोसेस हो रहा है..."
+  },
+  "popup_runtime_starting_background": {
+    "message": "बैकग्राउंड बैच शुरू हो रहा है..."
+  },
+  "popup_runtime_started_background": {
+    "message": "बैच शुरू हो गया। टैब्स अपने-आप खोले जाएँगे।"
+  },
+  "popup_runtime_complete": {
+    "message": "पूरा हुआ!"
+  },
+  "popup_runtime_partial_retry": {
+    "message": "आंशिक कंटेंट मिला। $attempt$/$total$ दोबारा प्रयास हो रहा है...",
+    "placeholders": {
+      "attempt": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "popup_runtime_error_clipping_page": {
+    "message": "पेज क्लिप करते समय त्रुटि हुई"
+  },
+  "popup_runtime_batch_status_error": {
+    "message": "त्रुटि: $message$",
+    "placeholders": {
+      "message": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_valid_urls_one": {
+    "message": "$count$ वैध URL",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_valid_urls_other": {
+    "message": "$count$ वैध URLs",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_invalid_lines_one": {
+    "message": "$count$ अमान्य पंक्ति",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_invalid_lines_other": {
+    "message": "$count$ अमान्य पंक्तियाँ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_no_valid_urls": {
+    "message": "$invalidPart$ — कोई वैध URL नहीं",
+    "placeholders": {
+      "invalidPart": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_url_summary_with_invalid": {
+    "message": "$validPart$, $invalidPart$",
+    "placeholders": {
+      "validPart": {
+        "content": "$1"
+      },
+      "invalidPart": {
+        "content": "$2"
+      }
+    }
+  },
+  "shortcut_open_popup": {
+    "message": "MarkSnip पॉपअप खोलें"
+  },
+  "shortcut_download_tab": {
+    "message": "टैब को Markdown के रूप में डाउनलोड करें"
+  },
+  "shortcut_copy_tab": {
+    "message": "टैब को Markdown के रूप में कॉपी करें"
+  },
+  "shortcut_copy_tab_link": {
+    "message": "टैब URL को Markdown लिंक के रूप में कॉपी करें"
+  },
+  "shortcut_copy_selection": {
+    "message": "चयन को Markdown के रूप में कॉपी करें"
+  },
+  "shortcut_copy_selected_tabs_links": {
+    "message": "चयनित टैब्स को Markdown लिंक्स के रूप में कॉपी करें"
+  },
+  "shortcut_copy_selection_obsidian": {
+    "message": "चयन को Obsidian में कॉपी करें"
+  },
+  "shortcut_copy_tab_obsidian": {
+    "message": "टैब को Obsidian में कॉपी करें"
+  },
+  "shortcut_assign_in_browser": {
+    "message": "ब्राउज़र शॉर्टकट्स में असाइन करें"
+  },
+  "notif_eyebrow_update": {
+    "message": "MarkSnip अपडेट"
+  },
+  "notif_eyebrow_milestone": {
+    "message": "माइलस्टोन"
+  },
+  "notif_dismiss": {
+    "message": "नोटिफिकेशन बंद करें"
+  },
+  "notif_pages_exported": {
+    "message": "निर्यात किए गए पेज"
+  },
+  "notif_title_fallback": {
+    "message": "MarkSnip नोटिफिकेशन"
+  },
+  "notif_action_open_link": {
+    "message": "लिंक खोलें"
+  },
+  "notif_action_buy_me_coffee": {
+    "message": "Buy Me a Coffee"
+  },
+  "notif_action_view_release_notes": {
+    "message": "रिलीज़ नोट्स देखें"
+  },
+  "notif_version_updated_from": {
+    "message": "MarkSnip v$currentVersion$ पर अपडेट हुआ",
+    "placeholders": {
+      "currentVersion": {
+        "content": "$1"
+      }
+    }
+  },
+  "notif_version_message_from": {
+    "message": "v$previousVersion$ से v$currentVersion$ पर अपडेट हुआ।",
+    "placeholders": {
+      "previousVersion": {
+        "content": "$1"
+      },
+      "currentVersion": {
+        "content": "$2"
+      }
+    }
+  },
+  "notif_version_message": {
+    "message": "MarkSnip v$currentVersion$ पर अपडेट हुआ।",
+    "placeholders": {
+      "currentVersion": {
+        "content": "$1"
+      }
+    }
+  },
+  "notif_support_title": {
+    "message": "$count$ पेज निर्यात किए गए",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "notif_support_message": {
+    "message": "MarkSnip ने $count$ से अधिक पेज निर्यात करने में मदद की है। यदि यह उपयोगी रहा है, तो निरंतर विकास का समर्थन करें।",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "options_title": {
+    "message": "MarkSnip विकल्प"
+  },
+  "options_subtitle": {
+    "message": "विकल्प"
+  },
+  "options_sidebar_templates": {
+    "message": "टेम्पलेट्स"
+  },
+  "options_sidebar_downloads": {
+    "message": "डाउनलोड्स"
+  },
+  "options_sidebar_markdown": {
+    "message": "Markdown"
+  },
+  "options_sidebar_appearance": {
+    "message": "रूप"
+  },
+  "options_sidebar_library": {
+    "message": "लाइब्रेरी"
+  },
+  "options_sidebar_agent_bridge": {
+    "message": "Agent Bridge"
+  },
+  "options_sidebar_site_rules": {
+    "message": "साइट नियम"
+  },
+  "options_sidebar_import_export": {
+    "message": "इम्पोर्ट / एक्सपोर्ट"
+  },
+  "options_open_user_guide": {
+    "message": "यूज़र गाइड"
+  },
+  "options_search_placeholder": {
+    "message": "सेटिंग्स खोजें..."
+  },
+  "options_search_aria": {
+    "message": "सेटिंग्स खोजें"
+  },
+  "options_section_appearance": {
+    "message": "रूप"
+  },
+  "options_section_appearance_desc": {
+    "message": "पॉपअप थीम, लेआउट और इंटरफ़ेस भाषा नियंत्रित करें।"
+  },
+  "options_interface_language_title": {
+    "message": "इंटरफ़ेस भाषा"
+  },
+  "options_interface_language_desc": {
+    "message": "पॉपअप, सेटिंग्स, गाइड, शॉर्टकट्स मोडल और इन-एक्सटेंशन नोटिफिकेशन्स के लिए प्रयुक्त भाषा चुनें।"
+  },
+  "options_interface_language_label": {
+    "message": "भाषा"
+  },
+  "options_interface_language_browser": {
+    "message": "ब्राउज़र डिफ़ॉल्ट"
+  },
+  "options_interface_language_english": {
+    "message": "अंग्रेज़ी"
+  },
+  "options_interface_language_hindi": {
+    "message": "हिंदी"
+  },
+  "options_interface_language_note": {
+    "message": "एक्सटेंशन नाम, एक्शन शीर्षक और कमांड विवरण जैसे manifest-स्तर के स्ट्रिंग्स अब भी ब्राउज़र लोकैल का पालन करते हैं।"
+  },
+  "options_runtime_enter_target_name": {
+    "message": "कृपया लक्ष्य का नाम दर्ज करें"
+  },
+  "options_runtime_enter_valid_url_template": {
+    "message": "कृपया वैध URL टेम्पलेट दर्ज करें"
+  },
+  "options_runtime_failed_add_target": {
+    "message": "असिस्टेंट लक्ष्य जोड़ा नहीं जा सका"
+  },
+  "options_runtime_invalid_site_rule_pattern": {
+    "message": "अमान्य साइट नियम पैटर्न"
+  },
+  "options_runtime_browser_cannot_request_permission": {
+    "message": "यह ब्राउज़र यहाँ native messaging अनुमति नहीं मांग सकता"
+  },
+  "options_runtime_permission_not_granted": {
+    "message": "Agent Bridge अनुमति नहीं दी गई"
+  },
+  "options_runtime_agent_bridge_enabled": {
+    "message": "Agent Bridge सक्षम किया गया"
+  },
+  "options_runtime_agent_bridge_disabled": {
+    "message": "Agent Bridge अक्षम किया गया"
+  },
+  "options_runtime_options_saved": {
+    "message": "विकल्प सहेजे गए"
+  },
+  "options_runtime_library_saved": {
+    "message": "लाइब्रेरी सेटिंग्स सहेजी गईं"
+  },
+  "options_runtime_permission_granted": {
+    "message": "Agent Bridge अनुमति प्रदान की गई"
+  },
+  "options_runtime_status_refreshed": {
+    "message": "Agent Bridge स्थिति रिफ्रेश की गई"
+  },
+  "options_runtime_install_command_copied": {
+    "message": "इंस्टॉल कमांड कॉपी किया गया"
+  },
+  "options_runtime_install_command_failed": {
+    "message": "इंस्टॉल कमांड कॉपी नहीं हो सका"
+  },
+  "options_runtime_confirm_clear_library": {
+    "message": "इस ब्राउज़र से लाइब्रेरी की सभी सहेजी गई क्लिप हटाएँ? इसे वापस नहीं किया जा सकता।"
+  },
+  "options_runtime_library_cleared": {
+    "message": "लाइब्रेरी साफ़ की गई"
+  },
+  "options_runtime_setting_reset": {
+    "message": "सेटिंग डिफ़ॉल्ट पर रीसेट की गई"
+  },
+  "options_runtime_confirm_reset_all": {
+    "message": "सभी सेटिंग्स को डिफ़ॉल्ट पर रीसेट करें? इसे वापस नहीं किया जा सकता।"
+  },
+  "options_runtime_all_settings_reset": {
+    "message": "सभी सेटिंग्स डिफ़ॉल्ट पर रीसेट की गईं"
+  },
+  "options_runtime_nothing_to_preview": {
+    "message": "अभी प्रिव्यू के लिए कुछ नहीं है।"
+  },
+  "options_runtime_download_unavailable": {
+    "message": "इस ब्राउज़र में Downloads API उपलब्ध नहीं है।"
+  },
+  "options_runtime_site_rule_add": {
+    "message": "साइट नियम जोड़ें"
+  },
+  "options_runtime_site_rule_edit": {
+    "message": "साइट नियम संपादित करें"
+  },
+  "options_runtime_site_rule_summary_one": {
+    "message": "$ruleCount$ नियम • $enabledCount$ सक्षम",
+    "placeholders": {
+      "ruleCount": {
+        "content": "$1"
+      },
+      "enabledCount": {
+        "content": "$2"
+      }
+    }
+  },
+  "options_runtime_site_rule_summary_other": {
+    "message": "$ruleCount$ नियम • $enabledCount$ सक्षम",
+    "placeholders": {
+      "ruleCount": {
+        "content": "$1"
+      },
+      "enabledCount": {
+        "content": "$2"
+      }
+    }
+  },
+  "options_runtime_remove": {
+    "message": "हटाएँ"
+  },
+  "options_runtime_up": {
+    "message": "ऊपर"
+  },
+  "options_runtime_down": {
+    "message": "नीचे"
+  },
+  "options_runtime_edit": {
+    "message": "संपादित करें"
+  },
+  "options_runtime_delete": {
+    "message": "हटाएँ"
+  },
+  "options_runtime_disabled": {
+    "message": "अक्षम"
+  },
+  "options_runtime_permission_needed": {
+    "message": "अनुमति आवश्यक"
+  },
+  "options_runtime_checking_connection": {
+    "message": "कनेक्शन जाँचा जा रहा है"
+  },
+  "options_runtime_connected_via": {
+    "message": "$browser$ के माध्यम से कनेक्टेड",
+    "placeholders": {
+      "browser": {
+        "content": "$1"
+      }
+    }
+  },
+  "options_runtime_connected": {
+    "message": "कनेक्टेड"
+  },
+  "options_runtime_waiting_for_companion": {
+    "message": "कम्पैनियन की प्रतीक्षा"
+  },
+  "options_runtime_starting": {
+    "message": "शुरू हो रहा है"
+  },
+  "options_runtime_bridge_hint_disabled": {
+    "message": "स्थानीय कम्पैनियन से कनेक्ट करने के लिए Agent Bridge सक्षम करें।"
+  },
+  "options_runtime_bridge_hint_permission": {
+    "message": "स्थानीय कम्पैनियन से कनेक्ट करने के लिए native messaging अनुमति दें।"
+  },
+  "options_runtime_bridge_hint_connecting": {
+    "message": "MarkSnip स्थानीय कम्पैनियन के जवाब की प्रतीक्षा कर रहा है।"
+  },
+  "options_runtime_bridge_hint_connected": {
+    "message": "यह ब्राउज़र खुला होने पर लोकल CLI वर्तमान पेज का अनुरोध कर सकता है।"
+  },
+  "options_runtime_bridge_hint_waiting": {
+    "message": "स्थानीय कम्पैनियन तक पहुँचा नहीं जा सका। सेटअप गाइड देखें और फिर से प्रयास करें।"
+  },
+  "options_runtime_bridge_hint_starting": {
+    "message": "MarkSnip स्थानीय कम्पैनियन से कनेक्ट करने की कोशिश कर रहा है।"
+  },
+  "options_runtime_bridge_hint_disabled_after_grant": {
+    "message": "अक्षम होने पर MarkSnip स्थानीय कनेक्शन का उपयोग नहीं करेगा, भले ही ब्राउज़र-स्तर की अनुमति अब भी दी गई हो।"
+  },
+  "options_runtime_toggle_hint_on": {
+    "message": "यह टॉगल चालू होने पर MarkSnip native messaging कनेक्शन खोलता है।"
+  },
+  "options_runtime_toggle_hint_off": {
+    "message": "बंद होने पर MarkSnip स्थानीय कम्पैनियन कनेक्शन नहीं खोलेगा।"
+  },
+  "options_runtime_host_version": {
+    "message": "Host $version$",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
+  "guide_title": {
+    "message": "MarkSnip यूज़र गाइड"
+  },
+  "guide_skip_to_content": {
+    "message": "कॉन्टेंट पर जाएँ"
+  },
+  "guide_search_placeholder": {
+    "message": "गाइड खोजें..."
+  },
+  "guide_search_aria": {
+    "message": "यूज़र गाइड में खोजें"
+  },
+  "guide_open_settings": {
+    "message": "सेटिंग्स खोलें"
+  },
+  "guide_settings": {
+    "message": "सेटिंग्स"
+  },
+  "guide_toc_aria": {
+    "message": "विषय सूची"
+  },
+  "guide_search_results_aria": {
+    "message": "खोज परिणाम"
+  },
+  "guide_search_clear": {
+    "message": "साफ़ करें"
+  },
+  "guide_search_no_results": {
+    "message": "\"$query$\" के लिए कोई परिणाम नहीं मिला",
+    "placeholders": {
+      "query": {
+        "content": "$1"
+      }
+    }
+  },
+  "guide_search_no_results_hint": {
+    "message": "अलग कीवर्ड आज़माएँ या विषय सूची देखें।"
+  },
+  "guide_welcome_title": {
+    "message": "MarkSnip में आपका स्वागत है!"
+  },
+  "guide_welcome_intro": {
+    "message": "MarkSnip इंस्टॉल करने के लिए धन्यवाद। यह गाइड आपको वेब पेजों को साफ़ Markdown के रूप में क्लिप करना शुरू करने में मदद करेगा।"
+  },
+  "guide_welcome_followup": {
+    "message": "नीचे Quick Start सेक्शन से शुरू करें, या बाईं ओर विषय सूची देखें।"
+  },
+  "guide_welcome_dismiss": {
+    "message": "वेलकम संदेश बंद करें"
+  },
+  "guide_search_results_count_one": {
+    "message": "$count$ परिणाम",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "guide_search_results_count_other": {
+    "message": "$count$ परिणाम",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_export_text_download": {
+    "message": "TXT डाउनलोड करें"
+  },
+  "popup_export_text_selection": {
+    "message": "चयन को TXT के रूप में डाउनलोड करें"
+  },
+  "popup_export_html_download": {
+    "message": "HTML डाउनलोड करें"
+  },
+  "popup_export_html_selection": {
+    "message": "चयन को HTML के रूप में डाउनलोड करें"
+  },
+  "popup_export_pdf_selection": {
+    "message": "चयन को PDF के रूप में सहेजें"
+  },
+  "popup_runtime_cancelling": {
+    "message": "रद्द किया जा रहा है..."
+  },
+  "popup_runtime_send_to": {
+    "message": "$target$ पर भेजें",
+    "placeholders": {
+      "target": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_send_selection_to": {
+    "message": "चयन को $target$ पर भेजें",
+    "placeholders": {
+      "target": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_opening_target_direct": {
+    "message": "$target$ खोला जा रहा है...",
+    "placeholders": {
+      "target": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_untitled": {
+    "message": "बिना शीर्षक"
+  },
+  "popup_runtime_library_exporting_zip": {
+    "message": "लाइब्रेरी को ZIP में निर्यात किया जा रहा है..."
+  },
+  "popup_runtime_library_exported_zip_one": {
+    "message": "$count$ क्लिप ZIP में निर्यात की गई",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_library_exported_zip_other": {
+    "message": "$count$ क्लिप्स ZIP में निर्यात की गईं",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_library_exporting_files": {
+    "message": "अलग-अलग फाइलें निर्यात की जा रही हैं..."
+  },
+  "popup_runtime_library_exported_files_one": {
+    "message": "$count$ अलग फ़ाइल निर्यात की गई",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_library_exported_files_other": {
+    "message": "$count$ अलग फ़ाइलें निर्यात की गईं",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_library_no_saved_clips": {
+    "message": "निर्यात करने के लिए कोई सहेजी गई क्लिप नहीं है"
+  },
+  "popup_runtime_library_no_links": {
+    "message": "लाइब्रेरी क्लिप्स में कोई लिंक नहीं मिला"
+  },
+  "popup_runtime_batch_started": {
+    "message": "बैच शुरू हो गया..."
+  },
+  "popup_runtime_batch_started_zip": {
+    "message": "बैच शुरू हो गया (ZIP मोड)..."
+  },
+  "popup_runtime_creating_zip": {
+    "message": "ZIP संग्रह बनाया जा रहा है..."
+  },
+  "popup_runtime_warning_conversion": {
+    "message": "रूपांतरण के दौरान चेतावनी"
+  },
+  "popup_runtime_failed_url": {
+    "message": "असफल URL"
+  },
+  "popup_runtime_batch_cancelled": {
+    "message": "बैच रद्द किया गया"
+  },
+  "popup_runtime_unknown_error": {
+    "message": "अज्ञात त्रुटि"
+  },
+  "popup_runtime_batch_failed": {
+    "message": "बैच विफल: $message$",
+    "placeholders": {
+      "message": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_batch_finished_errors": {
+    "message": "$count$ त्रुटि(यों) के साथ पूरा हुआ",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_zip_downloaded": {
+    "message": "ZIP डाउनलोड हो गई"
+  },
+  "popup_runtime_batch_complete": {
+    "message": "बैच पूरा हुआ"
+  },
+  "popup_runtime_obsidian_not_enabled": {
+    "message": "सक्षम नहीं"
+  },
+  "popup_runtime_sent_to_obsidian": {
+    "message": "Obsidian को भेजा गया!"
+  },
+  "options_runtime_enabled": {
+    "message": "सक्षम"
+  },
+  "options_runtime_no_overrides": {
+    "message": "कोई ओवरराइड नहीं"
+  },
+  "options_runtime_invalid_pattern_prefix": {
+    "message": "अमान्य पैटर्न:"
+  },
+  "options_search_no_results": {
+    "message": "कोई सेटिंग मेल नहीं खाती"
+  },
+  "options_search_user_guide": {
+    "message": "इसके बजाय यूज़र गाइड खोजें"
+  },
+  "options_runtime_search_no_results": {
+    "message": "\"$query$\" से कोई सेटिंग मेल नहीं खाती",
+    "placeholders": {
+      "query": {
+        "content": "$1"
+      }
+    }
+  },
+  "options_runtime_search_results": {
+    "message": "$total$ में से $shown$ सेटिंग्स दिखाई जा रही हैं",
+    "placeholders": {
+      "shown": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "guide_subtitle": {
+    "message": "यूज़र गाइड"
+  },
+  "options_sidebar_aria": {
+    "message": "विकल्प अनुभाग"
+  },
+  "options_sidebar_tables": {
+    "message": "टेबल्स"
+  },
+  "options_sidebar_help_resources": {
+    "message": "सहायता और संसाधन"
+  },
+  "options_sidebar_community": {
+    "message": "समुदाय"
+  },
+  "options_sidebar_buy_me_a_coffee": {
+    "message": "Buy Me a Coffee"
+  },
+  "options_sidebar_leave_review": {
+    "message": "रिव्यू दें"
+  },
+  "options_sidebar_report_issue": {
+    "message": "समस्या रिपोर्ट करें"
+  },
+  "options_runtime_no_custom_targets": {
+    "message": "अभी तक कोई कस्टम assistant target नहीं है। ChatGPT, Claude और Perplexity हमेशा उपलब्ध हैं।"
+  },
+  "options_runtime_grant_permission": {
+    "message": "अनुमति दें"
+  },
+  "options_runtime_grant_permission_aria": {
+    "message": "Agent Bridge के लिए native messaging अनुमति दें"
+  },
+  "options_runtime_check_connection": {
+    "message": "कनेक्शन जाँचें"
+  },
+  "options_runtime_check_connection_aria": {
+    "message": "Agent Bridge कनेक्शन स्थिति जाँचें"
+  },
+  "options_runtime_requesting": {
+    "message": "अनुरोध किया जा रहा है..."
+  },
+  "options_runtime_continue": {
+    "message": "जारी रखें"
+  },
+  "options_runtime_remove_target": {
+    "message": "$name$ हटाएँ",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "options_runtime_target_added": {
+    "message": "\"$name$\" जोड़ा गया",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "options_runtime_target_removed": {
+    "message": "\"$name$\" हटाया गया",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "options_runtime_search_matched_via": {
+    "message": "मेल खाया: $keywords$",
+    "placeholders": {
+      "keywords": {
+        "content": "$1"
+      }
+    }
+  },
+  "options_section_templates_html": {
+    "message": "<h2 class=\"section-title\">टेम्पलेट्स</h2>\n<p class=\"section-desc\">अपनी clipped Markdown files के लिए title, front-matter और back-matter templates कॉन्फ़िगर करें।</p>\n\n<details class=\"info-panel\">\n    <summary>Template variable संदर्भ</summary>\n    <div class=\"info-panel-content\">\n        Title और front-/back-matter custom text में आप नीचे दिए गए text replacement values इस्तेमाल कर सकते हैं।\n        ध्यान दें कि हर वेबसाइट सभी values उपलब्ध नहीं कराती।\n        <ul>\n            <li><code>{title}</code> - आर्टिकल का शीर्षक</li>\n            <li><code>{pageTitle}</code> - वास्तविक पेज का शीर्षक</li>\n            <li><code>{length}</code> - आर्टिकल की लंबाई, characters में</li>\n            <li><code>{excerpt}</code> - आर्टिकल का विवरण या छोटा अंश</li>\n            <li><code>{byline}</code> - लेखक metadata</li>\n            <li><code>{dir}</code> - content direction</li>\n            <li><code>{date:FORMAT}</code> - वर्तमान दिनांक और समय। <a href=\"https://momentjs.com/docs/#/displaying/format/\" target=\"_blank\" rel=\"noopener noreferrer\">format reference</a> देखें</li>\n            <li><code>{keywords}</code> - Meta keywords (यदि मौजूद हों)। डिफ़ॉल्ट रूप से comma-separated।</li>\n            <li><code>{keywords:SEPARATOR}</code> - Meta keywords को SEPARATOR से अलग करें। उदाहरण के लिए space से अलग करने के लिए <code>{keywords: }</code> उपयोग करें</li>\n        </ul>\n        ऊपर सूचीबद्ध नहीं किए गए meta tags भी इस्तेमाल किए जा सकते हैं, अगर clipped page उन्हें support करती हो।\n        उदाहरण के लिए <code>{og:image}</code> या अन्य सामान्य meta tags आज़माएँ।\n        <p>URL जानकारी:</p>\n        <ul>\n            <li><code>{baseURI}</code> - Parsed document/base URI (legacy behavior)।</li>\n            <li><code>{pageURL}</code> / <code>{tabURL}</code> - tab का वर्तमान address-bar URL।</li>\n            <li><code>{origin}</code> - <code>{baseURI}</code> का origin (scheme + domain + port)।</li>\n            <li><code>{host}</code> - <code>{baseURI}</code> का host (hostname और यदि मौजूद हो तो port)।</li>\n            <li><code>{hostname}</code> - <code>{baseURI}</code> का hostname।</li>\n            <li><code>{port}</code> - <code>{baseURI}</code> का port number।</li>\n            <li><code>{protocol}</code> - <code>{baseURI}</code> का protocol scheme, trailing <code>:</code> सहित।</li>\n            <li><code>{pathname}</code> - <code>{baseURI}</code> का path, query string और fragment के बिना।</li>\n            <li><code>{search}</code> - <code>{baseURI}</code> की query string, <code>?</code> सहित।</li>\n            <li><code>{hash}</code> - <code>{baseURI}</code> का fragment identifier, <code>#</code> सहित।</li>\n            <li><code>{pageOrigin}</code>, <code>{pageHost}</code>, <code>{pageHostname}</code>, <code>{pagePort}</code>, <code>{pageProtocol}</code>, <code>{pagePathname}</code>, <code>{pageSearch}</code>, <code>{pageHash}</code> - ऊपर जैसे ही URL components, लेकिन <code>{pageURL}</code> से।</li>\n        </ul>\n        <p>उदाहरण:</p>\n        <ul>\n            <li>SPA route उदाहरण (Gemini शैली):</li>\n            <li>Address bar URL: <code>https://gemini.google.com/app/19a994212aad751c?hl=en#chat</code></li>\n            <li>Parsed/base URI: <code>https://gemini.google.com/</code></li>\n            <li><code>{baseURI}</code> -&gt; <code>https://gemini.google.com/</code></li>\n            <li><code>{pageURL}</code> -&gt; <code>https://gemini.google.com/app/19a994212aad751c?hl=en#chat</code></li>\n            <li><code>{pathname}</code> -&gt; <code>/</code>, <code>{pagePathname}</code> -&gt; <code>/app/19a994212aad751c</code></li>\n            <li><code>{search}</code> -&gt; (empty), <code>{pageSearch}</code> -&gt; <code>?hl=en</code></li>\n            <li><code>{hash}</code> -&gt; (empty), <code>{pageHash}</code> -&gt; <code>#chat</code></li>\n        </ul>\n        <ul>\n            <li>सामान्य पेज का उदाहरण (कोई विशेष base behavior नहीं):</li>\n            <li>Address bar URL: <code>https://example.com/blog/post?ref=md#top</code></li>\n            <li><code>{baseURI}</code> और <code>{pageURL}</code> आम तौर पर एक जैसे होते हैं।</li>\n        </ul>\n        <p>Template snippets:</p>\n        <ul>\n            <li><code>source: {pageURL}</code> (current tab URL के लिए recommended)</li>\n            <li><code>source_base: {baseURI}</code> (document/base URI)</li>\n            <li><code>source_parts: {pageOrigin}{pagePathname}{pageSearch}{pageHash}</code></li>\n        </ul>\n        <p>इसके अलावा, आप date और keywords को छोड़कर किसी भी text variable को नीचे दिए गए syntax से parameterize कर सकते हैं:</p>\n        <ul>\n            <li><code>{variable:pascal}</code> - PascalCase: हर शब्द capital</li>\n            <li><code>{variable:camel}</code> - camelCase: पहले शब्द को छोड़कर हर शब्द capital</li>\n            <li><code>{variable:kebab}</code> - kebab-case: शब्दों के बीच hyphen, सब lowercase</li>\n            <li><code>{variable:snake}</code> - snake_case: शब्दों के बीच underscore, सब lowercase</li>\n        </ul>\n    </div>\n</details>\n\n<div class=\"setting-card\" id=\"includeTemplate-container\"\n    data-search-keywords=\"append template,template toggle,frontmatter,front matter,backmatter,back matter\"\n    data-setting-key=\"title\">\n    <h3 class=\"card-title\">Title template</h3>\n    <div class=\"input-group\">\n        <label class=\"input-label\" for=\"title\">Title / filename के लिए template</label>\n        <input type=\"text\" id=\"title\" name=\"title\" class=\"text-input\" role=\"textbox\" />\n    </div>\n</div>\n\n<div class=\"setting-card\" id=\"mdClipsFolder\" data-setting-key=\"mdClipsFolder\">\n    <h3 class=\"card-title\">Clips folder</h3>\n    <div class=\"input-group\">\n        <label class=\"input-label\" for=\"mdClipsFolder\"><code>Downloads/</code> के अंदर वह folder जहाँ MarkSnip clips सहेजी जाएँ</label>\n        <input type=\"text\" name=\"mdClipsFolder\" class=\"text-input\" role=\"textbox\" />\n    </div>\n</div>\n\n<div class=\"setting-card\" data-setting-key=\"disallowedChars\">\n    <h3 class=\"card-title\">अनुमति न दिए गए characters</h3>\n    <p class=\"card-desc\">Title/filename से हटाए जाने वाले characters - <code>/</code>, <code>?</code>, <code>&lt;</code>, <code>&gt;</code>, <code>\\</code>, <code>:</code>, <code>*</code>, <code>|</code>, <code>\"</code> के अलावा</p>\n    <div class=\"input-group\">\n        <input type=\"text\" id=\"disallowedChars\" name=\"disallowedChars\" class=\"text-input\" role=\"textbox\" />\n    </div>\n</div>\n\n<div class=\"setting-card\" data-setting-key=\"frontmatter\">\n    <h3 class=\"card-title\">Front-matter template</h3>\n    <div class=\"input-group\">\n        <label class=\"input-label\" for=\"frontmatter\">वह text जो output file की शुरुआत में दिखाई देती है</label>\n        <textarea name=\"frontmatter\" id=\"frontmatter\" class=\"textarea-input\" role=\"textbox\"></textarea>\n        <details class=\"template-preview\" id=\"frontmatter-preview\" data-search-exclude>\n            <summary class=\"template-preview-summary\">\n                <span class=\"template-preview-header\">\n                    <span class=\"template-preview-label\">Live preview</span>\n                    <span class=\"template-preview-meta\">Raw output</span>\n                </span>\n            </summary>\n            <div class=\"template-preview-body\">\n                <p class=\"toggle-hint template-preview-hint\">Preview example metadata और वर्तमान date/time का उपयोग करता है।</p>\n                <pre class=\"template-preview-output\" id=\"frontmatter-preview-output\" aria-live=\"polite\" aria-atomic=\"true\"></pre>\n            </div>\n        </details>\n    </div>\n</div>\n\n<div class=\"setting-card\" data-setting-key=\"backmatter\">\n    <h3 class=\"card-title\">Back-matter template</h3>\n    <div class=\"input-group\">\n        <label class=\"input-label\" for=\"backmatter\">वह text जो output file के अंत में दिखाई देती है</label>\n        <textarea name=\"backmatter\" id=\"backmatter\" class=\"textarea-input\" role=\"textbox\"></textarea>\n        <details class=\"template-preview\" id=\"backmatter-preview\" data-search-exclude>\n            <summary class=\"template-preview-summary\">\n                <span class=\"template-preview-header\">\n                    <span class=\"template-preview-label\">Live preview</span>\n                    <span class=\"template-preview-meta\">Raw output</span>\n                </span>\n            </summary>\n            <div class=\"template-preview-body\">\n                <p class=\"toggle-hint template-preview-hint\">Preview example metadata और वर्तमान date/time का उपयोग करता है।</p>\n                <pre class=\"template-preview-output\" id=\"backmatter-preview-output\" aria-live=\"polite\" aria-atomic=\"true\"></pre>\n            </div>\n        </details>\n    </div>\n</div>\n\n<div class=\"setting-card\" data-setting-key=\"includeTemplate\">\n    <div class=\"toggle-row\">\n        <div class=\"toggle-info\">\n            <label class=\"toggle-label-text\" for=\"includeTemplate\">Clipped text में front/back template जोड़ें</label>\n            <p class=\"toggle-hint\">यह popup के <strong>Template</strong> toggle जैसा ही है। सक्षम होने पर हर clip में आपके Front-matter और Back-matter templates शामिल होंगे।</p>\n        </div>\n        <label class=\"toggle-switch\">\n            <input name=\"includeTemplate\" id=\"includeTemplate\" type=\"checkbox\" />\n            <span class=\"toggle-slider\"></span>\n        </label>\n    </div>\n</div>"
+  },
+  "options_section_appearance_html": {
+    "message": "<h2 class=\"section-title\">दिखावट</h2>\n<p class=\"section-desc\">MarkSnip popup की appearance को कस्टमाइज़ करें।</p>\n\n<div class=\"setting-card\" id=\"uiLanguageCard\" data-setting-key=\"uiLanguage\" data-search-keywords=\"language,locale,interface language,translation,hindi,english,browser language\">\n    <h3 class=\"card-title\">Interface Language</h3>\n    <p class=\"card-desc\">Popup, settings, guide, shortcuts modal और in-extension notifications के लिए उपयोग की जाने वाली भाषा चुनें।</p>\n    <div class=\"setting-row\" style=\"align-items: flex-start; gap: 16px;\">\n        <div class=\"toggle-info\" style=\"flex: 1;\">\n            <label class=\"input-label\" for=\"uiLanguage\">भाषा</label>\n            <p class=\"toggle-hint\" id=\"uiLanguageNote\">Manifest स्तर के strings जैसे extension name, action title और command descriptions अभी भी browser locale का अनुसरण करते हैं।</p>\n        </div>\n        <select id=\"uiLanguage\" name=\"uiLanguage\" class=\"text-input\" style=\"max-width: 220px;\">\n            <option value=\"browser\">Browser default</option>\n            <option value=\"en\">English</option>\n            <option value=\"hi\">Hindi</option>\n        </select>\n    </div>\n</div>\n\n<div class=\"setting-card\" id=\"popupThemeGroup\" data-setting-key=\"popupTheme,showThemeToggleInPopup\" data-search-keywords=\"theme toggle,dark mode toggle,light mode toggle,popup header theme button,appearance\">\n    <h3 class=\"card-title\">Color Mode</h3>\n    <div class=\"radio-group\">\n        <div class=\"radio-pill\">\n            <input type=\"radio\" name=\"popupTheme\" id=\"theme-system\" value=\"system\" />\n            <label for=\"theme-system\">System default</label>\n        </div>\n        <div class=\"radio-pill\">\n            <input type=\"radio\" name=\"popupTheme\" id=\"theme-light\" value=\"light\" />\n            <label for=\"theme-light\">Light</label>\n        </div>\n        <div class=\"radio-pill\">\n            <input type=\"radio\" name=\"popupTheme\" id=\"theme-dark\" value=\"dark\" />\n            <label for=\"theme-dark\">Dark</label>\n        </div>\n    </div>\n    <div class=\"toggle-row\">\n        <div class=\"toggle-info\">\n            <label class=\"toggle-label-text\" for=\"showThemeToggleInPopup\">Popup header में quick theme toggle दिखाएँ</label>\n            <p class=\"toggle-hint\">Popup में एक header button जोड़ता है जिससे light और dark mode के बीच one-click switch किया जा सके।</p>\n        </div>\n        <label class=\"toggle-switch\">\n            <input name=\"showThemeToggleInPopup\" id=\"showThemeToggleInPopup\" type=\"checkbox\" />\n            <span class=\"toggle-slider\"></span>\n        </label>\n    </div>\n</div>\n\n<div class=\"setting-card\" id=\"specialThemeGroup\" data-setting-key=\"specialTheme,colorBlindTheme\"\n    data-search-keywords=\"special theme,openai,chatgpt,ai,monochrome,claude,perplexity,atla,avatar,the last airbender,ben 10,omnitrix,alien force,brand theme,appearance skin,color blind,colorblind,accessibility,deuteranopia,protanopia,tritanopia,wcag\">\n    <h3 class=\"card-title\">Special Themes</h3>\n    <p class=\"card-desc\">Popup, options page, guide और editor पर एक tailored aesthetic लागू करें।</p>\n    <div class=\"radio-group\">\n        <div class=\"radio-pill\">\n            <input type=\"radio\" name=\"specialTheme\" id=\"special-theme-none\" value=\"none\" />\n            <label for=\"special-theme-none\">कोई नहीं</label>\n        </div>\n        <div class=\"radio-pill\">\n            <input type=\"radio\" name=\"specialTheme\" id=\"special-theme-colorblind\" value=\"colorblind\" />\n            <label for=\"special-theme-colorblind\">Color Blind</label>\n        </div>\n        <div class=\"radio-pill\">\n            <input type=\"radio\" name=\"specialTheme\" id=\"special-theme-claude\" value=\"claude\" />\n            <label for=\"special-theme-claude\">Claude</label>\n        </div>\n        <div class=\"radio-pill\">\n            <input type=\"radio\" name=\"specialTheme\" id=\"special-theme-perplexity\" value=\"perplexity\" />\n            <label for=\"special-theme-perplexity\">Perplexity</label>\n        </div>\n        <div class=\"radio-pill\">\n            <input type=\"radio\" name=\"specialTheme\" id=\"special-theme-openai\" value=\"openai\" />\n            <label for=\"special-theme-openai\">OpenAI</label>\n        </div>\n        <div class=\"radio-pill\">\n            <input type=\"radio\" name=\"specialTheme\" id=\"special-theme-atla\" value=\"atla\" />\n            <label for=\"special-theme-atla\">ATLA</label>\n        </div>\n        <div class=\"radio-pill\">\n            <input type=\"radio\" name=\"specialTheme\" id=\"special-theme-ben10\" value=\"ben10\" />\n            <label for=\"special-theme-ben10\">Ben 10</label>\n        </div>\n    </div>\n    <div class=\"colorblind-theme-row\" id=\"colorBlindThemeRow\" hidden>\n        <label class=\"input-label\" for=\"colorBlindThemeBtn\">Color Blind Profile</label>\n        <input type=\"hidden\" id=\"colorBlindTheme\" name=\"colorBlindTheme\" value=\"deuteranopia\">\n        <div class=\"cb-dropdown-wrap\" id=\"colorBlindDropdownWrap\">\n            <button type=\"button\" class=\"cb-dropdown-btn\" id=\"colorBlindThemeBtn\"\n                    aria-haspopup=\"listbox\" aria-expanded=\"false\">\n                <span id=\"colorBlindThemeBtnLabel\">Deuteranopia</span>\n                <svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><polyline points=\"6 9 12 15 18 9\"/></svg>\n            </button>\n            <div class=\"cb-dropdown-panel\" id=\"colorBlindThemePanel\" role=\"listbox\" hidden>\n                <button type=\"button\" class=\"dd-item\" role=\"option\" data-value=\"deuteranopia\">Deuteranopia</button>\n                <button type=\"button\" class=\"dd-item\" role=\"option\" data-value=\"protanopia\">Protanopia</button>\n                <button type=\"button\" class=\"dd-item\" role=\"option\" data-value=\"tritanopia\">Tritanopia</button>\n            </div>\n        </div>\n        <p class=\"toggle-hint colorblind-theme-hint\">Popup, options page, guide और editor पर WCAG AA palette का उपयोग करता है।</p>\n    </div>\n<div class=\"toggle-row\" id=\"specialThemeIconRow\">\n        <div class=\"toggle-info\">\n            <label class=\"toggle-label-text\" for=\"specialThemeIcon\">Theme icon दिखाएँ</label>\n            <p class=\"toggle-hint\">Supported special themes का उपयोग करते समय header में mascot icon दिखाएँ।</p>\n        </div>\n        <label class=\"toggle-switch\">\n            <input name=\"specialThemeIcon\" id=\"specialThemeIcon\" type=\"checkbox\" />\n            <span class=\"toggle-slider\"></span>\n        </label>\n    </div>\n</div>\n\n\n<div class=\"setting-card\" id=\"popupAccentGroup\" data-setting-key=\"popupAccent\">\n    <h3 class=\"card-title\">Accent Color</h3>\n    <p class=\"card-desc special-theme-lock-note\" id=\"popupAccentThemeNote\" hidden>जब special theme सक्रिय होती है, accent color वही नियंत्रित करती है।</p>\n    <div class=\"radio-group\">\n        <div class=\"radio-pill\">\n            <input type=\"radio\" name=\"popupAccent\" id=\"accent-sage\" value=\"sage\" />\n            <label for=\"accent-sage\">Sage Green</label>\n        </div>\n        <div class=\"radio-pill\">\n            <input type=\"radio\" name=\"popupAccent\" id=\"accent-ocean\" value=\"ocean\" />\n            <label for=\"accent-ocean\">Ocean Blue</label>\n        </div>\n        <div class=\"radio-pill\">\n            <input type=\"radio\" name=\"popupAccent\" id=\"accent-slate\" value=\"slate\" />\n            <label for=\"accent-slate\">Slate Gray</label>\n        </div>\n        <div class=\"radio-pill\">\n            <input type=\"radio\" name=\"popupAccent\" id=\"accent-rose\" value=\"rose\" />\n            <label for=\"accent-rose\">Rose</label>\n        </div>\n        <div class=\"radio-pill\">\n            <input type=\"radio\" name=\"popupAccent\" id=\"accent-amber\" value=\"amber\" />\n            <label for=\"accent-amber\">Amber</label>\n        </div>\n    </div>\n</div>\n\n<div class=\"setting-card\" id=\"editorThemeGroup\" data-setting-key=\"editorTheme\">\n    <h3 class=\"card-title\">Editor Theme</h3>\n    <p class=\"card-desc\">Popup में Markdown editor के लिए syntax highlighting theme चुनें।</p>\n    <p class=\"card-desc special-theme-lock-note\" id=\"editorThemeLockNote\" hidden>सक्रिय special theme अपनी light और dark editor themes स्वयं प्रदान करती है।</p>\n    <div class=\"radio-group\">\n        <div class=\"radio-pill\">\n            <input type=\"radio\" name=\"editorTheme\" id=\"editor-default\" value=\"default\" />\n            <label for=\"editor-default\">Default</label>\n        </div>\n        <div class=\"radio-pill\">\n            <input type=\"radio\" name=\"editorTheme\" id=\"editor-dracula\" value=\"dracula\" />\n            <label for=\"editor-dracula\">Dracula</label>\n        </div>\n        <div class=\"radio-pill\">\n            <input type=\"radio\" name=\"editorTheme\" id=\"editor-material\" value=\"material\" />\n            <label for=\"editor-material\">Material</label>\n        </div>\n        <div class=\"radio-pill\">\n            <input type=\"radio\" name=\"editorTheme\" id=\"editor-monokai\" value=\"monokai\" />\n            <label for=\"editor-monokai\">Monokai\n                <span class=\"radio-pill-tooltip\">\n                    <i class=\"info-icon\">i</i>\n                    <span class=\"pill-tooltip\">केवल dark mode - light mode में Default पर लौटेगा</span>\n                </span>\n            </label>\n        </div>\n        <div class=\"radio-pill\">\n            <input type=\"radio\" name=\"editorTheme\" id=\"editor-nord\" value=\"nord\" />\n            <label for=\"editor-nord\">Nord\n                <span class=\"radio-pill-tooltip\">\n                    <i class=\"info-icon\">i</i>\n                    <span class=\"pill-tooltip\">केवल dark mode - light mode में Default पर लौटेगा</span>\n                </span>\n            </label>\n        </div>\n        <div class=\"radio-pill\">\n            <input type=\"radio\" name=\"editorTheme\" id=\"editor-solarized\" value=\"solarized\" />\n            <label for=\"editor-solarized\">Solarized</label>\n        </div>\n        <div class=\"radio-pill\">\n            <input type=\"radio\" name=\"editorTheme\" id=\"editor-twilight\" value=\"twilight\" />\n            <label for=\"editor-twilight\">Twilight\n                <span class=\"radio-pill-tooltip\">\n                    <i class=\"info-icon\">i</i>\n                    <span class=\"pill-tooltip\">केवल dark mode - light mode में Default पर लौटेगा</span>\n                </span>\n            </label>\n        </div>\n    </div>\n</div>\n\n<div class=\"setting-card\" id=\"compactMode-container\" data-setting-key=\"compactMode\">\n    <div class=\"toggle-row\">\n        <div class=\"toggle-info\">\n            <label class=\"toggle-label-text\" for=\"compactMode\">Compact Mode</label>\n            <p class=\"toggle-hint\">Quick settings panel छिपाता है और minimal popup के लिए padding कम करता है। Settings icon header में उपलब्ध रहता है।</p>\n        </div>\n        <label class=\"toggle-switch\">\n            <input name=\"compactMode\" id=\"compactMode\" type=\"checkbox\" />\n            <span class=\"toggle-slider\"></span>\n        </label>\n    </div>\n</div>\n\n<div class=\"setting-card\" id=\"showUserGuideIcon-container\" data-setting-key=\"showUserGuideIcon\" data-search-keywords=\"guide,help,user guide,question mark,icon,header,popup\">\n    <div class=\"toggle-row\">\n        <div class=\"toggle-info\">\n            <label class=\"toggle-label-text\" for=\"showUserGuideIcon\">User Guide icon दिखाएँ</label>\n            <p class=\"toggle-hint\">सहायता तक जल्दी पहुँच के लिए popup header में User Guide button दिखाता है।</p>\n        </div>\n        <label class=\"toggle-switch\">\n            <input name=\"showUserGuideIcon\" id=\"showUserGuideIcon\" type=\"checkbox\" />\n            <span class=\"toggle-slider\"></span>\n        </label>\n    </div>\n</div>"
+  },
+  "options_section_downloads_html": {
+    "message": "<h2 class=\"section-title\">Downloads</h2>\n<p class=\"section-desc\">फ़ाइलें कैसे डाउनलोड हों और Obsidian के साथ कैसे integrate हों, यह कॉन्फ़िगर करें।</p>\n\n<div class=\"setting-card\" id=\"contextMenus-container\" data-setting-key=\"contextMenus\">\n    <div class=\"toggle-row\">\n        <div class=\"toggle-info\">\n            <label class=\"toggle-label-text\" for=\"contextMenus\">Context Menus सक्षम करें</label>\n            <p class=\"toggle-hint\">Pages, selected text, links और tabs के लिए right-click actions दिखाता है।</p>\n        </div>\n        <label class=\"toggle-switch\">\n            <input name=\"contextMenus\" id=\"contextMenus\" type=\"checkbox\" />\n            <span class=\"toggle-slider\"></span>\n        </label>\n    </div>\n</div>\n\n<div class=\"setting-card\" id=\"batchProcessingEnabled-container\"\n    data-search-keywords=\"batch,batch processing,bulk urls,multiple urls,zip,pick links,popup header\"\n    data-setting-key=\"batchProcessingEnabled\">\n    <div class=\"toggle-row\">\n        <div class=\"toggle-info\">\n            <label class=\"toggle-label-text\" for=\"batchProcessingEnabled\">Batch Processing सक्षम करें</label>\n            <p class=\"toggle-hint\">Popup में Batch Processing entry दिखाता है और bulk URL conversion की अनुमति देता है।</p>\n        </div>\n        <label class=\"toggle-switch\">\n            <input name=\"batchProcessingEnabled\" id=\"batchProcessingEnabled\" type=\"checkbox\" />\n            <span class=\"toggle-slider\"></span>\n        </label>\n    </div>\n</div>\n\n<div class=\"setting-card\" id=\"downloadMode\"\n    data-search-keywords=\"download,dwnld,downloads api,content link\"\n    data-setting-key=\"downloadMode\">\n    <h3 class=\"card-title\">Download Mode</h3>\n    <p class=\"card-desc\">Markdown files डाउनलोड करने की विधि चुनें। यदि Downloads API में समस्या आ रही हो तो इसे \"Content Link\" पर सेट करें\n        (कभी-कभी अन्य download extensions के साथ conflicts हो सकते हैं, जिससे random filenames और अन्य लक्षण दिखाई दे सकते हैं)।</p>\n    <p class=\"option-note\"><strong>नोट:</strong> \"Content Link\" mode images डाउनलोड करने या filename में subfolders उपयोग करने जैसी कुछ सुविधाएँ बंद कर देता है।</p>\n    <div class=\"radio-group\">\n        <div class=\"radio-pill\">\n            <input type=\"radio\" name=\"downloadMode\" id=\"downloadsApi\" value=\"downloadsApi\" />\n            <label for=\"downloadsApi\">Downloads API (recommended)</label>\n        </div>\n        <div class=\"radio-pill\">\n            <input type=\"radio\" name=\"downloadMode\" id=\"contentLink\" value=\"contentLink\" />\n            <label for=\"contentLink\">Content Link</label>\n        </div>\n    </div>\n</div>\n\n<div class=\"setting-card\" id=\"defaultExportTypeGroup\"\n    data-search-keywords=\"default export,default popup action,popup export,export format,send to assistant,assistant action,plain text,txt,html,pdf,markdown,copy,clipboard,copy to clipboard,chatgpt,claude\"\n    data-setting-key=\"defaultExportType\">\n    <h3 class=\"card-title\">Default Popup Action</h3>\n    <p class=\"card-desc\">यह केवल popup के main action button और selection action button को नियंत्रित करता है। Context menus, shortcuts, batch exports, library exports, Agent Bridge और Obsidian actions Markdown-based ही रहते हैं।</p>\n    <div class=\"radio-group\">\n        <div class=\"radio-pill\">\n            <input type=\"radio\" name=\"defaultExportType\" id=\"export-copy\" value=\"copy\" />\n            <label for=\"export-copy\">Clipboard में कॉपी करें</label>\n        </div>\n        <div class=\"radio-pill\">\n            <input type=\"radio\" name=\"defaultExportType\" id=\"export-markdown\" value=\"markdown\" />\n            <label for=\"export-markdown\">Markdown (.md)</label>\n        </div>\n        <div class=\"radio-pill\">\n            <input type=\"radio\" name=\"defaultExportType\" id=\"export-text\" value=\"text\" />\n            <label for=\"export-text\">Plain text (.txt)</label>\n        </div>\n        <div class=\"radio-pill\">\n            <input type=\"radio\" name=\"defaultExportType\" id=\"export-html\" value=\"html\" />\n            <label for=\"export-html\">HTML (.html)</label>\n        </div>\n        <div class=\"radio-pill\">\n            <input type=\"radio\" name=\"defaultExportType\" id=\"export-pdf\" value=\"pdf\" />\n            <label for=\"export-pdf\">PDF</label>\n        </div>\n        <div class=\"radio-pill\">\n            <input type=\"radio\" name=\"defaultExportType\" id=\"export-send-to\" value=\"sendTo\" />\n            <label for=\"export-send-to\">Assistant को भेजें</label>\n        </div>\n    </div>\n</div>\n\n<div class=\"setting-card\" id=\"defaultSendToTargetCard\"\n    data-search-keywords=\"default assistant target,send to target,chatgpt,claude,perplexity,custom assistant,custom url\"\n    data-setting-key=\"defaultSendToTarget\">\n    <h3 class=\"card-title\">Default Assistant Target</h3>\n    <p class=\"card-desc\">जब popup का main action \"Send to Assistant\" पर सेट हो, तब यह target उपयोग होता है। यदि चुना गया custom target हट जाता है तो MarkSnip ChatGPT पर लौटता है।</p>\n    <div class=\"radio-group\" id=\"defaultSendToTargetOptions\">\n        <div class=\"radio-pill\">\n            <input type=\"radio\" name=\"defaultSendToTarget\" id=\"send-to-target-chatgpt\" value=\"chatgpt\" />\n            <label for=\"send-to-target-chatgpt\">ChatGPT</label>\n        </div>\n        <div class=\"radio-pill\">\n            <input type=\"radio\" name=\"defaultSendToTarget\" id=\"send-to-target-claude\" value=\"claude\" />\n            <label for=\"send-to-target-claude\">Claude</label>\n        </div>\n        <div class=\"radio-pill\">\n            <input type=\"radio\" name=\"defaultSendToTarget\" id=\"send-to-target-perplexity\" value=\"perplexity\" />\n            <label for=\"send-to-target-perplexity\">Perplexity</label>\n        </div>\n        <div id=\"defaultSendToTargetCustomOptions\" class=\"assistant-target-radio-list\" aria-live=\"polite\"></div>\n    </div>\n</div>\n\n<div class=\"setting-card\" id=\"assistantTargetsCard\"\n    data-search-keywords=\"assistant targets,send to,custom assistant,custom url,url template,prompt placeholder,chatgpt,claude,perplexity\"\n    data-setting-key=\"sendToCustomTargets\">\n    <h3 class=\"card-title\">Assistant Targets</h3>\n    <p class=\"card-desc\">ChatGPT, Claude और Perplexity built-in हैं। ऐसे custom HTTPS URLs जोड़ें जो query string में <code>{prompt}</code> placeholder स्वीकार करें।</p>\n    <div class=\"assistant-target-builder\">\n        <div class=\"input-group\">\n            <label class=\"input-label\" for=\"customSendToName\">Target Name</label>\n            <input type=\"text\" id=\"customSendToName\" class=\"text-input\" role=\"textbox\" placeholder=\"Gemini Workspace\" />\n        </div>\n        <div class=\"input-group assistant-target-builder__url\">\n            <label class=\"input-label\" for=\"customSendToUrl\">URL Template</label>\n            <input type=\"text\" id=\"customSendToUrl\" class=\"text-input\" role=\"textbox\" placeholder=\"https://example.com/new?q={prompt}\" spellcheck=\"false\" />\n        </div>\n        <button type=\"button\" id=\"addSendToCustomTarget\" class=\"btn btn-secondary assistant-target-builder__button\">Target जोड़ें</button>\n    </div>\n    <p class=\"assistant-target-hint\">ठीक एक <code>{prompt}</code> placeholder उपयोग करें। उदाहरण: <code>https://example.com/new?q={prompt}</code></p>\n    <div id=\"assistantTargetsList\" class=\"assistant-targets-list\" aria-live=\"polite\"></div>\n</div>\n\n<div class=\"setting-card\" id=\"sendToMaxUrlLengthCard\"\n    data-search-keywords=\"assistant url length,max url length,clipboard fallback,query string,send to assistant,chatgpt,claude,perplexity\"\n    data-setting-key=\"sendToMaxUrlLength\">\n    <h3 class=\"card-title\">Assistant URL Length Cap</h3>\n    <p class=\"card-desc\">Send to Assistant links के लिए advanced setting। यदि generated assistant URL इस मान से लंबा हो जाए, तो MarkSnip Markdown को clipboard में कॉपी करता है और assistant landing page खोलता है। Default: <strong>3600</strong>। इसे बदलने की अनुशंसा नहीं की जाती।</p>\n    <div class=\"input-group\">\n        <label class=\"input-label\" for=\"sendToMaxUrlLength\">अधिकतम URL लंबाई</label>\n        <input type=\"number\" id=\"sendToMaxUrlLength\" name=\"sendToMaxUrlLength\" class=\"text-input\" role=\"spinbutton\" min=\"1\" step=\"100\" inputmode=\"numeric\" />\n    </div>\n</div>\n\n<div id=\"downloadModeGroup\">\n    <div class=\"setting-card\" id=\"saveAs-container\" data-setting-key=\"saveAs\">\n        <div class=\"toggle-row\">\n            <div class=\"toggle-info\">\n                <label class=\"toggle-label-text\" for=\"saveAs\">हमेशा Save As dialog दिखाएँ</label>\n                <p class=\"toggle-hint\">Browser setting से स्वतंत्र</p>\n            </div>\n            <label class=\"toggle-switch\">\n                <input name=\"saveAs\" id=\"saveAs\" type=\"checkbox\" />\n                <span class=\"toggle-slider\"></span>\n            </label>\n        </div>\n    </div>\n\n    <div class=\"setting-card\" id=\"downloadImages-container\"\n        data-search-keywords=\"download images,dwnld,image download,image downloads\"\n        data-setting-key=\"downloadImages\">\n        <div class=\"toggle-row\">\n            <div class=\"toggle-info\">\n                <label class=\"toggle-label-text\" for=\"downloadImages\">Markdown files के साथ images भी डाउनलोड करें</label>\n                <p class=\"toggle-hint\">Downloads API mode में image files भी सहेजी जाती हैं और markdown image links उन local files पर rewrite की जाती हैं।</p>\n            </div>\n            <label class=\"toggle-switch\">\n                <input name=\"downloadImages\" id=\"downloadImages\" type=\"checkbox\" />\n                <span class=\"toggle-slider\"></span>\n            </label>\n        </div>\n    </div>\n\n    <div class=\"setting-card\" id=\"imagePrefix\" data-setting-key=\"imagePrefix\">\n        <div class=\"input-group\">\n            <label class=\"input-label\" for=\"imagePrefix\">Image filename prefix template</label>\n            <input type=\"text\" name=\"imagePrefix\" class=\"text-input\" role=\"textbox\" />\n        </div>\n    </div>\n</div>\n\n\n<div class=\"setting-card\" id=\"obsidian-container\"\n    data-search-keywords=\"obsidian,obsdn,advanced uri,obsidian uri\"\n    data-setting-key=\"obsidianIntegration\">\n    <h3 class=\"card-title\">Obsidian Integration</h3>\n    <p class=\"card-desc\">\n        Obsidian integration के लिए community plugin <code>Advanced Obsidian URI</code> को install और enable करना आवश्यक है। यह plugin clipboard को source की तरह उपयोग करके URLs की character limits से बचने में मदद करता है। इस तरीके से भेजी गई images remote links बनी रहती हैं; attachment files आपके vault में कॉपी नहीं होतीं।\n        <a href=\"https://vinzent03.github.io/obsidian-advanced-uri/\" target=\"_blank\" rel=\"noopener noreferrer\">अधिक जानकारी -&gt;</a>\n    </p>\n    <div class=\"toggle-row\">\n        <div class=\"toggle-info\">\n            <label class=\"toggle-label-text\" for=\"obsidianIntegration\">Obsidian Integration सक्षम करें</label>\n        </div>\n        <label class=\"toggle-switch\">\n            <input name=\"obsidianIntegration\" id=\"obsidianIntegration\" type=\"checkbox\" />\n            <span class=\"toggle-slider\"></span>\n        </label>\n    </div>\n</div>\n\n<div class=\"setting-card\" id=\"obsidianVault\"\n    data-search-keywords=\"obsidian,obsdn,vault,folder,vault name,folder name\"\n    data-setting-key=\"obsidianVault,obsidianFolder\">\n    <div class=\"input-group\">\n        <label class=\"input-label\">Obsidian Vault Name</label>\n        <input type=\"text\" name=\"obsidianVault\" class=\"text-input\" role=\"textbox\" placeholder=\"खाली छोड़ने पर main Vault उपयोग होगा\" />\n    </div>\n    <div class=\"input-group\">\n        <label class=\"input-label\">Obsidian Folder Name</label>\n        <input type=\"text\" name=\"obsidianFolder\" class=\"text-input\" role=\"textbox\" placeholder=\"Folder name दर्ज करें, जैसे Clippers\" />\n    </div>\n</div>\n\n<div class=\"setting-card permissions-privacy-card\" id=\"permissions-privacy-container\"\n    data-search-keywords=\"permissions,privacy,site access,all urls,native messaging,local companion,data,security,what does marksnip access\">\n    <h3 class=\"card-title\">\n        <svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\">\n            <rect x=\"3\" y=\"11\" width=\"18\" height=\"11\" rx=\"2\" ry=\"2\"/>\n            <path d=\"M7 11V7a5 5 0 0 1 10 0v4\"/>\n        </svg>\n        Permissions &amp; Privacy\n    </h3>\n    <p class=\"card-desc\">MarkSnip pages को local रूप से process करता है और page content तक तभी पहुँचता है जब आप clip शुरू करते हैं।</p>\n\n    <details class=\"permission-row\" id=\"permissionRowSiteAccess\">\n        <summary class=\"permission-row-header\">\n            <span class=\"permission-row-title\">Clipping के लिए site access</span>\n            <span class=\"permission-badge permission-badge--included\">Extension के साथ शामिल</span>\n        </summary>\n        <div class=\"permission-row-body\">\n            <ul class=\"permission-explainer-list\">\n                <li>MarkSnip को किसी भी requested page को clip करने के लिए इसकी आवश्यकता होती है।</li>\n                <li>Passive browsing monitoring के लिए उपयोग नहीं किया जाता।</li>\n                <li>Page content किसी external server को नहीं भेजी जाती।</li>\n                <li>यह permission browser द्वारा extension install के हिस्से के रूप में प्रबंधित होती है।</li>\n            </ul>\n        </div>\n    </details>\n\n    <details class=\"permission-row\" id=\"permissionRowLocalCompanion\">\n        <summary class=\"permission-row-header\">\n            <span class=\"permission-row-title\">Local companion access</span>\n            <span class=\"permission-badge permission-badge--optional\">Optional</span>\n        </summary>\n        <div class=\"permission-row-body\">\n            <ul class=\"permission-explainer-list\">\n                <li>केवल Agent Bridge के लिए उपयोग होता है।</li>\n                <li>सिर्फ इस मशीन पर install किए गए local MarkSnip companion से बात करता है।</li>\n                <li>इसके बिना भी regular clipping काम करती है।</li>\n                <li>Agent Bridge बंद करके इसे रोका जा सकता है।</li>\n            </ul>\n        </div>\n    </details>\n</div>\n\n<div class=\"setting-card\" id=\"agent-bridge-container\"\n    data-search-keywords=\"agent bridge,cli,native host,native messaging,claude code,coding agent,stdout,bridge\"\n    data-bridge-state=\"disabled\"\n    data-permission-state=\"idle\">\n    <h3 class=\"card-title\">Agent Bridge</h3>\n    <p class=\"card-desc\">Local MarkSnip companion को एक बार install करें, फिर local tools को downloads के बिना सीधे current page का Markdown pull करने दें।</p>\n\n    <div class=\"toggle-row\">\n        <div class=\"toggle-info\">\n            <label class=\"toggle-label-text\" for=\"agentBridgeEnabled\">Agent Bridge सक्षम करें</label>\n            <p class=\"toggle-hint\" id=\"agentBridgeToggleHint\">बंद होने पर MarkSnip किसी local companion connection को नहीं खोलेगा।</p>\n        </div>\n        <label class=\"toggle-switch\">\n            <input name=\"agentBridgeEnabled\" id=\"agentBridgeEnabled\" type=\"checkbox\" />\n            <span class=\"toggle-slider\"></span>\n        </label>\n    </div>\n\n    <div class=\"agent-bridge-permission-panel\" id=\"agentBridgePermissionPanel\" hidden>\n        <div class=\"permission-panel-state\" data-panel-state=\"preflight\">\n            <h4 class=\"permission-panel-title\">\n                <svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\">\n                    <rect x=\"3\" y=\"11\" width=\"18\" height=\"11\" rx=\"2\" ry=\"2\"/>\n                    <path d=\"M7 11V7a5 5 0 0 1 10 0v4\"/>\n                </svg>\n                Local companion access सक्षम करें?\n            </h4>\n            <p class=\"permission-panel-desc\">MarkSnip browser से local MarkSnip companion से बात करने की permission मांगने वाला है।</p>\n            <ul class=\"permission-panel-bullets\">\n                <li>केवल Agent Bridge के लिए</li>\n                <li>सिर्फ local machine पर</li>\n                <li>इसके बिना भी regular clipping काम करती है</li>\n            </ul>\n            <div class=\"permission-panel-actions\">\n                <button id=\"agentBridgePermContinue\" class=\"btn btn-primary btn-sm\" type=\"button\">जारी रखें</button>\n                <button id=\"agentBridgePermCancel\" class=\"btn btn-secondary btn-sm\" type=\"button\">रद्द करें</button>\n                <a href=\"#\" id=\"agentBridgePermGuideLink\" class=\"permission-panel-link\">Setup guide देखें</a>\n            </div>\n        </div>\n\n        <div class=\"permission-panel-state\" data-panel-state=\"denied\">\n            <p class=\"permission-panel-desc\">Permission नहीं मिली। Agent Bridge बंद रहेगा। Regular clipping अपरिवर्तित है।</p>\n            <div class=\"permission-panel-actions\">\n                <button id=\"agentBridgePermRetry\" class=\"btn btn-secondary btn-sm\" type=\"button\">फिर से प्रयास करें</button>\n                <button id=\"agentBridgePermDismiss\" class=\"btn btn-secondary btn-sm\" type=\"button\">रद्द करें</button>\n            </div>\n        </div>\n    </div>\n\n    <div class=\"agent-bridge-status-row\" id=\"agentBridgeStatusRow\">\n        <div class=\"agent-bridge-status-copy\">\n            <span class=\"agent-bridge-status-label\">स्थिति</span>\n            <div class=\"agent-bridge-status-badge\" role=\"status\" aria-live=\"polite\">\n                <span class=\"agent-bridge-status-dot\" aria-hidden=\"true\"></span>\n                <strong id=\"agentBridgeStatusText\" class=\"agent-bridge-status-text\">Disabled</strong>\n            </div>\n            <p id=\"agentBridgeStatusHint\" class=\"option-note\">Agent Bridge सक्षम करें ताकि MarkSnip local companion से जुड़ सके।</p>\n            <span id=\"agentBridgeHostVersion\" class=\"agent-bridge-version-tag\" hidden></span>\n        </div>\n        <button id=\"refreshAgentBridgeStatus\" class=\"btn btn-secondary btn-sm\" type=\"button\" aria-label=\"Agent Bridge connection status जाँचें\">कनेक्शन जाँचें</button>\n    </div>\n\n    <details class=\"info-panel agent-bridge-setup-guide\" id=\"agentBridgeSetupGuide\">\n        <summary>Setup guide</summary>\n        <div class=\"info-panel-content\">\n            <p>MarkSnip को local CLI tools से जोड़ने के लिए ये चरण पूरे करें:</p>\n            <ol>\n                <li>अपने OS के लिए companion archive को <a href=\"https://github.com/DhruvParikh1/markdownload-extension-updated/releases\" target=\"_blank\" rel=\"noopener noreferrer\">Releases page</a> से डाउनलोड करें।</li>\n                <li>Native messaging host register करने के लिए install command चलाएँ:</li>\n            </ol>\n            <div class=\"agent-bridge-terminal\">\n                <span class=\"agent-bridge-terminal-prompt\" aria-hidden=\"true\">$</span>\n                <code id=\"agentBridgeInstallCommand\">marksnip install-host</code>\n                <button id=\"copyAgentBridgeCommand\" class=\"btn btn-sm agent-bridge-copy-btn\" type=\"button\" aria-label=\"Install command को clipboard में कॉपी करें\">कॉपी</button>\n            </div>\n            <ol start=\"3\">\n                <li>ऊपर का toggle सक्षम करें और MarkSnip स्वयं connect हो जाएगा।</li>\n            </ol>\n            <p class=\"option-note\" style=\"margin-top: var(--space-3)\">केवल local feature। Bridge settings export नहीं होतीं और machines के बीच sync भी नहीं होतीं।</p>\n        </div>\n    </details>\n</div>"
+  },
+  "options_section_library_html": {
+    "message": "<h2 class=\"section-title\">Library</h2>\n<p class=\"section-desc\">Popup Library को प्रबंधित करें, जो केवल इसी browser पर saved clips को local रूप से store करती है।</p>\n\n<div class=\"setting-card\" data-search-keywords=\"library local clips saved clips popup history local only import export\"\n    data-local-setting-key=\"enabled\">\n    <div class=\"toggle-row\">\n        <div class=\"toggle-info\">\n            <label class=\"toggle-label-text\" for=\"libraryEnabled\">Library सक्षम करें</label>\n            <p class=\"toggle-hint\">Popup में Library view दिखाता है। इसे बंद करने पर feature छिप जाती है, saved items नहीं हटते।</p>\n        </div>\n        <label class=\"toggle-switch\">\n            <input name=\"libraryEnabled\" id=\"libraryEnabled\" type=\"checkbox\" />\n            <span class=\"toggle-slider\"></span>\n        </label>\n    </div>\n</div>\n\n<div class=\"setting-card\" id=\"libraryAutoSave-container\"\n    data-search-keywords=\"library auto save popup opens automatic clip save manual save\"\n    data-local-setting-key=\"autoSaveOnPopupOpen\">\n    <div class=\"toggle-row\">\n        <div class=\"toggle-info\">\n            <label class=\"toggle-label-text\" for=\"libraryAutoSaveOnPopupOpen\">Popup खुलते ही pages स्वतः सहेजें</label>\n            <p class=\"toggle-hint\">बंद होने पर popup Library में manual <strong>Save Clip</strong> button दिखता है।</p>\n        </div>\n        <label class=\"toggle-switch\">\n            <input name=\"libraryAutoSaveOnPopupOpen\" id=\"libraryAutoSaveOnPopupOpen\" type=\"checkbox\" />\n            <span class=\"toggle-slider\"></span>\n        </label>\n    </div>\n</div>\n\n<div class=\"setting-card\" id=\"libraryItemsToKeep-container\"\n    data-search-keywords=\"library items keep retain retention max saved clips limit\"\n    data-local-setting-key=\"itemsToKeep\">\n    <h3 class=\"card-title\">रखने के लिए items</h3>\n    <p class=\"card-desc\">Local रूप से रखी जाने वाली saved Library clips की अधिकतम संख्या। इसे कम करने पर पुरानी items तुरंत trim हो जाती हैं।</p>\n    <div class=\"input-group\">\n        <label class=\"input-label\" for=\"libraryItemsToKeep\">Saved clip सीमा</label>\n        <input type=\"number\" min=\"1\" step=\"1\" id=\"libraryItemsToKeep\" name=\"libraryItemsToKeep\" class=\"text-input\" role=\"spinbutton\" />\n    </div>\n    <p class=\"option-note\">Library settings import/export में शामिल होती हैं। Saved Library items local-only रहती हैं और बाहर नहीं जातीं।</p>\n</div>\n\n<div class=\"setting-card\" data-search-keywords=\"clear library delete saved clips local history\">\n    <h3 class=\"card-title\">Library साफ़ करें</h3>\n    <p class=\"card-desc\">Local storage से सभी saved Library items हटाएँ। इसे वापस नहीं किया जा सकता।</p>\n    <div class=\"btn-group\">\n        <button id=\"clear-library\" class=\"btn btn-danger\">\n            <svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                <polyline points=\"3 6 5 6 21 6\"/>\n                <path d=\"M19 6l-1 14H6L5 6\"/>\n                <path d=\"M10 11v6\"/>\n                <path d=\"M14 11v6\"/>\n                <path d=\"M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2\"/>\n            </svg>\n            Library साफ़ करें\n        </button>\n    </div>\n</div>"
+  },
+  "options_section_markdown_html": {
+    "message": "<h2 class=\"section-title\">Markdown</h2>\n<p class=\"section-desc\">HTML को Markdown syntax में कैसे बदला जाए, यह कॉन्फ़िगर करें।</p>\n\n<div class=\"setting-card\" id=\"headingStyle\" data-setting-key=\"headingStyle\">\n    <h3 class=\"card-title\">Heading Style</h3>\n    <div class=\"radio-card-group\">\n        <div class=\"radio-card\">\n            <input type=\"radio\" name=\"headingStyle\" id=\"setext\" value=\"setext\" />\n            <label for=\"setext\">\n                <div class=\"radio-card-title\">Setext Style</div>\n                <pre>All About Dogs\n==============</pre>\n            </label>\n        </div>\n        <div class=\"radio-card\">\n            <input type=\"radio\" name=\"headingStyle\" id=\"atx\" value=\"atx\" />\n            <label for=\"atx\">\n                <div class=\"radio-card-title\">Atx Style</div>\n                <pre># All About Dogs</pre>\n            </label>\n        </div>\n    </div>\n</div>\n\n<div class=\"setting-card\" id=\"hr\" data-setting-key=\"hr\">\n    <h3 class=\"card-title\">Horizontal Rule</h3>\n    <div class=\"radio-group\">\n        <div class=\"radio-pill\"><input type=\"radio\" name=\"hr\" id=\"***\" value=\"***\" /><label for=\"***\"><code>***</code></label></div>\n        <div class=\"radio-pill\"><input type=\"radio\" name=\"hr\" id=\"---\" value=\"---\" /><label for=\"---\"><code>---</code></label></div>\n        <div class=\"radio-pill\"><input type=\"radio\" name=\"hr\" id=\"___\" value=\"___\" /><label for=\"___\"><code>___</code></label></div>\n    </div>\n</div>\n\n<div class=\"setting-card\" id=\"bulletListMarker\" data-setting-key=\"bulletListMarker\">\n    <h3 class=\"card-title\">Bullet List Marker</h3>\n    <div class=\"radio-group\">\n        <div class=\"radio-pill\"><input type=\"radio\" name=\"bulletListMarker\" id=\"*\" value=\"*\" /><label for=\"*\"><code>*</code></label></div>\n        <div class=\"radio-pill\"><input type=\"radio\" name=\"bulletListMarker\" id=\"-\" value=\"-\" /><label for=\"-\"><code>-</code></label></div>\n        <div class=\"radio-pill\"><input type=\"radio\" name=\"bulletListMarker\" id=\"+\" value=\"+\" /><label for=\"+\"><code>+</code></label></div>\n    </div>\n</div>\n\n<div class=\"setting-card\" id=\"codeBlockStyle\" data-setting-key=\"codeBlockStyle\">\n    <h3 class=\"card-title\">Code Block Style</h3>\n    <div class=\"radio-card-group\">\n        <div class=\"radio-card\">\n            <input type=\"radio\" name=\"codeBlockStyle\" id=\"indented\" value=\"indented\" />\n            <label for=\"indented\">\n                <div class=\"radio-card-title\">Indented</div>\n                <pre>    const helloWorld = () => {\n        console.log(\"Hello World\");\n    }</pre>\n            </label>\n        </div>\n        <div class=\"radio-card\">\n            <input type=\"radio\" name=\"codeBlockStyle\" id=\"fenced\" value=\"fenced\" />\n            <label for=\"fenced\">\n                <div class=\"radio-card-title\">Fenced</div>\n                <pre>~~~\nconst helloWorld = () => {\n    console.log(\"Hello World\");\n}\n~~~</pre>\n            </label>\n        </div>\n    </div>\n</div>\n\n<div class=\"setting-card\" id=\"preserveCodeFormatting-container\" data-setting-key=\"preserveCodeFormatting\">\n    <div class=\"toggle-row\">\n        <div class=\"toggle-info\">\n            <label class=\"toggle-label-text\" for=\"preserveCodeFormatting\">Code block का HTML formatting सुरक्षित रखें</label>\n            <p class=\"toggle-hint\">सक्षम होने पर code blocks के अंदर मूल HTML formatting बनी रहती है। इससे visual formatting सटीक रह सकती है, लेकिन Markdown पढ़ना और दूसरे tools में उपयोग करना कठिन हो सकता है। बंद होने पर (default) साफ़ code blocks बनते हैं।</p>\n        </div>\n        <label class=\"toggle-switch\">\n            <input name=\"preserveCodeFormatting\" id=\"preserveCodeFormatting\" type=\"checkbox\" />\n            <span class=\"toggle-slider\"></span>\n        </label>\n    </div>\n</div>\n\n<div class=\"setting-card\" id=\"autoDetectCodeLanguage-container\" data-setting-key=\"autoDetectCodeLanguage\"\n    data-search-keywords=\"highlight,highlight js,highlightjs,highlight.js,syntax highlighting,language detection\">\n    <div class=\"toggle-row\">\n        <div class=\"toggle-info\">\n            <label class=\"toggle-label-text\" for=\"autoDetectCodeLanguage\">Code block language स्वतः पहचानें</label>\n            <p class=\"toggle-hint\">जब explicit language न हो, तब fenced code block language का अनुमान लगाने के लिए highlight.js का उपयोग करता है। यदि snippets को बार-बार गलत language मिलती हो तो इसे बंद करें।</p>\n        </div>\n        <label class=\"toggle-switch\">\n            <input name=\"autoDetectCodeLanguage\" id=\"autoDetectCodeLanguage\" type=\"checkbox\" />\n            <span class=\"toggle-slider\"></span>\n        </label>\n    </div>\n</div>\n\n<div class=\"setting-card\" id=\"fence\" data-setting-key=\"fence\">\n    <h3 class=\"card-title\">Code Block Fence</h3>\n    <div class=\"radio-group\">\n        <div class=\"radio-pill\"><input type=\"radio\" name=\"fence\" id=\"&#96;&#96;&#96;\" value=\"&#96;&#96;&#96;\" /><label for=\"&#96;&#96;&#96;\"><code>&#96;&#96;&#96;</code></label></div>\n        <div class=\"radio-pill\"><input type=\"radio\" name=\"fence\" id=\"~~~\" value=\"~~~\" /><label for=\"~~~\"><code>~~~</code></label></div>\n    </div>\n</div>\n\n<div class=\"setting-card\" id=\"emDelimiter\" data-setting-key=\"emDelimiter\">\n    <h3 class=\"card-title\">Emphasis (italics) Delimiter</h3>\n    <div class=\"radio-group\">\n        <div class=\"radio-pill\"><input type=\"radio\" name=\"emDelimiter\" id=\"em_\" value=\"_\" /><label for=\"em_\"><code>_italics_</code></label></div>\n        <div class=\"radio-pill\"><input type=\"radio\" name=\"emDelimiter\" id=\"em*\" value=\"*\" /><label for=\"em*\"><code>*italics*</code></label></div>\n        <div class=\"radio-pill\"><input type=\"radio\" name=\"emDelimiter\" id=\"em__\" value=\"__\" /><label for=\"em__\"><code>__italics__</code> <span class=\"option-note\" style=\"display:inline;margin:0\"><strong>(Non-standard. Roam specific.)</strong></span></label></div>\n    </div>\n</div>\n\n<div class=\"setting-card\" id=\"strongDelimiter\" data-setting-key=\"strongDelimiter\">\n    <h3 class=\"card-title\">Strong (bold) Delimiter</h3>\n    <div class=\"radio-group\">\n        <div class=\"radio-pill\"><input type=\"radio\" name=\"strongDelimiter\" id=\"**\" value=\"**\" /><label for=\"**\"><code>**bold**</code></label></div>\n        <div class=\"radio-pill\"><input type=\"radio\" name=\"strongDelimiter\" id=\"__\" value=\"__\" /><label for=\"__\"><code>__bold__</code></label></div>\n    </div>\n</div>\n\n<div class=\"setting-card\" id=\"linkStyle\" data-setting-key=\"linkStyle\">\n    <h3 class=\"card-title\">Link Style</h3>\n    <div class=\"radio-card-group\">\n        <div class=\"radio-card\"><input type=\"radio\" name=\"linkStyle\" id=\"inlined\" value=\"inlined\" /><label for=\"inlined\"><div class=\"radio-card-title\">Inlined</div><pre>[Google](http://google.com)</pre></label></div>\n        <div class=\"radio-card\"><input type=\"radio\" name=\"linkStyle\" id=\"referenced\" value=\"referenced\" /><label for=\"referenced\"><div class=\"radio-card-title\">Referenced</div><pre>[Google]\n\n[Google]: http://google.com</pre></label></div>\n        <div class=\"radio-card\"><input type=\"radio\" name=\"linkStyle\" id=\"stripLinks\" value=\"stripLinks\" /><label for=\"stripLinks\"><div class=\"radio-card-title\">Links हटाएँ</div><pre>Google</pre></label></div>\n    </div>\n</div>\n\n<div class=\"setting-card\" id=\"linkReferenceStyle\" data-setting-key=\"linkReferenceStyle\">\n    <h3 class=\"card-title\">Link Reference Style</h3>\n    <div class=\"radio-card-group\">\n        <div class=\"radio-card\"><input type=\"radio\" name=\"linkReferenceStyle\" id=\"full\" value=\"full\" /><label for=\"full\"><div class=\"radio-card-title\">Full</div><pre>[Google][1]\n\n[1]: http://google.com</pre></label></div>\n        <div class=\"radio-card\"><input type=\"radio\" name=\"linkReferenceStyle\" id=\"collapsed\" value=\"collapsed\" /><label for=\"collapsed\"><div class=\"radio-card-title\">Collapsed</div><pre>[Google][]\n\n[Google]: http://google.com</pre></label></div>\n        <div class=\"radio-card\"><input type=\"radio\" name=\"linkReferenceStyle\" id=\"shortcut\" value=\"shortcut\" /><label for=\"shortcut\"><div class=\"radio-card-title\">Shortcut</div><pre>[Google]\n\n[Google]: http://google.com</pre></label></div>\n    </div>\n</div>\n\n<div class=\"setting-card\" id=\"imageOptions\"\n    data-search-keywords=\"image,img,imgstyle,base64,embed,obsidian embed,obsdn\"\n    data-setting-key=\"imageStyle\">\n    <h3 class=\"card-title\">Image Style</h3>\n    <div class=\"radio-card-group\">\n        <div class=\"radio-card\"><input type=\"radio\" name=\"imageStyle\" id=\"originalSource\" value=\"originalSource\" /><label for=\"originalSource\"><div class=\"radio-card-title\">Original Source</div><pre>![](http://example.com/img/image.jpg)</pre></label></div>\n        <div class=\"radio-card\"><input type=\"radio\" name=\"imageStyle\" id=\"noImage\" value=\"noImage\" /><label for=\"noImage\"><div class=\"radio-card-title\">Images हटाएँ</div><pre> </pre></label></div>\n    </div>\n    <p class=\"option-note\" style=\"margin-top: var(--space-3)\"><strong>नोट:</strong> नीचे दिए गए विकल्प तभी लागू होते हैं जब Download Images चालू हो।</p>\n    <div class=\"radio-card-group\" style=\"margin-top: var(--space-3)\">\n        <div class=\"radio-card\"><input type=\"radio\" name=\"imageStyle\" id=\"markdown\" value=\"markdown\" /><label for=\"markdown\"><div class=\"radio-card-title\">Pure Markdown</div><pre>![](folder/image.jpg)</pre></label></div>\n        <div class=\"radio-card\"><input type=\"radio\" name=\"imageStyle\" id=\"base64\" value=\"base64\" /><label for=\"base64\"><div class=\"radio-card-title\">Base64 Encoded</div><pre>![](data:image/png;base64,iVBO...)</pre></label></div>\n        <div class=\"radio-card\"><input type=\"radio\" name=\"imageStyle\" id=\"obsidian\" value=\"obsidian\" /><label for=\"obsidian\"><div class=\"radio-card-title\">Obsidian Internal Embed</div><pre>![[folder/image.jpg]]</pre></label></div>\n        <div class=\"radio-card\"><input type=\"radio\" name=\"imageStyle\" id=\"obsidian-nofolder\" value=\"obsidian-nofolder\" /><label for=\"obsidian-nofolder\"><div class=\"radio-card-title\">Obsidian Embed (no folder)</div><pre>![[image.jpg]]</pre></label></div>\n    </div>\n</div>\n\n<div class=\"setting-card\" id=\"imageRefOptions\"\n    data-search-keywords=\"image,img,imgref,image ref,image reference\"\n    data-setting-key=\"imageRefStyle\">\n    <h3 class=\"card-title\">Image Reference Style</h3>\n    <p class=\"card-desc\"><strong>नोट:</strong> नीचे दिए गए विकल्प तभी लागू होते हैं जब Image Style markdown हो (Obsidian शैली नहीं)।</p>\n    <div class=\"radio-card-group\">\n        <div class=\"radio-card\"><input type=\"radio\" name=\"imageRefStyle\" id=\"img-inlined\" value=\"inlined\" /><label for=\"img-inlined\"><div class=\"radio-card-title\">Inlined</div><pre>![](address/of/image.jpg)</pre></label></div>\n        <div class=\"radio-card\"><input type=\"radio\" name=\"imageRefStyle\" id=\"img-referenced\" value=\"referenced\" /><label for=\"img-referenced\"><div class=\"radio-card-title\">Referenced</div><pre>![][fig1]\n\n[fig1]: address/of/image.jpg</pre></label></div>\n    </div>\n</div>\n\n<div class=\"setting-card\" id=\"turndownEscape-container\" data-setting-key=\"turndownEscape\">\n    <div class=\"toggle-row\">\n        <div class=\"toggle-info\">\n            <label class=\"toggle-label-text\" for=\"turndownEscape\">Markdown characters को escape करें</label>\n            <p class=\"toggle-hint\">डिफ़ॉल्ट रूप से backslashes (<code>\\</code>) का उपयोग HTML input में Markdown characters को escape करने के लिए किया जाता है। इससे ये characters Markdown के रूप में interpret नहीं होते। उदाहरण के लिए <code>&lt;h1&gt;1. Hello world&lt;/h1&gt;</code> को <code>1\\. Hello world</code> के रूप में escape करना ज़रूरी है, नहीं तो इसे heading की जगह list item समझा जाएगा। इस विकल्प को बंद करने पर यह escaping बंद हो जाती है।</p>\n        </div>\n        <label class=\"toggle-switch\">\n            <input name=\"turndownEscape\" id=\"turndownEscape\" type=\"checkbox\" />\n            <span class=\"toggle-slider\"></span>\n        </label>\n    </div>\n</div>\n\n<div class=\"setting-card\" id=\"hashtagHandling-container\" data-setting-key=\"hashtagHandling\">\n    <h3 class=\"card-title\">Hashtag Handling</h3>\n    <p class=\"card-desc\">Hashtag जैसे शब्दों (उदाहरण <code>#AI</code>) को clipped text में कैसे लिखा जाए, इसे नियंत्रित करें। यह Obsidian जैसे tools के लिए उपयोगी है जो hashtags को tags की तरह मानते हैं।</p>\n    <div class=\"radio-group\">\n        <div class=\"radio-pill\"><input type=\"radio\" name=\"hashtagHandling\" id=\"hashtag-keep\" value=\"keep\" /><label for=\"hashtag-keep\">जैसा है रखें</label></div>\n        <div class=\"radio-pill\"><input type=\"radio\" name=\"hashtagHandling\" id=\"hashtag-remove\" value=\"remove\" /><label for=\"hashtag-remove\"># हटाएँ</label></div>\n        <div class=\"radio-pill\"><input type=\"radio\" name=\"hashtagHandling\" id=\"hashtag-escape\" value=\"escape\" /><label for=\"hashtag-escape\"># escape करें</label></div>\n    </div>\n    <p class=\"toggle-hint\" style=\"margin-top: var(--space-3);\">उदाहरण: <code>#research</code> <strong># हटाएँ</strong> में <code>research</code> बनता है, और <strong># escape करें</strong> में <code>\\#research</code>।</p>\n</div>"
+  },
+  "options_section_tables_html": {
+    "message": "<h2 class=\"section-title\">टेबल्स</h2>\n<p class=\"section-desc\">HTML tables को Markdown tables में कैसे बदला जाए, यह कॉन्फ़िगर करें।</p>\n\n<div class=\"setting-card\" id=\"table-options\" data-setting-key=\"tableFormatting\">\n    <div class=\"toggle-row\">\n        <div class=\"toggle-info\">\n            <label class=\"toggle-label-text\" for=\"table-stripLinks\">टेबल्स से links हटाएँ</label>\n            <p class=\"toggle-hint\">टेबल्स से सभी links हटाकर केवल text content रखता है। इससे tables ज़्यादा साफ़ और पढ़ने योग्य बनती हैं।</p>\n            <div class=\"toggle-example\">\n                <div class=\"toggle-example-col\">\n                    <label>बंद</label>\n                    <pre>| Name              |\n|-------------------|\n| [Google](http://...) |</pre>\n                </div>\n                <div class=\"toggle-example-col\">\n                    <label>चालू</label>\n                    <pre>| Name   |\n|--------|\n| Google |</pre>\n                </div>\n            </div>\n        </div>\n        <label class=\"toggle-switch\">\n            <input name=\"tableFormatting.stripLinks\" id=\"table-stripLinks\" type=\"checkbox\" />\n            <span class=\"toggle-slider\"></span>\n        </label>\n    </div>\n\n    <div class=\"toggle-row\">\n        <div class=\"toggle-info\">\n            <label class=\"toggle-label-text\" for=\"table-stripFormatting\">Formatting हटाएँ (bold, italic आदि)</label>\n            <p class=\"toggle-hint\">Table cells से bold, italic और अन्य formatting हटाता है। परिणाम plain text tables होता है।</p>\n            <div class=\"toggle-example\">\n                <div class=\"toggle-example-col\">\n                    <label>बंद</label>\n                    <pre>| Item       | Note     |\n|------------|----------|\n| **Apple**  | _Fresh_  |</pre>\n                </div>\n                <div class=\"toggle-example-col\">\n                    <label>चालू</label>\n                    <pre>| Item   | Note  |\n|--------|-------|\n| Apple  | Fresh |</pre>\n                </div>\n            </div>\n        </div>\n        <label class=\"toggle-switch\">\n            <input name=\"tableFormatting.stripFormatting\" id=\"table-stripFormatting\" type=\"checkbox\" />\n            <span class=\"toggle-slider\"></span>\n        </label>\n    </div>\n\n    <div class=\"toggle-row\">\n        <div class=\"toggle-info\">\n            <label class=\"toggle-label-text\" for=\"table-prettyPrint\">Pretty print tables</label>\n            <p class=\"toggle-hint\">टेबल्स को सही spacing और alignment के साथ format करता है। इससे markdown में tables अधिक पढ़ने योग्य बनती हैं।</p>\n            <div class=\"toggle-example\">\n                <div class=\"toggle-example-col\">\n                    <label>बंद</label>\n                    <pre>|Name|Price|\n|---|---|\n|Apple|$1.50|\n|Banana|$0.75|</pre>\n                </div>\n                <div class=\"toggle-example-col\">\n                    <label>चालू</label>\n                    <pre>| Name   | Price |\n|--------|-------|\n| Apple  | $1.50 |\n| Banana | $0.75 |</pre>\n                </div>\n            </div>\n        </div>\n        <label class=\"toggle-switch\">\n            <input name=\"tableFormatting.prettyPrint\" id=\"table-prettyPrint\" type=\"checkbox\" />\n            <span class=\"toggle-slider\"></span>\n        </label>\n    </div>\n\n    <div class=\"toggle-row\">\n        <div class=\"toggle-info\">\n            <label class=\"toggle-label-text\" for=\"table-centerText\">Columns में text को center करें</label>\n            <p class=\"toggle-hint\">Table columns के भीतर text को center करता है। इससे appearance अधिक polished लगती है।</p>\n            <div class=\"toggle-example\">\n                <div class=\"toggle-example-col\">\n                    <label>बंद</label>\n                    <pre>| Name   | Price |\n|--------|-------|\n| Apple  | $1.50 |</pre>\n                </div>\n                <div class=\"toggle-example-col\">\n                    <label>चालू</label>\n                    <pre>| Name   | Price |\n|:------:|:-----:|\n| Apple  | $1.50 |</pre>\n                </div>\n            </div>\n        </div>\n        <label class=\"toggle-switch\">\n            <input name=\"tableFormatting.centerText\" id=\"table-centerText\" type=\"checkbox\" />\n            <span class=\"toggle-slider\"></span>\n        </label>\n    </div>\n</div>"
+  },
+  "options_section_site_rules_html": {
+    "message": "<h2 class=\"section-title\">Site Rules</h2>\n<p class=\"section-desc\">ऐसे ordered wildcard URL rules बनाएँ जो matching sites के लिए clip settings को override करें। पहला enabled match लागू होगा।</p>\n\n<div class=\"setting-card\" id=\"siteRulesCard\" data-setting-key=\"siteRules\" data-search-keywords=\"site rules,per site,domain,url pattern,host rule,wildcard,override,matching\">\n    <h3 class=\"card-title\">Rule List</h3>\n    <p class=\"card-desc\"><code>example.com/*</code>, <code>docs.example.com/blog/*</code> या <code>*.example.com/*</code> जैसे patterns उपयोग करें। Query strings और hashes को अनदेखा किया जाता है।</p>\n\n    <div class=\"site-rules-toolbar\">\n        <div class=\"site-rules-summary\" id=\"siteRulesSummary\">0 rules</div>\n        <button type=\"button\" class=\"btn btn-primary btn-sm\" id=\"addSiteRule\">Rule जोड़ें</button>\n    </div>\n\n    <div class=\"site-rules-empty\" id=\"siteRulesEmpty\" hidden>\n        <strong>अभी तक कोई site rule नहीं है।</strong>\n        <p class=\"toggle-hint\">जब आपको किसी विशेष domain के लिए अलग templates, image behavior या table formatting चाहिए हो तब rule जोड़ें।</p>\n    </div>\n\n    <div class=\"site-rules-list\" id=\"siteRulesList\"></div>\n\n    <div class=\"site-rule-editor\" id=\"siteRuleEditor\" data-search-exclude hidden>\n        <div class=\"site-rule-editor-header\">\n            <div>\n                <h4 class=\"site-rule-editor-title\" id=\"siteRuleEditorTitle\">Site Rule जोड़ें</h4>\n                <p class=\"toggle-hint\">यदि scheme न हो तो <code>http</code> और <code>https</code> दोनों match होंगे। यदि path न हो तो <code>/*</code> माना जाएगा।</p>\n            </div>\n        </div>\n\n        <div class=\"site-rule-fields\">\n            <div class=\"site-rule-field\">\n                <label class=\"input-label\" for=\"siteRuleName\">Rule Name</label>\n                <input type=\"text\" id=\"siteRuleName\" class=\"text-input\" placeholder=\"Docs Template\" />\n            </div>\n\n            <div class=\"site-rule-field\">\n                <label class=\"input-label\" for=\"siteRulePattern\">Wildcard URL Pattern</label>\n                <input type=\"text\" id=\"siteRulePattern\" class=\"text-input\" placeholder=\"example.com/*\" />\n                <p class=\"toggle-hint\" id=\"siteRulePatternFeedback\"></p>\n            </div>\n\n            <div class=\"site-rule-field site-rule-field--toggle\">\n                <div class=\"toggle-row\">\n                    <div class=\"toggle-info\">\n                        <label class=\"toggle-label-text\" for=\"siteRuleEnabled\">सक्षम</label>\n                        <p class=\"toggle-hint\">Disabled rules सूची में बनी रहती हैं, लेकिन कभी match नहीं करतीं।</p>\n                    </div>\n                    <label class=\"toggle-switch\">\n                        <input id=\"siteRuleEnabled\" type=\"checkbox\" checked />\n                        <span class=\"toggle-slider\"></span>\n                    </label>\n                </div>\n            </div>\n        </div>\n\n        <div class=\"site-rule-editor-section\">\n            <h5 class=\"site-rule-editor-subtitle\">Boolean Overrides</h5>\n            <div class=\"site-rule-grid\">\n                <div class=\"site-rule-field\">\n                    <label class=\"input-label\" for=\"siteRuleIncludeTemplate\">Template</label>\n                    <select id=\"siteRuleIncludeTemplate\" class=\"text-input site-rule-select\">\n                        <option value=\"inherit\">विरासत</option>\n                        <option value=\"true\">चालू</option>\n                        <option value=\"false\">बंद</option>\n                    </select>\n                </div>\n                <div class=\"site-rule-field\">\n                    <label class=\"input-label\" for=\"siteRuleDownloadImages\">Download Images</label>\n                    <select id=\"siteRuleDownloadImages\" class=\"text-input site-rule-select\">\n                        <option value=\"inherit\">विरासत</option>\n                        <option value=\"true\">चालू</option>\n                        <option value=\"false\">बंद</option>\n                    </select>\n                </div>\n            </div>\n        </div>\n\n        <div class=\"site-rule-editor-section\">\n            <h5 class=\"site-rule-editor-subtitle\">Template Overrides</h5>\n            <div class=\"site-rule-text-list\">\n                <div class=\"site-rule-text-override\"><label class=\"site-rule-inline-toggle\"><input type=\"checkbox\" id=\"siteRuleFrontmatterEnabled\" /><span>Frontmatter override करें</span></label><textarea id=\"siteRuleFrontmatter\" class=\"textarea-input\" placeholder=\"---&#10;source: {pageURL}&#10;---\"></textarea></div>\n                <div class=\"site-rule-text-override\"><label class=\"site-rule-inline-toggle\"><input type=\"checkbox\" id=\"siteRuleBackmatterEnabled\" /><span>Backmatter override करें</span></label><textarea id=\"siteRuleBackmatter\" class=\"textarea-input\" placeholder=\"Captured from {pageHostname}\"></textarea></div>\n                <div class=\"site-rule-text-override\"><label class=\"site-rule-inline-toggle\"><input type=\"checkbox\" id=\"siteRuleTitleEnabled\" /><span>Title Template override करें</span></label><input type=\"text\" id=\"siteRuleTitle\" class=\"text-input\" placeholder=\"{pageTitle}\" /></div>\n                <div class=\"site-rule-text-override\"><label class=\"site-rule-inline-toggle\"><input type=\"checkbox\" id=\"siteRuleImagePrefixEnabled\" /><span>Image Prefix override करें</span></label><input type=\"text\" id=\"siteRuleImagePrefix\" class=\"text-input\" placeholder=\"{pageTitle}/\" /></div>\n                <div class=\"site-rule-text-override\"><label class=\"site-rule-inline-toggle\"><input type=\"checkbox\" id=\"siteRuleMdClipsFolderEnabled\" /><span>Downloads Folder override करें</span></label><input type=\"text\" id=\"siteRuleMdClipsFolder\" class=\"text-input\" placeholder=\"Clips/{pageHostname}\" /></div>\n            </div>\n        </div>\n\n        <div class=\"site-rule-editor-section\">\n            <h5 class=\"site-rule-editor-subtitle\">Image Overrides</h5>\n            <div class=\"site-rule-grid\">\n                <div class=\"site-rule-field\">\n                    <label class=\"input-label\" for=\"siteRuleImageStyle\">Image Style</label>\n                    <select id=\"siteRuleImageStyle\" class=\"text-input site-rule-select\">\n                        <option value=\"inherit\">विरासत</option>\n                        <option value=\"originalSource\">Original Source रखें</option>\n                        <option value=\"noImage\">Images हटाएँ</option>\n                        <option value=\"markdown\">Pure Markdown</option>\n                        <option value=\"base64\">Base64 Encoded</option>\n                        <option value=\"obsidian\">Obsidian Internal Embed</option>\n                        <option value=\"obsidian-nofolder\">Obsidian Embed (no folder)</option>\n                    </select>\n                </div>\n                <div class=\"site-rule-field\">\n                    <label class=\"input-label\" for=\"siteRuleImageRefStyle\">Image Reference Style</label>\n                    <select id=\"siteRuleImageRefStyle\" class=\"text-input site-rule-select\">\n                        <option value=\"inherit\">विरासत</option>\n                        <option value=\"inlined\">Inlined</option>\n                        <option value=\"referenced\">Referenced</option>\n                    </select>\n                </div>\n            </div>\n        </div>\n\n        <div class=\"site-rule-editor-section\">\n            <h5 class=\"site-rule-editor-subtitle\">Table Formatting Overrides</h5>\n            <div class=\"site-rule-grid\">\n                <div class=\"site-rule-field\"><label class=\"input-label\" for=\"siteRuleTableStripLinks\">Links हटाएँ</label><select id=\"siteRuleTableStripLinks\" class=\"text-input site-rule-select\"><option value=\"inherit\">विरासत</option><option value=\"true\">चालू</option><option value=\"false\">बंद</option></select></div>\n                <div class=\"site-rule-field\"><label class=\"input-label\" for=\"siteRuleTableStripFormatting\">Formatting हटाएँ</label><select id=\"siteRuleTableStripFormatting\" class=\"text-input site-rule-select\"><option value=\"inherit\">विरासत</option><option value=\"true\">चालू</option><option value=\"false\">बंद</option></select></div>\n                <div class=\"site-rule-field\"><label class=\"input-label\" for=\"siteRuleTablePrettyPrint\">Pretty Print</label><select id=\"siteRuleTablePrettyPrint\" class=\"text-input site-rule-select\"><option value=\"inherit\">विरासत</option><option value=\"true\">चालू</option><option value=\"false\">बंद</option></select></div>\n                <div class=\"site-rule-field\"><label class=\"input-label\" for=\"siteRuleTableCenterText\">Center Text</label><select id=\"siteRuleTableCenterText\" class=\"text-input site-rule-select\"><option value=\"inherit\">विरासत</option><option value=\"true\">चालू</option><option value=\"false\">बंद</option></select></div>\n            </div>\n        </div>\n\n        <div class=\"btn-group site-rule-editor-actions\">\n            <button type=\"button\" class=\"btn btn-primary\" id=\"saveSiteRule\">Rule सहेजें</button>\n            <button type=\"button\" class=\"btn btn-secondary\" id=\"cancelSiteRule\">रद्द करें</button>\n        </div>\n    </div>\n</div>"
+  },
+  "options_section_import_export_html": {
+    "message": "<h2 class=\"section-title\">Import / Export</h2>\n<p class=\"section-desc\">अपनी settings का backup लें या पिछला backup restore करें।</p>\n\n<div class=\"setting-card\">\n    <h3 class=\"card-title\">Import</h3>\n    <p class=\"card-desc\">पहले export की गई backup file से options restore करें।</p>\n    <div class=\"btn-group\">\n        <button name=\"import\" id=\"import\" class=\"btn\">\n            <svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                <path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"/>\n                <polyline points=\"17 8 12 3 7 8\"/>\n                <line x1=\"12\" y1=\"3\" x2=\"12\" y2=\"15\"/>\n            </svg>\n            फ़ाइल चुनें...\n            <input type=\"file\" name=\"import-file\" id=\"import-file\" />\n        </button>\n    </div>\n</div>\n\n<div class=\"setting-card\">\n    <h3 class=\"card-title\">Export</h3>\n    <p class=\"card-desc\">अपनी वर्तमान settings को JSON file के रूप में डाउनलोड करें।</p>\n    <div class=\"btn-group\">\n        <button name=\"export\" id=\"export\" class=\"btn btn-primary\">\n            <svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                <path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"/>\n                <polyline points=\"7 10 12 15 17 10\"/>\n                <line x1=\"12\" y1=\"15\" x2=\"12\" y2=\"3\"/>\n            </svg>\n            Export\n        </button>\n    </div>\n</div>\n\n<div class=\"setting-card\">\n    <h3 class=\"card-title\">सभी को डिफ़ॉल्ट पर रीसेट करें</h3>\n    <p class=\"card-desc\">हर setting को उसके factory default पर restore करें। इसे वापस नहीं किया जा सकता।</p>\n    <div class=\"btn-group\">\n        <button id=\"reset-all\" class=\"btn btn-danger\">\n            <svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n                <polyline points=\"1 4 1 10 7 10\"/>\n                <path d=\"M3.51 15a9 9 0 1 0 2.13-9.36L1 10\"/>\n            </svg>\n            सभी को डिफ़ॉल्ट पर रीसेट करें\n        </button>\n    </div>\n</div>"
+  },
+  "guide_meta_quick_start_title": {
+    "message": "शुरुआत"
+  },
+  "guide_meta_quick_start_summary": {
+    "message": "MarkSnip के साथ तीन चरणों में शुरू करें"
+  },
+  "guide_meta_quick_start_keywords": {
+    "message": "quick start,शुरुआत,परिचय,overview,begin,first time,how to use"
+  },
+  "guide_meta_using_the_popup_title": {
+    "message": "Popup का उपयोग"
+  },
+  "guide_meta_using_the_popup_summary": {
+    "message": "पेज क्लिप करने के लिए मुख्य popup इंटरफ़ेस"
+  },
+  "guide_meta_using_the_popup_keywords": {
+    "message": "popup,main interface,clip,clipper,extension popup,पॉपअप"
+  },
+  "guide_meta_batch_processing_title": {
+    "message": "Batch Processing"
+  },
+  "guide_meta_batch_processing_summary": {
+    "message": "एक साथ कई URLs को Markdown में बदलें"
+  },
+  "guide_meta_batch_processing_keywords": {
+    "message": "batch,bulk,multiple pages,urls,zip,convert all,बैच"
+  },
+  "guide_meta_context_menus_title": {
+    "message": "Context Menus और Shortcuts"
+  },
+  "guide_meta_context_menus_summary": {
+    "message": "Right-click actions और keyboard shortcuts"
+  },
+  "guide_meta_context_menus_keywords": {
+    "message": "context menu,right click,keyboard,shortcut,hotkey,keybinding"
+  },
+  "guide_meta_settings_title": {
+    "message": "सेटिंग्स और कस्टमाइज़ेशन"
+  },
+  "guide_meta_settings_summary": {
+    "message": "extension के सभी विकल्प कॉन्फ़िगर करें"
+  },
+  "guide_meta_settings_keywords": {
+    "message": "settings,options,customize,configuration,preferences"
+  },
+  "guide_meta_obsidian_downloads_title": {
+    "message": "Obsidian और Downloads"
+  },
+  "guide_meta_obsidian_downloads_summary": {
+    "message": "Obsidian integration, download modes और image handling"
+  },
+  "guide_meta_obsidian_downloads_keywords": {
+    "message": "obsidian,vault,advanced uri,download mode,downloads api,content link,save as,image download,image prefix"
+  },
+  "guide_meta_permissions_privacy_title": {
+    "message": "Permissions और Privacy"
+  },
+  "guide_meta_permissions_privacy_summary": {
+    "message": "MarkSnip किन permissions का उपयोग करता है और क्यों"
+  },
+  "guide_meta_permissions_privacy_keywords": {
+    "message": "permissions,privacy,site access,all urls,native messaging,local companion,data,security,agent bridge permission,downloads,clipboard,storage,context menus,scripting,offscreen"
+  },
+  "guide_meta_troubleshooting_title": {
+    "message": "Troubleshooting / FAQ"
+  },
+  "guide_meta_troubleshooting_summary": {
+    "message": "सामान्य समस्याएँ और उनके समाधान"
+  },
+  "guide_meta_troubleshooting_keywords": {
+    "message": "troubleshooting,faq,help,problem,issue,error,fix"
+  },
+  "guide_meta_text_substitutions_title": {
+    "message": "Text Substitutions"
+  },
+  "guide_meta_text_substitutions_summary": {
+    "message": "templates, titles और filenames के लिए variables"
+  },
+  "guide_meta_text_substitutions_keywords": {
+    "message": "text substitution,variable,template variable,placeholder,date format,moment,meta tag,parameterization,casing,pascal,camel,kebab,snake,article metadata,url components"
+  },
+  "guide_toc_html": {
+    "message": "<li><a href=\"#quick-start\" class=\"toc-link active\">शुरुआत</a></li>\n<li><a href=\"#using-the-popup\" class=\"toc-link\">Popup का उपयोग</a>\n    <ul class=\"toc-sublist\">\n        <li><a href=\"#quick-settings\" class=\"toc-link\">Quick Settings</a></li>\n        <li><a href=\"#clipping-scope\" class=\"toc-link\">Clipping Scope</a></li>\n        <li><a href=\"#editing-title\" class=\"toc-link\">Title संपादन</a></li>\n        <li><a href=\"#markdown-preview\" class=\"toc-link\">Markdown Preview</a></li>\n        <li><a href=\"#action-buttons\" class=\"toc-link\">Action Buttons</a></li>\n    </ul>\n</li>\n<li><a href=\"#batch-processing\" class=\"toc-link\">Batch Processing</a>\n    <ul class=\"toc-sublist\">\n        <li><a href=\"#adding-urls\" class=\"toc-link\">URLs जोड़ना</a></li>\n        <li><a href=\"#pick-links\" class=\"toc-link\">Page से Links चुनें</a></li>\n        <li><a href=\"#output-format\" class=\"toc-link\">Output Format</a></li>\n    </ul>\n</li>\n<li><a href=\"#context-menus\" class=\"toc-link\">Context Menus और Shortcuts</a>\n    <ul class=\"toc-sublist\">\n        <li><a href=\"#download-actions\" class=\"toc-link\">Download Actions</a></li>\n        <li><a href=\"#copy-actions\" class=\"toc-link\">Copy Actions</a></li>\n        <li><a href=\"#obsidian-actions\" class=\"toc-link\">Obsidian Actions</a></li>\n        <li><a href=\"#keyboard-shortcuts\" class=\"toc-link\">Keyboard Shortcuts</a></li>\n    </ul>\n</li>\n<li><a href=\"#settings\" class=\"toc-link\">सेटिंग्स और कस्टमाइज़ेशन</a>\n    <ul class=\"toc-sublist\">\n        <li><a href=\"#templates\" class=\"toc-link\">टेम्पलेट्स</a></li>\n        <li><a href=\"#download-settings\" class=\"toc-link\">Downloads</a></li>\n        <li><a href=\"#markdown-options\" class=\"toc-link\">Markdown Options</a></li>\n        <li><a href=\"#table-options\" class=\"toc-link\">Table Options</a></li>\n        <li><a href=\"#import-export\" class=\"toc-link\">Import / Export</a></li>\n    </ul>\n</li>\n<li><a href=\"#obsidian-downloads\" class=\"toc-link\">Obsidian और Downloads</a>\n    <ul class=\"toc-sublist\">\n        <li><a href=\"#obsidian-integration\" class=\"toc-link\">Obsidian Integration</a></li>\n        <li><a href=\"#download-mode\" class=\"toc-link\">Download Mode</a></li>\n        <li><a href=\"#image-downloads\" class=\"toc-link\">Image Downloads</a></li>\n    </ul>\n</li>\n<li><a href=\"#permissions-privacy\" class=\"toc-link\">Permissions और Privacy</a>\n    <ul class=\"toc-sublist\">\n        <li><a href=\"#site-access-permission\" class=\"toc-link\">Site Access</a></li>\n        <li><a href=\"#other-core-permissions\" class=\"toc-link\">Other Core Permissions</a></li>\n        <li><a href=\"#agent-bridge-permission\" class=\"toc-link\">Agent Bridge Permission</a></li>\n    </ul>\n</li>\n<li><a href=\"#troubleshooting\" class=\"toc-link\">Troubleshooting / FAQ</a></li>\n<li><a href=\"#text-substitutions\" class=\"toc-link\">Text Substitutions</a></li>"
+  },
+  "guide_section_quick_start_html": {
+    "message": "<h2 class=\"section-heading\"><a href=\"#quick-start\" class=\"anchor-link\">#</a>शुरुआत</h2>\n<div class=\"section-body\">\n    <ol class=\"steps-list\">\n        <li>Popup खोलने के लिए browser toolbar में <strong>MarkSnip icon पर क्लिक करें</strong>।</li>\n        <li>वर्तमान page को मुख्य content निकालने के लिए <em>Mozilla Readability</em> से चलाया जाता है, फिर उसे <em>Turndown</em> से Markdown में बदला जाता है।</li>\n        <li>Built-in CodeMirror editor का उपयोग करके Markdown को <strong>edit, copy या download</strong> करें।</li>\n    </ol>\n    <div class=\"tip-box\">\n        <strong>Tip:</strong> Icon पर क्लिक किए बिना popup खोलने के लिए <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>M</kbd> उपयोग करें।\n    </div>\n</div>"
+  },
+  "guide_section_using_the_popup_html": {
+    "message": "<h2 class=\"section-heading\"><a href=\"#using-the-popup\" class=\"anchor-link\">#</a>Popup का उपयोग</h2>\n\n<div id=\"quick-settings\" class=\"guide-subsection\"\n    data-guide-section=\"Quick Settings\"\n    data-guide-summary=\"Images और template inclusion toggle करें\"\n    data-search-keywords=\"images toggle,template toggle,front matter,back matter\">\n    <h3 class=\"subsection-heading\"><a href=\"#quick-settings\" class=\"anchor-link\">#</a>Quick Settings</h3>\n    <p>Popup के शीर्ष पर आपको दो toggle switches मिलेंगी:</p>\n    <ul>\n        <li><strong>Images</strong> - चालू होने पर images आपकी Markdown file के साथ डाउनलोड होती हैं (Downloads API mode आवश्यक है)।</li>\n        <li><strong>Template</strong> - चालू होने पर front-matter और back-matter templates output में prepend/append की जाती हैं।</li>\n    </ul>\n</div>\n\n<div id=\"clipping-scope\" class=\"guide-subsection\"\n    data-guide-section=\"Clipping Scope\"\n    data-guide-summary=\"Selection और full document clipping के बीच चुनें\"\n    data-search-keywords=\"selection,document,full page,clip scope,segmented control,content scope\">\n    <h3 class=\"subsection-heading\"><a href=\"#clipping-scope\" class=\"anchor-link\">#</a>Clipping Selection बनाम Full Document</h3>\n    <p>Toggles के नीचे दो buttons वाला एक segmented control होता है:</p>\n    <ul>\n        <li><strong>Selection</strong> - popup खोलने से पहले page पर चुना गया text ही clip करता है।</li>\n        <li><strong>Document</strong> - पूरे page content को clip करता है (यदि कुछ चयनित न हो तो default)।</li>\n    </ul>\n</div>\n\n<div id=\"editing-title\" class=\"guide-subsection\"\n    data-guide-section=\"Title संपादन\"\n    data-guide-summary=\"डाउनलोड होने वाली Markdown का filename सेट करें\"\n    data-search-keywords=\"title,filename,title template,rename\">\n    <h3 class=\"subsection-heading\"><a href=\"#editing-title\" class=\"anchor-link\">#</a>Title संपादन</h3>\n    <p><strong>Title</strong> field डाउनलोड होने वाली Markdown file का filename तय करती है। यह title template (options में configurable) से स्वतः भरी जाती है, लेकिन save करने से पहले आप इसे स्वतंत्र रूप से बदल सकते हैं।</p>\n</div>\n\n<div id=\"markdown-preview\" class=\"guide-subsection\"\n    data-guide-section=\"Markdown Preview\"\n    data-guide-summary=\"Built-in editor में Markdown edit और copy करें\"\n    data-search-keywords=\"editor,codemirror,preview,copy,copy all,copy selection,edit markdown\">\n    <h3 class=\"subsection-heading\"><a href=\"#markdown-preview\" class=\"anchor-link\">#</a>Markdown Preview</h3>\n    <p>Popup का मुख्य भाग syntax-highlighted Markdown editor है (CodeMirror द्वारा संचालित)। डाउनलोड करने से पहले आप यहाँ quick edits कर सकते हैं।</p>\n    <p>Editor के ऊपर दो buttons होते हैं:</p>\n    <ul>\n        <li><strong>Copy All</strong> - पूरी Markdown को clipboard में कॉपी करता है।</li>\n        <li><strong>Copy Selection</strong> - editor के अंदर text चुनने पर दिखाई देता है, ताकि केवल highlighted हिस्से को कॉपी किया जा सके।</li>\n    </ul>\n</div>\n\n<div id=\"action-buttons\" class=\"guide-subsection\"\n    data-guide-section=\"Action Buttons\"\n    data-guide-summary=\"Markdown डाउनलोड करें, भेजें, कॉपी करें या Obsidian को भेजें\"\n    data-search-keywords=\"download,download selection,send to assistant,chatgpt,claude,perplexity,send to obsidian,save,export\">\n    <h3 class=\"subsection-heading\"><a href=\"#action-buttons\" class=\"anchor-link\">#</a>Action Buttons</h3>\n    <div class=\"ref-table-wrap\">\n        <table class=\"ref-table\">\n            <thead><tr><th>Button</th><th>Action</th></tr></thead>\n            <tbody>\n                <tr><td><strong>Main Action</strong></td><td>आपके configured popup default action का उपयोग करती है। Markdown (<code>.md</code>), Plain text (<code>.txt</code>), HTML (<code>.html</code>), PDF या <strong>Send to Assistant</strong> चुनें।</td></tr>\n                <tr><td><strong>Selection Action</strong></td><td>Editor के अंदर text चयनित होने पर दिखाई देती है; वही popup default action उपयोग करके केवल selected text export या send करती है।</td></tr>\n                <tr><td><strong>Send to Obsidian</strong></td><td>Markdown को clipboard में कॉपी करता है और Advanced URI plugin के माध्यम से Obsidian खोलकर नई note बनाता है (केवल Obsidian integration सक्षम होने पर दिखता है)।</td></tr>\n            </tbody>\n        </table>\n    </div>\n    <p><strong>नोट:</strong> यह popup default action setting केवल popup actions को प्रभावित करती है। Context menus, keyboard download shortcuts, batch exports, Library exports, Agent Bridge और Obsidian actions Markdown-based ही रहती हैं।</p>\n</div>"
+  },
+  "guide_section_batch_processing_html": {
+    "message": "<h2 class=\"section-heading\"><a href=\"#batch-processing\" class=\"anchor-link\">#</a>Batch Processing</h2>\n<p>Batch mode में जाने के लिए popup header में batch icon पर क्लिक करें।</p>\n\n<div id=\"adding-urls\" class=\"guide-subsection\"\n    data-guide-section=\"URLs जोड़ना\"\n    data-guide-summary=\"URLs paste करें या Markdown link syntax उपयोग करें\"\n    data-search-keywords=\"paste urls,url list,markdown links\">\n    <h3 class=\"subsection-heading\"><a href=\"#adding-urls\" class=\"anchor-link\">#</a>URLs जोड़ना</h3>\n    <p>Text area में URLs paste करें, हर line पर एक। आप Markdown link syntax भी उपयोग कर सकते हैं:</p>\n    <pre class=\"code-block\">https://example.com/page1\nhttps://example.com/page2\n[Page Title](https://example.com/page3)</pre>\n</div>\n\n<div id=\"pick-links\" class=\"guide-subsection\"\n    data-guide-section=\"Page से Links चुनें\"\n    data-guide-summary=\"वर्तमान page से links को visually चुनें\"\n    data-search-keywords=\"link picker,visual picker,select links,pick\">\n    <h3 class=\"subsection-heading\"><a href=\"#pick-links\" class=\"anchor-link\">#</a>Page से Links चुनें</h3>\n    <p><strong>Pick Links from Page</strong> पर क्लिक करके visual link picker में जाएँ। यह current page पर overlay inject करता है जिससे आप links पर क्लिक कर उन्हें चुन सकते हैं। Floating toolbar यह दिखाती है कि आपने कितनी links चुनी हैं, और <strong>Done</strong> button उन्हें वापस batch URL list में भेज देता है।</p>\n</div>\n\n<div id=\"output-format\" class=\"guide-subsection\"\n    data-guide-section=\"Output Format\"\n    data-guide-summary=\"ZIP या individual file downloads चुनें\"\n    data-search-keywords=\"zip,individual,output format,batch save\">\n    <h3 class=\"subsection-heading\"><a href=\"#output-format\" class=\"anchor-link\">#</a>Output Format</h3>\n    <ul>\n        <li><strong>ZIP file</strong> - सभी converted Markdown files एक <code>.zip</code> download में bundled होती हैं।</li>\n        <li><strong>Individual</strong> - हर page अलग <code>.md</code> file के रूप में डाउनलोड होती है।</li>\n    </ul>\n    <p>Processing शुरू करने के लिए <strong>Convert All URLs</strong> पर क्लिक करें। Progress bar वर्तमान status, count और process हो रही URL दिखाती है।</p>\n</div>"
+  },
+  "guide_section_context_menus_html": {
+    "message": "<h2 class=\"section-heading\"><a href=\"#context-menus\" class=\"anchor-link\">#</a>Context Menus &amp; Shortcuts</h2>\n<p>Page पर right-click करके context menu में MarkSnip actions तक पहुँचें। ये तब उपलब्ध होती हैं जब settings में <strong>Enable Context Menus</strong> चालू हो।</p>\n\n<div id=\"download-actions\" class=\"guide-subsection\"\n    data-guide-section=\"Download Actions\"\n    data-guide-summary=\"Context menu के download options\"\n    data-search-keywords=\"download tab,download selection,download all tabs\">\n    <h3 class=\"subsection-heading\"><a href=\"#download-actions\" class=\"anchor-link\">#</a>Download Actions</h3>\n    <div class=\"ref-table-wrap\">\n        <table class=\"ref-table\">\n            <thead><tr><th>Menu Item</th><th>Context</th><th>Description</th></tr></thead>\n            <tbody>\n                <tr><td>Tab को Markdown के रूप में डाउनलोड करें</td><td>Page / Tab</td><td>Popup खोले बिना current tab को Markdown file के रूप में डाउनलोड करता है।</td></tr>\n                <tr><td>Selection को Markdown के रूप में डाउनलोड करें</td><td>Selected text</td><td>Highlighted text को Markdown के रूप में डाउनलोड करता है।</td></tr>\n                <tr><td>सभी Tabs को Markdown के रूप में डाउनलोड करें</td><td>Page / Tab</td><td>Current window की हर open tab को Markdown files के रूप में डाउनलोड करता है।</td></tr>\n            </tbody>\n        </table>\n    </div>\n</div>\n\n<div id=\"copy-actions\" class=\"guide-subsection\"\n    data-guide-section=\"Copy Actions\"\n    data-guide-summary=\"Context menu के copy options\"\n    data-search-keywords=\"copy tab,copy selection,copy link,copy image,copy url,clipboard\">\n    <h3 class=\"subsection-heading\"><a href=\"#copy-actions\" class=\"anchor-link\">#</a>Copy Actions</h3>\n    <div class=\"ref-table-wrap\">\n        <table class=\"ref-table\">\n            <thead><tr><th>Menu Item</th><th>Description</th></tr></thead>\n            <tbody>\n                <tr><td>Tab को Markdown के रूप में कॉपी करें</td><td>पूरे page को Markdown में बदलकर clipboard में कॉपी करता है।</td></tr>\n                <tr><td>Selection को Markdown के रूप में कॉपी करें</td><td>Selection को Markdown में बदलकर कॉपी करता है।</td></tr>\n                <tr><td>Link को Markdown के रूप में कॉपी करें</td><td>Right-click की गई link को <code>[text](url)</code> के रूप में कॉपी करता है।</td></tr>\n                <tr><td>Image को Markdown के रूप में कॉपी करें</td><td>Right-click की गई image को <code>![alt](src)</code> के रूप में कॉपी करता है।</td></tr>\n                <tr><td>Tab URL को Markdown Link के रूप में कॉपी करें</td><td>Tab का URL <code>[title](url)</code> के रूप में कॉपी करता है।</td></tr>\n                <tr><td>सभी Tab URLs को Markdown Link List के रूप में कॉपी करें</td><td>सभी open tab URLs को Markdown link list के रूप में कॉपी करता है।</td></tr>\n                <tr><td>Selected Tab URLs को Markdown Link List के रूप में कॉपी करें</td><td>Multi-selected tabs (<kbd>Ctrl</kbd>/<kbd>Cmd</kbd>) से URLs को link list के रूप में कॉपी करता है।</td></tr>\n            </tbody>\n        </table>\n    </div>\n</div>\n\n<div id=\"obsidian-actions\" class=\"guide-subsection\"\n    data-guide-section=\"Obsidian Actions\"\n    data-guide-summary=\"Obsidian के लिए context menu actions\"\n    data-search-keywords=\"obsidian context menu,send to obsidian context\">\n    <h3 class=\"subsection-heading\"><a href=\"#obsidian-actions\" class=\"anchor-link\">#</a>Obsidian Actions</h3>\n    <p>ये items केवल तब दिखाई देती हैं जब Obsidian integration सक्षम हो:</p>\n    <div class=\"ref-table-wrap\">\n        <table class=\"ref-table\">\n            <thead><tr><th>Menu Item</th><th>Description</th></tr></thead>\n            <tbody>\n                <tr><td>Text Selection को Obsidian में भेजें</td><td>Selection को Obsidian में नई note के रूप में भेजता है।</td></tr>\n                <tr><td>Tab को Obsidian में भेजें</td><td>पूरे page को Obsidian में नई note के रूप में भेजता है।</td></tr>\n            </tbody>\n        </table>\n    </div>\n    <p>Context menu के नीचे आपको <strong>Include front/back template</strong> और <strong>Download Images</strong> के checkboxes भी मिलेंगे।</p>\n</div>\n\n<div id=\"keyboard-shortcuts\" class=\"guide-subsection\"\n    data-guide-section=\"Keyboard Shortcuts\"\n    data-guide-summary=\"Default keyboard shortcuts और customization\"\n    data-search-keywords=\"keyboard shortcut,hotkey,alt shift,keybinding,command\">\n    <h3 class=\"subsection-heading\"><a href=\"#keyboard-shortcuts\" class=\"anchor-link\">#</a>Keyboard Shortcuts</h3>\n    <div class=\"ref-table-wrap\">\n        <table class=\"ref-table\">\n            <thead><tr><th>Shortcut</th><th>Action</th></tr></thead>\n            <tbody>\n                <tr><td><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>M</kbd></td><td>MarkSnip popup खोलें</td></tr>\n                <tr><td><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>D</kbd></td><td>Current tab को Markdown के रूप में डाउनलोड करें</td></tr>\n                <tr><td><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd></td><td>Current tab को Markdown के रूप में कॉपी करें</td></tr>\n                <tr><td><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>L</kbd></td><td>Current tab URL को Markdown link के रूप में कॉपी करें</td></tr>\n            </tbody>\n        </table>\n    </div>\n    <p>वे अतिरिक्त commands जिनके लिए default shortcuts नहीं हैं (browser की shortcut settings में अपनी keys assign करें):</p>\n    <ul>\n        <li>Current selection को Markdown के रूप में कॉपी करें</li>\n        <li>Selected tabs को Markdown link list के रूप में कॉपी करें</li>\n        <li>Current selection को Obsidian में कॉपी करें</li>\n        <li>Current tab को Obsidian में कॉपी करें</li>\n    </ul>\n</div>"
+  },
+  "guide_section_settings_html": {
+    "message": "<h2 class=\"section-heading\"><a href=\"#settings\" class=\"anchor-link\">#</a>सेटिंग्स &amp; कस्टमाइज़ेशन</h2>\n<p>Popup header में gear icon पर क्लिक करके, या MarkSnip icon पर right-click करके <strong>Options</strong> चुनकर options page खोलें।</p>\n\n<div id=\"templates\" class=\"guide-subsection\"\n    data-guide-section=\"टेम्पलेट्स\"\n    data-guide-summary=\"Title template, front-matter और back-matter\"\n    data-search-keywords=\"title template,front matter,back matter,yaml,frontmatter,backmatter,disallowed characters,clips folder\">\n    <h3 class=\"subsection-heading\"><a href=\"#templates\" class=\"anchor-link\">#</a>टेम्पलेट्स</h3>\n    <h4>Title Template</h4>\n    <p>Popup के title field और बने हुए filename को नियंत्रित करता है। <a href=\"#text-substitutions\">Custom Text Substitutions</a> का उपयोग करता है। Default: <code>{pageTitle}</code></p>\n    <h4>Downloads Subfolder</h4>\n    <p>Browser के downloads folder के अंदर वह subfolder जहाँ Markdown files सहेजी जाती हैं। केवल Downloads API mode में उपलब्ध। <a href=\"#text-substitutions\">text substitutions</a> का उपयोग करता है।</p>\n    <h4>Disallowed Characters</h4>\n    <p>वे characters जो filenames से स्वचालित रूप से हटाए जाते हैं, system-reserved characters के अतिरिक्त। Default: <code>[]#^</code> (Obsidian compatibility के लिए)।</p>\n    <h4>Front/Back Templates</h4>\n    <p>हर clipped Markdown file के पहले या बाद में जोड़ा जाने वाला text। YAML front-matter या अन्य metadata के लिए उपयोगी। <a href=\"#text-substitutions\">text substitutions</a> का उपयोग करता है।</p>\n    <pre class=\"code-block\">---\ncreated: {date:YYYY-MM-DDTHH:mm:ss} (UTC {date:Z})\ntags: [{keywords}]\nsource: {pageURL}\nauthor: {byline}\n---</pre>\n</div>\n\n<div id=\"download-settings\" class=\"guide-subsection\"\n    data-guide-section=\"Download Settings\"\n    data-guide-summary=\"Download behavior और context menus कॉन्फ़िगर करें\"\n    data-search-keywords=\"context menus toggle,enable context menus,assistant url length,max url length,clipboard fallback\">\n    <h3 class=\"subsection-heading\"><a href=\"#download-settings\" class=\"anchor-link\">#</a>Downloads</h3>\n    <h4>Context Menus</h4>\n    <p>Right-click context menu items को चालू या बंद करता है। Default: <strong>On</strong>।</p>\n    <h4>Default Popup Action</h4>\n    <p>Popup के primary action buttons को नियंत्रित करता है। <strong>Markdown</strong>, <strong>Plain text</strong>, <strong>HTML</strong>, <strong>PDF</strong> या <strong>Send to Assistant</strong> चुनें। यह context-menu downloads, keyboard download shortcuts, batch output, Library exports, Agent Bridge output या Obsidian sends को नहीं बदलता।</p>\n    <h4>Default Assistant Target</h4>\n    <p>जब <strong>Send to Assistant</strong> चुना गया हो, तब popup की default destination चुनें, जैसे <strong>ChatGPT</strong>, <strong>Claude</strong>, <strong>Perplexity</strong> या आपके custom assistant URLs।</p>\n    <h4>Assistant Targets</h4>\n    <p>ChatGPT, Claude और Perplexity built in हैं। ऐसे custom HTTPS assistant URLs जोड़ें जो query string में <code>{prompt}</code> placeholder स्वीकार करें। Popup से भेजते समय MarkSnip current Markdown को उस placeholder में डाल देता है।</p>\n    <h4>Assistant URL Length Cap</h4>\n    <p>यह नियंत्रित करता है कि generated assistant URL कितनी लंबी हो सकती है। सीमा पार होने पर MarkSnip Markdown को clipboard में कॉपी करता है और assistant landing page खोलता है। Default <strong>3600</strong> है, और इसे बदलना अनुशंसित नहीं है।</p>\n</div>\n\n<div id=\"markdown-options\" class=\"guide-subsection\"\n    data-guide-section=\"Markdown Options\"\n    data-guide-summary=\"Heading style, code blocks, links, images और अन्य विकल्प\"\n    data-search-keywords=\"heading style,setext,atx,horizontal rule,bullet list,code block,fenced,indented,emphasis,italics,bold,strong,link style,inlined,referenced,strip links,image style,base64,escape markdown,hashtag handling\">\n    <h3 class=\"subsection-heading\"><a href=\"#markdown-options\" class=\"anchor-link\">#</a>Markdown Options</h3>\n    <h4>Heading Style</h4>\n    <p><strong>Setext</strong> underline (<code>===</code> / <code>---</code>) का उपयोग करता है; <strong>Atx</strong> (default) <code>#</code> prefixes का।</p>\n    <h4>Horizontal Rule Style</h4>\n    <p><code>***</code>, <code>---</code> या <code>___</code> (default) में से चुनें।</p>\n    <h4>Bullet List Marker</h4>\n    <p><code>*</code>, <code>-</code> (default) या <code>+</code>।</p>\n    <h4>Code Block Style</h4>\n    <p><strong>Indented</strong> (चार spaces) या <strong>Fenced</strong> (default, <code>&#96;&#96;&#96;</code> या <code>~~~</code> में wrapped)।</p>\n    <h4>Preserve Code Block HTML Formatting</h4>\n    <p>सक्षम होने पर code blocks के अंदर मूल HTML formatting बनी रहती है। Default: <strong>Off</strong>।</p>\n    <h4>Emphasis &amp; Strong Delimiters</h4>\n    <p>Italics: <code>_</code> (default), <code>*</code> या <code>__</code> (Roam के लिए)। Bold: <code>**</code> (default) या <code>__</code>।</p>\n    <h4>Link Style</h4>\n    <p><strong>Inlined</strong> (default): <code>[Google](http://google.com)</code>। <strong>Referenced</strong>: नीचे अलग link definitions। <strong>Strip Links</strong>: links को पूरी तरह हटा देता है।</p>\n    <h4>Image Style</h4>\n    <div class=\"ref-table-wrap\">\n        <table class=\"ref-table\">\n            <thead><tr><th>Style</th><th>Output</th><th>Download Images आवश्यक</th></tr></thead>\n            <tbody>\n                <tr><td>Original Source</td><td><code>![](http://example.com/img.jpg)</code></td><td>नहीं</td></tr>\n                <tr><td>Strip Images</td><td><em>(image removed)</em></td><td>नहीं</td></tr>\n                <tr><td>Pure Markdown (default)</td><td><code>![](folder/image.jpg)</code></td><td>हाँ</td></tr>\n                <tr><td>Base64 Encoded</td><td><code>![](data:image/png;base64,...)</code></td><td>हाँ</td></tr>\n                <tr><td>Obsidian Internal Embed</td><td><code>![[folder/image.jpg]]</code></td><td>हाँ</td></tr>\n                <tr><td>Obsidian Embed (no folder)</td><td><code>![[image.jpg]]</code></td><td>हाँ</td></tr>\n            </tbody>\n        </table>\n    </div>\n    <h4>Escape Markdown Characters</h4>\n    <p>विशेष Markdown characters को backslash से escape करता है ताकि वे गलत तरह से interpret न हों। Default: <strong>On</strong>।</p>\n    <h4>Hashtag Handling</h4>\n    <p><strong>Keep</strong> (default), <strong>Remove #</strong> या <strong>Escape #</strong>। इसका प्रभाव केवल article text पर पड़ता है; Markdown syntax और code सुरक्षित रहते हैं।</p>\n</div>\n\n<div id=\"table-options\" class=\"guide-subsection\"\n    data-guide-section=\"Table Options\"\n    data-guide-summary=\"Clipped Markdown में table formatting कॉन्फ़िगर करें\"\n    data-search-keywords=\"table,strip links tables,strip formatting,pretty print,center text,table formatting\">\n    <h3 class=\"subsection-heading\"><a href=\"#table-options\" class=\"anchor-link\">#</a>Table Formatting Options</h3>\n    <div class=\"ref-table-wrap\">\n        <table class=\"ref-table\">\n            <thead><tr><th>Option</th><th>Description</th><th>Default</th></tr></thead>\n            <tbody>\n                <tr><td>Strip Links from Tables</td><td>Table cells से hyperlinks हटाकर केवल text रखता है।</td><td>On</td></tr>\n                <tr><td>Strip Formatting</td><td>Table cells से bold, italic और अन्य formatting हटाता है।</td><td>Off</td></tr>\n                <tr><td>Pretty Print Tables</td><td>सही spacing और column alignment जोड़ता है।</td><td>On</td></tr>\n                <tr><td>Center Text in Columns</td><td>Table columns के भीतर text को center करता है।</td><td>On</td></tr>\n            </tbody>\n        </table>\n    </div>\n</div>\n\n<div id=\"import-export\" class=\"guide-subsection\"\n    data-guide-section=\"Import / Export\"\n    data-guide-summary=\"अपनी settings का backup लें और restore करें\"\n    data-search-keywords=\"import,export,backup,restore,json,transfer\">\n    <h3 class=\"subsection-heading\"><a href=\"#import-export\" class=\"anchor-link\">#</a>Import / Export Settings</h3>\n    <ul>\n        <li><strong>Import</strong> - पहले export की गई JSON file से settings restore करें।</li>\n        <li><strong>Export</strong> - backup या दूसरे browser में transfer के लिए सभी current settings को JSON file में सहेजें।</li>\n    </ul>\n</div>"
+  },
+  "guide_section_obsidian_downloads_html": {
+    "message": "<h2 class=\"section-heading\"><a href=\"#obsidian-downloads\" class=\"anchor-link\">#</a>Obsidian &amp; Downloads</h2>\n\n<div id=\"obsidian-integration\" class=\"guide-subsection\"\n    data-guide-section=\"Obsidian Integration\"\n    data-guide-summary=\"Clipped pages सीधे Obsidian को भेजें\"\n    data-search-keywords=\"obsidian integration,vault name,folder name,advanced uri,obsidian plugin\">\n    <h3 class=\"subsection-heading\"><a href=\"#obsidian-integration\" class=\"anchor-link\">#</a>Obsidian Integration</h3>\n    <p><strong>Send to Obsidian</strong> button और Obsidian context menu actions दिखाने के लिए इसे सक्षम करें। इसके लिए <strong>Advanced Obsidian URI</strong> community plugin आवश्यक है।</p>\n    <ul>\n        <li><strong>Vault Name</strong> - default vault के लिए इसे खाली छोड़ दें।</li>\n        <li><strong>Folder Name</strong> - <a href=\"#text-substitutions\">text substitutions</a> का समर्थन करता है (उदाहरण <code>{date:YYYY-MM-DD}/</code>)।</li>\n    </ul>\n    <div class=\"tip-box\">\n        <strong>नोट:</strong> Obsidian के माध्यम से भेजी गई images remote links ही रहती हैं। Extension attachment files को vault के अंदर नहीं रखती।\n    </div>\n</div>\n\n<div id=\"download-mode\" class=\"guide-subsection\"\n    data-guide-section=\"Download Mode\"\n    data-guide-summary=\"Downloads API और Content Link के बीच चुनें\"\n    data-search-keywords=\"downloads api,content link,download mode,save as dialog\">\n    <h3 class=\"subsection-heading\"><a href=\"#download-mode\" class=\"anchor-link\">#</a>Download Mode</h3>\n    <div class=\"ref-table-wrap\">\n        <table class=\"ref-table\">\n            <thead><tr><th>Mode</th><th>Description</th></tr></thead>\n            <tbody>\n                <tr><td><strong>Downloads API</strong> (recommended)</td><td>Browser की download API का उपयोग करता है। Subfolders, image downloads और Save As dialogs का समर्थन करता है।</td></tr>\n                <tr><td><strong>Content Link</strong></td><td>डाउनलोड के लिए content link पर fallback करता है। यह अधिक सीमित है - image downloads और subfolders बंद हो जाते हैं।</td></tr>\n            </tbody>\n        </table>\n    </div>\n    <h4>Save As Dialog दिखाएँ</h4>\n    <p>हर download के लिए browser का Save As dialog force करता है। Download Images चालू होने पर यह अनुशंसित नहीं है।</p>\n</div>\n\n<div id=\"image-downloads\" class=\"guide-subsection\"\n    data-guide-section=\"Image Downloads\"\n    data-guide-summary=\"Markdown files के साथ images डाउनलोड करें\"\n    data-search-keywords=\"download images,image prefix,image filename,local images\">\n    <h3 class=\"subsection-heading\"><a href=\"#image-downloads\" class=\"anchor-link\">#</a>Image Downloads</h3>\n    <p>सक्षम होने पर (केवल Downloads API mode), images Markdown file के साथ local references सहित डाउनलोड होती हैं।</p>\n    <h4>Image Filename Prefix</h4>\n    <p>डाउनलोड की गई images के लिए prefix या subfolder। <a href=\"#text-substitutions\">text substitutions</a> का उपयोग करता है। <code>/</code> शामिल करने से subfolder बनता है। Default: <code>{pageTitle}/</code>।</p>\n</div>"
+  },
+  "guide_section_permissions_privacy_html": {
+    "message": "<h2 class=\"section-heading\"><a href=\"#permissions-privacy\" class=\"anchor-link\">#</a>Permissions &amp; Privacy</h2>\n<p>MarkSnip pages को पूरी तरह आपके browser के भीतर process करता है। यह page content किसी external server को नहीं भेजता। यह section बताती है कि MarkSnip कौन-सी browser permissions उपयोग करता है, उनकी आवश्यकता क्यों है, और वे कब वास्तव में उपयोग होती हैं।</p>\n\n<div id=\"site-access-permission\" class=\"guide-subsection\"\n    data-guide-section=\"Site Access Permission\"\n    data-guide-summary=\"MarkSnip सभी sites तक access क्यों माँगता है\"\n    data-search-keywords=\"site access,all urls,host permission,content script,clip any page,browsing data,keyboard shortcuts,batch processing,selected tabs\">\n    <h3 class=\"subsection-heading\"><a href=\"#site-access-permission\" class=\"anchor-link\">#</a>Site Access</h3>\n    <p>MarkSnip web pages तक access माँगता है ताकि आप जब clip trigger करें तब वह पूरे web में pages clip कर सके। इसमें popup clipping, keyboard shortcuts, context-menu actions, multi-tab link actions और नई tabs में खोले गए URLs की batch processing शामिल है।</p>\n    <ul>\n        <li><strong>केवल clip करते समय सक्रिय</strong> - MarkSnip browsing activity को monitor नहीं करता और background में pages नहीं पढ़ता।</li>\n        <li><strong>Local processing</strong> - page content आपके browser के अंदर Markdown में convert होती है और किसी remote service को नहीं भेजी जाती।</li>\n        <li><strong>Browser द्वारा managed</strong> - आप इस permission को browser की extension settings में कभी भी देख सकते हैं।</li>\n    </ul>\n</div>\n\n<div id=\"other-core-permissions\" class=\"guide-subsection\"\n    data-guide-section=\"Other Core Permissions\"\n    data-guide-summary=\"बाकी built-in permissions किस काम आती हैं\"\n    data-search-keywords=\"downloads permission,clipboard permission,storage permission,context menu permission,scripting permission,offscreen permission,activeTab\">\n    <h3 class=\"subsection-heading\"><a href=\"#other-core-permissions\" class=\"anchor-link\">#</a>Other Core Permissions</h3>\n    <p>Site access के अलावा, MarkSnip अपनी मुख्य सुविधाओं के लिए कुछ standard browser permissions का उपयोग करता है। ये permissions local browser actions को support करती हैं; clipping फिर भी local ही रहती है।</p>\n    <div class=\"ref-table-wrap\">\n        <table class=\"ref-table\">\n            <thead><tr><th>Permission</th><th>MarkSnip इसका उपयोग क्यों करता है</th><th>यह कब मायने रखती है</th></tr></thead>\n            <tbody>\n                <tr><td><code>activeTab</code></td><td>MarkSnip को उसी page के साथ काम करने देता है जिस पर आपने इसे स्पष्ट रूप से invoke किया।</td><td>Current tab पर popup खोलते समय या shortcut उपयोग करते समय।</td></tr>\n                <tr><td><code>downloads</code></td><td>Browser के माध्यम से Markdown files, ZIP exports और downloaded images सहेजता है।</td><td>Clips या batch exports डाउनलोड करते समय।</td></tr>\n                <tr><td><code>clipboardWrite</code></td><td>Generated Markdown को clipboard में लिखता है।</td><td>Copy actions उपयोग करते समय।</td></tr>\n                <tr><td><code>storage</code></td><td>आपकी settings, templates, themes और feature toggles याद रखता है।</td><td>जब भी आप settings save या restore करते हैं।</td></tr>\n                <tr><td><code>contextMenus</code></td><td>Pages, selections, links, images और tabs के लिए right-click actions जोड़ता है।</td><td>जब context menus settings में सक्षम हों।</td></tr>\n                <tr><td><code>scripting</code></td><td>Clip के समय page में MarkSnip के capture helpers inject करता है।</td><td>जब भी MarkSnip page content पढ़ता है।</td></tr>\n                <tr><td><code>offscreen</code></td><td>Chromium browsers में Manifest V3 clipboard और download workflows के लिए hidden document का उपयोग करता है।</td><td>कुछ copy और download actions के दौरान background में।</td></tr>\n            </tbody>\n        </table>\n    </div>\n</div>\n\n<div id=\"agent-bridge-permission\" class=\"guide-subsection\"\n    data-guide-section=\"Agent Bridge Permission\"\n    data-guide-summary=\"Agent Bridge के लिए optional native messaging permission\"\n    data-search-keywords=\"native messaging,agent bridge permission,local companion,optional permission,nativeMessaging,grant permission,revoke permission\">\n    <h3 class=\"subsection-heading\"><a href=\"#agent-bridge-permission\" class=\"anchor-link\">#</a>Agent Bridge Permission</h3>\n    <p>Agent Bridge feature के लिए <strong>Native Messaging</strong> नाम की एक अतिरिक्त browser permission चाहिए। यह <em>optional</em> permission है - इसके बिना भी MarkSnip पूरी तरह काम करता है।</p>\n    <ul>\n        <li><strong>यह क्या करती है</strong> - MarkSnip को आपकी मशीन पर install किए गए छोटे local companion program से बात करने देती है।</li>\n        <li><strong>केवल local</strong> - संचार आपके कंप्यूटर पर ही रहता है। कोई data बाहर नहीं जाती।</li>\n        <li><strong>यह कब उपयोग होती है</strong> - केवल तब जब Agent Bridge सक्षम हो। Toggle बंद करने पर native messaging activity रुक जाती है।</li>\n        <li><strong>Permission कैसे दें</strong> - Settings में Agent Bridge toggle सक्षम करें। Browser का permission prompt आने से पहले MarkSnip explanation दिखाएगा।</li>\n        <li><strong>Permission कैसे हटाएँ</strong> - एक बार मिलने के बाद इस permission को चुनिंदा रूप से हटाया नहीं जा सकता। पूरी तरह हटाने के लिए extension को reinstall करना होगा। Agent Bridge toggle बंद करने से permission हटाए बिना native messaging activity रुक जाती है।</li>\n    </ul>\n    <div class=\"tip-box\">\n        <strong>नोट:</strong> यदि आप permission अस्वीकार करते हैं, तो regular clipping पर कोई असर नहीं पड़ता। आप बाद में फिर से प्रयास कर सकते हैं।\n    </div>\n</div>"
+  },
+  "guide_section_troubleshooting_html": {
+    "message": "<h2 class=\"section-heading\"><a href=\"#troubleshooting\" class=\"anchor-link\">#</a>Troubleshooting / FAQ</h2>\n<div class=\"section-body\">\n    <div class=\"faq-item\">\n        <h4>Popup में \"Processing page...\" दिखता है और कुछ नहीं होता</h4>\n        <p>कुछ pages content scripts को block करती हैं। Page refresh करके देखें, या जाँचें कि MarkSnip के पास उस site तक access है। Internal browser pages (<code>chrome://</code>, <code>about:</code>) clip नहीं की जा सकतीं।</p>\n    </div>\n    <div class=\"faq-item\">\n        <h4>Images डाउनलोड नहीं हो रहीं</h4>\n        <p>सुनिश्चित करें कि <strong>Download Mode</strong> \"Downloads API\" पर सेट है और <strong>Images</strong> toggle सक्षम है। Content Link mode image downloads को support नहीं करता।</p>\n    </div>\n    <div class=\"faq-item\">\n        <h4>Send to Obsidian दिखाई नहीं दे रहा</h4>\n        <p><a href=\"#obsidian-integration\">Settings</a> में <strong>Obsidian Integration</strong> सक्षम करें। Obsidian में <strong>Advanced Obsidian URI</strong> community plugin install होना भी आवश्यक है।</p>\n    </div>\n    <div class=\"faq-item\">\n        <h4>Context menu items गायब हैं</h4>\n        <p>जाँचें कि <a href=\"#download-settings\">Downloads settings</a> में <strong>Enable Context Menus</strong> चालू है।</p>\n    </div>\n    <div class=\"faq-item\">\n        <h4>Keyboard shortcuts काम नहीं कर रहे</h4>\n        <p>संभव है किसी अन्य extension ने वही shortcut ले लिया हो। Keys दोबारा assign करने के लिए browser की extension shortcut settings खोलें।</p>\n    </div>\n    <div class=\"faq-item\">\n        <h4>Markdown output गलत दिख रही है</h4>\n        <p>अपने workflow के अनुसार heading style, link style, code block style और escape settings समायोजित करने के लिए <a href=\"#markdown-options\">Markdown Options</a> देखें।</p>\n    </div>\n</div>"
+  },
+  "guide_section_text_substitutions_html": {
+    "message": "<h2 class=\"section-heading\"><a href=\"#text-substitutions\" class=\"anchor-link\">#</a>Custom Text Substitutions</h2>\n<p>Title Template, Downloads Subfolder, Front/Back Templates, Image Filename Prefix और Obsidian Folder Name सभी इन variables को support करते हैं:</p>\n\n<h3 class=\"subsection-heading\">Article Metadata</h3>\n<div class=\"ref-table-wrap\">\n    <table class=\"ref-table\">\n        <thead><tr><th>Variable</th><th>Description</th></tr></thead>\n        <tbody>\n            <tr><td><code>{title}</code></td><td>Article title (जैसा Readability निर्धारित करता है)</td></tr>\n            <tr><td><code>{pageTitle}</code></td><td>वास्तविक page का title (<code>&lt;title&gt;</code> tag)</td></tr>\n            <tr><td><code>{length}</code></td><td>Article की लंबाई, characters में</td></tr>\n            <tr><td><code>{excerpt}</code></td><td>Article description या short excerpt</td></tr>\n            <tr><td><code>{byline}</code></td><td>Author metadata</td></tr>\n            <tr><td><code>{dir}</code></td><td>Content direction (उदाहरण <code>ltr</code>)</td></tr>\n            <tr><td><code>{baseURI}</code></td><td>Parsed document/base URI</td></tr>\n            <tr><td><code>{pageURL}</code> / <code>{tabURL}</code></td><td>Tab का address-bar URL</td></tr>\n            <tr><td><code>{keywords}</code></td><td>Meta keywords, comma-separated</td></tr>\n        </tbody>\n    </table>\n</div>\n\n<h3 class=\"subsection-heading\">URL Components</h3>\n<div class=\"ref-table-wrap\">\n    <table class=\"ref-table\">\n        <thead><tr><th>Variable</th><th>Description</th></tr></thead>\n        <tbody>\n            <tr><td><code>{origin}</code></td><td>Scheme + domain + port</td></tr>\n            <tr><td><code>{host}</code></td><td>Hostname + port</td></tr>\n            <tr><td><code>{hostname}</code></td><td>केवल domain</td></tr>\n            <tr><td><code>{port}</code></td><td>Port number</td></tr>\n            <tr><td><code>{protocol}</code></td><td>Protocol, trailing <code>:</code> सहित</td></tr>\n            <tr><td><code>{pathname}</code></td><td>URL path</td></tr>\n            <tr><td><code>{search}</code></td><td>Query string, <code>?</code> सहित</td></tr>\n            <tr><td><code>{hash}</code></td><td>Fragment identifier, <code>#</code> सहित</td></tr>\n        </tbody>\n    </table>\n</div>\n<p>सभी URL components <code>page</code> prefix के साथ भी उपलब्ध हैं (उदाहरण <code>{pageOrigin}</code>, <code>{pageHostname}</code>)।</p>\n\n<h3 class=\"subsection-heading\">Date/Time</h3>\n<p>Moment.js formatting tokens के साथ <code>{date:FORMAT}</code> का उपयोग करें। उदाहरण: <code>{date:YYYY-MM-DD}</code>।</p>\n\n<h3 class=\"subsection-heading\">Meta Tags</h3>\n<p>किसी भी <code>&lt;meta&gt;</code> tag value को reference किया जा सकता है, जैसे <code>{og:image}</code>, <code>{og:description}</code>।</p>\n\n<h3 class=\"subsection-heading\">Parameterizations</h3>\n<p>किसी भी text variable की casing बदलने के लिए (<code>{date}</code> और <code>{keywords}</code> छोड़कर) colon और style जोड़ें:</p>\n<div class=\"ref-table-wrap\">\n    <table class=\"ref-table\">\n        <thead><tr><th>Syntax</th><th>Style</th><th>Example</th></tr></thead>\n        <tbody>\n            <tr><td><code>{variable:pascal}</code></td><td>PascalCase</td><td><code>DifferentTypesOfCasing</code></td></tr>\n            <tr><td><code>{variable:camel}</code></td><td>camelCase</td><td><code>differentTypesOfCasing</code></td></tr>\n            <tr><td><code>{variable:kebab}</code></td><td>kebab-case</td><td><code>different-types-of-casing</code></td></tr>\n            <tr><td><code>{variable:snake}</code></td><td>snake_case</td><td><code>different_types_of_casing</code></td></tr>\n            <tr><td><code>{variable:lowercase}</code></td><td>lowercase</td><td>all lowercase</td></tr>\n            <tr><td><code>{variable:uppercase}</code></td><td>UPPERCASE</td><td>ALL UPPERCASE</td></tr>\n        </tbody>\n    </table>\n</div>\n<div class=\"tip-box\">\n    <strong>नोट:</strong> हर वेबसाइट सभी metadata values उपलब्ध नहीं कराती। Missing values को empty strings से बदल दिया जाता है।\n</div>"
+  }
+}

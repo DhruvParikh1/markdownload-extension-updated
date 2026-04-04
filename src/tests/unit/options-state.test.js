@@ -4,6 +4,7 @@ describe('options-state helpers', () => {
 const defaultOptions = {
   contextMenus: true,
   batchProcessingEnabled: true,
+  uiLanguage: 'browser',
   includeTemplate: false,
   imagePrefix: '{pageTitle}/',
   defaultExportType: 'markdown',
@@ -213,6 +214,7 @@ test('normalizeImportedOptions ignores non-plain option inputs', () => {
   expect(normalized).toEqual({
     tableFormatting: {},
     siteRules: [],
+    uiLanguage: 'browser',
     defaultExportType: 'markdown',
     defaultSendToTarget: 'chatgpt',
     sendToCustomTargets: [],
@@ -245,12 +247,24 @@ test('resetAllOptions handles non-plain defaults without blowing up', () => {
   expect(result.options).toEqual({
     tableFormatting: {},
     siteRules: [],
+    uiLanguage: 'browser',
     defaultExportType: 'markdown',
     defaultSendToTarget: 'chatgpt',
     sendToCustomTargets: [],
     sendToMaxUrlLength: 3600
   });
   expect(result.contextMenuAction).toBe('remove');
+});
+
+test('normalizeImportedOptions normalizes uiLanguage to supported values', () => {
+  expect(optionsState.normalizeImportedOptions({ uiLanguage: 'hi' }, defaultOptions).uiLanguage).toBe('hi');
+  expect(optionsState.normalizeImportedOptions({ uiLanguage: 'xx' }, defaultOptions).uiLanguage).toBe('browser');
+});
+
+test('normalizeUiLanguage falls back to browser for unsupported values', () => {
+  expect(optionsState.normalizeUiLanguage('en')).toBe('en');
+  expect(optionsState.normalizeUiLanguage('hi')).toBe('hi');
+  expect(optionsState.normalizeUiLanguage('bogus')).toBe('browser');
 });
 
 test('resetOptionKeys resets the entire tableFormatting object to defaults', () => {

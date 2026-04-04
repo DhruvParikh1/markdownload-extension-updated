@@ -128,8 +128,20 @@
     };
   }
 
-  function formatCount(value) {
-    return new Intl.NumberFormat('en-US').format(toNonNegativeInteger(value));
+  function formatCount(value, locale = 'en-US') {
+    return new Intl.NumberFormat(locale).format(toNonNegativeInteger(value));
+  }
+
+  function getTranslator(config = {}) {
+    if (typeof config?.t === 'function') {
+      return config.t;
+    }
+
+    if (typeof globalThis !== 'undefined' && typeof globalThis.markSnipI18n?.t === 'function') {
+      return globalThis.markSnipI18n.t.bind(globalThis.markSnipI18n);
+    }
+
+    return null;
   }
 
   function hasPendingNotificationType(state, type) {
@@ -197,6 +209,7 @@
   }
 
   function createVersionUpdateNotification(config) {
+    const t = getTranslator(config);
     const previousVersion = typeof config?.previousVersion === 'string' ? config.previousVersion : null;
     const currentVersion = typeof config?.currentVersion === 'string' ? config.currentVersion : null;
 
@@ -204,19 +217,19 @@
       id: `version-update:${currentVersion}`,
       type: 'version-update',
       createdAt: Date.now(),
-      title: `MarkSnip updated to v${currentVersion}`,
+      title: t ? t('notif_version_updated_from', { currentVersion }) : `MarkSnip updated to v${currentVersion}`,
       message: previousVersion
-        ? `Updated from v${previousVersion} to v${currentVersion}.`
-        : `MarkSnip updated to v${currentVersion}.`,
+        ? (t ? t('notif_version_message_from', { previousVersion, currentVersion }) : `Updated from v${previousVersion} to v${currentVersion}.`)
+        : (t ? t('notif_version_message', { currentVersion }) : `MarkSnip updated to v${currentVersion}.`),
       previousVersion,
       currentVersion,
       highlights: sanitizeHighlights(config?.highlights),
       primaryAction: {
-        label: 'Buy Me a Coffee',
+        label: t ? t('notif_action_buy_me_coffee') : 'Buy Me a Coffee',
         url: config?.buyMeACoffeeUrl || BUY_ME_A_COFFEE_URL
       },
       secondaryAction: {
-        label: 'View release notes',
+        label: t ? t('notif_action_view_release_notes') : 'View release notes',
         url: config?.releaseNotesUrl || RELEASES_URL
       }
     });
@@ -224,21 +237,24 @@
 
   function createSupportNotification(config) {
     const milestone = toNonNegativeInteger(config?.milestone);
-    const formattedMilestone = formatCount(milestone);
+    const t = getTranslator(config);
+    const formattedMilestone = formatCount(milestone, config?.numberLocale || 'en-US');
 
     return sanitizeNotification({
       id: `support-milestone:${milestone}`,
       type: 'support-milestone',
       createdAt: Date.now(),
-      title: `${formattedMilestone} pages exported`,
-      message: `MarkSnip has helped export over ${formattedMilestone} pages. If it has been useful, support ongoing development.`,
+      title: t ? t('notif_support_title', { count: formattedMilestone }) : `${formattedMilestone} pages exported`,
+      message: t
+        ? t('notif_support_message', { count: formattedMilestone })
+        : `MarkSnip has helped export over ${formattedMilestone} pages. If it has been useful, support ongoing development.`,
       milestone,
       primaryAction: {
-        label: 'Buy Me a Coffee',
+        label: t ? t('notif_action_buy_me_coffee') : 'Buy Me a Coffee',
         url: config?.buyMeACoffeeUrl || BUY_ME_A_COFFEE_URL
       },
       secondaryAction: {
-        label: 'View release notes',
+        label: t ? t('notif_action_view_release_notes') : 'View release notes',
         url: config?.releaseNotesUrl || RELEASES_URL
       }
     });

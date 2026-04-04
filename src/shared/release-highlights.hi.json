@@ -1,0 +1,13 @@
+{
+  "generatedAt": "2026-04-04T00:00:00.000Z",
+  "source": "localized",
+  "versions": {
+    "4.4.0": [
+      "पॉपअप एक्सपोर्ट अब Markdown, plain text, HTML, PDF और Print को सपोर्ट करते हैं, और डिफ़ॉल्ट फ़ॉर्मैट भी चुना जा सकता है।",
+      "नए Site Rules अब templates, images, downloads और table formatting के लिए प्रति-साइट clipping overrides देते हैं।",
+      "पहली बार उपयोग के onboarding और Permissions & Privacy guidance अब अधिक स्पष्ट हैं, जिनमें Agent Bridge preflight explainer भी शामिल है।",
+      "नए Color Blind themes अब पूरे extension में Deuteranopia, Protanopia और Tritanopia variants जोड़ते हैं।",
+      "पॉपअप और Settings में अब shortcut help, live template previews, बेहतर search feedback और reading-time counts शामिल हैं।"
+    ]
+  }
+}

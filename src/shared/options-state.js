@@ -21,8 +21,14 @@
 
   const POPUP_PRIMARY_ACTIONS = new Set(['markdown', 'text', 'html', 'pdf', 'copy', 'sendTo']);
   const BUILTIN_SEND_TO_TARGETS = new Set(['chatgpt', 'claude', 'perplexity']);
+  const SUPPORTED_UI_LANGUAGES = new Set(['browser', 'en', 'hi']);
   const DEFAULT_SEND_TO_TARGET = 'chatgpt';
   const DEFAULT_SEND_TO_MAX_URL_LENGTH = 3600;
+
+  function normalizeUiLanguage(value, fallbackValue = 'browser') {
+    const normalizedValue = String(value || '').trim();
+    return SUPPORTED_UI_LANGUAGES.has(normalizedValue) ? normalizedValue : fallbackValue;
+  }
 
   function countPromptPlaceholders(value) {
     const matches = String(value || '').match(/\{prompt\}/g);
@@ -183,6 +189,10 @@
       normalized.defaultExportType,
       normalizePopupPrimaryAction(safeDefaults.defaultExportType, 'markdown')
     );
+    normalized.uiLanguage = normalizeUiLanguage(
+      normalized.uiLanguage,
+      normalizeUiLanguage(safeDefaults.uiLanguage, 'browser')
+    );
 
     normalized.sendToCustomTargets = normalizeCustomSendToTargets(normalized.sendToCustomTargets);
     normalized.defaultSendToTarget = normalizeDefaultSendToTarget(
@@ -269,6 +279,7 @@
     getContextMenuTransition,
     resetOptionKeys,
     resetAllOptions,
+    normalizeUiLanguage,
     validateSendToUrlTemplate,
     normalizeCustomSendToTargets,
     normalizeDefaultSendToTarget,

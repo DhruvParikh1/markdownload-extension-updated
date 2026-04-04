@@ -58,10 +58,22 @@
     });
   }
 
+  async function ensureI18nReady() {
+    const i18n = globalThis.markSnipI18n;
+    if (!i18n?.init) {
+      return null;
+    }
+
+    const stored = await browser.storage.sync.get({ uiLanguage: 'browser' }).catch(() => ({ uiLanguage: 'browser' }));
+    await i18n.init({ setting: stored?.uiLanguage || 'browser' });
+    return i18n;
+  }
+
   class FloatingNotificationCard {
     constructor(notification, options = {}) {
       this.notification = notification;
       this.onRemove = typeof options.onRemove === 'function' ? options.onRemove : () => {};
+      this.i18n = options.i18n || null;
       this.host = document.createElement('div');
       this.host.style.position = 'fixed';
       this.host.style.top = '20px';
@@ -390,6 +402,8 @@
     buildCard() {
       const isVersionUpdate = this.notification.type === 'version-update';
       const isMilestone = this.notification.type === 'support-milestone';
+      const t = typeof this.i18n?.t === 'function' ? this.i18n.t.bind(this.i18n) : null;
+      const numberLocale = this.i18n?.getLocale?.() === 'hi' ? 'hi-IN' : 'en-US';
 
       const card = document.createElement('section');
       card.className = 'card';
@@ -407,12 +421,14 @@
 
       const eyebrow = document.createElement('div');
       eyebrow.className = 'eyebrow';
-      eyebrow.textContent = isVersionUpdate ? 'MarkSnip Update' : 'Milestone';
+      eyebrow.textContent = isVersionUpdate
+        ? (t ? t('notif_eyebrow_update') : 'MarkSnip Update')
+        : (t ? t('notif_eyebrow_milestone') : 'Milestone');
 
       const close = document.createElement('button');
       close.className = 'close';
       close.type = 'button';
-      close.setAttribute('aria-label', 'Dismiss notification');
+      close.setAttribute('aria-label', t ? t('notif_dismiss') : 'Dismiss notification');
       close.textContent = '✕';
       close.addEventListener('pointerdown', (event) => {
         event.stopPropagation();
@@ -439,11 +455,11 @@
 
         const number = document.createElement('div');
         number.className = 'milestone-number';
-        number.textContent = new Intl.NumberFormat('en-US').format(this.notification.milestone);
+        number.textContent = new Intl.NumberFormat(numberLocale).format(this.notification.milestone);
 
         const label = document.createElement('div');
         label.className = 'milestone-label';
-        label.textContent = 'pages exported';
+        label.textContent = t ? t('notif_pages_exported') : 'pages exported';
 
         // Sparkle particles
         for (let i = 1; i <= 3; i++) {
@@ -465,7 +481,7 @@
       // ── Title ──
       const title = document.createElement('h2');
       title.className = 'title';
-      title.textContent = this.notification.title || 'MarkSnip notification';
+      title.textContent = this.notification.title || (t ? t('notif_title_fallback') : 'MarkSnip notification');
       body.appendChild(title);
 
       // ── Version badge (version-update only) ──
@@ -618,6 +634,10 @@
       displayTask = (async () => {
         await waitForDomReady();
         await delay(DISPLAY_DELAY_MS);
+        const i18n = await ensureI18nReady();
+        if (i18n?.setDocumentLanguage) {
+          i18n.setDocumentLanguage(document.documentElement);
+        }
 
         const notification = await sendRuntimeMessage({ type: 'get-pending-notification' }).catch(() => null);
         if (!notification || !notification.id) {
@@ -637,6 +657,7 @@
         }
 
         const card = new FloatingNotificationCard(notification, {
+          i18n,
           onRemove: () => clearCurrentCard(card)
         });
 

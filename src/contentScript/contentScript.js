@@ -1,3 +1,9 @@
+(() => {
+const marksnipContentScriptState = globalThis.__marksnipContentScriptState || (globalThis.__marksnipContentScriptState = { initialized: false });
+if (marksnipContentScriptState.initialized) {
+    return;
+}
+
 function notifyExtension() {
     // send a message that the content should be clipped
     browser.runtime.sendMessage({ type: "clip", dom: content});
@@ -1100,3 +1106,6 @@ function cleanupLinkPicker() {
 
     console.log("Link picker mode deactivated");
 }
+
+marksnipContentScriptState.initialized = true;
+})();

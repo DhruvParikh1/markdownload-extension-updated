@@ -5,6 +5,7 @@ if (typeof importScripts === 'function') {
     'browser-polyfill.min.js',
     'background/moment.min.js',
     'background/apache-mime-types.js',
+    'shared/i18n.js',
     'shared/notifications.js',
     'shared/site-rules.js',
     'shared/default-options.js',
@@ -160,27 +161,97 @@ async function recordNotificationMetricsSafely(delta, options = {}) {
   }
 }
 
-async function loadReleaseHighlightsAsset() {
-  if (!releaseHighlightsCachePromise) {
-    releaseHighlightsCachePromise = fetch(browser.runtime.getURL('shared/release-highlights.json'))
-      .then(async (response) => {
-        if (!response.ok) {
-          throw new Error(`Unexpected status ${response.status}`);
-        }
-
-        return await response.json();
-      })
-      .catch((error) => {
-        console.warn('[Notifications] Failed to load release highlights:', error);
-        return { versions: {} };
-      });
-  }
-
-  return releaseHighlightsCachePromise;
+function getI18nApi() {
+  return globalThis.markSnipI18n || null;
 }
 
-async function getReleaseHighlights(version) {
-  const asset = await loadReleaseHighlightsAsset();
+async function getInitializedI18n() {
+  const i18n = getI18nApi();
+  if (!i18n?.init) {
+    return null;
+  }
+
+  const stored = await browser.storage.sync.get({
+    uiLanguage: defaultOptions?.uiLanguage || 'browser'
+  }).catch(() => ({
+    uiLanguage: defaultOptions?.uiLanguage || 'browser'
+  }));
+
+  await i18n.init({
+    setting: stored?.uiLanguage || defaultOptions?.uiLanguage || 'browser'
+  });
+  return i18n;
+}
+
+async function getNotificationLocalizationConfig() {
+  const i18n = await getInitializedI18n();
+  if (!i18n) {
+    return {
+      buyMeACoffeeUrl: notificationHelpers.BUY_ME_A_COFFEE_URL,
+      releaseNotesUrl: notificationHelpers.RELEASES_URL
+    };
+  }
+
+  return {
+    buyMeACoffeeUrl: notificationHelpers.BUY_ME_A_COFFEE_URL,
+    releaseNotesUrl: notificationHelpers.RELEASES_URL,
+    t: i18n.t.bind(i18n),
+    numberLocale: i18n.getLocale() === 'hi' ? 'hi-IN' : 'en-US',
+    locale: i18n.getLocale()
+  };
+}
+
+async function loadReleaseHighlightsAssetForLocale(locale = 'en') {
+  const normalizedLocale = locale === 'hi' ? 'hi' : 'en';
+  if (!releaseHighlightsCachePromise || releaseHighlightsCachePromise.locale !== normalizedLocale) {
+    const primaryAsset = normalizedLocale === 'hi'
+      ? 'shared/release-highlights.hi.json'
+      : 'shared/release-highlights.json';
+    const fallbackAsset = 'shared/release-highlights.json';
+
+    releaseHighlightsCachePromise = {
+      locale: normalizedLocale,
+      promise: fetch(browser.runtime.getURL(primaryAsset))
+        .then(async (response) => {
+          if (!response.ok) {
+            throw new Error(`Unexpected status ${response.status}`);
+          }
+
+          return await response.json();
+        })
+        .catch(async (error) => {
+          if (primaryAsset === fallbackAsset) {
+            console.warn('[Notifications] Failed to load release highlights:', error);
+            return { versions: {} };
+          }
+
+          try {
+            const fallbackResponse = await fetch(browser.runtime.getURL(fallbackAsset));
+            if (!fallbackResponse.ok) {
+              throw new Error(`Unexpected status ${fallbackResponse.status}`);
+            }
+            return await fallbackResponse.json();
+          } catch (fallbackError) {
+            console.warn('[Notifications] Failed to load localized release highlights:', error);
+            console.warn('[Notifications] Failed to load fallback release highlights:', fallbackError);
+            return { versions: {} };
+          }
+        })
+    };
+  }
+
+  return await releaseHighlightsCachePromise.promise;
+}
+
+async function loadReleaseHighlightsAsset() {
+  const localization = await getNotificationLocalizationConfig();
+  return await loadReleaseHighlightsAssetForLocale(localization.locale || 'en');
+}
+
+async function getReleaseHighlights(version, locale = null) {
+  const asset = locale
+    ? await loadReleaseHighlightsAssetForLocale(locale)
+    : await loadReleaseHighlightsAsset();
   const highlights = asset?.versions?.[version];
   if (!Array.isArray(highlights)) {
     return [];
@@ -484,14 +555,12 @@ async function recordNotificationMetrics(delta, options = {}) {
   if (!normalizedDelta) {
     return null;
   }
+  const localization = await getNotificationLocalizationConfig();
 
   const state = await runNotificationStateTask(async () => {
     let state = await loadNotificationState();
     state = notificationHelpers.applyMetricDelta(state, normalizedDelta);
-    state = notificationHelpers.queueNextSupportNotification(state, {
-      buyMeACoffeeUrl: notificationHelpers.BUY_ME_A_COFFEE_URL,
-      releaseNotesUrl: notificationHelpers.RELEASES_URL
-    });
+    state = notificationHelpers.queueNextSupportNotification(state, localization);
     await saveNotificationState(state);
     return state;
   });
@@ -535,13 +604,11 @@ async function dismissPendingNotification(notificationId) {
   }
 
   clearPendingNotificationDisplayLock(notificationId);
+  const localization = await getNotificationLocalizationConfig();
 
   return runNotificationStateTask(async () => {
     let state = notificationHelpers.dismissNotification(await loadNotificationState(), notificationId);
-    state = notificationHelpers.queueNextSupportNotification(state, {
-      buyMeACoffeeUrl: notificationHelpers.BUY_ME_A_COFFEE_URL,
-      releaseNotesUrl: notificationHelpers.RELEASES_URL
-    });
+    state = notificationHelpers.queueNextSupportNotification(state, localization);
     await saveNotificationState(state);
     return state;
   });
@@ -549,6 +616,7 @@ async function dismissPendingNotification(notificationId) {
 
 async function handleInstalled(details) {
   const currentVersion = browser.runtime.getManifest().version;
+  const localization = await getNotificationLocalizationConfig();
 
   await runNotificationStateTask(async () => {
     let state = await loadNotificationState();
@@ -568,13 +636,12 @@ async function handleInstalled(details) {
     if (details.reason === 'update') {
       const previousVersion = details.previousVersion || previousInstalledVersion;
       if (previousVersion && previousVersion !== currentVersion) {
-        const highlights = await getReleaseHighlights(currentVersion);
+        const highlights = await getReleaseHighlights(currentVersion, localization.locale || 'en');
         state = notificationHelpers.queueVersionUpdate(state, {
+          ...localization,
           previousVersion,
           currentVersion,
-          highlights,
-          buyMeACoffeeUrl: notificationHelpers.BUY_ME_A_COFFEE_URL,
-          releaseNotesUrl: notificationHelpers.RELEASES_URL
+          highlights
         });
       }
     }

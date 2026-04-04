@@ -77,6 +77,7 @@ const baseOptions = {
   obsidianIntegration: false,
   obsidianVault: '',
   obsidianFolder: '',
+  uiLanguage: 'browser',
   popupTheme: 'system',
   specialTheme: 'none',
   colorBlindTheme: 'deuteranopia',

@@ -1,5 +1,6 @@
 // these are the default options
 const defaultOptions = {
+  uiLanguage: 'browser',
   headingStyle: "atx",
   hr: "___",
   bulletListMarker: "-",

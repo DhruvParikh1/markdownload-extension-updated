@@ -12,9 +12,187 @@
   'use strict';
 
   const core = globalThis.markSnipSearchCore;
+  const guideI18n = globalThis.markSnipI18n || null;
   const SPECIAL_THEME_CLASS_NAMES = ['special-theme-claude', 'special-theme-perplexity', 'special-theme-openai', 'special-theme-atla', 'special-theme-ben10', 'special-theme-colorblind'];
   const COLORBLIND_VARIANT_CLASS_NAMES = ['colorblind-theme-deuteranopia', 'colorblind-theme-protanopia', 'colorblind-theme-tritanopia'];
   const ACCENT_CLASS_NAMES = ['accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber'];
+
+  function t(key, substitutions, fallback = null) {
+    if (guideI18n?.t) {
+      const value = guideI18n.t(key, substitutions);
+      if (value !== key) {
+        return value;
+      }
+    }
+    return fallback ?? key;
+  }
+
+  function tp(keyBase, count, substitutions = {}, fallback = null) {
+    if (guideI18n?.tp) {
+      return guideI18n.tp(keyBase, count, substitutions);
+    }
+    return fallback ?? String(count);
+  }
+
+  function setInlineLabel(element, label) {
+    if (!element) return;
+    const textNodes = Array.from(element.childNodes).filter((node) => node.nodeType === Node.TEXT_NODE);
+    if (textNodes.length > 0) {
+      textNodes[textNodes.length - 1].textContent = ` ${label}`;
+      return;
+    }
+    element.appendChild(document.createTextNode(` ${label}`));
+  }
+
+  function setLocalizedInnerHtml(element, key) {
+    if (!element) return;
+    const fallback = element.innerHTML;
+    const localizedHtml = t(key, null, fallback);
+    if (localizedHtml && localizedHtml !== key) {
+      element.innerHTML = localizedHtml;
+    }
+  }
+
+  function applyGuideStaticLocalization() {
+    document.title = t('guide_title', null, 'MarkSnip User Guide');
+
+    setLocalizedInnerHtml(document.querySelector('.toc-list'), 'guide_toc_html');
+    [
+      ['quick-start', 'guide_section_quick_start_html'],
+      ['using-the-popup', 'guide_section_using_the_popup_html'],
+      ['batch-processing', 'guide_section_batch_processing_html'],
+      ['context-menus', 'guide_section_context_menus_html'],
+      ['settings', 'guide_section_settings_html'],
+      ['obsidian-downloads', 'guide_section_obsidian_downloads_html'],
+      ['permissions-privacy', 'guide_section_permissions_privacy_html'],
+      ['troubleshooting', 'guide_section_troubleshooting_html'],
+      ['text-substitutions', 'guide_section_text_substitutions_html']
+    ].forEach(([id, key]) => {
+      setLocalizedInnerHtml(document.getElementById(id), key);
+    });
+
+    guideI18n?.applyDefinitions?.([
+      { selector: '.skip-link', textKey: 'guide_skip_to_content' },
+      { selector: '#guide-search', placeholderKey: 'guide_search_placeholder', ariaLabelKey: 'guide_search_aria' },
+      { selector: '#open-settings', titleKey: 'guide_open_settings' },
+      { selector: '.guide-toc', ariaLabelKey: 'guide_toc_aria' },
+      { selector: '#search-results', ariaLabelKey: 'guide_search_results_aria' },
+      { selector: '#search-clear', textKey: 'guide_search_clear', ariaLabelKey: 'guide_search_clear' },
+      {
+        selector: '#quick-start',
+        datasetKeys: {
+          guideSection: 'guide_meta_quick_start_title',
+          guideSummary: 'guide_meta_quick_start_summary',
+          searchKeywords: 'guide_meta_quick_start_keywords'
+        }
+      },
+      {
+        selector: '#using-the-popup',
+        datasetKeys: {
+          guideSection: 'guide_meta_using_the_popup_title',
+          guideSummary: 'guide_meta_using_the_popup_summary',
+          searchKeywords: 'guide_meta_using_the_popup_keywords'
+        }
+      },
+      {
+        selector: '#batch-processing',
+        datasetKeys: {
+          guideSection: 'guide_meta_batch_processing_title',
+          guideSummary: 'guide_meta_batch_processing_summary',
+          searchKeywords: 'guide_meta_batch_processing_keywords'
+        }
+      },
+      {
+        selector: '#context-menus',
+        datasetKeys: {
+          guideSection: 'guide_meta_context_menus_title',
+          guideSummary: 'guide_meta_context_menus_summary',
+          searchKeywords: 'guide_meta_context_menus_keywords'
+        }
+      },
+      {
+        selector: '#settings',
+        datasetKeys: {
+          guideSection: 'guide_meta_settings_title',
+          guideSummary: 'guide_meta_settings_summary',
+          searchKeywords: 'guide_meta_settings_keywords'
+        }
+      },
+      {
+        selector: '#obsidian-downloads',
+        datasetKeys: {
+          guideSection: 'guide_meta_obsidian_downloads_title',
+          guideSummary: 'guide_meta_obsidian_downloads_summary',
+          searchKeywords: 'guide_meta_obsidian_downloads_keywords'
+        }
+      },
+      {
+        selector: '#permissions-privacy',
+        datasetKeys: {
+          guideSection: 'guide_meta_permissions_privacy_title',
+          guideSummary: 'guide_meta_permissions_privacy_summary',
+          searchKeywords: 'guide_meta_permissions_privacy_keywords'
+        }
+      },
+      {
+        selector: '#troubleshooting',
+        datasetKeys: {
+          guideSection: 'guide_meta_troubleshooting_title',
+          guideSummary: 'guide_meta_troubleshooting_summary',
+          searchKeywords: 'guide_meta_troubleshooting_keywords'
+        }
+      },
+      {
+        selector: '#text-substitutions',
+        datasetKeys: {
+          guideSection: 'guide_meta_text_substitutions_title',
+          guideSummary: 'guide_meta_text_substitutions_summary',
+          searchKeywords: 'guide_meta_text_substitutions_keywords'
+        }
+      },
+      { selector: '.welcome-banner-title', textKey: 'guide_welcome_title' },
+      { selector: '#welcome-banner-dismiss', ariaLabelKey: 'guide_welcome_dismiss' }
+    ], document);
+
+    const settingsButton = document.getElementById('open-settings');
+    if (settingsButton) {
+      settingsButton.title = t('guide_open_settings', null, 'Open Settings');
+      setInlineLabel(settingsButton, t('guide_settings', null, 'Settings'));
+    }
+    const headerSubtitle = document.querySelector('.header-subtitle');
+    if (headerSubtitle) {
+      headerSubtitle.textContent = t('guide_subtitle', null, 'User Guide');
+    }
+
+    const noResultsText = document.querySelector('#search-no-results p:first-of-type');
+    if (noResultsText) {
+      noResultsText.innerHTML = `${t('guide_search_no_results', null, 'No results for')} "<span id="search-no-results-query"></span>"`;
+    }
+    const noResultsHint = document.querySelector('#search-no-results .no-results-hint');
+    if (noResultsHint) {
+      noResultsHint.textContent = t('guide_search_no_results_hint', null, 'Try different keywords or browse the table of contents.');
+    }
+    const welcomeParagraphs = document.querySelectorAll('#welcome-banner .welcome-banner-content p');
+    if (welcomeParagraphs[0]) {
+      welcomeParagraphs[0].textContent = t('guide_welcome_intro', null, 'Thanks for installing MarkSnip. This guide will help you get started with clipping web pages as clean Markdown.');
+    }
+    if (welcomeParagraphs[1]) {
+      welcomeParagraphs[1].innerHTML = t('guide_welcome_followup', null, 'Start with the <strong>Quick Start</strong> section below, or browse the table of contents on the left.');
+    }
+  }
+
+  async function bootstrapGuideI18n() {
+    if (!guideI18n?.init) {
+      return;
+    }
+
+    const stored = typeof browser !== 'undefined' && browser?.storage?.sync
+      ? await browser.storage.sync.get({ uiLanguage: 'browser' }).catch(() => ({ uiLanguage: 'browser' }))
+      : { uiLanguage: 'browser' };
+    await guideI18n.init({ setting: stored?.uiLanguage || 'browser' });
+    guideI18n.setDocumentLanguage?.(document.documentElement);
+    applyGuideStaticLocalization();
+  }
 
   function normalizeColorBlindTheme(value) {
     return ['deuteranopia', 'protanopia', 'tritanopia'].includes(value) ? value : 'deuteranopia';
@@ -147,7 +325,7 @@
 
       if (result.matches.length === 0) {
         resultsList.innerHTML = '';
-        resultsCount.textContent = '0 results';
+        resultsCount.textContent = tp('guide_search_results_count', 0, { count: 0 }, '0 results');
         noResults.style.display = '';
         noResultsQ.textContent = query;
         return;
@@ -156,7 +334,12 @@
       noResults.style.display = 'none';
       const sorted = result.matches.slice().sort((a, b) => b.score - a.score);
 
-      resultsCount.textContent = sorted.length + ' result' + (sorted.length !== 1 ? 's' : '');
+      resultsCount.textContent = tp(
+        'guide_search_results_count',
+        sorted.length,
+        { count: sorted.length },
+        `${sorted.length} result${sorted.length !== 1 ? 's' : ''}`
+      );
 
       resultsList.innerHTML = sorted.map(m => {
         const el = m.element;
@@ -324,7 +507,12 @@
   /* ════════════════════════════════════════
      Init
      ════════════════════════════════════════ */
-  function init() {
+  async function init() {
+    try {
+      await bootstrapGuideI18n();
+    } catch (error) {
+      console.error('Failed to initialize guide i18n:', error);
+    }
     loadSettings();
     initWelcomeBanner();
     initSearch();

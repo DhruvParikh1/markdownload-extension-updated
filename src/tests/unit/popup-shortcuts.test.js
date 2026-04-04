@@ -1,5 +1,5 @@
 const { JSDOM } = require('jsdom');
-const { COMMAND_LABELS, COMMAND_ORDER, splitShortcut, groupCommands, buildShortcutsFragment } =
+const { COMMAND_LABELS, COMMAND_ORDER, splitShortcut, groupCommands, buildShortcutsFragment, resolveLabel } =
     require('../../shared/popup-shortcuts.js');
 
 const { document } = new JSDOM('<!DOCTYPE html>').window;
@@ -61,7 +61,9 @@ describe('buildShortcutsFragment', () => {
     ];
 
     function getWrapper(commands) {
-        const frag = buildShortcutsFragment(document, commands);
+        const frag = buildShortcutsFragment(document, commands, {
+            translate: (key) => `tx:${key}`
+        });
         const div = document.createElement('div');
         div.appendChild(frag);
         return div;
@@ -79,10 +81,10 @@ describe('buildShortcutsFragment', () => {
         expect(Array.from(kbds).map(k => k.textContent)).toEqual(['Alt', 'Shift', 'M']);
     });
 
-    test('uses COMMAND_LABELS for human-readable description', () => {
+    test('uses translate hook for human-readable description', () => {
         const div = getWrapper(mockCommands);
-        expect(div.textContent).toContain(COMMAND_LABELS['_execute_action']);
-        expect(div.textContent).toContain(COMMAND_LABELS['copy_selection_as_markdown']);
+        expect(div.textContent).toContain(`tx:${COMMAND_LABELS['_execute_action']}`);
+        expect(div.textContent).toContain(`tx:${COMMAND_LABELS['copy_selection_as_markdown']}`);
     });
 
     test('adds a section label button before the unassigned table', () => {
@@ -90,7 +92,7 @@ describe('buildShortcutsFragment', () => {
         const btn = div.querySelector('button.shortcuts-section-label');
         expect(btn).not.toBeNull();
         expect(btn.dataset.action).toBe('open-shortcut-settings');
-        expect(btn.textContent).toContain('Assign in browser shortcuts');
+        expect(btn.textContent).toContain('tx:shortcut_assign_in_browser');
     });
 
     test('no section label when all commands have shortcuts', () => {
@@ -105,11 +107,15 @@ describe('buildShortcutsFragment', () => {
         expect(div.querySelectorAll('tr')).toHaveLength(0);
     });
 
-    test('falls back to COMMAND_LABELS when available', () => {
+    test('resolveLabel falls back to message key when no translator is available', () => {
+        expect(resolveLabel('download_tab_as_markdown')).toBe(COMMAND_LABELS['download_tab_as_markdown']);
+    });
+
+    test('falls back to translated COMMAND_LABELS when available', () => {
         const div = getWrapper([
             { name: 'download_tab_as_markdown', shortcut: '', description: 'fallback used if label missing' }
         ]);
-        expect(div.textContent).toContain(COMMAND_LABELS['download_tab_as_markdown']);
+        expect(div.textContent).toContain(`tx:${COMMAND_LABELS['download_tab_as_markdown']}`);
     });
 });
 

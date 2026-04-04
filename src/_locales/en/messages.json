@@ -1,0 +1,1173 @@
+{
+  "extension_name": {
+    "message": "MarkSnip - Markdown Web Clipper"
+  },
+  "extension_description": {
+    "message": "One-click Markdown web clipper. Save articles, docs, code & tables as clean Markdown for AI agents & LLMs. Supports Obsidian & more."
+  },
+  "action_title": {
+    "message": "MarkSnip"
+  },
+  "command_download_tab_as_markdown": {
+    "message": "Save current tab as Markdown"
+  },
+  "command_copy_tab_as_markdown": {
+    "message": "Copy current tab as Markdown to the clipboard"
+  },
+  "command_copy_selection_as_markdown": {
+    "message": "Copy current selection as Markdown to the clipboard"
+  },
+  "command_copy_tab_as_markdown_link": {
+    "message": "Copy current tab URL as Markdown link to the clipboard"
+  },
+  "command_copy_selected_tab_as_markdown_link": {
+    "message": "Copy selected tabs URL as Markdown link to the clipboard"
+  },
+  "command_copy_selection_to_obsidian": {
+    "message": "Copy current selection as Markdown to Obsidian"
+  },
+  "command_copy_tab_to_obsidian": {
+    "message": "Copy current tab as Markdown to Obsidian"
+  },
+  "popup_loading_processing_page": {
+    "message": "Processing page..."
+  },
+  "popup_toggle_dark_mode": {
+    "message": "Switch to dark mode"
+  },
+  "popup_title": {
+    "message": "MarkSnip"
+  },
+  "popup_open_guide": {
+    "message": "User Guide"
+  },
+  "popup_keyboard_shortcuts": {
+    "message": "Keyboard Shortcuts"
+  },
+  "popup_batch_processing": {
+    "message": "Batch Processing"
+  },
+  "popup_library": {
+    "message": "Library"
+  },
+  "popup_settings": {
+    "message": "Settings"
+  },
+  "popup_images": {
+    "message": "Images"
+  },
+  "popup_template": {
+    "message": "Template"
+  },
+  "popup_content_scope": {
+    "message": "Content scope"
+  },
+  "popup_scope_selection": {
+    "message": "Selection"
+  },
+  "popup_scope_document": {
+    "message": "Document"
+  },
+  "popup_title_label": {
+    "message": "Title"
+  },
+  "popup_title_placeholder": {
+    "message": "Document title..."
+  },
+  "popup_toggle_preview": {
+    "message": "Toggle preview"
+  },
+  "popup_copy_selection": {
+    "message": "Copy Selection"
+  },
+  "popup_copy": {
+    "message": "Copy"
+  },
+  "popup_download_selection": {
+    "message": "Download Selection"
+  },
+  "popup_send_to_obsidian": {
+    "message": "Send to Obsidian"
+  },
+  "popup_download": {
+    "message": "Download"
+  },
+  "popup_more_export_options": {
+    "message": "More export options"
+  },
+  "popup_send_to_heading": {
+    "message": "Send To"
+  },
+  "popup_export_as_heading": {
+    "message": "Export As"
+  },
+  "popup_export_markdown": {
+    "message": "Markdown (.md)"
+  },
+  "popup_export_text": {
+    "message": "Plain Text (.txt)"
+  },
+  "popup_export_text_download": {
+    "message": "Download TXT"
+  },
+  "popup_export_text_selection": {
+    "message": "Download Selection as TXT"
+  },
+  "popup_export_html": {
+    "message": "HTML (.html)"
+  },
+  "popup_export_html_download": {
+    "message": "Download HTML"
+  },
+  "popup_export_html_selection": {
+    "message": "Download Selection as HTML"
+  },
+  "popup_export_pdf": {
+    "message": "Save as PDF"
+  },
+  "popup_export_pdf_selection": {
+    "message": "Save Selection as PDF"
+  },
+  "popup_export_pdf_note": {
+    "message": "via print"
+  },
+  "popup_export_print": {
+    "message": "Print"
+  },
+  "popup_batch_title": {
+    "message": "Batch Processing"
+  },
+  "popup_batch_urls_label": {
+    "message": "URLs (one per line)"
+  },
+  "popup_batch_urls_placeholder": {
+    "message": "https://example.com/page1\nhttps://example.com/page2\n\nOr use markdown links:\n[Page Title](https://example.com)"
+  },
+  "popup_batch_pick_links": {
+    "message": "Pick Links from Page"
+  },
+  "popup_batch_zip_mode": {
+    "message": "ZIP file"
+  },
+  "popup_batch_individual_mode": {
+    "message": "Individual"
+  },
+  "popup_batch_progress_processing": {
+    "message": "Processing..."
+  },
+  "popup_batch_convert_all": {
+    "message": "Convert All URLs"
+  },
+  "popup_library_title": {
+    "message": "Library"
+  },
+  "popup_library_close": {
+    "message": "Close Library"
+  },
+  "popup_library_save_clip": {
+    "message": "Save Clip"
+  },
+  "popup_library_export_all": {
+    "message": "Export All"
+  },
+  "popup_library_exporting": {
+    "message": "Exporting..."
+  },
+  "popup_library_export_zip": {
+    "message": "Download as ZIP"
+  },
+  "popup_library_export_individual": {
+    "message": "Individual .md files"
+  },
+  "popup_library_export_links": {
+    "message": "Copy all links"
+  },
+  "popup_library_empty_title": {
+    "message": "No saved clips yet"
+  },
+  "popup_shortcuts_title": {
+    "message": "Keyboard Shortcuts"
+  },
+  "popup_shortcuts_close": {
+    "message": "Close shortcuts"
+  },
+  "popup_runtime_processing_urls": {
+    "message": "Processing URLs..."
+  },
+  "popup_runtime_cancel": {
+    "message": "Cancel"
+  },
+  "popup_runtime_cancelling": {
+    "message": "Cancelling..."
+  },
+  "popup_runtime_batch_disabled": {
+    "message": "Batch Processing is disabled in Settings"
+  },
+  "popup_runtime_invalid_urls": {
+    "message": "Please enter valid URLs or markdown links (one per line)"
+  },
+  "popup_runtime_link_picker_failed": {
+    "message": "Failed to activate link picker. Please try again."
+  },
+  "popup_runtime_loading": {
+    "message": "Loading…"
+  },
+  "popup_runtime_shortcuts_load_failed": {
+    "message": "Could not load shortcuts."
+  },
+  "popup_runtime_overridden_by": {
+    "message": "Overridden by $ruleName$",
+    "placeholders": {
+      "ruleName": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_library_removed": {
+    "message": "Removed \"$title$\"",
+    "placeholders": {
+      "title": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_library_remove_failed": {
+    "message": "Failed to remove clip"
+  },
+  "popup_runtime_library_empty_auto": {
+    "message": "Open the popup on any page and the current clip will be saved here automatically."
+  },
+  "popup_runtime_library_empty_manual": {
+    "message": "Manual mode is on. Use \"Save Clip\" to add the current page to your local library."
+  },
+  "popup_runtime_library_delete_clip": {
+    "message": "Delete clip: $title$",
+    "placeholders": {
+      "title": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_delete": {
+    "message": "Delete"
+  },
+  "popup_runtime_current_page": {
+    "message": "Current page"
+  },
+  "popup_runtime_library_toolbar_manual": {
+    "message": "Manual mode is on. Press Save Clip to save the current page."
+  },
+  "popup_runtime_library_toolbar_auto": {
+    "message": "Library saves the current page automatically the first time this popup loads it."
+  },
+  "popup_runtime_library_saved": {
+    "message": "Saved current clip to Library"
+  },
+  "popup_runtime_library_save_failed": {
+    "message": "Failed to save clip to Library"
+  },
+  "popup_runtime_library_export_failed": {
+    "message": "Failed to export Library"
+  },
+  "popup_runtime_library_exporting_zip": {
+    "message": "Exporting library as ZIP..."
+  },
+  "popup_runtime_library_exported_zip_one": {
+    "message": "Exported $count$ clip to ZIP",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_library_exported_zip_other": {
+    "message": "Exported $count$ clips to ZIP",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_library_export_files_failed": {
+    "message": "Failed to export files"
+  },
+  "popup_runtime_library_exporting_files": {
+    "message": "Exporting individual files..."
+  },
+  "popup_runtime_library_exported_files_one": {
+    "message": "Exported $count$ individual file",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_library_exported_files_other": {
+    "message": "Exported $count$ individual files",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_library_no_saved_clips": {
+    "message": "No saved clips to export"
+  },
+  "popup_runtime_library_no_links": {
+    "message": "No links found in library clips"
+  },
+  "popup_runtime_library_links_copied_one": {
+    "message": "Copied $count$ link to clipboard",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_library_links_copied_other": {
+    "message": "Copied $count$ links to clipboard",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_library_links_failed": {
+    "message": "Failed to copy links to clipboard"
+  },
+  "popup_runtime_nothing_to_send": {
+    "message": "Nothing to send"
+  },
+  "popup_runtime_send_to": {
+    "message": "Send to $target$",
+    "placeholders": {
+      "target": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_send_selection_to": {
+    "message": "Send Selection to $target$",
+    "placeholders": {
+      "target": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_opening_target": {
+    "message": "Copied. Opening $target$...",
+    "placeholders": {
+      "target": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_opening_target_direct": {
+    "message": "Opening $target$...",
+    "placeholders": {
+      "target": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_failed": {
+    "message": "Failed"
+  },
+  "popup_runtime_untitled": {
+    "message": "Untitled"
+  },
+  "popup_runtime_nothing_to_copy": {
+    "message": "Nothing to copy"
+  },
+  "popup_runtime_copied_selection": {
+    "message": "Copied Selection!"
+  },
+  "popup_runtime_copied": {
+    "message": "Copied!"
+  },
+  "popup_runtime_saved": {
+    "message": "Saved!"
+  },
+  "popup_runtime_loading_page": {
+    "message": "Loading page..."
+  },
+  "popup_runtime_converting_page": {
+    "message": "Converting page..."
+  },
+  "popup_runtime_retrying_page": {
+    "message": "Retrying page capture..."
+  },
+  "popup_runtime_processing": {
+    "message": "Processing..."
+  },
+  "popup_runtime_starting_background": {
+    "message": "Starting background batch..."
+  },
+  "popup_runtime_batch_started": {
+    "message": "Batch started..."
+  },
+  "popup_runtime_batch_started_zip": {
+    "message": "Batch started (ZIP mode)..."
+  },
+  "popup_runtime_started_background": {
+    "message": "Batch started. Tabs will be visited automatically."
+  },
+  "popup_runtime_complete": {
+    "message": "Complete!"
+  },
+  "popup_runtime_creating_zip": {
+    "message": "Creating ZIP archive..."
+  },
+  "popup_runtime_warning_conversion": {
+    "message": "Warning during conversion"
+  },
+  "popup_runtime_failed_url": {
+    "message": "Failed URL"
+  },
+  "popup_runtime_batch_cancelled": {
+    "message": "Batch cancelled"
+  },
+  "popup_runtime_unknown_error": {
+    "message": "Unknown error"
+  },
+  "popup_runtime_batch_failed": {
+    "message": "Batch failed: $message$",
+    "placeholders": {
+      "message": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_batch_finished_errors": {
+    "message": "Finished with $count$ error(s)",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_zip_downloaded": {
+    "message": "ZIP downloaded"
+  },
+  "popup_runtime_batch_complete": {
+    "message": "Batch complete"
+  },
+  "popup_runtime_partial_retry": {
+    "message": "Detected partial content. Retrying $attempt$/$total$...",
+    "placeholders": {
+      "attempt": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "popup_runtime_error_clipping_page": {
+    "message": "Error clipping the page"
+  },
+  "popup_runtime_batch_status_error": {
+    "message": "Error: $message$",
+    "placeholders": {
+      "message": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_obsidian_not_enabled": {
+    "message": "Not Enabled"
+  },
+  "popup_runtime_sent_to_obsidian": {
+    "message": "Sent to Obsidian!"
+  },
+  "popup_runtime_valid_urls_one": {
+    "message": "$count$ valid URL",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_valid_urls_other": {
+    "message": "$count$ valid URLs",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_invalid_lines_one": {
+    "message": "$count$ invalid line",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_invalid_lines_other": {
+    "message": "$count$ invalid lines",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_no_valid_urls": {
+    "message": "$invalidPart$ — no valid URLs",
+    "placeholders": {
+      "invalidPart": {
+        "content": "$1"
+      }
+    }
+  },
+  "popup_runtime_url_summary_with_invalid": {
+    "message": "$validPart$, $invalidPart$",
+    "placeholders": {
+      "validPart": {
+        "content": "$1"
+      },
+      "invalidPart": {
+        "content": "$2"
+      }
+    }
+  },
+  "shortcut_open_popup": {
+    "message": "Open MarkSnip popup"
+  },
+  "shortcut_download_tab": {
+    "message": "Download tab as Markdown"
+  },
+  "shortcut_copy_tab": {
+    "message": "Copy tab as Markdown"
+  },
+  "shortcut_copy_tab_link": {
+    "message": "Copy tab URL as Markdown link"
+  },
+  "shortcut_copy_selection": {
+    "message": "Copy selection as Markdown"
+  },
+  "shortcut_copy_selected_tabs_links": {
+    "message": "Copy selected tabs as Markdown links"
+  },
+  "shortcut_copy_selection_obsidian": {
+    "message": "Copy selection to Obsidian"
+  },
+  "shortcut_copy_tab_obsidian": {
+    "message": "Copy tab to Obsidian"
+  },
+  "shortcut_assign_in_browser": {
+    "message": "Assign in browser shortcuts"
+  },
+  "notif_eyebrow_update": {
+    "message": "MarkSnip Update"
+  },
+  "notif_eyebrow_milestone": {
+    "message": "Milestone"
+  },
+  "notif_dismiss": {
+    "message": "Dismiss notification"
+  },
+  "notif_pages_exported": {
+    "message": "pages exported"
+  },
+  "notif_title_fallback": {
+    "message": "MarkSnip notification"
+  },
+  "notif_action_open_link": {
+    "message": "Open link"
+  },
+  "notif_action_buy_me_coffee": {
+    "message": "Buy Me a Coffee"
+  },
+  "notif_action_view_release_notes": {
+    "message": "View release notes"
+  },
+  "notif_version_updated_from": {
+    "message": "MarkSnip updated to v$currentVersion$",
+    "placeholders": {
+      "currentVersion": {
+        "content": "$1"
+      }
+    }
+  },
+  "notif_version_message_from": {
+    "message": "Updated from v$previousVersion$ to v$currentVersion$.",
+    "placeholders": {
+      "previousVersion": {
+        "content": "$1"
+      },
+      "currentVersion": {
+        "content": "$2"
+      }
+    }
+  },
+  "notif_version_message": {
+    "message": "MarkSnip updated to v$currentVersion$.",
+    "placeholders": {
+      "currentVersion": {
+        "content": "$1"
+      }
+    }
+  },
+  "notif_support_title": {
+    "message": "$count$ pages exported",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "notif_support_message": {
+    "message": "MarkSnip has helped export over $count$ pages. If it has been useful, support ongoing development.",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "options_title": {
+    "message": "MarkSnip Options"
+  },
+  "options_subtitle": {
+    "message": "Options"
+  },
+  "options_sidebar_templates": {
+    "message": "Templates"
+  },
+  "options_sidebar_downloads": {
+    "message": "Downloads"
+  },
+  "options_sidebar_markdown": {
+    "message": "Markdown"
+  },
+  "options_sidebar_appearance": {
+    "message": "Appearance"
+  },
+  "options_sidebar_library": {
+    "message": "Library"
+  },
+  "options_sidebar_agent_bridge": {
+    "message": "Agent Bridge"
+  },
+  "options_sidebar_site_rules": {
+    "message": "Site Rules"
+  },
+  "options_sidebar_import_export": {
+    "message": "Import / Export"
+  },
+  "options_open_user_guide": {
+    "message": "User Guide"
+  },
+  "options_search_placeholder": {
+    "message": "Search settings..."
+  },
+  "options_search_aria": {
+    "message": "Search settings"
+  },
+  "options_section_appearance": {
+    "message": "Appearance"
+  },
+  "options_section_appearance_desc": {
+    "message": "Control the popup theme, layout, and interface language."
+  },
+  "options_interface_language_title": {
+    "message": "Interface Language"
+  },
+  "options_interface_language_desc": {
+    "message": "Choose the language used by the popup, settings, guide, shortcuts modal, and in-extension notifications."
+  },
+  "options_interface_language_label": {
+    "message": "Language"
+  },
+  "options_interface_language_browser": {
+    "message": "Browser default"
+  },
+  "options_interface_language_english": {
+    "message": "English"
+  },
+  "options_interface_language_hindi": {
+    "message": "Hindi"
+  },
+  "options_interface_language_note": {
+    "message": "Manifest-level strings such as the extension name, action title, and command descriptions still follow the browser locale."
+  },
+  "options_runtime_enter_target_name": {
+    "message": "Please enter a target name"
+  },
+  "options_runtime_enter_valid_url_template": {
+    "message": "Please enter a valid URL template"
+  },
+  "options_runtime_failed_add_target": {
+    "message": "Failed to add assistant target"
+  },
+  "options_runtime_invalid_site_rule_pattern": {
+    "message": "Invalid site rule pattern"
+  },
+  "options_runtime_browser_cannot_request_permission": {
+    "message": "This browser cannot request native messaging permission here"
+  },
+  "options_runtime_permission_not_granted": {
+    "message": "Agent Bridge permission was not granted"
+  },
+  "options_runtime_agent_bridge_enabled": {
+    "message": "Agent Bridge enabled"
+  },
+  "options_runtime_agent_bridge_disabled": {
+    "message": "Agent Bridge disabled"
+  },
+  "options_runtime_options_saved": {
+    "message": "Options Saved"
+  },
+  "options_runtime_library_saved": {
+    "message": "Library settings saved"
+  },
+  "options_runtime_permission_granted": {
+    "message": "Agent Bridge permission granted"
+  },
+  "options_runtime_status_refreshed": {
+    "message": "Agent Bridge status refreshed"
+  },
+  "options_runtime_install_command_copied": {
+    "message": "Install command copied"
+  },
+  "options_runtime_install_command_failed": {
+    "message": "Failed to copy install command"
+  },
+  "options_runtime_confirm_clear_library": {
+    "message": "Delete all saved Library clips from this browser? This cannot be undone."
+  },
+  "options_runtime_library_cleared": {
+    "message": "Library cleared"
+  },
+  "options_runtime_setting_reset": {
+    "message": "Setting reset to default"
+  },
+  "options_runtime_confirm_reset_all": {
+    "message": "Reset all settings to defaults? This cannot be undone."
+  },
+  "options_runtime_all_settings_reset": {
+    "message": "All settings reset to defaults"
+  },
+  "options_runtime_nothing_to_preview": {
+    "message": "Nothing to preview yet."
+  },
+  "options_runtime_download_unavailable": {
+    "message": "The Downloads API is unavailable in this browser."
+  },
+  "options_runtime_site_rule_add": {
+    "message": "Add Site Rule"
+  },
+  "options_runtime_site_rule_edit": {
+    "message": "Edit Site Rule"
+  },
+  "options_runtime_site_rule_summary_one": {
+    "message": "$ruleCount$ rule • $enabledCount$ enabled",
+    "placeholders": {
+      "ruleCount": {
+        "content": "$1"
+      },
+      "enabledCount": {
+        "content": "$2"
+      }
+    }
+  },
+  "options_runtime_site_rule_summary_other": {
+    "message": "$ruleCount$ rules • $enabledCount$ enabled",
+    "placeholders": {
+      "ruleCount": {
+        "content": "$1"
+      },
+      "enabledCount": {
+        "content": "$2"
+      }
+    }
+  },
+  "options_runtime_remove": {
+    "message": "Remove"
+  },
+  "options_runtime_enabled": {
+    "message": "Enabled"
+  },
+  "options_runtime_no_overrides": {
+    "message": "No overrides"
+  },
+  "options_runtime_invalid_pattern_prefix": {
+    "message": "Invalid pattern:"
+  },
+  "options_search_no_results": {
+    "message": "No settings match"
+  },
+  "options_search_user_guide": {
+    "message": "Search the User Guide instead"
+  },
+  "options_runtime_search_no_results": {
+    "message": "No settings match \"$query$\"",
+    "placeholders": {
+      "query": {
+        "content": "$1"
+      }
+    }
+  },
+  "options_runtime_search_results": {
+    "message": "Showing $shown$ of $total$ settings",
+    "placeholders": {
+      "shown": {
+        "content": "$1"
+      },
+      "total": {
+        "content": "$2"
+      }
+    }
+  },
+  "options_runtime_up": {
+    "message": "Up"
+  },
+  "options_runtime_down": {
+    "message": "Down"
+  },
+  "options_runtime_edit": {
+    "message": "Edit"
+  },
+  "options_runtime_delete": {
+    "message": "Delete"
+  },
+  "options_runtime_disabled": {
+    "message": "Disabled"
+  },
+  "options_runtime_permission_needed": {
+    "message": "Permission needed"
+  },
+  "options_runtime_checking_connection": {
+    "message": "Checking connection"
+  },
+  "options_runtime_connected_via": {
+    "message": "Connected via $browser$",
+    "placeholders": {
+      "browser": {
+        "content": "$1"
+      }
+    }
+  },
+  "options_runtime_connected": {
+    "message": "Connected"
+  },
+  "options_runtime_waiting_for_companion": {
+    "message": "Waiting for companion"
+  },
+  "options_runtime_starting": {
+    "message": "Starting"
+  },
+  "options_runtime_bridge_hint_disabled": {
+    "message": "Enable the Agent Bridge to let MarkSnip connect to the local companion."
+  },
+  "options_runtime_bridge_hint_permission": {
+    "message": "Grant native messaging permission to let MarkSnip connect to the local companion."
+  },
+  "options_runtime_bridge_hint_connecting": {
+    "message": "MarkSnip is waiting for the local companion to respond."
+  },
+  "options_runtime_bridge_hint_connected": {
+    "message": "The local CLI can request the current page while this browser is open."
+  },
+  "options_runtime_bridge_hint_waiting": {
+    "message": "The local companion could not be reached. Check the setup guide and try again."
+  },
+  "options_runtime_bridge_hint_starting": {
+    "message": "MarkSnip is trying to connect to the local companion."
+  },
+  "options_runtime_bridge_hint_disabled_after_grant": {
+    "message": "MarkSnip will not use the local connection while disabled, even if the browser-level permission remains granted."
+  },
+  "options_runtime_toggle_hint_on": {
+    "message": "MarkSnip opens a native messaging connection while this toggle is on."
+  },
+  "options_runtime_toggle_hint_off": {
+    "message": "When off, MarkSnip will not open a local companion connection."
+  },
+  "options_runtime_host_version": {
+    "message": "Host $version$",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
+  "guide_title": {
+    "message": "MarkSnip User Guide"
+  },
+  "guide_subtitle": {
+    "message": "User Guide"
+  },
+  "guide_skip_to_content": {
+    "message": "Skip to content"
+  },
+  "guide_search_placeholder": {
+    "message": "Search guide..."
+  },
+  "guide_search_aria": {
+    "message": "Search the user guide"
+  },
+  "guide_open_settings": {
+    "message": "Open Settings"
+  },
+  "guide_settings": {
+    "message": "Settings"
+  },
+  "guide_toc_aria": {
+    "message": "Table of contents"
+  },
+  "guide_search_results_aria": {
+    "message": "Search results"
+  },
+  "guide_search_clear": {
+    "message": "Clear"
+  },
+  "guide_search_no_results": {
+    "message": "No results for \"$query$\"",
+    "placeholders": {
+      "query": {
+        "content": "$1"
+      }
+    }
+  },
+  "guide_search_no_results_hint": {
+    "message": "Try different keywords or browse the table of contents."
+  },
+  "guide_welcome_title": {
+    "message": "Welcome to MarkSnip!"
+  },
+  "guide_welcome_intro": {
+    "message": "Thanks for installing MarkSnip. This guide will help you get started with clipping web pages as clean Markdown."
+  },
+  "guide_welcome_followup": {
+    "message": "Start with the Quick Start section below, or browse the table of contents on the left."
+  },
+  "guide_welcome_dismiss": {
+    "message": "Dismiss welcome message"
+  },
+  "guide_search_results_count_one": {
+    "message": "$count$ result",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "guide_search_results_count_other": {
+    "message": "$count$ results",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "options_section_templates_html": {
+    "message": "<h2 class=\"section-title\">Templates</h2>\r\n                <p class=\"section-desc\">Configure title, front-matter, and back-matter templates for your clipped markdown files.</p>\r\n\r\n                <!-- Help info -->\r\n                <details class=\"info-panel\">\r\n                    <summary>Template variable reference</summary>\r\n                    <div class=\"info-panel-content\">\r\n                        For the title, as well as the front- and back-matter custom text, you can use the following text replacement values.\r\n                        Please note that not all websites will provide all values.\r\n                        <ul>\r\n                            <li><code>{title}</code> — Article Title</li>\r\n                            <li><code>{pageTitle}</code> — Title of the actual page</li>\r\n                            <li><code>{length}</code> — Length of the article, in characters</li>\r\n                            <li><code>{excerpt}</code> — Article description or short excerpt from the content</li>\r\n                            <li><code>{byline}</code> — Author metadata</li>\r\n                            <li><code>{dir}</code> — Content direction</li>\r\n                            <li><code>{date:FORMAT}</code> — The current date and time. Check the <a href=\"https://momentjs.com/docs/#/displaying/format/\" target=\"_blank\" rel=\"noopener noreferrer\">format reference</a></li>\r\n                            <li><code>{keywords}</code> — Meta keywords (if present). Comma separated by default.</li>\r\n                            <li><code>{keywords:SEPARATOR}</code> — Meta keywords separated by SEPARATOR. For example, to separate by space, use <code>{keywords: }</code></li>\r\n                        </ul>\r\n                        There is also support for all meta tags not mentioned above, should the page you are clipping support them.\r\n                        For example, try <code>{og:image}</code> or any other widely supported meta tags.\r\n                        <p>URL information:</p>\r\n                        <ul>\r\n                            <li><code>{baseURI}</code> - Parsed document/base URI (legacy behavior).</li>\r\n                            <li><code>{pageURL}</code> / <code>{tabURL}</code> - Current address-bar URL of the tab.</li>\r\n                            <li><code>{origin}</code> - The origin from <code>{baseURI}</code> (scheme + domain + port).</li>\r\n                            <li><code>{host}</code> - The host from <code>{baseURI}</code> (hostname, and port if present).</li>\r\n                            <li><code>{hostname}</code> - The hostname from <code>{baseURI}</code>.</li>\r\n                            <li><code>{port}</code> - The port number from <code>{baseURI}</code>.</li>\r\n                            <li><code>{protocol}</code> - The protocol scheme from <code>{baseURI}</code>, including the trailing <code>:</code>.</li>\r\n                            <li><code>{pathname}</code> - The path from <code>{baseURI}</code>, not including query string or fragment.</li>\r\n                            <li><code>{search}</code> - The query string from <code>{baseURI}</code>, including <code>?</code>.</li>\r\n                            <li><code>{hash}</code> - The fragment identifier from <code>{baseURI}</code>, including <code>#</code>.</li>\r\n                            <li><code>{pageOrigin}</code>, <code>{pageHost}</code>, <code>{pageHostname}</code>, <code>{pagePort}</code>, <code>{pageProtocol}</code>, <code>{pagePathname}</code>, <code>{pageSearch}</code>, <code>{pageHash}</code> - Same URL components as above, but from <code>{pageURL}</code>.</li>\r\n                        </ul>\r\n                        <p>Examples:</p>\r\n                        <ul>\r\n                            <li>SPA route example (Gemini style):</li>\r\n                            <li>Address bar URL: <code>https://gemini.google.com/app/19a994212aad751c?hl=en#chat</code></li>\r\n                            <li>Parsed/base URI: <code>https://gemini.google.com/</code></li>\r\n                            <li><code>{baseURI}</code> -> <code>https://gemini.google.com/</code></li>\r\n                            <li><code>{pageURL}</code> -> <code>https://gemini.google.com/app/19a994212aad751c?hl=en#chat</code></li>\r\n                            <li><code>{pathname}</code> -> <code>/</code>, <code>{pagePathname}</code> -> <code>/app/19a994212aad751c</code></li>\r\n                            <li><code>{search}</code> -> (empty), <code>{pageSearch}</code> -> <code>?hl=en</code></li>\r\n                            <li><code>{hash}</code> -> (empty), <code>{pageHash}</code> -> <code>#chat</code></li>\r\n                        </ul>\r\n                        <ul>\r\n                            <li>Standard page example (no special base behavior):</li>\r\n                            <li>Address bar URL: <code>https://example.com/blog/post?ref=md#top</code></li>\r\n                            <li><code>{baseURI}</code> and <code>{pageURL}</code> are usually the same.</li>\r\n                        </ul>\r\n                        <p>Template snippets:</p>\r\n                        <ul>\r\n                            <li><code>source: {pageURL}</code> (recommended for current tab URL)</li>\r\n                            <li><code>source_base: {baseURI}</code> (document/base URI)</li>\r\n                            <li><code>source_parts: {pageOrigin}{pagePathname}{pageSearch}{pageHash}</code></li>\r\n                        </ul>\r\n                        <p>Additionally, you can 'parameterize' any of the text variables (other than date and keywords) by using the following syntax:</p>\r\n                        <ul>\r\n                            <li><code>{variable:pascal}</code> — PascalCase: Every word capital</li>\r\n                            <li><code>{variable:camel}</code> — camelCase: every word capital except the first word</li>\r\n                            <li><code>{variable:kebab}</code> — kebab-case: hyphens between words, all lowercase</li>\r\n                            <li><code>{variable:snake}</code> — snake_case: underscores between words, all lowercase</li>\r\n                        </ul>\r\n                    </div>\r\n                </details>\r\n\r\n                <!-- Title template -->\r\n                <div class=\"setting-card\" id=\"includeTemplate-container\"\r\n                    data-search-keywords=\"append template,template toggle,frontmatter,front matter,backmatter,back matter\"\r\n                    data-setting-key=\"title\">\r\n                    <h3 class=\"card-title\">Title template</h3>\r\n                    <div class=\"input-group\">\r\n                        <label class=\"input-label\" for=\"title\">Template for title / filename</label>\r\n                        <input type=\"text\" id=\"title\" name=\"title\" class=\"text-input\" role=\"textbox\" />\r\n                    </div>\r\n                </div>\r\n\r\n                <!-- Clips folder -->\r\n                <div class=\"setting-card\" id=\"mdClipsFolder\" data-setting-key=\"mdClipsFolder\">\r\n                    <h3 class=\"card-title\">Clips folder</h3>\r\n                    <div class=\"input-group\">\r\n                        <label class=\"input-label\" for=\"mdClipsFolder\">Folder inside <code>Downloads/</code> to store MarkSnip clips</label>\r\n                        <input type=\"text\" name=\"mdClipsFolder\" class=\"text-input\" role=\"textbox\" />\r\n                    </div>\r\n                </div>\r\n\r\n                <!-- Disallowed chars -->\r\n                <div class=\"setting-card\" data-setting-key=\"disallowedChars\">\r\n                    <h3 class=\"card-title\">Disallowed characters</h3>\r\n                    <p class=\"card-desc\">Characters to strip from title/filename — in addition to <code>/</code>, <code>?</code>, <code>&lt;</code>, <code>&gt;</code>, <code>\\</code>, <code>:</code>, <code>*</code>, <code>|</code>, <code>\"</code></p>\r\n                    <div class=\"input-group\">\r\n                        <input type=\"text\" id=\"disallowedChars\" name=\"disallowedChars\" class=\"text-input\" role=\"textbox\" />\r\n                    </div>\r\n                </div>\r\n\r\n                <!-- Front-matter -->\r\n                <div class=\"setting-card\" data-setting-key=\"frontmatter\">\r\n                    <h3 class=\"card-title\">Front-matter template</h3>\r\n                    <div class=\"input-group\">\r\n                        <label class=\"input-label\" for=\"frontmatter\">Text that appears at the top of the output file</label>\r\n                        <textarea name=\"frontmatter\" id=\"frontmatter\" class=\"textarea-input\" role=\"textbox\"></textarea>\r\n                        <details class=\"template-preview\" id=\"frontmatter-preview\" data-search-exclude>\r\n                            <summary class=\"template-preview-summary\">\r\n                                <span class=\"template-preview-header\">\r\n                                    <span class=\"template-preview-label\">Live preview</span>\r\n                                    <span class=\"template-preview-meta\">Raw output</span>\r\n                                </span>\r\n                            </summary>\r\n                            <div class=\"template-preview-body\">\r\n                                <p class=\"toggle-hint template-preview-hint\">Preview uses example metadata and the current date/time.</p>\r\n                                <pre class=\"template-preview-output\" id=\"frontmatter-preview-output\" aria-live=\"polite\" aria-atomic=\"true\"></pre>\r\n                            </div>\r\n                        </details>\r\n                    </div>\r\n                </div>\r\n\r\n                <!-- Back-matter -->\r\n                <div class=\"setting-card\" data-setting-key=\"backmatter\">\r\n                    <h3 class=\"card-title\">Back-matter template</h3>\r\n                    <div class=\"input-group\">\r\n                        <label class=\"input-label\" for=\"backmatter\">Text that appears at the bottom of the output file</label>\r\n                        <textarea name=\"backmatter\" id=\"backmatter\" class=\"textarea-input\" role=\"textbox\"></textarea>\r\n                        <details class=\"template-preview\" id=\"backmatter-preview\" data-search-exclude>\r\n                            <summary class=\"template-preview-summary\">\r\n                                <span class=\"template-preview-header\">\r\n                                    <span class=\"template-preview-label\">Live preview</span>\r\n                                    <span class=\"template-preview-meta\">Raw output</span>\r\n                                </span>\r\n                            </summary>\r\n                            <div class=\"template-preview-body\">\r\n                                <p class=\"toggle-hint template-preview-hint\">Preview uses example metadata and the current date/time.</p>\r\n                                <pre class=\"template-preview-output\" id=\"backmatter-preview-output\" aria-live=\"polite\" aria-atomic=\"true\"></pre>\r\n                            </div>\r\n                        </details>\r\n                    </div>\r\n                </div>\r\n\r\n                <!-- Include template toggle -->\r\n                <div class=\"setting-card\" data-setting-key=\"includeTemplate\">\r\n                    <div class=\"toggle-row\">\r\n                        <div class=\"toggle-info\">\r\n                            <label class=\"toggle-label-text\" for=\"includeTemplate\">Append front/back template to clipped text</label>\r\n                            <p class=\"toggle-hint\">Same as the popup's <strong>Template</strong> toggle. When enabled, each clip includes your Front-matter and Back-matter templates.</p>\r\n                        </div>\r\n                        <label class=\"toggle-switch\">\r\n                            <input name=\"includeTemplate\" id=\"includeTemplate\" type=\"checkbox\" />\r\n                            <span class=\"toggle-slider\"></span>\r\n                        </label>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n\r\n\r\n            <!-- ────────────────────────────────────────────\r\n                 SECTION: Appearance\r\n                 ──────────────────────────────────────────── -->"
+  },
+  "options_section_appearance_html": {
+    "message": "<h2 class=\"section-title\">Appearance</h2>\n                <p class=\"section-desc\">Customize the look of the MarkSnip popup.</p>\n\n                <div class=\"setting-card\" id=\"uiLanguageCard\" data-setting-key=\"uiLanguage\" data-search-keywords=\"language,locale,interface language,translation,hindi,english,browser language\">\n                    <h3 class=\"card-title\">Interface Language</h3>\n                    <p class=\"card-desc\">Choose the language used by the popup, settings, guide, shortcuts modal, and in-extension notifications.</p>\n                    <div class=\"setting-row\" style=\"align-items: flex-start; gap: 16px;\">\n                        <div class=\"toggle-info\" style=\"flex: 1;\">\n                            <label class=\"input-label\" for=\"uiLanguage\">Language</label>\n                            <p class=\"toggle-hint\" id=\"uiLanguageNote\">Manifest-level strings such as the extension name, action title, and command descriptions still follow the browser locale.</p>\n                        </div>\n                        <select id=\"uiLanguage\" name=\"uiLanguage\" class=\"text-input\" style=\"max-width: 220px;\">\n                            <option value=\"browser\">Browser default</option>\n                            <option value=\"en\">English</option>\n                            <option value=\"hi\">Hindi</option>\n                        </select>\n                    </div>\n                </div>\n\n                <!-- Color Mode -->\n                <div class=\"setting-card\" id=\"popupThemeGroup\" data-setting-key=\"popupTheme,showThemeToggleInPopup\" data-search-keywords=\"theme toggle,dark mode toggle,light mode toggle,popup header theme button,appearance\">\r\n                    <h3 class=\"card-title\">Color Mode</h3>\r\n                    <div class=\"radio-group\">\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"popupTheme\" id=\"theme-system\" value=\"system\" />\r\n                            <label for=\"theme-system\">System Default</label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"popupTheme\" id=\"theme-light\" value=\"light\" />\r\n                            <label for=\"theme-light\">Light</label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"popupTheme\" id=\"theme-dark\" value=\"dark\" />\r\n                            <label for=\"theme-dark\">Dark</label>\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"toggle-row\">\r\n                        <div class=\"toggle-info\">\r\n                            <label class=\"toggle-label-text\" for=\"showThemeToggleInPopup\">Show quick theme toggle in popup header</label>\r\n                            <p class=\"toggle-hint\">Adds a header button in the popup for one-click switching between light and dark mode.</p>\r\n                        </div>\r\n                        <label class=\"toggle-switch\">\r\n                            <input name=\"showThemeToggleInPopup\" id=\"showThemeToggleInPopup\" type=\"checkbox\" />\r\n                            <span class=\"toggle-slider\"></span>\r\n                        </label>\r\n                    </div>\r\n                </div>\r\n\r\n                <div class=\"setting-card\" id=\"specialThemeGroup\" data-setting-key=\"specialTheme,colorBlindTheme\"\r\n                    data-search-keywords=\"special theme,openai,chatgpt,ai,monochrome,claude,perplexity,atla,avatar,the last airbender,ben 10,omnitrix,alien force,brand theme,appearance skin,color blind,colorblind,accessibility,deuteranopia,protanopia,tritanopia,wcag\">\r\n                    <h3 class=\"card-title\">Special Themes</h3>\r\n                    <p class=\"card-desc\">Apply a tailored aesthetic across the popup, options page, guide, and editor.</p>\r\n                    <div class=\"radio-group\">\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"specialTheme\" id=\"special-theme-none\" value=\"none\" />\r\n                            <label for=\"special-theme-none\">None</label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"specialTheme\" id=\"special-theme-colorblind\" value=\"colorblind\" />\r\n                            <label for=\"special-theme-colorblind\">Color Blind</label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"specialTheme\" id=\"special-theme-claude\" value=\"claude\" />\r\n                            <label for=\"special-theme-claude\">Claude</label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"specialTheme\" id=\"special-theme-perplexity\" value=\"perplexity\" />\r\n                            <label for=\"special-theme-perplexity\">Perplexity</label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"specialTheme\" id=\"special-theme-openai\" value=\"openai\" />\r\n                            <label for=\"special-theme-openai\">OpenAI</label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"specialTheme\" id=\"special-theme-atla\" value=\"atla\" />\r\n                            <label for=\"special-theme-atla\">ATLA</label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"specialTheme\" id=\"special-theme-ben10\" value=\"ben10\" />\r\n                            <label for=\"special-theme-ben10\">Ben 10</label>\r\n                        </div>\r\n                    </div>\r\n                    <div class=\"colorblind-theme-row\" id=\"colorBlindThemeRow\" hidden>\r\n                        <label class=\"input-label\" for=\"colorBlindThemeBtn\">Color Blind Profile</label>\r\n                        <input type=\"hidden\" id=\"colorBlindTheme\" name=\"colorBlindTheme\" value=\"deuteranopia\">\r\n                        <div class=\"cb-dropdown-wrap\" id=\"colorBlindDropdownWrap\">\r\n                            <button type=\"button\" class=\"cb-dropdown-btn\" id=\"colorBlindThemeBtn\"\r\n                                    aria-haspopup=\"listbox\" aria-expanded=\"false\">\r\n                                <span id=\"colorBlindThemeBtnLabel\">Deuteranopia</span>\r\n                                <svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><polyline points=\"6 9 12 15 18 9\"/></svg>\r\n                            </button>\r\n                            <div class=\"cb-dropdown-panel\" id=\"colorBlindThemePanel\" role=\"listbox\" hidden>\r\n                                <button type=\"button\" class=\"dd-item\" role=\"option\" data-value=\"deuteranopia\">Deuteranopia</button>\r\n                                <button type=\"button\" class=\"dd-item\" role=\"option\" data-value=\"protanopia\">Protanopia</button>\r\n                                <button type=\"button\" class=\"dd-item\" role=\"option\" data-value=\"tritanopia\">Tritanopia</button>\r\n                            </div>\r\n                        </div>\r\n                        <p class=\"toggle-hint colorblind-theme-hint\">Uses a WCAG AA palette across the popup, options page, guide, and editor.</p>\r\n                    </div>\r\n                    <div class=\"toggle-row\" id=\"specialThemeIconRow\">\r\n                        <div class=\"toggle-info\">\r\n                            <label class=\"toggle-label-text\" for=\"specialThemeIcon\">Show theme icon</label>\r\n                            <p class=\"toggle-hint\">Display the mascot icon in the header when using supported special themes.</p>\r\n                        </div>\r\n                        <label class=\"toggle-switch\">\r\n                            <input name=\"specialThemeIcon\" id=\"specialThemeIcon\" type=\"checkbox\" />\r\n                            <span class=\"toggle-slider\"></span>\r\n                        </label>\r\n                    </div>\r\n                </div>\r\n\r\n                <!-- Accent Color -->\r\n                <div class=\"setting-card\" id=\"popupAccentGroup\" data-setting-key=\"popupAccent\">\r\n                    <h3 class=\"card-title\">Accent Color</h3>\r\n                    <p class=\"card-desc special-theme-lock-note\" id=\"popupAccentThemeNote\" hidden>The active special theme controls accent color while active.</p>\r\n                    <div class=\"radio-group\">\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"popupAccent\" id=\"accent-sage\" value=\"sage\" />\r\n                            <label for=\"accent-sage\">🌿 Sage Green</label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"popupAccent\" id=\"accent-ocean\" value=\"ocean\" />\r\n                            <label for=\"accent-ocean\">🌊 Ocean Blue</label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"popupAccent\" id=\"accent-slate\" value=\"slate\" />\r\n                            <label for=\"accent-slate\">🪨 Slate Gray</label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"popupAccent\" id=\"accent-rose\" value=\"rose\" />\r\n                            <label for=\"accent-rose\">🌹 Rose</label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"popupAccent\" id=\"accent-amber\" value=\"amber\" />\r\n                            <label for=\"accent-amber\">🍯 Amber</label>\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n\r\n                <!-- Editor Theme -->\r\n                <div class=\"setting-card\" id=\"editorThemeGroup\" data-setting-key=\"editorTheme\">\r\n                    <h3 class=\"card-title\">Editor Theme</h3>\r\n                    <p class=\"card-desc\">Choose a syntax highlighting theme for the Markdown editor in the popup.</p>\r\n                    <p class=\"card-desc special-theme-lock-note\" id=\"editorThemeLockNote\" hidden>The active special theme provides its own light and dark editor themes while active.</p>\r\n                    <div class=\"radio-group\">\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"editorTheme\" id=\"editor-default\" value=\"default\" />\r\n                            <label for=\"editor-default\">Default</label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"editorTheme\" id=\"editor-dracula\" value=\"dracula\" />\r\n                            <label for=\"editor-dracula\">🧛 Dracula</label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"editorTheme\" id=\"editor-material\" value=\"material\" />\r\n                            <label for=\"editor-material\">🎨 Material</label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"editorTheme\" id=\"editor-monokai\" value=\"monokai\" />\r\n                            <label for=\"editor-monokai\">🌙 Monokai\r\n                                <span class=\"radio-pill-tooltip\">\r\n                                    <i class=\"info-icon\">i</i>\r\n                                    <span class=\"pill-tooltip\">Dark mode only — falls back to Default in light mode</span>\r\n                                </span>\r\n                            </label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"editorTheme\" id=\"editor-nord\" value=\"nord\" />\r\n                            <label for=\"editor-nord\">❄️ Nord\r\n                                <span class=\"radio-pill-tooltip\">\r\n                                    <i class=\"info-icon\">i</i>\r\n                                    <span class=\"pill-tooltip\">Dark mode only — falls back to Default in light mode</span>\r\n                                </span>\r\n                            </label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"editorTheme\" id=\"editor-solarized\" value=\"solarized\" />\r\n                            <label for=\"editor-solarized\">☀️ Solarized</label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"editorTheme\" id=\"editor-twilight\" value=\"twilight\" />\r\n                            <label for=\"editor-twilight\">🌆 Twilight\r\n                                <span class=\"radio-pill-tooltip\">\r\n                                    <i class=\"info-icon\">i</i>\r\n                                    <span class=\"pill-tooltip\">Dark mode only — falls back to Default in light mode</span>\r\n                                </span>\r\n                            </label>\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n\r\n                <!-- Compact Mode -->\r\n                <div class=\"setting-card\" id=\"compactMode-container\" data-setting-key=\"compactMode\">\r\n                    <div class=\"toggle-row\">\r\n                        <div class=\"toggle-info\">\r\n                            <label class=\"toggle-label-text\" for=\"compactMode\">Compact Mode</label>\r\n                            <p class=\"toggle-hint\">Hides quick settings panel and reduces padding for a minimal popup. The settings icon remains accessible in the header.</p>\r\n                        </div>\r\n                        <label class=\"toggle-switch\">\r\n                            <input name=\"compactMode\" id=\"compactMode\" type=\"checkbox\" />\r\n                            <span class=\"toggle-slider\"></span>\r\n                        </label>\r\n                    </div>\r\n                </div>\r\n\r\n                <div class=\"setting-card\" id=\"showUserGuideIcon-container\" data-setting-key=\"showUserGuideIcon\" data-search-keywords=\"guide,help,user guide,question mark,icon,header,popup\">\r\n                    <div class=\"toggle-row\">\r\n                        <div class=\"toggle-info\">\r\n                            <label class=\"toggle-label-text\" for=\"showUserGuideIcon\">Show User Guide icon</label>\r\n                            <p class=\"toggle-hint\">Displays the User Guide button in the popup header for quick access to help.</p>\r\n                        </div>\r\n                        <label class=\"toggle-switch\">\r\n                            <input name=\"showUserGuideIcon\" id=\"showUserGuideIcon\" type=\"checkbox\" />\r\n                            <span class=\"toggle-slider\"></span>\r\n                        </label>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n\r\n\r\n            <!-- ────────────────────────────────────────────\r\n                 SECTION: Downloads\r\n                 ──────────────────────────────────────────── -->"
+  },
+  "options_section_downloads_html": {
+    "message": "<h2 class=\"section-title\">Downloads</h2>\r\n                <p class=\"section-desc\">Configure how files are downloaded and integrate with Obsidian.</p>\r\n\r\n                <!-- Context Menus -->\r\n                <div class=\"setting-card\" id=\"contextMenus-container\" data-setting-key=\"contextMenus\">\r\n                    <div class=\"toggle-row\">\r\n                        <div class=\"toggle-info\">\r\n                            <label class=\"toggle-label-text\" for=\"contextMenus\">Enable Context Menus</label>\r\n                            <p class=\"toggle-hint\">Shows right-click actions for clipping pages, selected text, links, and tabs.</p>\r\n                        </div>\r\n                        <label class=\"toggle-switch\">\r\n                            <input name=\"contextMenus\" id=\"contextMenus\" type=\"checkbox\" />\r\n                            <span class=\"toggle-slider\"></span>\r\n                        </label>\r\n                    </div>\r\n                </div>\r\n\r\n                <div class=\"setting-card\" id=\"batchProcessingEnabled-container\"\r\n                    data-search-keywords=\"batch,batch processing,bulk urls,multiple urls,zip,pick links,popup header\"\r\n                    data-setting-key=\"batchProcessingEnabled\">\r\n                    <div class=\"toggle-row\">\r\n                        <div class=\"toggle-info\">\r\n                            <label class=\"toggle-label-text\" for=\"batchProcessingEnabled\">Enable Batch Processing</label>\r\n                            <p class=\"toggle-hint\">Shows the Batch Processing entry in the popup and allows bulk URL conversion.</p>\r\n                        </div>\r\n                        <label class=\"toggle-switch\">\r\n                            <input name=\"batchProcessingEnabled\" id=\"batchProcessingEnabled\" type=\"checkbox\" />\r\n                            <span class=\"toggle-slider\"></span>\r\n                        </label>\r\n                    </div>\r\n                </div>\r\n\r\n                <!-- Download Mode -->\r\n                <div class=\"setting-card\" id=\"downloadMode\"\r\n                    data-search-keywords=\"download,dwnld,downloads api,content link\"\r\n                    data-setting-key=\"downloadMode\">\r\n                    <h3 class=\"card-title\">Download Mode</h3>\r\n                    <p class=\"card-desc\">Method to use for downloading Markdown files. Set to \"Content Link\" if you're having trouble with the Downloads API\r\n                        (Sometimes conflicts can occur with other download extensions, leading to randomly generated filenames and other symptoms).</p>\r\n                    <p class=\"option-note\"><strong>Note:</strong> \"Content Link\" mode disables some functionality such as downloading images or using subfolders in the filename.</p>\r\n                    <div class=\"radio-group\">\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"downloadMode\" id=\"downloadsApi\" value=\"downloadsApi\" />\r\n                            <label for=\"downloadsApi\">Downloads API (recommended)</label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"downloadMode\" id=\"contentLink\" value=\"contentLink\" />\r\n                            <label for=\"contentLink\">Content Link</label>\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n\r\n                <div class=\"setting-card\" id=\"defaultExportTypeGroup\"\r\n                    data-search-keywords=\"default export,default popup action,popup export,export format,send to assistant,assistant action,plain text,txt,html,pdf,markdown,copy,clipboard,copy to clipboard,chatgpt,claude\"\r\n                    data-setting-key=\"defaultExportType\">\r\n                    <h3 class=\"card-title\">Default Popup Action</h3>\r\n                    <p class=\"card-desc\">Controls the popup's main action button and selection action button only. Context menus, shortcuts, batch exports, library exports, Agent Bridge, and Obsidian remain Markdown-based.</p>\r\n                    <div class=\"radio-group\">\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"defaultExportType\" id=\"export-copy\" value=\"copy\" />\r\n                            <label for=\"export-copy\">Copy to clipboard</label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"defaultExportType\" id=\"export-markdown\" value=\"markdown\" />\r\n                            <label for=\"export-markdown\">Markdown (.md)</label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"defaultExportType\" id=\"export-text\" value=\"text\" />\r\n                            <label for=\"export-text\">Plain text (.txt)</label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"defaultExportType\" id=\"export-html\" value=\"html\" />\r\n                            <label for=\"export-html\">HTML (.html)</label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"defaultExportType\" id=\"export-pdf\" value=\"pdf\" />\r\n                            <label for=\"export-pdf\">PDF</label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"defaultExportType\" id=\"export-send-to\" value=\"sendTo\" />\r\n                            <label for=\"export-send-to\">Send to Assistant</label>\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n\r\n                <div class=\"setting-card\" id=\"defaultSendToTargetCard\"\r\n                    data-search-keywords=\"default assistant target,send to target,chatgpt,claude,perplexity,custom assistant,custom url\"\r\n                    data-setting-key=\"defaultSendToTarget\">\r\n                    <h3 class=\"card-title\">Default Assistant Target</h3>\r\n                    <p class=\"card-desc\">Used when the popup's main action is set to Send to Assistant. If a selected custom target is removed, MarkSnip falls back to ChatGPT.</p>\r\n                    <div class=\"radio-group\" id=\"defaultSendToTargetOptions\">\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"defaultSendToTarget\" id=\"send-to-target-chatgpt\" value=\"chatgpt\" />\r\n                            <label for=\"send-to-target-chatgpt\">ChatGPT</label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"defaultSendToTarget\" id=\"send-to-target-claude\" value=\"claude\" />\r\n                            <label for=\"send-to-target-claude\">Claude</label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"defaultSendToTarget\" id=\"send-to-target-perplexity\" value=\"perplexity\" />\r\n                            <label for=\"send-to-target-perplexity\">Perplexity</label>\r\n                        </div>\r\n                        <div id=\"defaultSendToTargetCustomOptions\" class=\"assistant-target-radio-list\" aria-live=\"polite\"></div>\r\n                    </div>\r\n                </div>\r\n\r\n                <div class=\"setting-card\" id=\"assistantTargetsCard\"\r\n                    data-search-keywords=\"assistant targets,send to,custom assistant,custom url,url template,prompt placeholder,chatgpt,claude,perplexity\"\r\n                    data-setting-key=\"sendToCustomTargets\">\r\n                    <h3 class=\"card-title\">Assistant Targets</h3>\r\n                    <p class=\"card-desc\">ChatGPT, Claude, and Perplexity are built in. Add custom HTTPS URLs that accept a <code>{prompt}</code> placeholder in the query string.</p>\r\n                    <div class=\"assistant-target-builder\">\r\n                        <div class=\"input-group\">\r\n                            <label class=\"input-label\" for=\"customSendToName\">Target Name</label>\r\n                            <input type=\"text\" id=\"customSendToName\" class=\"text-input\" role=\"textbox\" placeholder=\"Gemini Workspace\" />\r\n                        </div>\r\n                        <div class=\"input-group assistant-target-builder__url\">\r\n                            <label class=\"input-label\" for=\"customSendToUrl\">URL Template</label>\r\n                            <input type=\"text\" id=\"customSendToUrl\" class=\"text-input\" role=\"textbox\" placeholder=\"https://example.com/new?q={prompt}\" spellcheck=\"false\" />\r\n                        </div>\r\n                        <button type=\"button\" id=\"addSendToCustomTarget\" class=\"btn btn-secondary assistant-target-builder__button\">Add Target</button>\r\n                    </div>\r\n                    <p class=\"assistant-target-hint\">Use exactly one <code>{prompt}</code> placeholder. Example: <code>https://example.com/new?q={prompt}</code></p>\r\n                    <div id=\"assistantTargetsList\" class=\"assistant-targets-list\" aria-live=\"polite\"></div>\r\n                </div>\r\n\r\n                <div class=\"setting-card\" id=\"sendToMaxUrlLengthCard\"\r\n                    data-search-keywords=\"assistant url length,max url length,clipboard fallback,query string,send to assistant,chatgpt,claude,perplexity\"\r\n                    data-setting-key=\"sendToMaxUrlLength\">\r\n                    <h3 class=\"card-title\">Assistant URL Length Cap</h3>\r\n                    <p class=\"card-desc\">Advanced setting for Send to Assistant links. If a generated assistant URL exceeds this value, MarkSnip copies the Markdown to your clipboard and opens the assistant landing page instead. Default: <strong>3600</strong>. Changing this is not recommended.</p>\r\n                    <div class=\"input-group\">\r\n                        <label class=\"input-label\" for=\"sendToMaxUrlLength\">Maximum URL Length</label>\r\n                        <input type=\"number\" id=\"sendToMaxUrlLength\" name=\"sendToMaxUrlLength\" class=\"text-input\" role=\"spinbutton\" min=\"1\" step=\"100\" inputmode=\"numeric\" />\r\n                    </div>\r\n                </div>\r\n\r\n                <!-- Downloads API sub-options -->\r\n                <div id=\"downloadModeGroup\">\r\n                    <div class=\"setting-card\" id=\"saveAs-container\" data-setting-key=\"saveAs\">\r\n                        <div class=\"toggle-row\">\r\n                            <div class=\"toggle-info\">\r\n                                <label class=\"toggle-label-text\" for=\"saveAs\">Always show Save As dialog</label>\r\n                                <p class=\"toggle-hint\">Regardless of browser setting</p>\r\n                            </div>\r\n                            <label class=\"toggle-switch\">\r\n                                <input name=\"saveAs\" id=\"saveAs\" type=\"checkbox\" />\r\n                                <span class=\"toggle-slider\"></span>\r\n                            </label>\r\n                        </div>\r\n                    </div>\r\n\r\n                    <div class=\"setting-card\" id=\"downloadImages-container\"\r\n                        data-search-keywords=\"download images,dwnld,image download,image downloads\"\r\n                        data-setting-key=\"downloadImages\">\r\n                        <div class=\"toggle-row\">\r\n                            <div class=\"toggle-info\">\r\n                                <label class=\"toggle-label-text\" for=\"downloadImages\">Download images alongside markdown files</label>\r\n                                <p class=\"toggle-hint\">In Downloads API mode, image files are saved too and markdown image links are rewritten to those local files.</p>\r\n                            </div>\r\n                            <label class=\"toggle-switch\">\r\n                                <input name=\"downloadImages\" id=\"downloadImages\" type=\"checkbox\" />\r\n                                <span class=\"toggle-slider\"></span>\r\n                            </label>\r\n                        </div>\r\n                    </div>\r\n\r\n                    <div class=\"setting-card\" id=\"imagePrefix\" data-setting-key=\"imagePrefix\">\r\n                        <div class=\"input-group\">\r\n                            <label class=\"input-label\" for=\"imagePrefix\">Image filename prefix template</label>\r\n                            <input type=\"text\" name=\"imagePrefix\" class=\"text-input\" role=\"textbox\" />\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n\r\n                <!-- Obsidian Integration -->\r\n                <div class=\"setting-card\" id=\"obsidian-container\"\r\n                    data-search-keywords=\"obsidian,obsdn,advanced uri,obsidian uri\"\r\n                    data-setting-key=\"obsidianIntegration\">\r\n                    <h3 class=\"card-title\">Obsidian Integration</h3>\r\n                    <p class=\"card-desc\">\r\n                        For integration with Obsidian, you need to install and enable the community plugin <code>Advanced Obsidian URI</code>. This plugin helps bypass character limitations in URLs by using the clipboard as the source for creating new files. Images sent this way stay as remote links; attachment files are not copied into your vault.\r\n                        <a href=\"https://vinzent03.github.io/obsidian-advanced-uri/\" target=\"_blank\" rel=\"noopener noreferrer\">More information →</a>\r\n                    </p>\r\n                    <div class=\"toggle-row\">\r\n                        <div class=\"toggle-info\">\r\n                            <label class=\"toggle-label-text\" for=\"obsidianIntegration\">Enable Obsidian Integration</label>\r\n                        </div>\r\n                        <label class=\"toggle-switch\">\r\n                            <input name=\"obsidianIntegration\" id=\"obsidianIntegration\" type=\"checkbox\" />\r\n                            <span class=\"toggle-slider\"></span>\r\n                        </label>\r\n                    </div>\r\n                </div>\r\n\r\n                <div class=\"setting-card\" id=\"obsidianVault\"\r\n                    data-search-keywords=\"obsidian,obsdn,vault,folder,vault name,folder name\"\r\n                    data-setting-key=\"obsidianVault,obsidianFolder\">\r\n                    <div class=\"input-group\">\r\n                        <label class=\"input-label\">Obsidian Vault Name</label>\r\n                        <input type=\"text\" name=\"obsidianVault\" class=\"text-input\" role=\"textbox\" placeholder=\"If blank, it will use the main Vault. Please specify it.\" />\r\n                    </div>\r\n                    <div class=\"input-group\">\r\n                        <label class=\"input-label\">Obsidian Folder Name</label>\r\n                        <input type=\"text\" name=\"obsidianFolder\" class=\"text-input\" role=\"textbox\" placeholder=\"Enter Folder Name eg. Clippers\" />\r\n                    </div>\r\n                </div>\r\n\r\n                <!-- Permissions & Privacy (read-only info card) -->\r\n                <div class=\"setting-card permissions-privacy-card\" id=\"permissions-privacy-container\"\r\n                    data-search-keywords=\"permissions,privacy,site access,all urls,native messaging,local companion,data,security,what does marksnip access\">\r\n                    <h3 class=\"card-title\">\r\n                        <svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\">\r\n                            <rect x=\"3\" y=\"11\" width=\"18\" height=\"11\" rx=\"2\" ry=\"2\"/>\r\n                            <path d=\"M7 11V7a5 5 0 0 1 10 0v4\"/>\r\n                        </svg>\r\n                        Permissions &amp; Privacy\r\n                    </h3>\r\n                    <p class=\"card-desc\">MarkSnip processes pages locally and only accesses page content when you trigger a clip.</p>\r\n\r\n                    <details class=\"permission-row\" id=\"permissionRowSiteAccess\">\r\n                        <summary class=\"permission-row-header\">\r\n                            <span class=\"permission-row-title\">Site access for clipping</span>\r\n                            <span class=\"permission-badge permission-badge--included\">Included with extension</span>\r\n                        </summary>\r\n                        <div class=\"permission-row-body\">\r\n                            <ul class=\"permission-explainer-list\">\r\n                                <li>Needed so MarkSnip can clip any page you ask it to clip.</li>\r\n                                <li>Not used for passive browsing monitoring.</li>\r\n                                <li>Page content is not sent to external servers.</li>\r\n                                <li>This is managed by the browser as part of the extension install.</li>\r\n                            </ul>\r\n                        </div>\r\n                    </details>\r\n\r\n                    <details class=\"permission-row\" id=\"permissionRowLocalCompanion\">\r\n                        <summary class=\"permission-row-header\">\r\n                            <span class=\"permission-row-title\">Local companion access</span>\r\n                            <span class=\"permission-badge permission-badge--optional\">Optional</span>\r\n                        </summary>\r\n                        <div class=\"permission-row-body\">\r\n                            <ul class=\"permission-explainer-list\">\r\n                                <li>Only used for Agent Bridge.</li>\r\n                                <li>Only talks to the local MarkSnip companion installed on this machine.</li>\r\n                                <li>Regular clipping works without it.</li>\r\n                                <li>Can be stopped by turning Agent Bridge off.</li>\r\n                            </ul>\r\n                        </div>\r\n                    </details>\r\n                </div>\r\n\r\n                <!-- Agent Bridge -->\r\n                <div class=\"setting-card\" id=\"agent-bridge-container\"\r\n                    data-search-keywords=\"agent bridge,cli,native host,native messaging,claude code,coding agent,stdout,bridge\"\r\n                    data-bridge-state=\"disabled\"\r\n                    data-permission-state=\"idle\">\r\n                    <h3 class=\"card-title\">Agent Bridge</h3>\r\n                    <p class=\"card-desc\">Install the local MarkSnip companion once, then let local tools pull the current page's Markdown directly without using downloads.</p>\r\n\r\n                    <div class=\"toggle-row\">\r\n                        <div class=\"toggle-info\">\r\n                            <label class=\"toggle-label-text\" for=\"agentBridgeEnabled\">Enable Agent Bridge</label>\r\n                            <p class=\"toggle-hint\" id=\"agentBridgeToggleHint\">When off, MarkSnip will not open a local companion connection.</p>\r\n                        </div>\r\n                        <label class=\"toggle-switch\">\r\n                            <input name=\"agentBridgeEnabled\" id=\"agentBridgeEnabled\" type=\"checkbox\" />\r\n                            <span class=\"toggle-slider\"></span>\r\n                        </label>\r\n                    </div>\r\n\r\n                    <!-- Inline permission panel (preflight / denied / explanatory) -->\r\n                    <div class=\"agent-bridge-permission-panel\" id=\"agentBridgePermissionPanel\" hidden>\r\n                        <!-- Preflight state -->\r\n                        <div class=\"permission-panel-state\" data-panel-state=\"preflight\">\r\n                            <h4 class=\"permission-panel-title\">\r\n                                <svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\">\r\n                                    <rect x=\"3\" y=\"11\" width=\"18\" height=\"11\" rx=\"2\" ry=\"2\"/>\r\n                                    <path d=\"M7 11V7a5 5 0 0 1 10 0v4\"/>\r\n                                </svg>\r\n                                Enable local companion access?\r\n                            </h4>\r\n                            <p class=\"permission-panel-desc\">MarkSnip is about to ask the browser for permission to talk to the local MarkSnip companion.</p>\r\n                            <ul class=\"permission-panel-bullets\">\r\n                                <li>Only for Agent Bridge</li>\r\n                                <li>Local machine only</li>\r\n                                <li>Regular clipping still works without this</li>\r\n                            </ul>\r\n                            <div class=\"permission-panel-actions\">\r\n                                <button id=\"agentBridgePermContinue\" class=\"btn btn-primary btn-sm\" type=\"button\">Continue</button>\r\n                                <button id=\"agentBridgePermCancel\" class=\"btn btn-secondary btn-sm\" type=\"button\">Cancel</button>\r\n                                <a href=\"#\" id=\"agentBridgePermGuideLink\" class=\"permission-panel-link\">View setup guide</a>\r\n                            </div>\r\n                        </div>\r\n\r\n                        <!-- Denied state -->\r\n                        <div class=\"permission-panel-state\" data-panel-state=\"denied\">\r\n                            <p class=\"permission-panel-desc\">Permission wasn't granted. Agent Bridge stays off. Regular clipping is unchanged.</p>\r\n                            <div class=\"permission-panel-actions\">\r\n                                <button id=\"agentBridgePermRetry\" class=\"btn btn-secondary btn-sm\" type=\"button\">Try again</button>\r\n                                <button id=\"agentBridgePermDismiss\" class=\"btn btn-secondary btn-sm\" type=\"button\">Cancel</button>\r\n                            </div>\r\n                        </div>\r\n                    </div>\r\n\r\n                    <div class=\"agent-bridge-status-row\" id=\"agentBridgeStatusRow\">\r\n                        <div class=\"agent-bridge-status-copy\">\r\n                            <span class=\"agent-bridge-status-label\">Status</span>\r\n                            <div class=\"agent-bridge-status-badge\" role=\"status\" aria-live=\"polite\">\r\n                                <span class=\"agent-bridge-status-dot\" aria-hidden=\"true\"></span>\r\n                                <strong id=\"agentBridgeStatusText\" class=\"agent-bridge-status-text\">Disabled</strong>\r\n                            </div>\r\n                            <p id=\"agentBridgeStatusHint\" class=\"option-note\">Enable the Agent Bridge to let MarkSnip connect to the local companion.</p>\r\n                            <span id=\"agentBridgeHostVersion\" class=\"agent-bridge-version-tag\" hidden></span>\r\n                        </div>\r\n                        <button id=\"refreshAgentBridgeStatus\" class=\"btn btn-secondary btn-sm\" type=\"button\" aria-label=\"Check Agent Bridge connection status\">Check Connection</button>\r\n                    </div>\r\n\r\n                    <details class=\"info-panel agent-bridge-setup-guide\" id=\"agentBridgeSetupGuide\">\r\n                        <summary>Setup guide</summary>\r\n                        <div class=\"info-panel-content\">\r\n                            <p>To connect MarkSnip to local CLI tools, follow these steps:</p>\r\n                            <ol>\r\n                                <li>Download the companion archive for your OS from the <a href=\"https://github.com/DhruvParikh1/markdownload-extension-updated/releases\" target=\"_blank\" rel=\"noopener noreferrer\">Releases page</a>.</li>\r\n                                <li>Run the install command to register the native messaging host:</li>\r\n                            </ol>\r\n                            <div class=\"agent-bridge-terminal\">\r\n                                <span class=\"agent-bridge-terminal-prompt\" aria-hidden=\"true\">$</span>\r\n                                <code id=\"agentBridgeInstallCommand\">marksnip install-host</code>\r\n                                <button id=\"copyAgentBridgeCommand\" class=\"btn btn-sm agent-bridge-copy-btn\" type=\"button\" aria-label=\"Copy install command to clipboard\">Copy</button>\r\n                            </div>\r\n                            <ol start=\"3\">\r\n                                <li>Enable the toggle above and MarkSnip will connect automatically.</li>\r\n                            </ol>\r\n                            <p class=\"option-note\" style=\"margin-top: var(--space-3)\">Local-only feature. Bridge settings are not exported and do not sync between machines.</p>\r\n                        </div>\r\n                    </details>\r\n                </div>"
+  },
+  "options_section_library_html": {
+    "message": "<h2 class=\"section-title\">Library</h2>\r\n                <p class=\"section-desc\">Manage the popup Library that stores saved clips locally on this browser only.</p>\r\n\r\n                <div class=\"setting-card\" data-search-keywords=\"library local clips saved clips popup history local only import export\"\r\n                    data-local-setting-key=\"enabled\">\r\n                    <div class=\"toggle-row\">\r\n                        <div class=\"toggle-info\">\r\n                            <label class=\"toggle-label-text\" for=\"libraryEnabled\">Enable Library</label>\r\n                            <p class=\"toggle-hint\">Shows the Library view in the popup. Turning it off hides the feature without deleting saved items.</p>\r\n                        </div>\r\n                        <label class=\"toggle-switch\">\r\n                            <input name=\"libraryEnabled\" id=\"libraryEnabled\" type=\"checkbox\" />\r\n                            <span class=\"toggle-slider\"></span>\r\n                        </label>\r\n                    </div>\r\n                </div>\r\n\r\n                <div class=\"setting-card\" id=\"libraryAutoSave-container\"\r\n                    data-search-keywords=\"library auto save popup opens automatic clip save manual save\"\r\n                    data-local-setting-key=\"autoSaveOnPopupOpen\">\r\n                    <div class=\"toggle-row\">\r\n                        <div class=\"toggle-info\">\r\n                            <label class=\"toggle-label-text\" for=\"libraryAutoSaveOnPopupOpen\">Save pages automatically when popup opens</label>\r\n                            <p class=\"toggle-hint\">When off, the popup Library shows a manual <strong>Save Clip</strong> button instead.</p>\r\n                        </div>\r\n                        <label class=\"toggle-switch\">\r\n                            <input name=\"libraryAutoSaveOnPopupOpen\" id=\"libraryAutoSaveOnPopupOpen\" type=\"checkbox\" />\r\n                            <span class=\"toggle-slider\"></span>\r\n                        </label>\r\n                    </div>\r\n                </div>\r\n\r\n                <div class=\"setting-card\" id=\"libraryItemsToKeep-container\"\r\n                    data-search-keywords=\"library items keep retain retention max saved clips limit\"\r\n                    data-local-setting-key=\"itemsToKeep\">\r\n                    <h3 class=\"card-title\">Items to Keep</h3>\r\n                    <p class=\"card-desc\">Maximum number of saved Library clips to keep locally. Lowering this trims older items immediately.</p>\r\n                    <div class=\"input-group\">\r\n                        <label class=\"input-label\" for=\"libraryItemsToKeep\">Saved clip limit</label>\r\n                        <input type=\"number\" min=\"1\" step=\"1\" id=\"libraryItemsToKeep\" name=\"libraryItemsToKeep\" class=\"text-input\" role=\"spinbutton\" />\r\n                    </div>\r\n                    <p class=\"option-note\">Library settings are included in settings import/export. Saved Library items remain local-only and are excluded.</p>\r\n                </div>\r\n\r\n                <div class=\"setting-card\" data-search-keywords=\"clear library delete saved clips local history\">\r\n                    <h3 class=\"card-title\">Clear Library</h3>\r\n                    <p class=\"card-desc\">Delete all saved Library items from local storage. This cannot be undone.</p>\r\n                    <div class=\"btn-group\">\r\n                        <button id=\"clear-library\" class=\"btn btn-danger\">\r\n                            <svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\r\n                                <polyline points=\"3 6 5 6 21 6\"/>\r\n                                <path d=\"M19 6l-1 14H6L5 6\"/>\r\n                                <path d=\"M10 11v6\"/>\r\n                                <path d=\"M14 11v6\"/>\r\n                                <path d=\"M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2\"/>\r\n                            </svg>\r\n                            Clear Library\r\n                        </button>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n\r\n\r\n            <!-- ────────────────────────────────────────────\r\n                 SECTION: Markdown\r\n                 ──────────────────────────────────────────── -->"
+  },
+  "options_section_markdown_html": {
+    "message": "<h2 class=\"section-title\">Markdown</h2>\r\n                <p class=\"section-desc\">Configure how HTML is converted to Markdown syntax.</p>\r\n\r\n                <!-- Heading Style -->\r\n                <div class=\"setting-card\" id=\"headingStyle\" data-setting-key=\"headingStyle\">\r\n                    <h3 class=\"card-title\">Heading Style</h3>\r\n                    <div class=\"radio-card-group\">\r\n                        <div class=\"radio-card\">\r\n                            <input type=\"radio\" name=\"headingStyle\" id=\"setext\" value=\"setext\" />\r\n                            <label for=\"setext\">\r\n                                <div class=\"radio-card-title\">Setext-Style</div>\r\n                                <pre>All About Dogs\r\n==============</pre>\r\n                            </label>\r\n                        </div>\r\n                        <div class=\"radio-card\">\r\n                            <input type=\"radio\" name=\"headingStyle\" id=\"atx\" value=\"atx\" />\r\n                            <label for=\"atx\">\r\n                                <div class=\"radio-card-title\">Atx-Style</div>\r\n                                <pre># All About Dogs</pre>\r\n                            </label>\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n\r\n                <!-- Horizontal Rule -->\r\n                <div class=\"setting-card\" id=\"hr\" data-setting-key=\"hr\">\r\n                    <h3 class=\"card-title\">Horizontal Rule</h3>\r\n                    <div class=\"radio-group\">\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"hr\" id=\"***\" value=\"***\" />\r\n                            <label for=\"***\"><code>***</code></label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"hr\" id=\"---\" value=\"---\" />\r\n                            <label for=\"---\"><code>---</code></label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"hr\" id=\"___\" value=\"___\" />\r\n                            <label for=\"___\"><code>___</code></label>\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n\r\n                <!-- Bullet List Marker -->\r\n                <div class=\"setting-card\" id=\"bulletListMarker\" data-setting-key=\"bulletListMarker\">\r\n                    <h3 class=\"card-title\">Bullet List Marker</h3>\r\n                    <div class=\"radio-group\">\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"bulletListMarker\" id=\"*\" value=\"*\" />\r\n                            <label for=\"*\"><code>*</code></label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"bulletListMarker\" id=\"-\" value=\"-\" />\r\n                            <label for=\"-\"><code>-</code></label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"bulletListMarker\" id=\"+\" value=\"+\" />\r\n                            <label for=\"+\"><code>+</code></label>\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n\r\n                <!-- Code Block Style -->\r\n                <div class=\"setting-card\" id=\"codeBlockStyle\" data-setting-key=\"codeBlockStyle\">\r\n                    <h3 class=\"card-title\">Code Block Style</h3>\r\n                    <div class=\"radio-card-group\">\r\n                        <div class=\"radio-card\">\r\n                            <input type=\"radio\" name=\"codeBlockStyle\" id=\"indented\" value=\"indented\" />\r\n                            <label for=\"indented\">\r\n                                <div class=\"radio-card-title\">Indented</div>\r\n                                <pre>····const helloWorld = () => {\r\n········console.log(\"Hello World\");\r\n····}</pre>\r\n                            </label>\r\n                        </div>\r\n                        <div class=\"radio-card\">\r\n                            <input type=\"radio\" name=\"codeBlockStyle\" id=\"fenced\" value=\"fenced\" />\r\n                            <label for=\"fenced\">\r\n                                <div class=\"radio-card-title\">Fenced</div>\r\n                                <pre>```\r\nconst helloWorld = () => {\r\n····console.log(\"Hello World\");\r\n}\r\n```</pre>\r\n                            </label>\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n\r\n                <!-- Code formatting toggles -->\r\n                <div class=\"setting-card\" id=\"preserveCodeFormatting-container\" data-setting-key=\"preserveCodeFormatting\">\r\n                    <div class=\"toggle-row\">\r\n                        <div class=\"toggle-info\">\r\n                            <label class=\"toggle-label-text\" for=\"preserveCodeFormatting\">Preserve Code Block HTML Formatting</label>\r\n                            <p class=\"toggle-hint\">When enabled, preserves original HTML formatting within code blocks. This can be useful for maintaining exact visual formatting, but may make the Markdown harder to read and use in other tools. When disabled (default), produces clean code blocks.</p>\r\n                        </div>\r\n                        <label class=\"toggle-switch\">\r\n                            <input name=\"preserveCodeFormatting\" id=\"preserveCodeFormatting\" type=\"checkbox\" />\r\n                            <span class=\"toggle-slider\"></span>\r\n                        </label>\r\n                    </div>\r\n                </div>\r\n\r\n                <div class=\"setting-card\" id=\"autoDetectCodeLanguage-container\" data-setting-key=\"autoDetectCodeLanguage\"\r\n                    data-search-keywords=\"highlight,highlight js,highlightjs,highlight.js,syntax highlighting,language detection\">\r\n                    <div class=\"toggle-row\">\r\n                        <div class=\"toggle-info\">\r\n                            <label class=\"toggle-label-text\" for=\"autoDetectCodeLanguage\">Auto-detect code block language</label>\r\n                            <p class=\"toggle-hint\">Uses highlight.js to infer fenced code block language when no explicit language is present. Disable this if snippets are frequently labeled with incorrect languages.</p>\r\n                        </div>\r\n                        <label class=\"toggle-switch\">\r\n                            <input name=\"autoDetectCodeLanguage\" id=\"autoDetectCodeLanguage\" type=\"checkbox\" />\r\n                            <span class=\"toggle-slider\"></span>\r\n                        </label>\r\n                    </div>\r\n                </div>\r\n\r\n                <!-- Code Block Fence -->\r\n                <div class=\"setting-card\" id=\"fence\" data-setting-key=\"fence\">\r\n                    <h3 class=\"card-title\">Code Block Fence</h3>\r\n                    <div class=\"radio-group\">\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"fence\" id=\"```\" value=\"```\" />\r\n                            <label for=\"```\"><code>```</code></label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"fence\" id=\"~~~\" value=\"~~~\" />\r\n                            <label for=\"~~~\"><code>~~~</code></label>\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n\r\n                <!-- Emphasis Delimiter -->\r\n                <div class=\"setting-card\" id=\"emDelimiter\" data-setting-key=\"emDelimiter\">\r\n                    <h3 class=\"card-title\">Emphasis (italics) Delimiter</h3>\r\n                    <div class=\"radio-group\">\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"emDelimiter\" id=\"em_\" value=\"_\" />\r\n                            <label for=\"em_\"><code>_italics_</code></label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"emDelimiter\" id=\"em*\" value=\"*\" />\r\n                            <label for=\"em*\"><code>*italics*</code></label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"emDelimiter\" id=\"em__\" value=\"__\" />\r\n                            <label for=\"em__\"><code>__italics__</code> <span class=\"option-note\" style=\"display:inline;margin:0\"><strong>(Non-standard. Roam specific.)</strong></span></label>\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n\r\n                <!-- Strong (bold) Delimiter -->\r\n                <div class=\"setting-card\" id=\"strongDelimiter\" data-setting-key=\"strongDelimiter\">\r\n                    <h3 class=\"card-title\">Strong (bold) Delimiter</h3>\r\n                    <div class=\"radio-group\">\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"strongDelimiter\" id=\"**\" value=\"**\" />\r\n                            <label for=\"**\"><code>**bold**</code></label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"strongDelimiter\" id=\"__\" value=\"__\" />\r\n                            <label for=\"__\"><code>__bold__</code></label>\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n\r\n                <!-- Link Style -->\r\n                <div class=\"setting-card\" id=\"linkStyle\" data-setting-key=\"linkStyle\">\r\n                    <h3 class=\"card-title\">Link Style</h3>\r\n                    <div class=\"radio-card-group\">\r\n                        <div class=\"radio-card\">\r\n                            <input type=\"radio\" name=\"linkStyle\" id=\"inlined\" value=\"inlined\" />\r\n                            <label for=\"inlined\">\r\n                                <div class=\"radio-card-title\">Inlined</div>\r\n                                <pre>[Google](http://google.com)</pre>\r\n                            </label>\r\n                        </div>\r\n                        <div class=\"radio-card\">\r\n                            <input type=\"radio\" name=\"linkStyle\" id=\"referenced\" value=\"referenced\" />\r\n                            <label for=\"referenced\">\r\n                                <div class=\"radio-card-title\">Referenced</div>\r\n                                <pre>[Google]\r\n\r\n[Google]: http://google.com</pre>\r\n                            </label>\r\n                        </div>\r\n                        <div class=\"radio-card\">\r\n                            <input type=\"radio\" name=\"linkStyle\" id=\"stripLinks\" value=\"stripLinks\" />\r\n                            <label for=\"stripLinks\">\r\n                                <div class=\"radio-card-title\">Strip Links</div>\r\n                                <pre>Google</pre>\r\n                            </label>\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n\r\n                <!-- Link Reference Style -->\r\n                <div class=\"setting-card\" id=\"linkReferenceStyle\" data-setting-key=\"linkReferenceStyle\">\r\n                    <h3 class=\"card-title\">Link Reference Style</h3>\r\n                    <div class=\"radio-card-group\">\r\n                        <div class=\"radio-card\">\r\n                            <input type=\"radio\" name=\"linkReferenceStyle\" id=\"full\" value=\"full\" />\r\n                            <label for=\"full\">\r\n                                <div class=\"radio-card-title\">Full</div>\r\n                                <pre>[Google][1]\r\n\r\n[1]: http://google.com</pre>\r\n                            </label>\r\n                        </div>\r\n                        <div class=\"radio-card\">\r\n                            <input type=\"radio\" name=\"linkReferenceStyle\" id=\"collapsed\" value=\"collapsed\" />\r\n                            <label for=\"collapsed\">\r\n                                <div class=\"radio-card-title\">Collapsed</div>\r\n                                <pre>[Google][]\r\n\r\n[Google]: http://google.com</pre>\r\n                            </label>\r\n                        </div>\r\n                        <div class=\"radio-card\">\r\n                            <input type=\"radio\" name=\"linkReferenceStyle\" id=\"shortcut\" value=\"shortcut\" />\r\n                            <label for=\"shortcut\">\r\n                                <div class=\"radio-card-title\">Shortcut</div>\r\n                                <pre>[Google]\r\n\r\n[Google]: http://google.com</pre>\r\n                            </label>\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n\r\n                <!-- Image Style -->\r\n                <div class=\"setting-card\" id=\"imageOptions\"\r\n                    data-search-keywords=\"image,img,imgstyle,base64,embed,obsidian embed,obsdn\"\r\n                    data-setting-key=\"imageStyle\">\r\n                    <h3 class=\"card-title\">Image Style</h3>\r\n                    <div class=\"radio-card-group\">\r\n                        <div class=\"radio-card\">\r\n                            <input type=\"radio\" name=\"imageStyle\" id=\"originalSource\" value=\"originalSource\" />\r\n                            <label for=\"originalSource\">\r\n                                <div class=\"radio-card-title\">Original Source</div>\r\n                                <pre>![](http://example.com/img/image.jpg)</pre>\r\n                            </label>\r\n                        </div>\r\n                        <div class=\"radio-card\">\r\n                            <input type=\"radio\" name=\"imageStyle\" id=\"noImage\" value=\"noImage\" />\r\n                            <label for=\"noImage\">\r\n                                <div class=\"radio-card-title\">Strip Images</div>\r\n                                <pre> </pre>\r\n                            </label>\r\n                        </div>\r\n                    </div>\r\n                    <p class=\"option-note\" style=\"margin-top: var(--space-3)\"><strong>Note:</strong> The following only apply if Download Images is on.</p>\r\n                    <div class=\"radio-card-group\" style=\"margin-top: var(--space-3)\">\r\n                        <div class=\"radio-card\">\r\n                            <input type=\"radio\" name=\"imageStyle\" id=\"markdown\" value=\"markdown\" />\r\n                            <label for=\"markdown\">\r\n                                <div class=\"radio-card-title\">Pure Markdown</div>\r\n                                <pre>![](folder/image.jpg)</pre>\r\n                            </label>\r\n                        </div>\r\n                        <div class=\"radio-card\">\r\n                            <input type=\"radio\" name=\"imageStyle\" id=\"base64\" value=\"base64\" />\r\n                            <label for=\"base64\">\r\n                                <div class=\"radio-card-title\">Base64 Encoded</div>\r\n                                <pre>![](data:image/png;base64,iVBO...)</pre>\r\n                            </label>\r\n                        </div>\r\n                        <div class=\"radio-card\">\r\n                            <input type=\"radio\" name=\"imageStyle\" id=\"obsidian\" value=\"obsidian\" />\r\n                            <label for=\"obsidian\">\r\n                                <div class=\"radio-card-title\">Obsidian Internal Embed</div>\r\n                                <pre>![[folder/image.jpg]]</pre>\r\n                            </label>\r\n                        </div>\r\n                        <div class=\"radio-card\">\r\n                            <input type=\"radio\" name=\"imageStyle\" id=\"obsidian-nofolder\" value=\"obsidian-nofolder\" />\r\n                            <label for=\"obsidian-nofolder\">\r\n                                <div class=\"radio-card-title\">Obsidian Embed (no folder)</div>\r\n                                <pre>![[image.jpg]]</pre>\r\n                            </label>\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n\r\n                <!-- Image Reference Style -->\r\n                <div class=\"setting-card\" id=\"imageRefOptions\"\r\n                    data-search-keywords=\"image,img,imgref,image ref,image reference\"\r\n                    data-setting-key=\"imageRefStyle\">\r\n                    <h3 class=\"card-title\">Image Reference Style</h3>\r\n                    <p class=\"card-desc\"><strong>Note:</strong> The following only apply if Image Style is markdown (not Obsidian-styled).</p>\r\n                    <div class=\"radio-card-group\">\r\n                        <div class=\"radio-card\">\r\n                            <input type=\"radio\" name=\"imageRefStyle\" id=\"img-inlined\" value=\"inlined\" />\r\n                            <label for=\"img-inlined\">\r\n                                <div class=\"radio-card-title\">Inlined</div>\r\n                                <pre>![](address/of/image.jpg)</pre>\r\n                            </label>\r\n                        </div>\r\n                        <div class=\"radio-card\">\r\n                            <input type=\"radio\" name=\"imageRefStyle\" id=\"img-referenced\" value=\"referenced\" />\r\n                            <label for=\"img-referenced\">\r\n                                <div class=\"radio-card-title\">Referenced</div>\r\n                                <pre> ![][fig1]\r\n\r\n[fig1]: address/of/image.jpg</pre>\r\n                            </label>\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n\r\n                <!-- Escape Markdown -->\r\n                <div class=\"setting-card\" id=\"turndownEscape-container\" data-setting-key=\"turndownEscape\">\r\n                    <div class=\"toggle-row\">\r\n                        <div class=\"toggle-info\">\r\n                            <label class=\"toggle-label-text\" for=\"turndownEscape\">Escape Markdown Characters</label>\r\n                            <p class=\"toggle-hint\">\r\n                                By default, backslashes (<code>\\</code>) are used to escape\r\n                                Markdown characters in the HTML input. This ensures that these\r\n                                characters are not interpreted as Markdown. For example, the\r\n                                contents of <code>&lt;h1&gt;1. Hello world&lt;/h1&gt;</code>\r\n                                needs to be escaped to <code>1\\. Hello world</code>, otherwise\r\n                                it will be interpreted as a list item rather than a heading.\r\n                                Disabling this option disables this escaping.\r\n                            </p>\r\n                        </div>\r\n                        <label class=\"toggle-switch\">\r\n                            <input name=\"turndownEscape\" id=\"turndownEscape\" type=\"checkbox\" />\r\n                            <span class=\"toggle-slider\"></span>\r\n                        </label>\r\n                    </div>\r\n                </div>\r\n\r\n                <!-- Hashtag Handling -->\r\n                <div class=\"setting-card\" id=\"hashtagHandling-container\" data-setting-key=\"hashtagHandling\">\r\n                    <h3 class=\"card-title\">Hashtag Handling</h3>\r\n                    <p class=\"card-desc\">\r\n                        Control how hashtag-like words (for example <code>#AI</code>) are written in clipped text.\r\n                        Useful for tools like Obsidian that treat hashtags as tags.\r\n                    </p>\r\n                    <div class=\"radio-group\">\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"hashtagHandling\" id=\"hashtag-keep\" value=\"keep\" />\r\n                            <label for=\"hashtag-keep\">Keep</label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"hashtagHandling\" id=\"hashtag-remove\" value=\"remove\" />\r\n                            <label for=\"hashtag-remove\">Remove #</label>\r\n                        </div>\r\n                        <div class=\"radio-pill\">\r\n                            <input type=\"radio\" name=\"hashtagHandling\" id=\"hashtag-escape\" value=\"escape\" />\r\n                            <label for=\"hashtag-escape\">Escape #</label>\r\n                        </div>\r\n                    </div>\r\n                    <p class=\"toggle-hint\" style=\"margin-top: var(--space-3);\">\r\n                        Example: <code>#research</code> becomes <code>research</code> in <strong>Remove #</strong>,\r\n                        or <code>\\#research</code> in <strong>Escape #</strong>.\r\n                    </p>\r\n                </div>\r\n            </div>\r\n\r\n\r\n            <!-- ────────────────────────────────────────────\r\n                 SECTION: Tables\r\n                 ──────────────────────────────────────────── -->"
+  },
+  "options_section_tables_html": {
+    "message": "<h2 class=\"section-title\">Tables</h2>\r\n                <p class=\"section-desc\">Configure how HTML tables are converted to Markdown tables.</p>\r\n\r\n                <div class=\"setting-card\" id=\"table-options\" data-setting-key=\"tableFormatting\">\r\n                    <div class=\"toggle-row\">\r\n                        <div class=\"toggle-info\">\r\n                            <label class=\"toggle-label-text\" for=\"table-stripLinks\">Strip links from tables</label>\r\n                            <p class=\"toggle-hint\">Removes all links from tables, keeping only the text content. Creates cleaner, more readable tables.</p>\r\n                            <div class=\"toggle-example\">\r\n                                <div class=\"toggle-example-col\">\r\n                                    <label>Off</label>\r\n                                    <pre>| Name              |\r\n|-------------------|\r\n| [Google](http://…) |</pre>\r\n                                </div>\r\n                                <div class=\"toggle-example-col\">\r\n                                    <label>On</label>\r\n                                    <pre>| Name   |\r\n|--------|\r\n| Google |</pre>\r\n                                </div>\r\n                            </div>\r\n                        </div>\r\n                        <label class=\"toggle-switch\">\r\n                            <input name=\"tableFormatting.stripLinks\" id=\"table-stripLinks\" type=\"checkbox\" />\r\n                            <span class=\"toggle-slider\"></span>\r\n                        </label>\r\n                    </div>\r\n\r\n                    <div class=\"toggle-row\">\r\n                        <div class=\"toggle-info\">\r\n                            <label class=\"toggle-label-text\" for=\"table-stripFormatting\">Strip formatting (bold, italic, etc.)</label>\r\n                            <p class=\"toggle-hint\">Removes formatting like bold and italic from table cells. Results in plain text tables.</p>\r\n                            <div class=\"toggle-example\">\r\n                                <div class=\"toggle-example-col\">\r\n                                    <label>Off</label>\r\n                                    <pre>| Item       | Note     |\r\n|------------|----------|\r\n| **Apple**  | _Fresh_  |</pre>\r\n                                </div>\r\n                                <div class=\"toggle-example-col\">\r\n                                    <label>On</label>\r\n                                    <pre>| Item   | Note  |\r\n|--------|-------|\r\n| Apple  | Fresh |</pre>\r\n                                </div>\r\n                            </div>\r\n                        </div>\r\n                        <label class=\"toggle-switch\">\r\n                            <input name=\"tableFormatting.stripFormatting\" id=\"table-stripFormatting\" type=\"checkbox\" />\r\n                            <span class=\"toggle-slider\"></span>\r\n                        </label>\r\n                    </div>\r\n\r\n                    <div class=\"toggle-row\">\r\n                        <div class=\"toggle-info\">\r\n                            <label class=\"toggle-label-text\" for=\"table-prettyPrint\">Pretty print tables</label>\r\n                            <p class=\"toggle-hint\">Formats tables with proper spacing and alignment. Makes tables more readable in markdown.</p>\r\n                            <div class=\"toggle-example\">\r\n                                <div class=\"toggle-example-col\">\r\n                                    <label>Off</label>\r\n                                    <pre>|Name|Price|\r\n|---|---|\r\n|Apple|$1.50|\r\n|Banana|$0.75|</pre>\r\n                                </div>\r\n                                <div class=\"toggle-example-col\">\r\n                                    <label>On</label>\r\n                                    <pre>| Name   | Price |\r\n|--------|-------|\r\n| Apple  | $1.50 |\r\n| Banana | $0.75 |</pre>\r\n                                </div>\r\n                            </div>\r\n                        </div>\r\n                        <label class=\"toggle-switch\">\r\n                            <input name=\"tableFormatting.prettyPrint\" id=\"table-prettyPrint\" type=\"checkbox\" />\r\n                            <span class=\"toggle-slider\"></span>\r\n                        </label>\r\n                    </div>\r\n\r\n                    <div class=\"toggle-row\">\r\n                        <div class=\"toggle-info\">\r\n                            <label class=\"toggle-label-text\" for=\"table-centerText\">Center text in columns</label>\r\n                            <p class=\"toggle-hint\">Centers text within table columns. Creates a more polished look.</p>\r\n                            <div class=\"toggle-example\">\r\n                                <div class=\"toggle-example-col\">\r\n                                    <label>Off</label>\r\n                                    <pre>| Name   | Price |\r\n|--------|-------|\r\n| Apple  | $1.50 |</pre>\r\n                                </div>\r\n                                <div class=\"toggle-example-col\">\r\n                                    <label>On</label>\r\n                                    <pre>| Name   | Price |\r\n|:------:|:-----:|\r\n| Apple  | $1.50 |</pre>\r\n                                </div>\r\n                            </div>\r\n                        </div>\r\n                        <label class=\"toggle-switch\">\r\n                            <input name=\"tableFormatting.centerText\" id=\"table-centerText\" type=\"checkbox\" />\r\n                            <span class=\"toggle-slider\"></span>\r\n                        </label>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n\r\n\r\n            <!-- ────────────────────────────────────────────\r\n                 SECTION: Import / Export\r\n                 ──────────────────────────────────────────── -->"
+  },
+  "options_section_site_rules_html": {
+    "message": "<h2 class=\"section-title\">Site Rules</h2>\r\n\t                <p class=\"section-desc\">Create ordered wildcard URL rules that override clip settings for matching sites. The first enabled match wins.</p>\r\n\r\n\t                <div class=\"setting-card\" id=\"siteRulesCard\" data-setting-key=\"siteRules\" data-search-keywords=\"site rules,per site,domain,url pattern,host rule,wildcard,override,matching\">\r\n\t                    <h3 class=\"card-title\">Rule List</h3>\r\n\t                    <p class=\"card-desc\">Use patterns like <code>example.com/*</code>, <code>docs.example.com/blog/*</code>, or <code>*.example.com/*</code>. Query strings and hashes are ignored.</p>\r\n\r\n\t                    <div class=\"site-rules-toolbar\">\r\n\t                        <div class=\"site-rules-summary\" id=\"siteRulesSummary\">0 rules</div>\r\n\t                        <button type=\"button\" class=\"btn btn-primary btn-sm\" id=\"addSiteRule\">Add Rule</button>\r\n\t                    </div>\r\n\r\n\t                    <div class=\"site-rules-empty\" id=\"siteRulesEmpty\" hidden>\r\n\t                        <strong>No site rules yet.</strong>\r\n\t                        <p class=\"toggle-hint\">Add a rule when you want different templates, image behavior, or table formatting for specific domains.</p>\r\n\t                    </div>\r\n\r\n\t                    <div class=\"site-rules-list\" id=\"siteRulesList\"></div>\r\n\r\n\t                    <div class=\"site-rule-editor\" id=\"siteRuleEditor\" data-search-exclude hidden>\r\n\t                        <div class=\"site-rule-editor-header\">\r\n\t                            <div>\r\n\t                                <h4 class=\"site-rule-editor-title\" id=\"siteRuleEditorTitle\">Add Site Rule</h4>\r\n\t                                <p class=\"toggle-hint\">Missing scheme matches both <code>http</code> and <code>https</code>. Missing path implies <code>/*</code>.</p>\r\n\t                            </div>\r\n\t                        </div>\r\n\r\n\t                        <div class=\"site-rule-fields\">\r\n\t                            <div class=\"site-rule-field\">\r\n\t                                <label class=\"input-label\" for=\"siteRuleName\">Rule Name</label>\r\n\t                                <input type=\"text\" id=\"siteRuleName\" class=\"text-input\" placeholder=\"Docs Template\" />\r\n\t                            </div>\r\n\r\n\t                            <div class=\"site-rule-field\">\r\n\t                                <label class=\"input-label\" for=\"siteRulePattern\">Wildcard URL Pattern</label>\r\n\t                                <input type=\"text\" id=\"siteRulePattern\" class=\"text-input\" placeholder=\"example.com/*\" />\r\n\t                                <p class=\"toggle-hint\" id=\"siteRulePatternFeedback\"></p>\r\n\t                            </div>\r\n\r\n\t                            <div class=\"site-rule-field site-rule-field--toggle\">\r\n\t                                <div class=\"toggle-row\">\r\n\t                                    <div class=\"toggle-info\">\r\n\t                                        <label class=\"toggle-label-text\" for=\"siteRuleEnabled\">Enabled</label>\r\n\t                                        <p class=\"toggle-hint\">Disabled rules stay in the list but never match.</p>\r\n\t                                    </div>\r\n\t                                    <label class=\"toggle-switch\">\r\n\t                                        <input id=\"siteRuleEnabled\" type=\"checkbox\" checked />\r\n\t                                        <span class=\"toggle-slider\"></span>\r\n\t                                    </label>\r\n\t                                </div>\r\n\t                            </div>\r\n\t                        </div>\r\n\r\n\t                        <div class=\"site-rule-editor-section\">\r\n\t                            <h5 class=\"site-rule-editor-subtitle\">Boolean Overrides</h5>\r\n\t                            <div class=\"site-rule-grid\">\r\n\t                                <div class=\"site-rule-field\">\r\n\t                                    <label class=\"input-label\" for=\"siteRuleIncludeTemplate\">Template</label>\r\n\t                                    <select id=\"siteRuleIncludeTemplate\" class=\"text-input site-rule-select\">\r\n\t                                        <option value=\"inherit\">Inherit</option>\r\n\t                                        <option value=\"true\">On</option>\r\n\t                                        <option value=\"false\">Off</option>\r\n\t                                    </select>\r\n\t                                </div>\r\n\t                                <div class=\"site-rule-field\">\r\n\t                                    <label class=\"input-label\" for=\"siteRuleDownloadImages\">Download Images</label>\r\n\t                                    <select id=\"siteRuleDownloadImages\" class=\"text-input site-rule-select\">\r\n\t                                        <option value=\"inherit\">Inherit</option>\r\n\t                                        <option value=\"true\">On</option>\r\n\t                                        <option value=\"false\">Off</option>\r\n\t                                    </select>\r\n\t                                </div>\r\n\t                            </div>\r\n\t                        </div>\r\n\r\n\t                        <div class=\"site-rule-editor-section\">\r\n\t                            <h5 class=\"site-rule-editor-subtitle\">Template Overrides</h5>\r\n\t                            <div class=\"site-rule-text-list\">\r\n\t                                <div class=\"site-rule-text-override\">\r\n\t                                    <label class=\"site-rule-inline-toggle\">\r\n\t                                        <input type=\"checkbox\" id=\"siteRuleFrontmatterEnabled\" />\r\n\t                                        <span>Override Frontmatter</span>\r\n\t                                    </label>\r\n\t                                    <textarea id=\"siteRuleFrontmatter\" class=\"textarea-input\" placeholder=\"---&#10;source: {pageURL}&#10;---\"></textarea>\r\n\t                                </div>\r\n\t                                <div class=\"site-rule-text-override\">\r\n\t                                    <label class=\"site-rule-inline-toggle\">\r\n\t                                        <input type=\"checkbox\" id=\"siteRuleBackmatterEnabled\" />\r\n\t                                        <span>Override Backmatter</span>\r\n\t                                    </label>\r\n\t                                    <textarea id=\"siteRuleBackmatter\" class=\"textarea-input\" placeholder=\"Captured from {pageHostname}\"></textarea>\r\n\t                                </div>\r\n\t                                <div class=\"site-rule-text-override\">\r\n\t                                    <label class=\"site-rule-inline-toggle\">\r\n\t                                        <input type=\"checkbox\" id=\"siteRuleTitleEnabled\" />\r\n\t                                        <span>Override Title Template</span>\r\n\t                                    </label>\r\n\t                                    <input type=\"text\" id=\"siteRuleTitle\" class=\"text-input\" placeholder=\"{pageTitle}\" />\r\n\t                                </div>\r\n\t                                <div class=\"site-rule-text-override\">\r\n\t                                    <label class=\"site-rule-inline-toggle\">\r\n\t                                        <input type=\"checkbox\" id=\"siteRuleImagePrefixEnabled\" />\r\n\t                                        <span>Override Image Prefix</span>\r\n\t                                    </label>\r\n\t                                    <input type=\"text\" id=\"siteRuleImagePrefix\" class=\"text-input\" placeholder=\"{pageTitle}/\" />\r\n\t                                </div>\r\n\t                                <div class=\"site-rule-text-override\">\r\n\t                                    <label class=\"site-rule-inline-toggle\">\r\n\t                                        <input type=\"checkbox\" id=\"siteRuleMdClipsFolderEnabled\" />\r\n\t                                        <span>Override Downloads Folder</span>\r\n\t                                    </label>\r\n\t                                    <input type=\"text\" id=\"siteRuleMdClipsFolder\" class=\"text-input\" placeholder=\"Clips/{pageHostname}\" />\r\n\t                                </div>\r\n\t                            </div>\r\n\t                        </div>\r\n\r\n\t                        <div class=\"site-rule-editor-section\">\r\n\t                            <h5 class=\"site-rule-editor-subtitle\">Image Overrides</h5>\r\n\t                            <div class=\"site-rule-grid\">\r\n\t                                <div class=\"site-rule-field\">\r\n\t                                    <label class=\"input-label\" for=\"siteRuleImageStyle\">Image Style</label>\r\n\t                                    <select id=\"siteRuleImageStyle\" class=\"text-input site-rule-select\">\r\n\t                                        <option value=\"inherit\">Inherit</option>\r\n\t                                        <option value=\"originalSource\">Keep Original Source</option>\r\n\t                                        <option value=\"noImage\">Strip Images</option>\r\n\t                                        <option value=\"markdown\">Pure Markdown</option>\r\n\t                                        <option value=\"base64\">Base64 Encoded</option>\r\n\t                                        <option value=\"obsidian\">Obsidian Internal Embed</option>\r\n\t                                        <option value=\"obsidian-nofolder\">Obsidian Embed (no folder)</option>\r\n\t                                    </select>\r\n\t                                </div>\r\n\t                                <div class=\"site-rule-field\">\r\n\t                                    <label class=\"input-label\" for=\"siteRuleImageRefStyle\">Image Reference Style</label>\r\n\t                                    <select id=\"siteRuleImageRefStyle\" class=\"text-input site-rule-select\">\r\n\t                                        <option value=\"inherit\">Inherit</option>\r\n\t                                        <option value=\"inlined\">Inlined</option>\r\n\t                                        <option value=\"referenced\">Referenced</option>\r\n\t                                    </select>\r\n\t                                </div>\r\n\t                            </div>\r\n\t                        </div>\r\n\r\n\t                        <div class=\"site-rule-editor-section\">\r\n\t                            <h5 class=\"site-rule-editor-subtitle\">Table Formatting Overrides</h5>\r\n\t                            <div class=\"site-rule-grid\">\r\n\t                                <div class=\"site-rule-field\">\r\n\t                                    <label class=\"input-label\" for=\"siteRuleTableStripLinks\">Strip Links</label>\r\n\t                                    <select id=\"siteRuleTableStripLinks\" class=\"text-input site-rule-select\">\r\n\t                                        <option value=\"inherit\">Inherit</option>\r\n\t                                        <option value=\"true\">On</option>\r\n\t                                        <option value=\"false\">Off</option>\r\n\t                                    </select>\r\n\t                                </div>\r\n\t                                <div class=\"site-rule-field\">\r\n\t                                    <label class=\"input-label\" for=\"siteRuleTableStripFormatting\">Strip Formatting</label>\r\n\t                                    <select id=\"siteRuleTableStripFormatting\" class=\"text-input site-rule-select\">\r\n\t                                        <option value=\"inherit\">Inherit</option>\r\n\t                                        <option value=\"true\">On</option>\r\n\t                                        <option value=\"false\">Off</option>\r\n\t                                    </select>\r\n\t                                </div>\r\n\t                                <div class=\"site-rule-field\">\r\n\t                                    <label class=\"input-label\" for=\"siteRuleTablePrettyPrint\">Pretty Print</label>\r\n\t                                    <select id=\"siteRuleTablePrettyPrint\" class=\"text-input site-rule-select\">\r\n\t                                        <option value=\"inherit\">Inherit</option>\r\n\t                                        <option value=\"true\">On</option>\r\n\t                                        <option value=\"false\">Off</option>\r\n\t                                    </select>\r\n\t                                </div>\r\n\t                                <div class=\"site-rule-field\">\r\n\t                                    <label class=\"input-label\" for=\"siteRuleTableCenterText\">Center Text</label>\r\n\t                                    <select id=\"siteRuleTableCenterText\" class=\"text-input site-rule-select\">\r\n\t                                        <option value=\"inherit\">Inherit</option>\r\n\t                                        <option value=\"true\">On</option>\r\n\t                                        <option value=\"false\">Off</option>\r\n\t                                    </select>\r\n\t                                </div>\r\n\t                            </div>\r\n\t                        </div>\r\n\r\n\t                        <div class=\"btn-group site-rule-editor-actions\">\r\n\t                            <button type=\"button\" class=\"btn btn-primary\" id=\"saveSiteRule\">Save Rule</button>\r\n\t                            <button type=\"button\" class=\"btn btn-secondary\" id=\"cancelSiteRule\">Cancel</button>\r\n\t                        </div>\r\n\t                    </div>\r\n\t                </div>"
+  },
+  "options_section_import_export_html": {
+    "message": "<h2 class=\"section-title\">Import / Export</h2>\r\n                <p class=\"section-desc\">Back up your settings or restore from a previous backup.</p>\r\n\r\n                <div class=\"setting-card\">\r\n                    <h3 class=\"card-title\">Import</h3>\r\n                    <p class=\"card-desc\">Restore options from a previously exported backup file.</p>\r\n                    <div class=\"btn-group\">\r\n                        <button name=\"import\" id=\"import\" class=\"btn\">\r\n                            <svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\r\n                                <path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"/>\r\n                                <polyline points=\"17 8 12 3 7 8\"/>\r\n                                <line x1=\"12\" y1=\"3\" x2=\"12\" y2=\"15\"/>\r\n                            </svg>\r\n                            Choose file...\r\n                            <input type=\"file\" name=\"import-file\" id=\"import-file\" />\r\n                        </button>\r\n                    </div>\r\n                </div>\r\n\r\n                <div class=\"setting-card\">\r\n                    <h3 class=\"card-title\">Export</h3>\r\n                    <p class=\"card-desc\">Download your current options as a JSON file.</p>\r\n                    <div class=\"btn-group\">\r\n                        <button name=\"export\" id=\"export\" class=\"btn btn-primary\">\r\n                            <svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\r\n                                <path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"/>\r\n                                <polyline points=\"7 10 12 15 17 10\"/>\r\n                                <line x1=\"12\" y1=\"15\" x2=\"12\" y2=\"3\"/>\r\n                            </svg>\r\n                            Export\r\n                        </button>\r\n                    </div>\r\n                </div>\r\n\r\n                <div class=\"setting-card\">\r\n                    <h3 class=\"card-title\">Reset All to Defaults</h3>\r\n                    <p class=\"card-desc\">Restore every setting to its factory default. This cannot be undone.</p>\r\n                    <div class=\"btn-group\">\r\n                        <button id=\"reset-all\" class=\"btn btn-danger\">\r\n                            <svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\r\n                                <polyline points=\"1 4 1 10 7 10\"/>\r\n                                <path d=\"M3.51 15a9 9 0 1 0 2.13-9.36L1 10\"/>\r\n                            </svg>\r\n                            Reset All to Defaults\r\n                        </button>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n\r\n\r\n            <div class=\"search-no-results\" id=\"search-no-results\">\r\n                <svg class=\"no-results-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\r\n                    <circle cx=\"11\" cy=\"11\" r=\"8\"/>\r\n                    <line x1=\"21\" y1=\"21\" x2=\"16.65\" y2=\"16.65\"/>\r\n                    <line x1=\"8\" y1=\"8\" x2=\"14\" y2=\"14\"/>\r\n                    <line x1=\"14\" y1=\"8\" x2=\"8\" y2=\"14\"/>\r\n                </svg>\r\n                <p>No settings match \"<span id=\"search-no-results-query\"></span>\"</p>\r\n                <p style=\"margin-top: 8px;\"><a href=\"/guide/guide.html\" target=\"_blank\" style=\"color: var(--accent); font-size: var(--text-sm);\">Search the User Guide instead</a></p>"
+  },
+  "options_sidebar_aria": {
+    "message": "Options sections"
+  },
+  "options_sidebar_tables": {
+    "message": "Tables"
+  },
+  "options_sidebar_help_resources": {
+    "message": "Help & Resources"
+  },
+  "options_sidebar_community": {
+    "message": "Community"
+  },
+  "options_sidebar_buy_me_a_coffee": {
+    "message": "Buy Me a Coffee"
+  },
+  "options_sidebar_leave_review": {
+    "message": "Leave a Review"
+  },
+  "options_sidebar_report_issue": {
+    "message": "Report Issue"
+  },
+  "options_runtime_no_custom_targets": {
+    "message": "No custom assistant targets yet. ChatGPT, Claude, and Perplexity are always available."
+  },
+  "options_runtime_grant_permission": {
+    "message": "Grant Permission"
+  },
+  "options_runtime_grant_permission_aria": {
+    "message": "Grant native messaging permission for Agent Bridge"
+  },
+  "options_runtime_check_connection": {
+    "message": "Check Connection"
+  },
+  "options_runtime_check_connection_aria": {
+    "message": "Check Agent Bridge connection status"
+  },
+  "options_runtime_requesting": {
+    "message": "Requesting..."
+  },
+  "options_runtime_continue": {
+    "message": "Continue"
+  },
+  "options_runtime_remove_target": {
+    "message": "Remove $name$",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "options_runtime_target_added": {
+    "message": "Added \"$name$\"",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "options_runtime_target_removed": {
+    "message": "Removed \"$name$\"",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "options_runtime_search_matched_via": {
+    "message": "matched via: $keywords$",
+    "placeholders": {
+      "keywords": {
+        "content": "$1"
+      }
+    }
+  },
+  "guide_toc_html": {
+    "message": "<li><a href=\"#quick-start\" class=\"toc-link active\">Quick Start</a></li>\r\n                <li><a href=\"#using-the-popup\" class=\"toc-link\">Using the Popup</a>\r\n                    <ul class=\"toc-sublist\">\r\n                        <li><a href=\"#quick-settings\" class=\"toc-link\">Quick Settings</a></li>\r\n                        <li><a href=\"#clipping-scope\" class=\"toc-link\">Clipping Scope</a></li>\r\n                        <li><a href=\"#editing-title\" class=\"toc-link\">Editing the Title</a></li>\r\n                        <li><a href=\"#markdown-preview\" class=\"toc-link\">Markdown Preview</a></li>\r\n                        <li><a href=\"#action-buttons\" class=\"toc-link\">Action Buttons</a></li>\r\n                    </ul>\r\n                </li>\r\n                <li><a href=\"#batch-processing\" class=\"toc-link\">Batch Processing</a>\r\n                    <ul class=\"toc-sublist\">\r\n                        <li><a href=\"#adding-urls\" class=\"toc-link\">Adding URLs</a></li>\r\n                        <li><a href=\"#pick-links\" class=\"toc-link\">Pick Links from Page</a></li>\r\n                        <li><a href=\"#output-format\" class=\"toc-link\">Output Format</a></li>\r\n                    </ul>\r\n                </li>\r\n                <li><a href=\"#context-menus\" class=\"toc-link\">Context Menus &amp; Shortcuts</a>\r\n                    <ul class=\"toc-sublist\">\r\n                        <li><a href=\"#download-actions\" class=\"toc-link\">Download Actions</a></li>\r\n                        <li><a href=\"#copy-actions\" class=\"toc-link\">Copy Actions</a></li>\r\n                        <li><a href=\"#obsidian-actions\" class=\"toc-link\">Obsidian Actions</a></li>\r\n                        <li><a href=\"#keyboard-shortcuts\" class=\"toc-link\">Keyboard Shortcuts</a></li>\r\n                    </ul>\r\n                </li>\r\n                <li><a href=\"#settings\" class=\"toc-link\">Settings &amp; Customization</a>\r\n                    <ul class=\"toc-sublist\">\r\n                        <li><a href=\"#templates\" class=\"toc-link\">Templates</a></li>\r\n                        <li><a href=\"#download-settings\" class=\"toc-link\">Downloads</a></li>\r\n                        <li><a href=\"#markdown-options\" class=\"toc-link\">Markdown Options</a></li>\r\n                        <li><a href=\"#table-options\" class=\"toc-link\">Table Options</a></li>\r\n                        <li><a href=\"#import-export\" class=\"toc-link\">Import / Export</a></li>\r\n                    </ul>\r\n                </li>\r\n                <li><a href=\"#obsidian-downloads\" class=\"toc-link\">Obsidian &amp; Downloads</a>\r\n                    <ul class=\"toc-sublist\">\r\n                        <li><a href=\"#obsidian-integration\" class=\"toc-link\">Obsidian Integration</a></li>\r\n                        <li><a href=\"#download-mode\" class=\"toc-link\">Download Mode</a></li>\r\n                        <li><a href=\"#image-downloads\" class=\"toc-link\">Image Downloads</a></li>\r\n                    </ul>\r\n                </li>\r\n                <li><a href=\"#permissions-privacy\" class=\"toc-link\">Permissions &amp; Privacy</a>\r\n                    <ul class=\"toc-sublist\">\r\n                        <li><a href=\"#site-access-permission\" class=\"toc-link\">Site Access</a></li>\r\n                        <li><a href=\"#other-core-permissions\" class=\"toc-link\">Other Core Permissions</a></li>\r\n                        <li><a href=\"#agent-bridge-permission\" class=\"toc-link\">Agent Bridge Permission</a></li>\r\n                    </ul>\r\n                </li>\r\n                <li><a href=\"#troubleshooting\" class=\"toc-link\">Troubleshooting / FAQ</a></li>\r\n                <li><a href=\"#text-substitutions\" class=\"toc-link\">Text Substitutions</a></li>"
+  },
+  "guide_section_quick_start_html": {
+    "message": "<h2 class=\"section-heading\"><a href=\"#quick-start\" class=\"anchor-link\">#</a>Quick Start</h2>\r\n                <div class=\"section-body\">\r\n                    <ol class=\"steps-list\">\r\n                        <li><strong>Click the MarkSnip icon</strong> in the browser toolbar to open the popup.</li>\r\n                        <li>The current page is run through <em>Mozilla Readability</em> to extract the main content, then converted to Markdown with <em>Turndown</em>.</li>\r\n                        <li><strong>Edit, copy, or download</strong> the Markdown using the built-in CodeMirror editor.</li>\r\n                    </ol>\r\n                    <div class=\"tip-box\">\r\n                        <strong>Tip:</strong> Use <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>M</kbd> to open the popup without clicking the icon.\r\n                    </div>\r\n                </div>\r\n            </section>\r\n\r\n            <!-- ────────────────────────────────────────────\r\n                 SECTION: Using the Popup\r\n                 ──────────────────────────────────────────── -->"
+  },
+  "guide_section_using_the_popup_html": {
+    "message": "<h2 class=\"section-heading\"><a href=\"#using-the-popup\" class=\"anchor-link\">#</a>Using the Popup</h2>\r\n\r\n                <div id=\"quick-settings\" class=\"guide-subsection\"\r\n                    data-guide-section=\"Quick Settings\"\r\n                    data-guide-summary=\"Toggle images and template inclusion\"\r\n                    data-search-keywords=\"images toggle,template toggle,front matter,back matter\">\r\n                    <h3 class=\"subsection-heading\"><a href=\"#quick-settings\" class=\"anchor-link\">#</a>Quick Settings</h3>\r\n                    <p>At the top of the popup you'll find two toggle switches:</p>\r\n                    <ul>\r\n                        <li><strong>Images</strong> &mdash; when on, images are downloaded alongside your Markdown file (requires Downloads API mode).</li>\r\n                        <li><strong>Template</strong> &mdash; when on, the front-matter and back-matter templates are prepended/appended to the output.</li>\r\n                    </ul>\r\n                </div>\r\n\r\n                <div id=\"clipping-scope\" class=\"guide-subsection\"\r\n                    data-guide-section=\"Clipping Scope\"\r\n                    data-guide-summary=\"Choose between selection and full document clipping\"\r\n                    data-search-keywords=\"selection,document,full page,clip scope,segmented control,content scope\">\r\n                    <h3 class=\"subsection-heading\"><a href=\"#clipping-scope\" class=\"anchor-link\">#</a>Clipping Selection vs. Full Document</h3>\r\n                    <p>Below the toggles is a segmented control with two buttons:</p>\r\n                    <ul>\r\n                        <li><strong>Selection</strong> &mdash; clips only the text you selected on the page before opening the popup.</li>\r\n                        <li><strong>Document</strong> &mdash; clips the entire page content (default if nothing is selected).</li>\r\n                    </ul>\r\n                </div>\r\n\r\n                <div id=\"editing-title\" class=\"guide-subsection\"\r\n                    data-guide-section=\"Editing the Title\"\r\n                    data-guide-summary=\"Set the filename for your downloaded Markdown\"\r\n                    data-search-keywords=\"title,filename,title template,rename\">\r\n                    <h3 class=\"subsection-heading\"><a href=\"#editing-title\" class=\"anchor-link\">#</a>Editing the Title</h3>\r\n                    <p>The <strong>Title</strong> field determines the filename of the downloaded Markdown file. It is populated automatically from the title template (configurable in options) but you can edit it freely before saving.</p>\r\n                </div>\r\n\r\n                <div id=\"markdown-preview\" class=\"guide-subsection\"\r\n                    data-guide-section=\"Markdown Preview\"\r\n                    data-guide-summary=\"Edit and copy Markdown in the built-in editor\"\r\n                    data-search-keywords=\"editor,codemirror,preview,copy,copy all,copy selection,edit markdown\">\r\n                    <h3 class=\"subsection-heading\"><a href=\"#markdown-preview\" class=\"anchor-link\">#</a>Markdown Preview</h3>\r\n                    <p>The main area of the popup is a syntax-highlighted Markdown editor (powered by CodeMirror). You can make quick edits here before downloading.</p>\r\n                    <p>Above the editor are two buttons:</p>\r\n                    <ul>\r\n                        <li><strong>Copy All</strong> &mdash; copies all the Markdown to your clipboard.</li>\r\n                        <li><strong>Copy Selection</strong> &mdash; appears when you select text <em>inside the editor</em>, allowing you to copy just the highlighted portion.</li>\r\n                    </ul>\r\n                </div>\r\n\r\n                <div id=\"action-buttons\" class=\"guide-subsection\"\r\n                    data-guide-section=\"Action Buttons\"\r\n                    data-guide-summary=\"Download, send, copy, or send Markdown to Obsidian\"\r\n                    data-search-keywords=\"download,download selection,send to assistant,chatgpt,claude,perplexity,send to obsidian,save,export\">\r\n                    <h3 class=\"subsection-heading\"><a href=\"#action-buttons\" class=\"anchor-link\">#</a>Action Buttons</h3>\r\n                    <div class=\"ref-table-wrap\">\r\n                        <table class=\"ref-table\">\r\n                            <thead><tr><th>Button</th><th>Action</th></tr></thead>\r\n                            <tbody>\r\n                                <tr><td><strong>Main Action</strong></td><td>Uses your configured popup default action. Choose Markdown (<code>.md</code>), Plain text (<code>.txt</code>), HTML (<code>.html</code>), PDF, or <strong>Send to Assistant</strong>.</td></tr>\r\n                                <tr><td><strong>Selection Action</strong></td><td>Appears when text is selected inside the editor; exports or sends only the selected text using the same popup default action.</td></tr>\r\n                                <tr><td><strong>Send to Obsidian</strong></td><td>Copies Markdown to clipboard and opens Obsidian via the Advanced URI plugin to create a new note (only visible when Obsidian integration is enabled).</td></tr>\r\n                            </tbody>\r\n                        </table>\r\n                    </div>\r\n                    <p><strong>Note:</strong> This popup default action setting only affects popup actions. Context menus, keyboard download shortcuts, batch exports, Library exports, Agent Bridge, and Obsidian actions remain Markdown-based.</p>\r\n                </div>\r\n            </section>\r\n\r\n            <!-- ────────────────────────────────────────────\r\n                 SECTION: Batch Processing\r\n                 ──────────────────────────────────────────── -->"
+  },
+  "guide_section_batch_processing_html": {
+    "message": "<h2 class=\"section-heading\"><a href=\"#batch-processing\" class=\"anchor-link\">#</a>Batch Processing</h2>\r\n                <p>Click the batch icon in the popup header to switch to batch mode.</p>\r\n\r\n                <div id=\"adding-urls\" class=\"guide-subsection\"\r\n                    data-guide-section=\"Adding URLs\"\r\n                    data-guide-summary=\"Paste URLs or use Markdown link syntax\"\r\n                    data-search-keywords=\"paste urls,url list,markdown links\">\r\n                    <h3 class=\"subsection-heading\"><a href=\"#adding-urls\" class=\"anchor-link\">#</a>Adding URLs</h3>\r\n                    <p>Paste URLs into the text area, one per line. You can also use Markdown link syntax:</p>\r\n                    <pre class=\"code-block\">https://example.com/page1\r\nhttps://example.com/page2\r\n[Page Title](https://example.com/page3)</pre>\r\n                </div>\r\n\r\n                <div id=\"pick-links\" class=\"guide-subsection\"\r\n                    data-guide-section=\"Pick Links from Page\"\r\n                    data-guide-summary=\"Visually select links from the current page\"\r\n                    data-search-keywords=\"link picker,visual picker,select links,pick\">\r\n                    <h3 class=\"subsection-heading\"><a href=\"#pick-links\" class=\"anchor-link\">#</a>Pick Links from Page</h3>\r\n                    <p>Click <strong>Pick Links from Page</strong> to enter the visual link picker. This injects an overlay onto the current page that lets you click on links to select them. A floating toolbar shows how many links you've selected, and a <strong>Done</strong> button sends them back to the batch URL list.</p>\r\n                </div>\r\n\r\n                <div id=\"output-format\" class=\"guide-subsection\"\r\n                    data-guide-section=\"Output Format\"\r\n                    data-guide-summary=\"Choose ZIP or individual file downloads\"\r\n                    data-search-keywords=\"zip,individual,output format,batch save\">\r\n                    <h3 class=\"subsection-heading\"><a href=\"#output-format\" class=\"anchor-link\">#</a>Output Format</h3>\r\n                    <ul>\r\n                        <li><strong>ZIP file</strong> &mdash; all converted Markdown files are bundled into a single <code>.zip</code> download.</li>\r\n                        <li><strong>Individual</strong> &mdash; each page is downloaded as a separate <code>.md</code> file.</li>\r\n                    </ul>\r\n                    <p>Click <strong>Convert All URLs</strong> to start processing. A progress bar shows the current status including a count and the URL being processed.</p>\r\n                </div>\r\n            </section>\r\n\r\n            <!-- ────────────────────────────────────────────\r\n                 SECTION: Context Menus & Shortcuts\r\n                 ──────────────────────────────────────────── -->"
+  },
+  "guide_section_context_menus_html": {
+    "message": "<h2 class=\"section-heading\"><a href=\"#context-menus\" class=\"anchor-link\">#</a>Context Menus &amp; Shortcuts</h2>\r\n                <p>Right-click on a page to access MarkSnip actions under the context menu. These are available when <strong>Enable Context Menus</strong> is turned on in settings.</p>\r\n\r\n                <div id=\"download-actions\" class=\"guide-subsection\"\r\n                    data-guide-section=\"Download Actions\"\r\n                    data-guide-summary=\"Context menu download options\"\r\n                    data-search-keywords=\"download tab,download selection,download all tabs\">\r\n                    <h3 class=\"subsection-heading\"><a href=\"#download-actions\" class=\"anchor-link\">#</a>Download Actions</h3>\r\n                    <div class=\"ref-table-wrap\">\r\n                        <table class=\"ref-table\">\r\n                            <thead><tr><th>Menu Item</th><th>Context</th><th>Description</th></tr></thead>\r\n                            <tbody>\r\n                                <tr><td>Download Tab as Markdown</td><td>Page / Tab</td><td>Downloads the current tab as a Markdown file without opening the popup.</td></tr>\r\n                                <tr><td>Download Selection as Markdown</td><td>Selected text</td><td>Downloads the highlighted text as Markdown.</td></tr>\r\n                                <tr><td>Download All Tabs as Markdown</td><td>Page / Tab</td><td>Downloads every open tab in the current window as Markdown files.</td></tr>\r\n                            </tbody>\r\n                        </table>\r\n                    </div>\r\n                </div>\r\n\r\n                <div id=\"copy-actions\" class=\"guide-subsection\"\r\n                    data-guide-section=\"Copy Actions\"\r\n                    data-guide-summary=\"Context menu copy options\"\r\n                    data-search-keywords=\"copy tab,copy selection,copy link,copy image,copy url,clipboard\">\r\n                    <h3 class=\"subsection-heading\"><a href=\"#copy-actions\" class=\"anchor-link\">#</a>Copy Actions</h3>\r\n                    <div class=\"ref-table-wrap\">\r\n                        <table class=\"ref-table\">\r\n                            <thead><tr><th>Menu Item</th><th>Description</th></tr></thead>\r\n                            <tbody>\r\n                                <tr><td>Copy Tab as Markdown</td><td>Converts the entire page to Markdown and copies it to the clipboard.</td></tr>\r\n                                <tr><td>Copy Selection as Markdown</td><td>Converts the selection to Markdown and copies it.</td></tr>\r\n                                <tr><td>Copy Link as Markdown</td><td>Copies the right-clicked link as <code>[text](url)</code>.</td></tr>\r\n                                <tr><td>Copy Image as Markdown</td><td>Copies the right-clicked image as <code>![alt](src)</code>.</td></tr>\r\n                                <tr><td>Copy Tab URL as Markdown Link</td><td>Copies the tab's URL as <code>[title](url)</code>.</td></tr>\r\n                                <tr><td>Copy All Tab URLs as Markdown Link List</td><td>Copies all open tab URLs as a Markdown link list.</td></tr>\r\n                                <tr><td>Copy Selected Tab URLs as Markdown Link List</td><td>Copies URLs from multi-selected tabs (<kbd>Ctrl</kbd>/<kbd>Cmd</kbd>) as a link list.</td></tr>\r\n                            </tbody>\r\n                        </table>\r\n                    </div>\r\n                </div>\r\n\r\n                <div id=\"obsidian-actions\" class=\"guide-subsection\"\r\n                    data-guide-section=\"Obsidian Actions\"\r\n                    data-guide-summary=\"Context menu actions for Obsidian\"\r\n                    data-search-keywords=\"obsidian context menu,send to obsidian context\">\r\n                    <h3 class=\"subsection-heading\"><a href=\"#obsidian-actions\" class=\"anchor-link\">#</a>Obsidian Actions</h3>\r\n                    <p>These items appear only when Obsidian integration is enabled:</p>\r\n                    <div class=\"ref-table-wrap\">\r\n                        <table class=\"ref-table\">\r\n                            <thead><tr><th>Menu Item</th><th>Description</th></tr></thead>\r\n                            <tbody>\r\n                                <tr><td>Send Text Selection to Obsidian</td><td>Sends the selection to Obsidian as a new note.</td></tr>\r\n                                <tr><td>Send Tab to Obsidian</td><td>Sends the full page to Obsidian as a new note.</td></tr>\r\n                            </tbody>\r\n                        </table>\r\n                    </div>\r\n                    <p>At the bottom of the context menu you'll also find checkboxes for <strong>Include front/back template</strong> and <strong>Download Images</strong>.</p>\r\n                </div>\r\n\r\n                <div id=\"keyboard-shortcuts\" class=\"guide-subsection\"\r\n                    data-guide-section=\"Keyboard Shortcuts\"\r\n                    data-guide-summary=\"Default keyboard shortcuts and customization\"\r\n                    data-search-keywords=\"keyboard shortcut,hotkey,alt shift,keybinding,command\">\r\n                    <h3 class=\"subsection-heading\"><a href=\"#keyboard-shortcuts\" class=\"anchor-link\">#</a>Keyboard Shortcuts</h3>\r\n                    <div class=\"ref-table-wrap\">\r\n                        <table class=\"ref-table\">\r\n                            <thead><tr><th>Shortcut</th><th>Action</th></tr></thead>\r\n                            <tbody>\r\n                                <tr><td><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>M</kbd></td><td>Open the MarkSnip popup</td></tr>\r\n                                <tr><td><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>D</kbd></td><td>Download current tab as Markdown</td></tr>\r\n                                <tr><td><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd></td><td>Copy current tab as Markdown</td></tr>\r\n                                <tr><td><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>L</kbd></td><td>Copy current tab URL as Markdown link</td></tr>\r\n                            </tbody>\r\n                        </table>\r\n                    </div>\r\n                    <p>Additional commands without default shortcuts (assign your own in the browser's shortcut settings):</p>\r\n                    <ul>\r\n                        <li>Copy current selection as Markdown</li>\r\n                        <li>Copy selected tabs as Markdown link list</li>\r\n                        <li>Copy current selection to Obsidian</li>\r\n                        <li>Copy current tab to Obsidian</li>\r\n                    </ul>\r\n                </div>\r\n            </section>\r\n\r\n            <!-- ────────────────────────────────────────────\r\n                 SECTION: Settings & Customization\r\n                 ──────────────────────────────────────────── -->"
+  },
+  "guide_section_settings_html": {
+    "message": "<h2 class=\"section-heading\"><a href=\"#settings\" class=\"anchor-link\">#</a>Settings &amp; Customization</h2>\r\n                <p>Open the options page by clicking the gear icon in the popup header, or by right-clicking the MarkSnip icon and selecting <strong>Options</strong>.</p>\r\n\r\n                <div id=\"templates\" class=\"guide-subsection\"\r\n                    data-guide-section=\"Templates\"\r\n                    data-guide-summary=\"Title template, front-matter, and back-matter\"\r\n                    data-search-keywords=\"title template,front matter,back matter,yaml,frontmatter,backmatter,disallowed characters,clips folder\">\r\n                    <h3 class=\"subsection-heading\"><a href=\"#templates\" class=\"anchor-link\">#</a>Templates</h3>\r\n                    <h4>Title Template</h4>\r\n                    <p>Controls the popup's title field and the resulting filename. Uses <a href=\"#text-substitutions\">Custom Text Substitutions</a>. Default: <code>{pageTitle}</code></p>\r\n                    <h4>Downloads Subfolder</h4>\r\n                    <p>A subfolder within your browser's downloads folder where Markdown files are saved. Only available in Downloads API mode. Uses <a href=\"#text-substitutions\">text substitutions</a>.</p>\r\n                    <h4>Disallowed Characters</h4>\r\n                    <p>Characters automatically stripped from filenames, in addition to system-reserved characters. Default: <code>[]#^</code> (for Obsidian compatibility).</p>\r\n                    <h4>Front/Back Templates</h4>\r\n                    <p>Text prepended or appended to every clipped Markdown file. Useful for YAML front-matter or other metadata. Uses <a href=\"#text-substitutions\">text substitutions</a>.</p>\r\n                    <pre class=\"code-block\">---\r\ncreated: {date:YYYY-MM-DDTHH:mm:ss} (UTC {date:Z})\r\ntags: [{keywords}]\r\nsource: {pageURL}\r\nauthor: {byline}\r\n---</pre>\r\n                </div>\r\n\r\n                <div id=\"download-settings\" class=\"guide-subsection\"\r\n                    data-guide-section=\"Download Settings\"\r\n                    data-guide-summary=\"Configure download behavior and context menus\"\r\n                    data-search-keywords=\"context menus toggle,enable context menus,assistant url length,max url length,clipboard fallback\">\r\n                    <h3 class=\"subsection-heading\"><a href=\"#download-settings\" class=\"anchor-link\">#</a>Downloads</h3>\r\n                    <h4>Context Menus</h4>\r\n                    <p>Toggles the right-click context menu items on and off. Default: <strong>On</strong>.</p>\r\n                    <h4>Default Popup Action</h4>\r\n                    <p>Controls the popup's primary action buttons. Choose <strong>Markdown</strong>, <strong>Plain text</strong>, <strong>HTML</strong>, <strong>PDF</strong>, or <strong>Send to Assistant</strong>. This does not change context-menu downloads, keyboard download shortcuts, batch output, Library exports, Agent Bridge output, or Obsidian sends.</p>\r\n                    <h4>Default Assistant Target</h4>\r\n                    <p>When <strong>Send to Assistant</strong> is selected, choose the popup's default destination such as <strong>ChatGPT</strong>, <strong>Claude</strong>, <strong>Perplexity</strong>, or one of your custom assistant URLs.</p>\r\n                    <h4>Assistant Targets</h4>\r\n                    <p>ChatGPT, Claude, and Perplexity are built in. Add custom HTTPS assistant URLs that accept a <code>{prompt}</code> placeholder in the query string. MarkSnip inserts the current Markdown into that placeholder when you send from the popup.</p>\r\n                    <h4>Assistant URL Length Cap</h4>\r\n                    <p>Controls how long a generated assistant URL can be before MarkSnip falls back to copying the Markdown to your clipboard and opening the assistant landing page instead. The default is <strong>3600</strong>, and changing it is not recommended.</p>\r\n                </div>\r\n\r\n                <div id=\"markdown-options\" class=\"guide-subsection\"\r\n                    data-guide-section=\"Markdown Options\"\r\n                    data-guide-summary=\"Heading style, code blocks, links, images, and more\"\r\n                    data-search-keywords=\"heading style,setext,atx,horizontal rule,bullet list,code block,fenced,indented,emphasis,italics,bold,strong,link style,inlined,referenced,strip links,image style,base64,escape markdown,hashtag handling\">\r\n                    <h3 class=\"subsection-heading\"><a href=\"#markdown-options\" class=\"anchor-link\">#</a>Markdown Options</h3>\r\n\r\n                    <h4>Heading Style</h4>\r\n                    <p><strong>Setext</strong> uses underlines (<code>===</code> / <code>---</code>); <strong>Atx</strong> (default) uses <code>#</code> prefixes.</p>\r\n\r\n                    <h4>Horizontal Rule Style</h4>\r\n                    <p>Choose between <code>***</code>, <code>---</code>, or <code>___</code> (default).</p>\r\n\r\n                    <h4>Bullet List Marker</h4>\r\n                    <p><code>*</code>, <code>-</code> (default), or <code>+</code>.</p>\r\n\r\n                    <h4>Code Block Style</h4>\r\n                    <p><strong>Indented</strong> (four-space indent) or <strong>Fenced</strong> (default, wrapped in <code>```</code> or <code>~~~</code>).</p>\r\n\r\n                    <h4>Preserve Code Block HTML Formatting</h4>\r\n                    <p>When enabled, preserves the original HTML formatting inside code blocks. Default: <strong>Off</strong>.</p>\r\n\r\n                    <h4>Emphasis &amp; Strong Delimiters</h4>\r\n                    <p>Italics: <code>_</code> (default), <code>*</code>, or <code>__</code> (for Roam). Bold: <code>**</code> (default) or <code>__</code>.</p>\r\n\r\n                    <h4>Link Style</h4>\r\n                    <p><strong>Inlined</strong> (default): <code>[Google](http://google.com)</code>. <strong>Referenced</strong>: separate link definitions at the bottom. <strong>Strip Links</strong>: removes links entirely.</p>\r\n\r\n                    <h4>Image Style</h4>\r\n                    <div class=\"ref-table-wrap\">\r\n                        <table class=\"ref-table\">\r\n                            <thead><tr><th>Style</th><th>Output</th><th>Requires Download Images</th></tr></thead>\r\n                            <tbody>\r\n                                <tr><td>Original Source</td><td><code>![](http://example.com/img.jpg)</code></td><td>No</td></tr>\r\n                                <tr><td>Strip Images</td><td><em>(image removed)</em></td><td>No</td></tr>\r\n                                <tr><td>Pure Markdown (default)</td><td><code>![](folder/image.jpg)</code></td><td>Yes</td></tr>\r\n                                <tr><td>Base64 Encoded</td><td><code>![](data:image/png;base64,...)</code></td><td>Yes</td></tr>\r\n                                <tr><td>Obsidian Internal Embed</td><td><code>![[folder/image.jpg]]</code></td><td>Yes</td></tr>\r\n                                <tr><td>Obsidian Embed (no folder)</td><td><code>![[image.jpg]]</code></td><td>Yes</td></tr>\r\n                            </tbody>\r\n                        </table>\r\n                    </div>\r\n\r\n                    <h4>Escape Markdown Characters</h4>\r\n                    <p>Backslash-escapes special Markdown characters to prevent misinterpretation. Default: <strong>On</strong>.</p>\r\n\r\n                    <h4>Hashtag Handling</h4>\r\n                    <p><strong>Keep</strong> (default), <strong>Remove #</strong>, or <strong>Escape #</strong>. Only affects article text; Markdown syntax and code are preserved.</p>\r\n                </div>\r\n\r\n                <div id=\"table-options\" class=\"guide-subsection\"\r\n                    data-guide-section=\"Table Options\"\r\n                    data-guide-summary=\"Configure table formatting in clipped Markdown\"\r\n                    data-search-keywords=\"table,strip links tables,strip formatting,pretty print,center text,table formatting\">\r\n                    <h3 class=\"subsection-heading\"><a href=\"#table-options\" class=\"anchor-link\">#</a>Table Formatting Options</h3>\r\n                    <div class=\"ref-table-wrap\">\r\n                        <table class=\"ref-table\">\r\n                            <thead><tr><th>Option</th><th>Description</th><th>Default</th></tr></thead>\r\n                            <tbody>\r\n                                <tr><td>Strip Links from Tables</td><td>Removes hyperlinks from table cells, keeping only the text.</td><td>On</td></tr>\r\n                                <tr><td>Strip Formatting</td><td>Removes bold, italic, and other formatting from table cells.</td><td>Off</td></tr>\r\n                                <tr><td>Pretty Print Tables</td><td>Adds proper spacing and column alignment.</td><td>On</td></tr>\r\n                                <tr><td>Center Text in Columns</td><td>Centers text within table columns.</td><td>On</td></tr>\r\n                            </tbody>\r\n                        </table>\r\n                    </div>\r\n                </div>\r\n\r\n                <div id=\"import-export\" class=\"guide-subsection\"\r\n                    data-guide-section=\"Import / Export\"\r\n                    data-guide-summary=\"Backup and restore your settings\"\r\n                    data-search-keywords=\"import,export,backup,restore,json,transfer\">\r\n                    <h3 class=\"subsection-heading\"><a href=\"#import-export\" class=\"anchor-link\">#</a>Import / Export Settings</h3>\r\n                    <ul>\r\n                        <li><strong>Import</strong> &mdash; restore settings from a previously exported JSON file.</li>\r\n                        <li><strong>Export</strong> &mdash; save all current settings to a JSON file for backup or transfer to another browser.</li>\r\n                    </ul>\r\n                </div>\r\n            </section>\r\n\r\n            <!-- ────────────────────────────────────────────\r\n                 SECTION: Obsidian & Downloads\r\n                 ──────────────────────────────────────────── -->"
+  },
+  "guide_section_obsidian_downloads_html": {
+    "message": "<h2 class=\"section-heading\"><a href=\"#obsidian-downloads\" class=\"anchor-link\">#</a>Obsidian &amp; Downloads</h2>\r\n\r\n                <div id=\"obsidian-integration\" class=\"guide-subsection\"\r\n                    data-guide-section=\"Obsidian Integration\"\r\n                    data-guide-summary=\"Send clipped pages directly to Obsidian\"\r\n                    data-search-keywords=\"obsidian integration,vault name,folder name,advanced uri,obsidian plugin\">\r\n                    <h3 class=\"subsection-heading\"><a href=\"#obsidian-integration\" class=\"anchor-link\">#</a>Obsidian Integration</h3>\r\n                    <p>Enable this to show the <strong>Send to Obsidian</strong> button and Obsidian context menu actions. Requires the <strong>Advanced Obsidian URI</strong> community plugin.</p>\r\n                    <ul>\r\n                        <li><strong>Vault Name</strong> &mdash; leave blank for the default vault.</li>\r\n                        <li><strong>Folder Name</strong> &mdash; supports <a href=\"#text-substitutions\">text substitutions</a> (e.g. <code>{date:YYYY-MM-DD}/</code>).</li>\r\n                    </ul>\r\n                    <div class=\"tip-box\">\r\n                        <strong>Note:</strong> Images sent via Obsidian stay as remote links. The extension does not place attachment files inside the vault.\r\n                    </div>\r\n                </div>\r\n\r\n                <div id=\"download-mode\" class=\"guide-subsection\"\r\n                    data-guide-section=\"Download Mode\"\r\n                    data-guide-summary=\"Choose between Downloads API and Content Link\"\r\n                    data-search-keywords=\"downloads api,content link,download mode,save as dialog\">\r\n                    <h3 class=\"subsection-heading\"><a href=\"#download-mode\" class=\"anchor-link\">#</a>Download Mode</h3>\r\n                    <div class=\"ref-table-wrap\">\r\n                        <table class=\"ref-table\">\r\n                            <thead><tr><th>Mode</th><th>Description</th></tr></thead>\r\n                            <tbody>\r\n                                <tr><td><strong>Downloads API</strong> (recommended)</td><td>Uses the browser's download API. Supports subfolders, image downloads, and Save As dialogs.</td></tr>\r\n                                <tr><td><strong>Content Link</strong></td><td>Falls back to a content link for downloading. More limited &mdash; disables image downloads and subfolders.</td></tr>\r\n                            </tbody>\r\n                        </table>\r\n                    </div>\r\n                    <h4>Show Save As Dialog</h4>\r\n                    <p>Forces the browser's Save As dialog for every download. Not recommended when Download Images is on.</p>\r\n                </div>\r\n\r\n                <div id=\"image-downloads\" class=\"guide-subsection\"\r\n                    data-guide-section=\"Image Downloads\"\r\n                    data-guide-summary=\"Download images alongside Markdown files\"\r\n                    data-search-keywords=\"download images,image prefix,image filename,local images\">\r\n                    <h3 class=\"subsection-heading\"><a href=\"#image-downloads\" class=\"anchor-link\">#</a>Image Downloads</h3>\r\n                    <p>When enabled (Downloads API mode only), images are downloaded alongside the Markdown file with local references.</p>\r\n                    <h4>Image Filename Prefix</h4>\r\n                    <p>A prefix or subfolder for downloaded images. Uses <a href=\"#text-substitutions\">text substitutions</a>. Including a <code>/</code> creates a subfolder. Default: <code>{pageTitle}/</code>.</p>\r\n                </div>\r\n            </section>\r\n\r\n            <!-- ────────────────────────────────────────────\r\n                 SECTION: Permissions & Privacy\r\n                 ──────────────────────────────────────────── -->"
+  },
+  "guide_section_permissions_privacy_html": {
+    "message": "<h2 class=\"section-heading\"><a href=\"#permissions-privacy\" class=\"anchor-link\">#</a>Permissions &amp; Privacy</h2>\r\n                <p>MarkSnip processes pages entirely within your browser. It does not send page content to any external server. This section explains what browser permissions MarkSnip uses, why they are needed, and when they are actually exercised.</p>\r\n\r\n                <div id=\"site-access-permission\" class=\"guide-subsection\"\r\n                    data-guide-section=\"Site Access Permission\"\r\n                    data-guide-summary=\"Why MarkSnip requests access to all sites\"\r\n                    data-search-keywords=\"site access,all urls,host permission,content script,clip any page,browsing data,keyboard shortcuts,batch processing,selected tabs\">\r\n                    <h3 class=\"subsection-heading\"><a href=\"#site-access-permission\" class=\"anchor-link\">#</a>Site Access</h3>\r\n                    <p>MarkSnip requests access to web pages so it can clip pages across the web when you trigger a clip. This covers popup clipping, keyboard shortcuts, context-menu actions, multi-tab link actions, and batch processing of URLs opened in new tabs.</p>\r\n                    <ul>\r\n                        <li><strong>Only active when you clip</strong> &mdash; MarkSnip does not monitor browsing activity or read pages in the background.</li>\r\n                        <li><strong>Processed locally</strong> &mdash; page content is converted to Markdown inside your browser and is never sent to a remote service.</li>\r\n                        <li><strong>Managed by the browser</strong> &mdash; you can review this permission in your browser&rsquo;s extension settings at any time.</li>\r\n                    </ul>\r\n                </div>\r\n\r\n                <div id=\"other-core-permissions\" class=\"guide-subsection\"\r\n                    data-guide-section=\"Other Core Permissions\"\r\n                    data-guide-summary=\"What the rest of the built-in permissions are used for\"\r\n                    data-search-keywords=\"downloads permission,clipboard permission,storage permission,context menu permission,scripting permission,offscreen permission,activeTab\">\r\n                    <h3 class=\"subsection-heading\"><a href=\"#other-core-permissions\" class=\"anchor-link\">#</a>Other Core Permissions</h3>\r\n                    <p>Beyond site access, MarkSnip uses a small set of standard browser permissions to make its main features work. These permissions support local browser actions; they do not change the fact that clipping stays local.</p>\r\n                    <div class=\"ref-table-wrap\">\r\n                        <table class=\"ref-table\">\r\n                            <thead><tr><th>Permission</th><th>Why MarkSnip uses it</th><th>When it matters</th></tr></thead>\r\n                            <tbody>\r\n                                <tr><td><code>activeTab</code></td><td>Lets MarkSnip work with the page you explicitly invoked it on.</td><td>Opening the popup or using a shortcut on the current tab.</td></tr>\r\n                                <tr><td><code>downloads</code></td><td>Saves Markdown files, ZIP exports, and downloaded images through the browser.</td><td>Downloading clips or batch exports.</td></tr>\r\n                                <tr><td><code>clipboardWrite</code></td><td>Writes generated Markdown to your clipboard.</td><td>Using Copy actions.</td></tr>\r\n                                <tr><td><code>storage</code></td><td>Remembers your settings, templates, themes, and feature toggles.</td><td>Whenever you save or restore settings.</td></tr>\r\n                                <tr><td><code>contextMenus</code></td><td>Adds right-click actions for pages, selections, links, images, and tabs.</td><td>When context menus are enabled in settings.</td></tr>\r\n                                <tr><td><code>scripting</code></td><td>Injects MarkSnip&rsquo;s capture helpers into the page at clip time.</td><td>Whenever MarkSnip reads page content.</td></tr>\r\n                                <tr><td><code>offscreen</code></td><td>Uses a hidden document for Manifest V3 clipboard and download workflows in Chromium browsers.</td><td>Behind the scenes during some copy and download actions.</td></tr>\r\n                            </tbody>\r\n                        </table>\r\n                    </div>\r\n                </div>\r\n\r\n                <div id=\"agent-bridge-permission\" class=\"guide-subsection\"\r\n                    data-guide-section=\"Agent Bridge Permission\"\r\n                    data-guide-summary=\"Optional native messaging permission for Agent Bridge\"\r\n                    data-search-keywords=\"native messaging,agent bridge permission,local companion,optional permission,nativeMessaging,grant permission,revoke permission\">\r\n                    <h3 class=\"subsection-heading\"><a href=\"#agent-bridge-permission\" class=\"anchor-link\">#</a>Agent Bridge Permission</h3>\r\n                    <p>The Agent Bridge feature requires an additional browser permission called <strong>Native Messaging</strong>. This is an <em>optional</em> permission &mdash; MarkSnip works perfectly without it.</p>\r\n                    <ul>\r\n                        <li><strong>What it does</strong> &mdash; lets MarkSnip talk to a small local companion program installed on your machine.</li>\r\n                        <li><strong>Local only</strong> &mdash; communication stays on your computer. No data leaves your machine.</li>\r\n                        <li><strong>When it&rsquo;s used</strong> &mdash; only while Agent Bridge is enabled. Turning the toggle off stops all native messaging activity.</li>\r\n                        <li><strong>How to grant</strong> &mdash; enable the Agent Bridge toggle in Settings. MarkSnip will show an explanation before the browser&rsquo;s permission prompt appears.</li>\r\n                        <li><strong>How to revoke</strong> &mdash; once granted, this permission cannot be selectively removed. To fully revoke it, you must reinstall the extension. Turning off the Agent Bridge toggle stops all native messaging activity without needing to revoke the permission.</li>\r\n                    </ul>\r\n                    <div class=\"tip-box\">\r\n                        <strong>Note:</strong> If you deny the permission, regular clipping is completely unaffected. You can always try again later.\r\n                    </div>\r\n                </div>\r\n            </section>\r\n\r\n            <!-- ────────────────────────────────────────────\r\n                 SECTION: Troubleshooting / FAQ\r\n                 ──────────────────────────────────────────── -->"
+  },
+  "guide_section_troubleshooting_html": {
+    "message": "<h2 class=\"section-heading\"><a href=\"#troubleshooting\" class=\"anchor-link\">#</a>Troubleshooting / FAQ</h2>\r\n                <div class=\"section-body\">\r\n                    <div class=\"faq-item\">\r\n                        <h4>The popup shows \"Processing page...\" and nothing happens</h4>\r\n                        <p>Some pages block content scripts. Try refreshing the page, or check that MarkSnip has permission to access the site. Internal browser pages (<code>chrome://</code>, <code>about:</code>) cannot be clipped.</p>\r\n                    </div>\r\n                    <div class=\"faq-item\">\r\n                        <h4>Images are not downloading</h4>\r\n                        <p>Make sure <strong>Download Mode</strong> is set to \"Downloads API\" and the <strong>Images</strong> toggle is enabled. Content Link mode does not support image downloads.</p>\r\n                    </div>\r\n                    <div class=\"faq-item\">\r\n                        <h4>Send to Obsidian is not visible</h4>\r\n                        <p>Enable <strong>Obsidian Integration</strong> in <a href=\"#obsidian-integration\">Settings</a>. You also need the <strong>Advanced Obsidian URI</strong> community plugin installed in Obsidian.</p>\r\n                    </div>\r\n                    <div class=\"faq-item\">\r\n                        <h4>Context menu items are missing</h4>\r\n                        <p>Check that <strong>Enable Context Menus</strong> is turned on in <a href=\"#download-settings\">Downloads settings</a>.</p>\r\n                    </div>\r\n                    <div class=\"faq-item\">\r\n                        <h4>Keyboard shortcuts don't work</h4>\r\n                        <p>Another extension may have claimed the same shortcut. Open your browser's extension shortcut settings to reassign keys.</p>\r\n                    </div>\r\n                    <div class=\"faq-item\">\r\n                        <h4>Markdown output looks wrong</h4>\r\n                        <p>Check the <a href=\"#markdown-options\">Markdown Options</a> to adjust heading style, link style, code block style, and escape settings to match your workflow.</p>\r\n                    </div>\r\n                </div>\r\n            </section>\r\n\r\n            <!-- ────────────────────────────────────────────\r\n                 SECTION: Custom Text Substitutions\r\n                 ──────────────────────────────────────────── -->"
+  },
+  "guide_section_text_substitutions_html": {
+    "message": "<h2 class=\"section-heading\"><a href=\"#text-substitutions\" class=\"anchor-link\">#</a>Custom Text Substitutions</h2>\r\n                <p>The Title Template, Downloads Subfolder, Front/Back Templates, Image Filename Prefix, and Obsidian Folder Name all support these variables:</p>\r\n\r\n                <h3 class=\"subsection-heading\">Article Metadata</h3>\r\n                <div class=\"ref-table-wrap\">\r\n                    <table class=\"ref-table\">\r\n                        <thead><tr><th>Variable</th><th>Description</th></tr></thead>\r\n                        <tbody>\r\n                            <tr><td><code>{title}</code></td><td>Article title (as determined by Readability)</td></tr>\r\n                            <tr><td><code>{pageTitle}</code></td><td>Title of the actual page (<code>&lt;title&gt;</code> tag)</td></tr>\r\n                            <tr><td><code>{length}</code></td><td>Length of the article in characters</td></tr>\r\n                            <tr><td><code>{excerpt}</code></td><td>Article description or short excerpt</td></tr>\r\n                            <tr><td><code>{byline}</code></td><td>Author metadata</td></tr>\r\n                            <tr><td><code>{dir}</code></td><td>Content direction (e.g. <code>ltr</code>)</td></tr>\r\n                            <tr><td><code>{baseURI}</code></td><td>Parsed document/base URI</td></tr>\r\n                            <tr><td><code>{pageURL}</code> / <code>{tabURL}</code></td><td>Address-bar URL of the tab</td></tr>\r\n                            <tr><td><code>{keywords}</code></td><td>Meta keywords, comma-separated</td></tr>\r\n                        </tbody>\r\n                    </table>\r\n                </div>\r\n\r\n                <h3 class=\"subsection-heading\">URL Components</h3>\r\n                <div class=\"ref-table-wrap\">\r\n                    <table class=\"ref-table\">\r\n                        <thead><tr><th>Variable</th><th>Description</th></tr></thead>\r\n                        <tbody>\r\n                            <tr><td><code>{origin}</code></td><td>Scheme + domain + port</td></tr>\r\n                            <tr><td><code>{host}</code></td><td>Hostname + port</td></tr>\r\n                            <tr><td><code>{hostname}</code></td><td>Domain only</td></tr>\r\n                            <tr><td><code>{port}</code></td><td>Port number</td></tr>\r\n                            <tr><td><code>{protocol}</code></td><td>Protocol with trailing <code>:</code></td></tr>\r\n                            <tr><td><code>{pathname}</code></td><td>URL path</td></tr>\r\n                            <tr><td><code>{search}</code></td><td>Query string including <code>?</code></td></tr>\r\n                            <tr><td><code>{hash}</code></td><td>Fragment identifier including <code>#</code></td></tr>\r\n                        </tbody>\r\n                    </table>\r\n                </div>\r\n                <p>All URL components are also available prefixed with <code>page</code> (e.g. <code>{pageOrigin}</code>, <code>{pageHostname}</code>).</p>\r\n\r\n                <h3 class=\"subsection-heading\">Date/Time</h3>\r\n                <p>Use <code>{date:FORMAT}</code> with Moment.js formatting tokens. Example: <code>{date:YYYY-MM-DD}</code>.</p>\r\n\r\n                <h3 class=\"subsection-heading\">Meta Tags</h3>\r\n                <p>Any <code>&lt;meta&gt;</code> tag value can be referenced, e.g. <code>{og:image}</code>, <code>{og:description}</code>.</p>\r\n\r\n                <h3 class=\"subsection-heading\">Parameterizations</h3>\r\n                <p>Change the casing of any text variable (except <code>{date}</code> and <code>{keywords}</code>) by appending a colon and style:</p>\r\n                <div class=\"ref-table-wrap\">\r\n                    <table class=\"ref-table\">\r\n                        <thead><tr><th>Syntax</th><th>Style</th><th>Example</th></tr></thead>\r\n                        <tbody>\r\n                            <tr><td><code>{variable:pascal}</code></td><td>PascalCase</td><td><code>DifferentTypesOfCasing</code></td></tr>\r\n                            <tr><td><code>{variable:camel}</code></td><td>camelCase</td><td><code>differentTypesOfCasing</code></td></tr>\r\n                            <tr><td><code>{variable:kebab}</code></td><td>kebab-case</td><td><code>different-types-of-casing</code></td></tr>\r\n                            <tr><td><code>{variable:snake}</code></td><td>snake_case</td><td><code>different_types_of_casing</code></td></tr>\r\n                            <tr><td><code>{variable:lowercase}</code></td><td>lowercase</td><td>all lowercase</td></tr>\r\n                            <tr><td><code>{variable:uppercase}</code></td><td>UPPERCASE</td><td>ALL UPPERCASE</td></tr>\r\n                        </tbody>\r\n                    </table>\r\n                </div>\r\n                <div class=\"tip-box\">\r\n                    <strong>Note:</strong> Not all websites provide all metadata values. Missing values are replaced with empty strings.\r\n                </div>"
+  },
+  "guide_meta_quick_start_title": {
+    "message": "Quick Start"
+  },
+  "guide_meta_quick_start_summary": {
+    "message": "Get started with MarkSnip in three steps"
+  },
+  "guide_meta_quick_start_keywords": {
+    "message": "getting started,intro,overview,begin,first time,how to use"
+  },
+  "guide_meta_using_the_popup_title": {
+    "message": "Using the Popup"
+  },
+  "guide_meta_using_the_popup_summary": {
+    "message": "The main popup interface for clipping pages"
+  },
+  "guide_meta_using_the_popup_keywords": {
+    "message": "popup,main interface,clip,clipper,extension popup"
+  },
+  "guide_meta_batch_processing_title": {
+    "message": "Batch Processing"
+  },
+  "guide_meta_batch_processing_summary": {
+    "message": "Convert multiple URLs to Markdown at once"
+  },
+  "guide_meta_batch_processing_keywords": {
+    "message": "batch,bulk,multiple pages,urls,zip,convert all"
+  },
+  "guide_meta_context_menus_title": {
+    "message": "Context Menus and Shortcuts"
+  },
+  "guide_meta_context_menus_summary": {
+    "message": "Right-click actions and keyboard shortcuts"
+  },
+  "guide_meta_context_menus_keywords": {
+    "message": "context menu,right click,keyboard,shortcut,hotkey,keybinding"
+  },
+  "guide_meta_settings_title": {
+    "message": "Settings and Customization"
+  },
+  "guide_meta_settings_summary": {
+    "message": "Configure all extension options"
+  },
+  "guide_meta_settings_keywords": {
+    "message": "settings,options,customize,configuration,preferences"
+  },
+  "guide_meta_obsidian_downloads_title": {
+    "message": "Obsidian and Downloads"
+  },
+  "guide_meta_obsidian_downloads_summary": {
+    "message": "Obsidian integration, download modes, and image handling"
+  },
+  "guide_meta_obsidian_downloads_keywords": {
+    "message": "obsidian,vault,advanced uri,download mode,downloads api,content link,save as,image download,image prefix"
+  },
+  "guide_meta_permissions_privacy_title": {
+    "message": "Permissions and Privacy"
+  },
+  "guide_meta_permissions_privacy_summary": {
+    "message": "What permissions MarkSnip uses and why"
+  },
+  "guide_meta_permissions_privacy_keywords": {
+    "message": "permissions,privacy,site access,all urls,native messaging,local companion,data,security,nativeMessaging,agent bridge permission,downloads,clipboard,storage,context menus,scripting,offscreen"
+  },
+  "guide_meta_troubleshooting_title": {
+    "message": "Troubleshooting / FAQ"
+  },
+  "guide_meta_troubleshooting_summary": {
+    "message": "Common issues and solutions"
+  },
+  "guide_meta_troubleshooting_keywords": {
+    "message": "troubleshooting,faq,help,problem,issue,bug,not working,error,fix"
+  },
+  "guide_meta_text_substitutions_title": {
+    "message": "Text Substitutions"
+  },
+  "guide_meta_text_substitutions_summary": {
+    "message": "Variables for templates, titles, and filenames"
+  },
+  "guide_meta_text_substitutions_keywords": {
+    "message": "text substitution,variable,template variable,placeholder,date format,moment,meta tag,parameterization,casing,pascal,camel,kebab,snake,article metadata,url components"
+  }
+}

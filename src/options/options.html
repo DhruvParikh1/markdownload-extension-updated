@@ -394,6 +394,22 @@
                 <h2 class="section-title">Appearance</h2>
                 <p class="section-desc">Customize the look of the MarkSnip popup.</p>
 
+                <div class="setting-card" id="uiLanguageCard" data-setting-key="uiLanguage" data-search-keywords="language,locale,interface language,translation,hindi,english,browser language">
+                    <h3 class="card-title">Interface Language</h3>
+                    <p class="card-desc">Choose the language used by the popup, settings, guide, shortcuts modal, and in-extension notifications.</p>
+                    <div class="setting-row" style="align-items: flex-start; gap: 16px;">
+                        <div class="toggle-info" style="flex: 1;">
+                            <label class="input-label" for="uiLanguage">Language</label>
+                            <p class="toggle-hint" id="uiLanguageNote">Manifest-level strings such as the extension name, action title, and command descriptions still follow the browser locale.</p>
+                        </div>
+                        <select id="uiLanguage" name="uiLanguage" class="text-input" style="max-width: 220px;">
+                            <option value="browser">Browser default</option>
+                            <option value="en">English</option>
+                            <option value="hi">Hindi</option>
+                        </select>
+                    </div>
+                </div>
+
                 <!-- Color Mode -->
                 <div class="setting-card" id="popupThemeGroup" data-setting-key="popupTheme,showThemeToggleInPopup" data-search-keywords="theme toggle,dark mode toggle,light mode toggle,popup header theme button,appearance">
                     <h3 class="card-title">Color Mode</h3>
@@ -1745,6 +1761,7 @@ const helloWorld = () => {
 	    <div id="spinner" style="display: none;"></div>
 	
 	    <script src="../browser-polyfill.min.js"></script>
+	    <script src="../shared/i18n.js"></script>
 	    <script src="../shared/site-rules.js"></script>
 	    <script src="../shared/default-options.js"></script>
 	    <script src="../shared/context-menus.js"></script>
