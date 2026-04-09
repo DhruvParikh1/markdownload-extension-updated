@@ -8,6 +8,14 @@ function getHTMLOfDocument() {
     const clonedHtml = document.documentElement.cloneNode(true);
     clonedDocument.replaceChild(clonedHtml, clonedDocument.documentElement);
 
+    // Drop copied CSP meta tags so clone-only base normalization is not blocked on pages
+    // like ChatGPT that declare `base-uri 'none'`.
+    clonedDocument.head.querySelectorAll('meta[http-equiv]').forEach(meta => {
+        if ((meta.getAttribute('http-equiv') || '').toLowerCase() === 'content-security-policy') {
+            meta.remove();
+        }
+    });
+
     // make sure a title tag exists so that pageTitle is not empty and
     // a filename can be generated.
     if (clonedDocument.head.getElementsByTagName('title').length === 0) {
@@ -404,13 +412,14 @@ if (!window.linkPickerMessageListenerAdded) {
     window.linkPickerMessageListenerAdded = true;
 }
 
-const ACCENT_COLORS = {
+var ACCENT_COLORS = window.__marksnipAccentColors || {
     sage:  { dark: '#56735A', darker: '#3F5441', base: '#6B8E6F' },
     ocean: { dark: '#4A7A92', darker: '#385D6F', base: '#5B8FA8' },
     slate: { dark: '#56657A', darker: '#414D5C', base: '#6B7B8E' },
     rose:  { dark: '#965C5C', darker: '#7A4A4A', base: '#B07070' },
     amber: { dark: '#967840', darker: '#7A6030', base: '#B08E50' }
 };
+window.__marksnipAccentColors = ACCENT_COLORS;
 
 async function initLinkPickerMode() {
     if (window.linkPickerState.active) {

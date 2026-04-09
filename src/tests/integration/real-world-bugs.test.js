@@ -908,6 +908,263 @@ if (!verification.valid) {
     });
   });
 
+  describe('Discussion Thread Recovery', () => {
+    test('should append rendered discussion threads that Readability drops', () => {
+      const html = `
+        <!DOCTYPE html>
+        <html>
+          <head><title>Forum Thread</title></head>
+          <body>
+            <article>
+              <h1>Forum Thread</h1>
+              <p>
+                This opening post explains how the archive workflow should preserve source
+                material for offline research, quoted references, and personal note review.
+                It intentionally contains enough descriptive prose to make the main article
+                extraction obvious before the discussion thread begins.
+              </p>
+              <p>
+                The author wants a markdown export that keeps context, preserves useful
+                formatting, and still reads cleanly when revisited months later without
+                network access or the original host page.
+              </p>
+              <p>
+                They are specifically asking for durable clipping of discussion pages where
+                follow-up replies add practical implementation advice that matters as much as
+                the first post itself.
+              </p>
+            </article>
+            <section class="discussion-thread comments">
+              <article class="comment">
+                <div class="comment-meta"><a href="/users/alice">alice</a> • 2d ago</div>
+                <div class="comment-body">
+                  <p>
+                    I keep full discussion exports because the follow-up troubleshooting notes
+                    are usually the part I need later, especially when the original question is
+                    just setup context for the real fix.
+                  </p>
+                </div>
+                <div class="comment-actions"><button>Reply</button><a href="/comments/1">Share</a></div>
+                <article class="comment reply">
+                  <div class="comment-meta"><a href="/users/bruno">bruno</a> • 1d ago</div>
+                  <div class="comment-body">
+                    <p>
+                      Same here. Nested replies often contain the corrected command or edge case
+                      note that never makes it back into the top answer.
+                    </p>
+                  </div>
+                  <div class="comment-actions"><button>Reply</button></div>
+                </article>
+              </article>
+              <article class="comment">
+                <div class="comment-meta"><a href="/users/casey">casey</a> • 1d ago</div>
+                <div class="comment-body">
+                  <p>
+                    My archive tool saves the full rendered thread and strips the site chrome.
+                    That keeps the conversation readable without the vote controls, share links,
+                    or other interface noise.
+                  </p>
+                </div>
+                <div class="comment-actions"><button>Reply</button><a href="/comments/2">Share</a></div>
+              </article>
+            </section>
+          </body>
+        </html>
+      `;
+
+      const env = createBrowserEnvironment();
+      const firstPassDom = new JSDOM(html, { url: 'https://example.com/forum-thread.html' });
+      const firstPassArticle = new env.Readability(firstPassDom.window.document).parse();
+      expect(firstPassArticle).not.toBeNull();
+      expect(firstPassArticle.content).not.toContain('alice');
+      expect(firstPassArticle.content).not.toContain('bruno');
+      expect(firstPassArticle.content).not.toContain('casey');
+
+      const { article } = parseArticle(html, 'https://example.com/forum-thread.html');
+      const { service } = createTurndownService();
+      const markdown = service.turndown(article.content);
+
+      expect(article).not.toBeNull();
+      expect(article.content).toContain('Comments');
+      expect(markdown).toContain('## Comments');
+      expect(markdown).toContain('alice');
+      expect(markdown).toContain('bruno');
+      expect(markdown).toContain('casey');
+      expect(markdown).toContain('Nested replies often contain the corrected command');
+      expect(markdown).not.toContain('Reply');
+      expect(markdown).not.toContain('Share');
+    });
+
+    test('should recover the main post when the first pass lands on the discussion container', () => {
+      const html = `
+        <!DOCTYPE html>
+        <html>
+          <head><title>Forum Thread</title></head>
+          <body>
+            <main class="main-content">
+              <forum-post class="post content">
+                <div class="post-meta"><a href="/r/ObsidianMD/">r/ObsidianMD</a> â€¢ 8mo ago â€¢ <a href="/user/anonymonymoose/">anonymonymoose</a></div>
+                <h1>What do you use to download websites (esp. Reddit)?</h1>
+                <div class="post-flair">clipper</div>
+                <div class="post-body">
+                  <p>
+                    I like saving websites as markdown files for offline viewing, and so I can reference a
+                    website source without worrying about the site being deleted. It's so annoying when I
+                    find something interesting and save a link to it, only to find the link is dead because
+                    the host deleted the article.
+                  </p>
+                  <p>
+                    I used to use MarkDownload and it was awesome, but I haven't used it in a while, and
+                    now it looks like the Chrome extension is dead. I found MarkSnip which appears to be a
+                    branch from MarkDownload and seems to work well with normal websites, but when I try to
+                    save a Reddit post it formats weirdly and doesn't save all comment threads.
+                  </p>
+                  <p>
+                    I tried Clipper, but it can only do like 2000 characters, which is fine for just
+                    pulling out a quote or excerpt but is not very helpful when I want to download an
+                    entire article to read later.
+                  </p>
+                </div>
+              </forum-post>
+              <section class="discussion-thread comments" aria-label="Comments">
+                <h1 aria-label="Comments Section">Comments Section</h1>
+                <article class="comment">
+                  <div class="comment-meta"><a href="/user/pixel_sharmana/">pixel_sharmana</a> â€¢ 8mo ago</div>
+                  <div class="comment-body">
+                    <p>
+                      If I really need to download an entire page, and can't really summarize it, I just
+                      copy-paste the whole thing and manually clean it. At one point, searching for quick
+                      shortcuts all the time made me realize I could just use that time to do it right myself.
+                    </p>
+                  </div>
+                  <article class="comment reply">
+                    <div class="comment-meta"><a href="/user/anonymonymoose/">anonymonymoose</a> â€¢ 8mo ago</div>
+                    <div class="comment-body">
+                      <p>
+                        Honestly, I totally get that. There are a ton of things with Obsidian that I could
+                        waste countless hours learning and tweaking, which is why I'm usually very minimalist
+                        when it comes to plugins and formatting.
+                      </p>
+                    </div>
+                  </article>
+                  <a href="/r/ObsidianMD/comments/1mwisbf/comment/n9xrq8r/?force-legacy-sct=1">More replies</a>
+                </article>
+                <article class="comment">
+                  <div class="comment-meta"><a href="/user/JustMeBT/">JustMeBT</a> â€¢ 8mo ago</div>
+                  <div class="comment-body">
+                    <p>
+                      One option would be to use something like Fireshot, then capture the entire page and
+                      save it as a PDF. I save webpages all the time that way and the text can still be
+                      searched later.
+                    </p>
+                  </div>
+                </article>
+                <article class="comment">
+                  <div class="comment-meta"><a href="/user/haronclv/">haronclv</a> â€¢ 8mo ago</div>
+                  <div class="comment-body">
+                    <p>
+                      I do not save anything. Just save the URL, anyway I am going to forget about it in two
+                      days so my vault is not messed up.
+                    </p>
+                  </div>
+                </article>
+                <article class="comment">
+                  <div class="comment-meta"><a href="/user/Veradux21/">Veradux21</a> â€¢ 8mo ago</div>
+                  <div class="comment-body">
+                    <p>
+                      The limit for clipper should no longer be accurate after they transitioned from URI to
+                      clipboard based saving as of version 1.7.2. Is there another limit that I am unaware of?
+                    </p>
+                  </div>
+                </article>
+              </section>
+            </main>
+          </body>
+        </html>
+      `;
+
+      const env = createBrowserEnvironment();
+      const recoveryApi = env.ReadabilityRecovery;
+      const originalDom = new JSDOM(html, { url: 'https://example.com/reddit-thread.html' });
+      recoveryApi.annotateStructuralAnchors(originalDom.window.document);
+
+      const wrongArticleHtml = originalDom.window.document.querySelector('section.comments').outerHTML;
+      expect(wrongArticleHtml).toContain('Comments Section');
+      expect(wrongArticleHtml).not.toContain('I like saving websites as markdown files for offline viewing');
+
+      const recoveryPlan = recoveryApi.analyzeDiscussionTakeover(originalDom.window.document, wrongArticleHtml);
+      expect(recoveryPlan).not.toBeNull();
+
+      const secondPassDom = new JSDOM(html, { url: 'https://example.com/reddit-thread.html' });
+      recoveryApi.annotateStructuralAnchors(secondPassDom.window.document);
+      const suppressionResult = recoveryApi.suppressDiscussionTakeoverCandidates(secondPassDom.window.document, recoveryPlan);
+      expect(suppressionResult.changed).toBe(true);
+
+      const recoveredArticle = new env.Readability(secondPassDom.window.document).parse();
+      expect(recoveredArticle).not.toBeNull();
+      expect(recoveredArticle.content).toContain('I like saving websites as markdown files for offline viewing');
+      expect(recoveredArticle.content).not.toContain('Comments Section');
+
+      let recoveredContent = recoveryApi.restoreMissingPrimaryHeadings(originalDom.window.document, recoveredArticle.content) || recoveredArticle.content;
+      const discussionRecovery = recoveryApi.recoverDiscussionThread(originalDom.window.document, recoveredContent);
+      if (discussionRecovery?.html) {
+        recoveredContent = discussionRecovery.html;
+      }
+
+      const { service } = createTurndownService();
+      const markdown = service.turndown(recoveredContent);
+
+      expect(markdown).toContain('# What do you use to download websites (esp. Reddit)?');
+      expect(markdown).toContain('I like saving websites as markdown files for offline viewing');
+      expect(markdown).toContain('## Comments');
+      expect(markdown).toContain('If I really need to download an entire page');
+      expect(markdown).toContain('One option would be to use something like Fireshot');
+    });
+
+    test('should ignore tiny noisy comment footers on normal articles', () => {
+      const html = `
+        <!DOCTYPE html>
+        <html>
+          <head><title>Normal Article</title></head>
+          <body>
+            <article>
+              <h1>Normal Article</h1>
+              <p>
+                This guide focuses on the main implementation steps for a deployment checklist
+                and should remain an ordinary article clip without discussion recovery.
+              </p>
+              <p>
+                The content is long enough for Readability to confidently identify the primary
+                article while a tiny comment footer remains insignificant to the exported result.
+              </p>
+              <p>
+                Readers care about the walkthrough itself, not a one-line footer reaction with
+                action buttons attached to it.
+              </p>
+            </article>
+            <section class="comments">
+              <article class="comment">
+                <div class="comment-meta">zoe • 5h ago</div>
+                <div class="comment-body"><p>Nice post.</p></div>
+                <div class="comment-actions"><button>Reply</button><a href="/comments/3">Share</a></div>
+              </article>
+            </section>
+          </body>
+        </html>
+      `;
+
+      const { article } = parseArticle(html, 'https://example.com/normal-article.html');
+      const { service } = createTurndownService();
+      const markdown = service.turndown(article.content);
+
+      expect(article).not.toBeNull();
+      expect(markdown).not.toContain('## Comments');
+      expect(markdown).not.toContain('Nice post.');
+      expect(markdown).toContain('main implementation steps for a deployment checklist');
+    });
+
+  });
+
   describe('Other Common Markdown Conversion Issues', () => {
     test('should strip images inside table cells when imageStyle is noImage', () => {
       const { service } = createTurndownService({ imageStyle: 'noImage' });

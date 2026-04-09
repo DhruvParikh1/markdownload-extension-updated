@@ -100,6 +100,12 @@ function linkDensityFromArticleHtml(window, articleHtml) {
   return linkTextLength / textLength;
 }
 
+function articleHtmlContainsNormalizedSnippet(window, articleHtml, snippet) {
+  const normalizedHtmlText = normalizeMeaningfulText(parseArticleHtmlFragment(window, articleHtml).body.textContent).toLowerCase();
+  const normalizedSnippet = normalizeMeaningfulText(snippet).toLowerCase();
+  return !!normalizedSnippet && normalizedHtmlText.includes(normalizedSnippet);
+}
+
 function articleHtmlContainsAnyWitness(window, articleHtml, witnessIds, anchorAttribute) {
   if (!witnessIds?.length) {
     return false;
@@ -163,7 +169,40 @@ function parseArticle(html, url = 'https://example.com') {
   let article = firstPassArticle;
 
   if (firstPassArticle?.content) {
-    const recoveryPlan = recoveryApi.analyzeNarrowExtraction(dom.window.document, firstPassArticle.content);
+    const discussionTakeoverPlan = typeof recoveryApi.analyzeDiscussionTakeover === 'function'
+      ? recoveryApi.analyzeDiscussionTakeover(dom.window.document, firstPassArticle.content)
+      : null;
+    if (discussionTakeoverPlan) {
+      const discussionPassDom = new JSDOM(html, { url });
+      prepareDocumentForReadability(discussionPassDom.window.document, recoveryApi);
+      const suppressionResult = typeof recoveryApi.suppressDiscussionTakeoverCandidates === 'function'
+        ? recoveryApi.suppressDiscussionTakeoverCandidates(discussionPassDom.window.document, discussionTakeoverPlan)
+        : { changed: false };
+
+      if (suppressionResult.changed) {
+        const discussionPassArticle = new env.Readability(discussionPassDom.window.document).parse();
+        const recoveredWitness = articleHtmlContainsNormalizedSnippet(
+          dom.window,
+          discussionPassArticle?.content,
+          discussionTakeoverPlan.primaryContentWitness
+        );
+        const recoveredLength = meaningfulTextLengthFromArticleHtml(dom.window, discussionPassArticle?.content);
+        const stillLooksLikeDiscussionTakeover = discussionPassArticle?.content && typeof recoveryApi.analyzeDiscussionTakeover === 'function'
+          ? recoveryApi.analyzeDiscussionTakeover(dom.window.document, discussionPassArticle.content)
+          : null;
+
+        if (
+          discussionPassArticle?.content &&
+          recoveredWitness &&
+          recoveredLength >= discussionTakeoverPlan.minimumRecoveredLength &&
+          !stillLooksLikeDiscussionTakeover
+        ) {
+          article = discussionPassArticle;
+        }
+      }
+    }
+
+    const recoveryPlan = recoveryApi.analyzeNarrowExtraction(dom.window.document, article.content);
     if (recoveryPlan) {
       const secondPassDom = new JSDOM(html, { url });
       prepareDocumentForReadability(secondPassDom.window.document, recoveryApi);
@@ -174,12 +213,12 @@ function parseArticle(html, url = 'https://example.com') {
           ? recoveryApi.buildRepeatedSectionFragment(secondPassDom.window.document, recoveryPlan)
           : null;
         const secondPassArticle = recoveryFragment?.html
-          ? buildRecoveredArticle(secondPassDom.window, firstPassArticle, recoveryFragment.html)
+          ? buildRecoveredArticle(secondPassDom.window, article, recoveryFragment.html)
           : null;
 
         if (secondPassArticle?.content) {
           const secondPassTextLength = meaningfulTextLengthFromArticleHtml(secondPassDom.window, secondPassArticle.content);
-          const firstPassTextLength = recoveryPlan.extractedTextLength || meaningfulTextLengthFromArticleHtml(dom.window, firstPassArticle.content);
+          const firstPassTextLength = recoveryPlan.extractedTextLength || meaningfulTextLengthFromArticleHtml(dom.window, article.content);
           const recoveredGrowth = secondPassTextLength - firstPassTextLength;
           const recoveredMissingContent = articleHtmlContainsAnyWitness(
             secondPassDom.window,
@@ -218,6 +257,13 @@ function parseArticle(html, url = 'https://example.com') {
       : null;
     if (restoredHeadingContent) {
       recoveredContent = restoredHeadingContent;
+    }
+
+    const discussionRecovery = typeof recoveryApi.recoverDiscussionThread === 'function'
+      ? recoveryApi.recoverDiscussionThread(dom.window.document, recoveredContent)
+      : null;
+    if (discussionRecovery?.html) {
+      recoveredContent = discussionRecovery.html;
     }
 
     if (recoveredContent !== article.content) {

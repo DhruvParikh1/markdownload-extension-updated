@@ -1284,9 +1284,12 @@ function getReadabilityRecoveryApi() {
   return globalThis.MarkSnipReadabilityRecovery || {
     anchorAttribute: 'data-marksnip-node-id',
     annotateStructuralAnchors: () => 0,
+    analyzeDiscussionTakeover: () => null,
     analyzeNarrowExtraction: () => null,
     applyRepeatedSectionPromotion: () => ({ changed: false, promotedIds: [] }),
     buildRepeatedSectionFragment: () => null,
+    recoverDiscussionThread: () => null,
+    suppressDiscussionTakeoverCandidates: () => ({ changed: false, removedIds: [] }),
     stripStructuralAnchorsFromHtml: html => html
   };
 }
@@ -1317,6 +1320,12 @@ function linkDensityFromArticleHtml(articleHtml) {
     linkTextLength += normalizeMeaningfulText(anchor.textContent).length;
   });
   return linkTextLength / textLength;
+}
+
+function articleHtmlContainsNormalizedSnippet(articleHtml, snippet) {
+  const normalizedHtmlText = normalizeMeaningfulText(parseArticleHtmlFragment(articleHtml).body.textContent).toLowerCase();
+  const normalizedSnippet = normalizeMeaningfulText(snippet).toLowerCase();
+  return !!normalizedSnippet && normalizedHtmlText.includes(normalizedSnippet);
 }
 
 function articleHtmlContainsAnyWitness(articleHtml, witnessIds, anchorAttribute) {
@@ -1503,6 +1512,13 @@ function finalizeArticleMetadata(article, dom, pageUrl, math, recoveryApi) {
     recoveredContent = restoredHeadingContent;
   }
 
+  const discussionRecovery = typeof recoveryApi.recoverDiscussionThread === 'function'
+    ? recoveryApi.recoverDiscussionThread(dom, recoveredContent)
+    : null;
+  if (discussionRecovery?.html) {
+    recoveredContent = discussionRecovery.html;
+  }
+
   if (recoveredContent !== article.content) {
     Object.assign(article, buildRecoveredArticle(article, recoveredContent));
   }
@@ -1582,11 +1598,47 @@ function extractArticleWithRecovery(domString, options) {
     return null;
   }
 
-  const recoveryPlan = recoveryApi.analyzeNarrowExtraction(firstPassPrepared.dom, firstPassArticle.content);
+  let article = firstPassArticle;
+
+  const discussionTakeoverPlan = typeof recoveryApi.analyzeDiscussionTakeover === 'function'
+    ? recoveryApi.analyzeDiscussionTakeover(firstPassPrepared.dom, firstPassArticle.content)
+    : null;
+  if (discussionTakeoverPlan) {
+    const discussionPassParser = new DOMParser();
+    const discussionPassDom = discussionPassParser.parseFromString(domString, "text/html");
+    const discussionPassPrepared = prepareDomForReadability(discussionPassDom, options, recoveryApi);
+    const suppressionResult = typeof recoveryApi.suppressDiscussionTakeoverCandidates === 'function'
+      ? recoveryApi.suppressDiscussionTakeoverCandidates(discussionPassPrepared.dom, discussionTakeoverPlan)
+      : { changed: false };
+
+    if (suppressionResult.changed) {
+      const discussionPassArticle = new Readability(discussionPassPrepared.dom.cloneNode(true)).parse();
+      const recoveredWitness = articleHtmlContainsNormalizedSnippet(
+        discussionPassArticle?.content,
+        discussionTakeoverPlan.primaryContentWitness
+      );
+      const recoveredLength = meaningfulTextLengthFromArticleHtml(discussionPassArticle?.content);
+      const stillLooksLikeDiscussionTakeover = discussionPassArticle?.content && typeof recoveryApi.analyzeDiscussionTakeover === 'function'
+        ? recoveryApi.analyzeDiscussionTakeover(firstPassPrepared.dom, discussionPassArticle.content)
+        : null;
+
+      if (
+        discussionPassArticle?.content &&
+        recoveredWitness &&
+        recoveredLength >= discussionTakeoverPlan.minimumRecoveredLength &&
+        !stillLooksLikeDiscussionTakeover
+      ) {
+        article = discussionPassArticle;
+      }
+    }
+  }
+
+  const recoveryPlan = recoveryApi.analyzeNarrowExtraction(firstPassPrepared.dom, article.content);
   if (!recoveryPlan) {
     return {
-      article: firstPassArticle,
+      article,
       dom: firstPassPrepared.dom,
+      sourceDom: firstPassPrepared.dom,
       math: firstPassPrepared.math
     };
   }
@@ -1597,8 +1649,9 @@ function extractArticleWithRecovery(domString, options) {
   const recoveryResult = recoveryApi.applyRepeatedSectionPromotion(secondPassPrepared.dom, recoveryPlan);
   if (!recoveryResult.changed) {
     return {
-      article: firstPassArticle,
+      article,
       dom: firstPassPrepared.dom,
+      sourceDom: firstPassPrepared.dom,
       math: firstPassPrepared.math
     };
   }
@@ -1608,16 +1661,17 @@ function extractArticleWithRecovery(domString, options) {
     : null;
   if (!recoveryFragment?.html) {
     return {
-      article: firstPassArticle,
+      article,
       dom: firstPassPrepared.dom,
+      sourceDom: firstPassPrepared.dom,
       math: firstPassPrepared.math
     };
   }
 
-  const secondPassArticle = buildRecoveredArticle(firstPassArticle, recoveryFragment.html);
+  const secondPassArticle = buildRecoveredArticle(article, recoveryFragment.html);
 
   const secondPassTextLength = meaningfulTextLengthFromArticleHtml(secondPassArticle.content);
-  const firstPassTextLength = recoveryPlan.extractedTextLength || meaningfulTextLengthFromArticleHtml(firstPassArticle.content);
+  const firstPassTextLength = recoveryPlan.extractedTextLength || meaningfulTextLengthFromArticleHtml(article.content);
   const recoveredGrowth = secondPassTextLength - firstPassTextLength;
   const growthThreshold = Math.max(400, firstPassTextLength * 0.2);
   const recoveredLinkDensity = linkDensityFromArticleHtml(secondPassArticle.content);
@@ -1635,8 +1689,9 @@ function extractArticleWithRecovery(domString, options) {
     !keepsComparableLength
   ) {
     return {
-      article: firstPassArticle,
+      article,
       dom: firstPassPrepared.dom,
+      sourceDom: firstPassPrepared.dom,
       math: firstPassPrepared.math
     };
   }
@@ -1644,6 +1699,7 @@ function extractArticleWithRecovery(domString, options) {
   return {
     article: secondPassArticle,
     dom: secondPassPrepared.dom,
+    sourceDom: firstPassPrepared.dom,
     math: secondPassPrepared.math
   };
 }
@@ -1660,7 +1716,7 @@ async function getArticleFromDom(domString, options, pageUrl = null) {
 
   return finalizeArticleMetadata(
     extracted.article,
-    extracted.dom,
+    extracted.sourceDom || extracted.dom,
     pageUrl,
     extracted.math,
     getReadabilityRecoveryApi()

@@ -2,9 +2,11 @@ const fs = require('fs');
 const path = require('path');
 
 describe('Content Script DOM Capture', () => {
+  let scriptSource;
+
   beforeAll(() => {
     const scriptPath = path.join(__dirname, '../../contentScript/contentScript.js');
-    const scriptSource = fs.readFileSync(scriptPath, 'utf8');
+    scriptSource = fs.readFileSync(scriptPath, 'utf8');
     window.eval(scriptSource);
   });
 
@@ -50,6 +52,30 @@ describe('Content Script DOM Capture', () => {
     expect(document.getElementById('hidden-img')).toBeTruthy();
     expect(document.getElementById('hidden-div')).toBeTruthy();
     expect(document.head.querySelector('base')).toBeNull();
+  });
+
+  test('captured DOM should remove cloned CSP meta before adding a base element', () => {
+    document.documentElement.innerHTML = `
+      <head>
+        <meta http-equiv="Content-Security-Policy" content="base-uri 'none'">
+      </head>
+      <body>
+        <main>Visible text</main>
+      </body>
+    `;
+
+    const result = getSelectionAndDom();
+    const parser = new DOMParser();
+    const capturedDocument = parser.parseFromString(result.dom, 'text/html');
+
+    expect(capturedDocument.head.querySelector('meta[http-equiv="Content-Security-Policy"]')).toBeNull();
+    expect(capturedDocument.head.querySelector('base')).toBeTruthy();
+    expect(document.head.querySelector('meta[http-equiv="Content-Security-Policy"]')).toBeTruthy();
+  });
+
+  test('content script can be evaluated again without redeclaring accent colors', () => {
+    expect(() => window.eval(scriptSource)).not.toThrow();
+    expect(window.__marksnipAccentColors).toBeTruthy();
   });
 
   test('marksnipPrepareForCapture should request MathJax sync for rendered nodes', async () => {

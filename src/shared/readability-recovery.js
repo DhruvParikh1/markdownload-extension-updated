@@ -1,11 +1,41 @@
 (function(global) {
   const ANCHOR_ATTRIBUTE = 'data-marksnip-node-id';
+  const DISCUSSION_ID_ATTRIBUTE = 'data-marksnip-discussion-id';
   const STRUCTURAL_SELECTOR = 'article, section, main, div, aside, blockquote, pre, table, ul, ol';
   const WRAPPER_TAGS = new Set(['DIV', 'SECTION', 'ARTICLE', 'ASIDE']);
   const LAYOUT_CLASS_TOKENS = new Set(['clearfix', 'container', 'wrapper', 'row', 'col']);
   const EXCLUDED_PATTERN = /\b(nav|menu|toc|table-of-contents|breadcrumb|comment|comments|sidebar|share|social|promo|advert|ads?|pagination|related|recommend|accordion|tabs?|card|cards|grid|listing)\b/i;
   const HEADING_TAG_PATTERN = /^H[1-6]$/;
   const MEDIA_SELECTOR = 'img, picture, figure, video, iframe, svg, canvas';
+  const DISCUSSION_CLUSTER_PATTERN = /\b(comment|comments|reply|replies|discussion|discuss|thread|threads|forum|conversation)\b/i;
+  const DISCUSSION_ITEM_PATTERN = /\b(comment|reply|message|response)\b/i;
+  const DISCUSSION_CONTAINER_PATTERN = /\b(comments|replies|discussion|discuss|thread|threads|forum|conversation|tree|list)\b/i;
+  const DISCUSSION_ACTION_PATTERN = /\b(reply|share|report|award|give award|save|follow|sort by|permalink|copy link|upvote|downvote|vote|more replies|load more|show more|see more|collapse|expand)\b/i;
+  const PRIMARY_CONTENT_PATTERN = /\b(post|article|story|entry|question|submission|content|body)\b/i;
+  const DISCUSSION_CONTROL_TAGS = new Set([
+    'SCRIPT',
+    'STYLE',
+    'NOSCRIPT',
+    'TEMPLATE',
+    'BUTTON',
+    'FORM',
+    'INPUT',
+    'TEXTAREA',
+    'SELECT',
+    'OPTION',
+    'LABEL',
+    'MENU',
+    'NAV',
+    'FOOTER',
+    'PICTURE',
+    'IMG',
+    'VIDEO',
+    'AUDIO',
+    'IFRAME',
+    'SVG',
+    'CANVAS'
+  ]);
+  const DISCUSSION_INLINE_TAGS = new Set(['P', 'SPAN', 'A', 'TIME', 'SMALL', 'STRONG', 'EM', 'B', 'I', 'CODE']);
 
   function normalizeWhitespace(text) {
     return String(text || '').replace(/\s+/g, ' ').trim();
@@ -48,6 +78,23 @@
 
   function normalizedClassSignature(node) {
     return normalizeClassTokens(node?.className).join('.');
+  }
+
+  function semanticSignature(node) {
+    if (!node?.tagName) {
+      return '';
+    }
+
+    return normalizeWhitespace([
+      node.tagName,
+      node.getAttribute?.('id') || '',
+      typeof node.className === 'string' ? node.className : '',
+      node.getAttribute?.('role') || '',
+      node.getAttribute?.('data-testid') || '',
+      node.getAttribute?.('aria-label') || '',
+      node.getAttribute?.('name') || '',
+      node.getAttribute?.('slot') || ''
+    ].join(' ')).toLowerCase();
   }
 
   function looksExcludedContainer(node) {
@@ -593,6 +640,523 @@
     return parsedDocument;
   }
 
+  function normalizedTextIncludes(text, snippet) {
+    const normalizedText = normalizeWhitespace(text).toLowerCase();
+    const normalizedSnippet = normalizeWhitespace(snippet).toLowerCase();
+    return !!normalizedSnippet && normalizedText.includes(normalizedSnippet);
+  }
+
+  function isWithinNodes(node, nodes) {
+    return nodes.some(candidate => candidate === node || candidate.contains(node));
+  }
+
+  function collectTopDiscussionRoots(document) {
+    const roots = collectDiscussionRootCandidates(document).filter(node => node.getAttribute?.(ANCHOR_ATTRIBUTE));
+    return roots.filter(root => !roots.some(candidate => candidate !== root && candidate.contains(root)));
+  }
+
+  function findPrimaryContentWitness(document, discussionRoots) {
+    if (!document?.querySelectorAll) {
+      return null;
+    }
+
+    const candidates = Array.from(document.querySelectorAll(STRUCTURAL_SELECTOR)).filter(node => {
+      if (
+        !node.parentElement ||
+        looksExcludedContainer(node) ||
+        isLikelyDiscussionActionNode(node) ||
+        isWithinNodes(node, discussionRoots) ||
+        discussionRoots.some(root => node.contains(root))
+      ) {
+        return false;
+      }
+
+      const textLength = meaningfulTextLength(node);
+      if (textLength < 220 || linkDensity(node) > 0.4) {
+        return false;
+      }
+
+      return true;
+    });
+
+    if (!candidates.length) {
+      return null;
+    }
+
+    const ranked = candidates.map((node, index) => {
+      const signature = semanticSignature(node);
+      let score = meaningfulTextLength(node);
+
+      if (node.querySelector?.('h1')) {
+        score += 900;
+      }
+      if (PRIMARY_CONTENT_PATTERN.test(signature)) {
+        score += 500;
+      }
+      if (node.matches?.('article, main')) {
+        score += 300;
+      }
+
+      score -= index * 5;
+
+      return { node, score };
+    }).sort((left, right) => right.score - left.score);
+
+    const witnessText = normalizeWhitespace(ranked[0]?.node?.textContent || '');
+    if (!witnessText || witnessText.length < 140) {
+      return null;
+    }
+
+    return witnessText.slice(0, 220);
+  }
+
+  function analyzeDiscussionTakeover(document, articleHtml) {
+    if (!articleHtml || !document?.querySelectorAll) {
+      return null;
+    }
+
+    const extractedDocument = parseArticleHtml(document, articleHtml);
+    const extractedAnchors = Array.from(extractedDocument.body.querySelectorAll(`[${ANCHOR_ATTRIBUTE}]`));
+    if (!extractedAnchors.length) {
+      return null;
+    }
+
+    const discussionRoots = collectTopDiscussionRoots(document);
+    if (!discussionRoots.length) {
+      return null;
+    }
+
+    const extractedNodes = extractedAnchors
+      .map(element => document.querySelector(`[${ANCHOR_ATTRIBUTE}="${element.getAttribute(ANCHOR_ATTRIBUTE)}"]`))
+      .filter(Boolean);
+    if (!extractedNodes.length) {
+      return null;
+    }
+
+    const rootCounts = new Map();
+    extractedNodes.forEach(node => {
+      const root = discussionRoots.find(candidate => candidate === node || candidate.contains(node));
+      if (root) {
+        rootCounts.set(root, (rootCounts.get(root) || 0) + 1);
+      }
+    });
+
+    const rankedRoots = Array.from(rootCounts.entries()).sort((left, right) => right[1] - left[1]);
+    const dominantEntry = rankedRoots[0];
+    if (!dominantEntry) {
+      return null;
+    }
+
+    const [dominantRoot, dominantCount] = dominantEntry;
+    const dominantRatio = dominantCount / extractedNodes.length;
+    const extractedText = normalizeWhitespace(extractedDocument.body.textContent);
+    const leadingHeading = normalizeWhitespace(extractedDocument.body.querySelector('h1, h2, h3')?.textContent || '');
+    const leadingText = extractedText.slice(0, 320);
+    const hasDiscussionHeading = (
+      (leadingHeading && DISCUSSION_CLUSTER_PATTERN.test(leadingHeading)) ||
+      DISCUSSION_CLUSTER_PATTERN.test(leadingText)
+    );
+    const primaryContentWitness = findPrimaryContentWitness(document, discussionRoots);
+    const missingPrimaryContent = primaryContentWitness && !normalizedTextIncludes(extractedText, primaryContentWitness);
+    const dominantRootTextLength = meaningfulTextLength(dominantRoot);
+    const extractedTextLength = meaningfulTextLength(extractedDocument.body);
+
+    if (!hasDiscussionHeading || !missingPrimaryContent) {
+      return null;
+    }
+
+    if (dominantRatio < 0.55 && !(dominantRoot === extractedNodes[0] || dominantRoot.contains(extractedNodes[0]))) {
+      return null;
+    }
+
+    if (dominantRootTextLength < Math.max(500, extractedTextLength * 0.5)) {
+      return null;
+    }
+
+    return {
+      dominantDiscussionRootId: dominantRoot.getAttribute(ANCHOR_ATTRIBUTE),
+      discussionRootIds: discussionRoots
+        .map(root => root.getAttribute(ANCHOR_ATTRIBUTE))
+        .filter(Boolean),
+      primaryContentWitness,
+      minimumRecoveredLength: Math.max(350, Math.min(900, Math.floor((primaryContentWitness?.length || 0) * 2.5)))
+    };
+  }
+
+  function suppressDiscussionTakeoverCandidates(document, recoveryPlan) {
+    if (!document?.querySelector || !recoveryPlan?.discussionRootIds?.length) {
+      return { changed: false, removedIds: [] };
+    }
+
+    const removedIds = [];
+    recoveryPlan.discussionRootIds.forEach(anchorId => {
+      const root = document.querySelector(`[${ANCHOR_ATTRIBUTE}="${anchorId}"]`);
+      if (!root) {
+        return;
+      }
+
+      root.remove();
+      removedIds.push(anchorId);
+    });
+
+    return {
+      changed: removedIds.length > 0,
+      removedIds
+    };
+  }
+
+  function clearDiscussionAnnotations(document) {
+    document?.querySelectorAll?.(`[${DISCUSSION_ID_ATTRIBUTE}]`).forEach(element => {
+      element.removeAttribute(DISCUSSION_ID_ATTRIBUTE);
+    });
+  }
+
+  function nearestNodeInSet(node, nodeSet, boundary) {
+    let current = node?.parentElement || null;
+
+    while (current && current !== boundary) {
+      if (nodeSet.has(current)) {
+        return current;
+      }
+      current = current.parentElement;
+    }
+
+    return nodeSet.has(boundary) ? boundary : null;
+  }
+
+  function isLikelyDiscussionActionText(text) {
+    const normalized = normalizeWhitespace(text).toLowerCase();
+    if (!normalized || normalized.length > 80) {
+      return false;
+    }
+
+    if (!DISCUSSION_ACTION_PATTERN.test(normalized)) {
+      return false;
+    }
+
+    const wordCount = normalized.split(/\s+/).filter(Boolean).length;
+    return wordCount <= 8 || !/[.!?]/.test(normalized);
+  }
+
+  function isLikelyDiscussionActionNode(node) {
+    if (!node?.tagName) {
+      return false;
+    }
+
+    if (DISCUSSION_CONTROL_TAGS.has(node.tagName)) {
+      return true;
+    }
+
+    if (node.matches?.('[role="button"], [role="menu"], [role="menuitem"], [role="tab"], [role="tablist"], [role="toolbar"], [hidden], [aria-hidden="true"]')) {
+      return true;
+    }
+
+    const text = normalizeWhitespace(node.textContent);
+    const signature = semanticSignature(node);
+    if (!text) {
+      return /\b(loader|spinner|toolbar|menu|avatar|icon|permalink)\b/i.test(signature);
+    }
+
+    if (isLikelyDiscussionActionText(text)) {
+      return true;
+    }
+
+    if (text.length <= 30 && /\b(permalink|sort|toolbar|actions?|vote|share|reply|award)\b/i.test(signature)) {
+      return true;
+    }
+
+    if (node.matches?.('a, button, [role="button"]') && text.length <= 80 && /\b(permalink|sort|vote|share|reply|award)\b/i.test(signature)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  function collectDiscussionRootCandidates(document) {
+    if (!document?.body?.querySelectorAll) {
+      return [];
+    }
+
+    return Array.from(document.body.querySelectorAll('*')).filter(node => (
+      meaningfulTextLength(node) >= 250 &&
+      DISCUSSION_CLUSTER_PATTERN.test(semanticSignature(node)) &&
+      !isLikelyDiscussionActionNode(node)
+    ));
+  }
+
+  function collectInitialDiscussionCandidates(root) {
+    if (!root?.querySelectorAll) {
+      return [];
+    }
+
+    const nodes = Array.from(root.querySelectorAll('*'));
+    return nodes.filter(node => {
+      if (!node.parentElement || DISCUSSION_INLINE_TAGS.has(node.tagName)) {
+        return false;
+      }
+
+      const contentWeight = meaningfulTextLength(node);
+      if (contentWeight < 60 || linkDensity(node) > 0.45) {
+        return false;
+      }
+
+      const signature = semanticSignature(node);
+      return DISCUSSION_ITEM_PATTERN.test(signature) || DISCUSSION_CLUSTER_PATTERN.test(signature);
+    });
+  }
+
+  function buildDiscussionCandidatePlan(root) {
+    const initialCandidates = collectInitialDiscussionCandidates(root);
+    if (initialCandidates.length < 2) {
+      return null;
+    }
+
+    const finalCandidates = initialCandidates.filter(node => {
+      const directChildren = Array.from(node.children || []).filter(child => meaningfulTextLength(child) > 0);
+      const hasFrame = directChildren.length >= 2 ||
+        directChildren.some(child => DISCUSSION_ITEM_PATTERN.test(semanticSignature(child))) ||
+        directChildren.some(child => isLikelyDiscussionActionNode(child));
+      const hasBodyLikeContent = directChildren.some(child => (
+        !isLikelyDiscussionActionNode(child) &&
+        (meaningfulTextLength(child) >= 40 || hasRichStructure(child))
+      )) || meaningfulTextLength(node) >= 120;
+      const signature = semanticSignature(node);
+      const isContainerOnly = !DISCUSSION_ITEM_PATTERN.test(signature) &&
+        DISCUSSION_CONTAINER_PATTERN.test(signature) &&
+        directChildren.some(child => DISCUSSION_ITEM_PATTERN.test(semanticSignature(child)));
+
+      if (!hasFrame || !hasBodyLikeContent || meaningfulTextLength(node) < 60 || isLikelyDiscussionActionNode(node)) {
+        return false;
+      }
+
+      if (isContainerOnly) {
+        return false;
+      }
+
+      return true;
+    });
+
+    if (finalCandidates.length < 2) {
+      return null;
+    }
+
+    clearDiscussionAnnotations(root.ownerDocument);
+
+    finalCandidates.forEach((node, index) => {
+      node.setAttribute(DISCUSSION_ID_ATTRIBUTE, `md-discussion-${index}`);
+    });
+
+    const finalSet = new Set(finalCandidates);
+    const childMap = new Map();
+    const topLevelNodes = [];
+
+    finalCandidates.forEach(node => {
+      childMap.set(node.getAttribute(DISCUSSION_ID_ATTRIBUTE), []);
+    });
+
+    finalCandidates.forEach(node => {
+      const parentItem = nearestNodeInSet(node, finalSet, root);
+      if (!parentItem) {
+        topLevelNodes.push(node);
+        return;
+      }
+
+      childMap.get(parentItem.getAttribute(DISCUSSION_ID_ATTRIBUTE))?.push(node);
+    });
+
+    if (topLevelNodes.length < 2) {
+      clearDiscussionAnnotations(root.ownerDocument);
+      return null;
+    }
+
+    return {
+      root,
+      childMap,
+      topLevelNodes
+    };
+  }
+
+  function pruneDiscussionClone(node, isRoot = false) {
+    if (!node?.querySelectorAll) {
+      return;
+    }
+
+    Array.from(node.children || []).forEach(child => {
+      pruneDiscussionClone(child);
+    });
+
+    node.removeAttribute?.(DISCUSSION_ID_ATTRIBUTE);
+    node.removeAttribute?.(ANCHOR_ATTRIBUTE);
+
+    if (isRoot) {
+      return;
+    }
+
+    if (isLikelyDiscussionActionNode(node)) {
+      node.remove();
+      return;
+    }
+
+    if (!normalizeWhitespace(node.textContent) && !node.querySelector?.('br, hr')) {
+      node.remove();
+      return;
+    }
+  }
+
+  function createDiscussionContentWrapper(document, sourceNode) {
+    const clone = sourceNode.cloneNode(true);
+    clone.querySelectorAll(`[${DISCUSSION_ID_ATTRIBUTE}]`).forEach(descendant => {
+      descendant.remove();
+    });
+
+    pruneDiscussionClone(clone, true);
+
+    const wrapper = document.createElement('div');
+    while (clone.firstChild) {
+      wrapper.appendChild(clone.firstChild);
+    }
+
+    if (!meaningfulTextLength(wrapper)) {
+      const fallbackText = normalizeWhitespace(clone.textContent);
+      if (fallbackText) {
+        const paragraph = document.createElement('p');
+        paragraph.textContent = fallbackText;
+        wrapper.appendChild(paragraph);
+      }
+    }
+
+    if (!meaningfulTextLength(wrapper)) {
+      return null;
+    }
+
+    pruneDiscussionClone(wrapper, true);
+    return meaningfulTextLength(wrapper) ? wrapper : null;
+  }
+
+  function buildDiscussionDedupSignature(text) {
+    const normalized = normalizeWhitespace(text).toLowerCase();
+    if (normalized.length < 80) {
+      return '';
+    }
+
+    return normalized.slice(0, 160);
+  }
+
+  function buildDiscussionListItems(document, sourceNode, childMap, articleText) {
+    const sourceId = sourceNode.getAttribute(DISCUSSION_ID_ATTRIBUTE);
+    const childNodes = (childMap.get(sourceId) || [])
+      .flatMap(child => buildDiscussionListItems(document, child, childMap, articleText));
+    const contentWrapper = createDiscussionContentWrapper(document, sourceNode);
+    const contentText = normalizeWhitespace(contentWrapper?.textContent || '');
+    const dedupeSignature = buildDiscussionDedupSignature(contentText);
+    const isDuplicate = dedupeSignature && articleText.includes(dedupeSignature);
+    const lacksSubstantiveContent = !contentWrapper || contentText.length < 40;
+
+    if ((lacksSubstantiveContent || isDuplicate) && !childNodes.length) {
+      return [];
+    }
+
+    if (lacksSubstantiveContent || isDuplicate) {
+      return childNodes;
+    }
+
+    const listItem = document.createElement('li');
+    listItem.appendChild(contentWrapper);
+
+    if (childNodes.length) {
+      const childList = document.createElement('ul');
+      childNodes.forEach(result => {
+        childList.appendChild(result.element);
+      });
+      listItem.appendChild(childList);
+    }
+
+    return [{
+      element: listItem,
+      itemCount: 1 + childNodes.reduce((sum, child) => sum + child.itemCount, 0)
+    }];
+  }
+
+  function buildDiscussionRecoveryCandidate(document, articleHtml, root) {
+    const plan = buildDiscussionCandidatePlan(root);
+    if (!plan) {
+      return null;
+    }
+
+    const articleText = normalizeWhitespace(parseArticleHtml(document, articleHtml).body.textContent).toLowerCase();
+    const section = document.createElement('section');
+    const heading = document.createElement('h2');
+    heading.textContent = 'Comments';
+    section.appendChild(heading);
+
+    const list = document.createElement('ul');
+    let itemCount = 0;
+
+    plan.topLevelNodes.forEach(node => {
+      const results = buildDiscussionListItems(document, node, plan.childMap, articleText);
+      results.forEach(result => {
+        list.appendChild(result.element);
+        itemCount += result.itemCount;
+      });
+    });
+
+    clearDiscussionAnnotations(document);
+
+    if (!list.children.length || itemCount < 2) {
+      return null;
+    }
+
+    section.appendChild(list);
+    const fragmentHtml = section.outerHTML;
+    const articleTextLength = meaningfulTextLength(parseArticleHtml(document, articleHtml).body);
+    const addedTextLength = meaningfulTextLength(section);
+    const growthThreshold = Math.max(350, articleTextLength * 0.25);
+    if (addedTextLength < growthThreshold) {
+      return null;
+    }
+
+    const mergedHtml = `${articleHtml}${fragmentHtml}`;
+    const mergedDocument = parseArticleHtml(document, mergedHtml);
+    if (linkDensity(mergedDocument.body) > 0.45) {
+      return null;
+    }
+
+    return {
+      html: mergedHtml,
+      fragmentHtml,
+      itemCount,
+      topLevelCount: list.children.length,
+      addedTextLength,
+      score: (list.children.length * 1000) + (itemCount * 100) + addedTextLength
+    };
+  }
+
+  function recoverDiscussionThread(document, articleHtml) {
+    if (!articleHtml || !document?.body) {
+      return null;
+    }
+
+    const rootCandidates = collectDiscussionRootCandidates(document);
+    if (!rootCandidates.length) {
+      return null;
+    }
+
+    let bestCandidate = null;
+    rootCandidates.forEach(root => {
+      const candidate = buildDiscussionRecoveryCandidate(document, articleHtml, root);
+      if (!candidate) {
+        return;
+      }
+
+      if (!bestCandidate || candidate.score > bestCandidate.score) {
+        bestCandidate = candidate;
+      }
+    });
+
+    clearDiscussionAnnotations(document);
+    return bestCandidate;
+  }
+
   function collectAnchorIds(node) {
     if (!node?.querySelectorAll) {
       return [];
@@ -875,17 +1439,22 @@
   }
 
   function stripStructuralAnchorsFromHtml(articleHtml) {
-    return String(articleHtml || '').replace(/\sdata-marksnip-node-id=(?:"[^"]*"|'[^']*'|[^\s>]+)/g, '');
+    return String(articleHtml || '')
+      .replace(/\sdata-marksnip-node-id=(?:"[^"]*"|'[^']*'|[^\s>]+)/g, '')
+      .replace(/\sdata-marksnip-discussion-id=(?:"[^"]*"|'[^']*'|[^\s>]+)/g, '');
   }
 
   const api = {
     anchorAttribute: ANCHOR_ATTRIBUTE,
     annotateStructuralAnchors,
+    analyzeDiscussionTakeover,
     analyzeNarrowExtraction,
     applyRepeatedSectionPromotion,
     buildRepeatedSectionFragment,
+    recoverDiscussionThread,
     restoreSemanticTables,
     restoreMissingPrimaryHeadings,
+    suppressDiscussionTakeoverCandidates,
     stripStructuralAnchorsFromHtml
   };
 
