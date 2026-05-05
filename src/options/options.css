@@ -3878,6 +3878,24 @@ input[type="file"] {
     .site-rule-grid {
         grid-template-columns: 1fr;
     }
+
+    .webhook-header-label-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .webhook-header-add {
+        width: 100%;
+    }
+
+    .webhook-header-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .webhook-header-remove {
+        align-self: flex-end;
+    }
 }
 
 /* High Contrast */
@@ -3947,6 +3965,18 @@ input[type="file"] {
     flex-direction: column;
     gap: var(--space-3);
     margin-top: var(--space-2);
+}
+
+.webhook-header-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin-bottom: var(--space-2);
+}
+
+.webhook-header-label-row .input-label {
+    margin-bottom: 0;
 }
 
 .webhook-header-row {
