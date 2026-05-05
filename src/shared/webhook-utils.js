@@ -6,12 +6,23 @@
 
   root.markSnipWebhookUtils = factory(root);
 })(typeof globalThis !== 'undefined' ? globalThis : this, function (root) {
-  const DEFAULT_WEBHOOK_BODY_TEMPLATE = JSON.stringify({
-    title: '{title}',
-    content: '{content}',
-    source: '{pageURL}',
-    date: '{date:YYYY-MM-DD}'
-  });
+  function getDefaultWebhookBodyTemplate() {
+    if (typeof root.defaultOptions?.defaultWebhookBodyTemplate === 'string' && root.defaultOptions.defaultWebhookBodyTemplate.trim()) {
+      return root.defaultOptions.defaultWebhookBodyTemplate;
+    }
+
+    if (typeof require === 'function') {
+      try {
+        const defaultsApi = require('./default-options');
+        const template = defaultsApi?.defaultOptions?.defaultWebhookBodyTemplate;
+        if (typeof template === 'string' && template.trim()) {
+          return template;
+        }
+      } catch {}
+    }
+
+    throw new Error('Default webhook body template is unavailable');
+  }
 
   function getTemplateUtils() {
     if (root.markSnipTemplateUtils) {
@@ -81,7 +92,7 @@
   }
 
   function renderWebhookJsonBody(bodyTemplate, article) {
-    const effectiveTemplate = String(bodyTemplate || DEFAULT_WEBHOOK_BODY_TEMPLATE).trim();
+    const effectiveTemplate = String(bodyTemplate || getDefaultWebhookBodyTemplate()).trim();
     const parsedTemplate = JSON.parse(effectiveTemplate);
     const renderedPayload = renderWebhookJsonValue(parsedTemplate, article);
     return JSON.stringify(renderedPayload);
@@ -121,7 +132,7 @@
   }
 
   return {
-    DEFAULT_WEBHOOK_BODY_TEMPLATE,
+    DEFAULT_WEBHOOK_BODY_TEMPLATE: getDefaultWebhookBodyTemplate(),
     renderWebhookTemplateString,
     renderWebhookJsonBody,
     buildWebhookFetchRequest

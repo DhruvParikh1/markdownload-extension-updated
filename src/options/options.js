@@ -31,12 +31,6 @@ const SITE_RULE_BOOLEAN_FIELD_IDS = {
     includeTemplate: 'siteRuleIncludeTemplate',
     downloadImages: 'siteRuleDownloadImages'
 };
-const DEFAULT_WEBHOOK_BODY_TEMPLATE = JSON.stringify({
-    title: '{title}',
-    content: '{content}',
-    source: '{pageURL}',
-    date: '{date:YYYY-MM-DD}'
-}, null, 2);
 const SITE_RULE_ENUM_FIELD_IDS = {
     imageStyle: 'siteRuleImageStyle',
     imageRefStyle: 'siteRuleImageRefStyle'
@@ -245,6 +239,20 @@ function normalizeSendToMaxUrlLengthState(value, fallbackValue = defaultOptions?
     return Number.isFinite(parsedValue) && parsedValue > 0
         ? parsedValue
         : normalizedFallback;
+}
+
+function getDefaultWebhookBodyTemplate() {
+    const explicitDefault = defaultOptions?.defaultWebhookBodyTemplate;
+    if (typeof explicitDefault === 'string' && explicitDefault.trim()) {
+        return explicitDefault;
+    }
+
+    const runtimeDefault = globalThis.markSnipWebhookUtils?.DEFAULT_WEBHOOK_BODY_TEMPLATE;
+    if (typeof runtimeDefault === 'string' && runtimeDefault.trim()) {
+        return runtimeDefault;
+    }
+
+    throw new Error('Default webhook body template is unavailable');
 }
 
 function normalizeWebhookTargetsState(targets) {
@@ -638,7 +646,7 @@ function populateWebhookTargetForm(target) {
     if (nameInput) nameInput.value = target.name;
     if (urlInput) urlInput.value = target.url;
     if (methodSelect) methodSelect.value = target.method;
-    if (bodyTextarea) bodyTextarea.value = target.bodyTemplate || DEFAULT_WEBHOOK_BODY_TEMPLATE;
+    if (bodyTextarea) bodyTextarea.value = target.bodyTemplate || getDefaultWebhookBodyTemplate();
 
     if (headersList) {
         headersList.innerHTML = '';
@@ -778,7 +786,7 @@ function resetWebhookTargetForm() {
     if (nameInput) nameInput.value = '';
     if (urlInput) urlInput.value = '';
     if (methodSelect) methodSelect.value = 'POST';
-    if (bodyTextarea) bodyTextarea.value = DEFAULT_WEBHOOK_BODY_TEMPLATE;
+    if (bodyTextarea) bodyTextarea.value = getDefaultWebhookBodyTemplate();
     const headersList = document.getElementById('webhookHeadersList');
     if (headersList) headersList.innerHTML = '';
 
@@ -808,10 +816,15 @@ function initWebhookTargetControls() {
             if (editor.open) {
                 const bodyTextarea = document.getElementById('webhookTargetBody');
                 if (bodyTextarea && !bodyTextarea.value.trim()) {
-                    bodyTextarea.value = DEFAULT_WEBHOOK_BODY_TEMPLATE;
+                    bodyTextarea.value = getDefaultWebhookBodyTemplate();
                 }
             }
         });
+    }
+
+    const bodyTextarea = document.getElementById('webhookTargetBody');
+    if (bodyTextarea) {
+        bodyTextarea.placeholder = getDefaultWebhookBodyTemplate();
     }
 
     document.getElementById('webhookAddHeader')?.addEventListener('click', () => {

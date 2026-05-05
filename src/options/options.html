@@ -816,7 +816,7 @@
                                 </div>
                                 <div class="input-group">
                                     <label class="input-label" for="webhookTargetBody">Body Template (JSON)</label>
-                                    <textarea id="webhookTargetBody" class="text-input webhook-body-input" rows="6" spellcheck="false" placeholder="{&quot;title&quot;:&quot;{title}&quot;,&quot;content&quot;:&quot;{content}&quot;,&quot;source&quot;:&quot;{pageURL}&quot;}"></textarea>
+                                    <textarea id="webhookTargetBody" class="text-input webhook-body-input" rows="6" spellcheck="false"></textarea>
                                     <p class="input-hint">Defines the JSON structure of the HTTP request body. The <code>{content}</code> variable receives the full markdown (including frontmatter/backmatter if enabled). Leave empty to use the default template. This is separate from the project's Frontmatter/Backmatter settings, which control the markdown content itself.</p>
                                 </div>
                                 <div class="webhook-target-editor__actions">
@@ -1806,6 +1806,7 @@ const helloWorld = () => {
     <script src="../shared/library-state.js"></script>
     <script src="../shared/search-core.js"></script>
     <script src="../shared/options-state.js"></script>
+    <script src="../shared/webhook-utils.js"></script>
     <script src="options-search.js"></script>
     <script src="options.js"></script>
 </body>

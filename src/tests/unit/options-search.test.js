@@ -22,6 +22,10 @@ const optionsStateSource = fs.readFileSync(
   path.join(__dirname, '../../shared/options-state.js'),
   'utf8'
 );
+const webhookUtilsSource = fs.readFileSync(
+  path.join(__dirname, '../../shared/webhook-utils.js'),
+  'utf8'
+);
 const templateUtilsSource = fs.readFileSync(
   path.join(__dirname, '../../shared/template-utils.js'),
   'utf8'
@@ -35,6 +39,7 @@ const libraryStateSource = fs.readFileSync(
   'utf8'
 );
 const moment = require('../../background/moment.min.js');
+const { defaultOptions: sharedDefaultOptions } = require('../../shared/default-options.js');
 
 const baseOptions = {
   headingStyle: 'atx',
@@ -204,10 +209,14 @@ function createOptionsPageDom(optionOverrides = {}, libraryOverrides = {}) {
   dom.window.chrome = browser;
   dom.window.moment = moment;
   dom.window.createMenus = jest.fn();
-  dom.window.eval(`var defaultOptions = ${JSON.stringify(storedOptions)};`);
+  dom.window.eval(`var defaultOptions = ${JSON.stringify({
+    ...storedOptions,
+    defaultWebhookBodyTemplate: sharedDefaultOptions.defaultWebhookBodyTemplate
+  })};`);
   dom.window.eval(searchCoreSource);
   dom.window.eval(libraryStateSource);
   dom.window.eval(optionsStateSource);
+  dom.window.eval(webhookUtilsSource);
   dom.window.eval(optionsSearchSource);
   dom.window.eval(templateUtilsSource);
   dom.window.eval(optionsSource);

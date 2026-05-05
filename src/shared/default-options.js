@@ -33,6 +33,11 @@ const defaultOptions = {
   defaultSendToTarget: 'chatgpt',
   sendToCustomTargets: [],
   sendToMaxUrlLength: 3600,
+  defaultWebhookBodyTemplate: JSON.stringify({
+    vault: 'Obsidian Vault',
+    path: 'Clippings/{title}.md',
+    content: '{content}'
+  }, null, 2),
   webhookTargets: [],
   turndownEscape: true,
   hashtagHandling: 'keep',
@@ -90,4 +95,16 @@ async function getOptions() {
   }
   if (!browser.downloads) options.downloadMode = 'contentLink';
   return options;
+}
+
+if (typeof globalThis !== 'undefined') {
+  globalThis.defaultOptions = defaultOptions;
+}
+
+if (typeof module === 'object' && module.exports) {
+  module.exports = {
+    defaultOptions,
+    LEGACY_DEFAULT_FRONTMATTER,
+    getOptions
+  };
 }
