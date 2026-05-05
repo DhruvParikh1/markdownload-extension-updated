@@ -9,6 +9,7 @@ if (typeof importScripts === 'function') {
     'shared/site-rules.js',
     'shared/default-options.js',
     'shared/template-utils.js',
+    'shared/webhook-utils.js',
     'shared/agent-bridge-state.js',
     'shared/library-export.js',
     'shared/context-menus.js',
@@ -728,7 +729,7 @@ async function handleWebhookSend(message) {
     return { success: false, error: 'Missing required parameters' };
   }
 
-  const storage = await browser.storage.sync.get(['webhookTargets', 'includeTemplate', 'frontmatter', 'backmatter']);
+  const storage = await browser.storage.sync.get(['webhookTargets']);
   const targets = Array.isArray(storage.webhookTargets) ? storage.webhookTargets : [];
   const target = targets.find((t) => t.id === targetId);
   if (!target) {
@@ -745,63 +746,26 @@ async function handleWebhookSend(message) {
     date: new Date().toISOString()
   };
 
-  const render = (template) => {
-    if (typeof template !== 'string' || !template) return template;
-    return globalThis.markSnipTemplateUtils.textReplace(template, article);
-  };
-
-  // Apply project templates (frontmatter/backmatter) to the content
-  let fullMarkdown = markdown;
-  if (storage.includeTemplate) {
-    const frontmatter = render(storage.frontmatter || '') + '\n';
-    const backmatter = '\n' + render(storage.backmatter || '');
-    fullMarkdown = frontmatter + markdown + backmatter;
-  }
-  // Override article.content so render() picks up the templated content
-  article.content = fullMarkdown;
-
-  const renderedUrl = render(target.url);
-  const renderedHeaders = {};
-  if (Array.isArray(target.headers)) {
-    target.headers.forEach((h) => {
-      if (h.key) {
-        renderedHeaders[h.key] = render(h.value);
-      }
-    });
-  }
-
-  const DEFAULT_BODY_TEMPLATE = JSON.stringify({
-    title: '{title}',
-    content: '{content}',
-    source: '{pageURL}',
-    date: '{date:YYYY-MM-DD}'
+  const request = globalThis.markSnipWebhookUtils.buildWebhookFetchRequest({
+    target,
+    article
   });
-
-  let renderedBody = null;
-  const bodyTemplate = target.bodyTemplate || DEFAULT_BODY_TEMPLATE;
-  if (bodyTemplate) {
-    // textReplace() cleans up all remaining {key} patterns (see template-utils.js:97),
-    // which would strip {content} before we can replace it manually.
-    // So we substitute {content} BEFORE passing to render/textReplace.
-    const templateWithContent = bodyTemplate.replace(/\{content\}/g, fullMarkdown);
-    renderedBody = render(templateWithContent);
-  }
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), WEBHOOK_FETCH_TIMEOUT_MS);
 
   try {
     const fetchOptions = {
-      method: target.method,
-      headers: renderedHeaders,
+      method: request.method,
+      headers: request.headers,
       signal: controller.signal
     };
 
-    if (renderedBody) {
-      fetchOptions.body = renderedBody;
+    if (request.body) {
+      fetchOptions.body = request.body;
     }
 
-    const response = await fetch(renderedUrl, fetchOptions);
+    const response = await fetch(request.url, fetchOptions);
     clearTimeout(timeoutId);
 
     if (!response.ok) {

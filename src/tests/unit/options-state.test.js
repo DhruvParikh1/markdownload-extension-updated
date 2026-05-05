@@ -10,6 +10,7 @@ const defaultOptions = {
   defaultSendToTarget: 'chatgpt',
   sendToCustomTargets: [],
   sendToMaxUrlLength: 3600,
+  webhookTargets: [],
   specialTheme: 'none',
   colorBlindTheme: 'deuteranopia',
   showUserGuideIcon: true,
@@ -216,7 +217,8 @@ test('normalizeImportedOptions ignores non-plain option inputs', () => {
     defaultExportType: 'markdown',
     defaultSendToTarget: 'chatgpt',
     sendToCustomTargets: [],
-    sendToMaxUrlLength: 3600
+    sendToMaxUrlLength: 3600,
+    webhookTargets: []
   });
 });
 
@@ -248,7 +250,8 @@ test('resetAllOptions handles non-plain defaults without blowing up', () => {
     defaultExportType: 'markdown',
     defaultSendToTarget: 'chatgpt',
     sendToCustomTargets: [],
-    sendToMaxUrlLength: 3600
+    sendToMaxUrlLength: 3600,
+    webhookTargets: []
   });
   expect(result.contextMenuAction).toBe('remove');
 });
