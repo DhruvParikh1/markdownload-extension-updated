@@ -501,6 +501,8 @@ function initSendToControls() {
 }
 // ── Webhook Targets ──────────────────────────────────────────
 
+let editingWebhookTargetId = null;
+
 function buildWebhookTargetId() {
     return `wh-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
 }
@@ -562,6 +564,14 @@ function renderWebhookTargetsList() {
         const actions = document.createElement('div');
         actions.className = 'assistant-target-item__actions';
 
+        const editButton = document.createElement('button');
+        editButton.type = 'button';
+        editButton.className = 'btn btn-secondary btn-sm';
+        editButton.dataset.targetId = target.id;
+        editButton.dataset.action = 'edit-webhook';
+        editButton.textContent = 'Edit';
+        editButton.setAttribute('aria-label', `Edit ${target.name}`);
+
         const removeButton = document.createElement('button');
         removeButton.type = 'button';
         removeButton.className = 'btn btn-secondary btn-sm assistant-target-item__remove';
@@ -569,6 +579,7 @@ function renderWebhookTargetsList() {
         removeButton.textContent = 'Remove';
         removeButton.setAttribute('aria-label', `Remove ${target.name}`);
 
+        actions.appendChild(editButton);
         actions.appendChild(removeButton);
 
         item.appendChild(body);
@@ -617,7 +628,37 @@ function renderDefaultExportTypeOptions() {
     });
 }
 
-function handleAddWebhookTarget() {
+function populateWebhookTargetForm(target) {
+    const nameInput = document.getElementById('webhookTargetName');
+    const urlInput = document.getElementById('webhookTargetUrl');
+    const methodSelect = document.getElementById('webhookTargetMethod');
+    const bodyTextarea = document.getElementById('webhookTargetBody');
+    const headersList = document.getElementById('webhookHeadersList');
+
+    if (nameInput) nameInput.value = target.name;
+    if (urlInput) urlInput.value = target.url;
+    if (methodSelect) methodSelect.value = target.method;
+    if (bodyTextarea) bodyTextarea.value = target.bodyTemplate || DEFAULT_WEBHOOK_BODY_TEMPLATE;
+
+    if (headersList) {
+        headersList.innerHTML = '';
+        (target.headers || []).forEach((h) => {
+            const row = document.createElement('div');
+            row.className = 'webhook-header-row';
+            row.innerHTML = `
+                <input type="text" class="text-input webhook-header-key" placeholder="Key" spellcheck="false" value="${escapeHtml(h.key)}" />
+                <input type="text" class="text-input webhook-header-value" placeholder="Value" spellcheck="false" value="${escapeHtml(h.value)}" />
+                <button type="button" class="btn btn-sm btn-text webhook-header-remove" aria-label="Remove header">&times;</button>
+            `;
+            row.querySelector('.webhook-header-remove').addEventListener('click', () => {
+                row.remove();
+            });
+            headersList.appendChild(row);
+        });
+    }
+}
+
+function handleSaveWebhookTarget() {
     const nameInput = document.getElementById('webhookTargetName');
     const urlInput = document.getElementById('webhookTargetUrl');
     const methodSelect = document.getElementById('webhookTargetMethod');
@@ -669,29 +710,51 @@ function handleAddWebhookTarget() {
         value: row.querySelector('.webhook-header-value')?.value || ''
     })).filter((h) => h.key.trim().length > 0);
 
-    const newTarget = {
-        id: buildWebhookTargetId(),
-        name,
-        url,
-        method,
-        headers,
-        bodyTemplate
-    };
+    if (editingWebhookTargetId) {
+        // Edit existing target
+        const currentTargets = getNormalizedWebhookTargets();
+        const index = currentTargets.findIndex((t) => t.id === editingWebhookTargetId);
+        if (index !== -1) {
+            currentTargets[index] = { ...currentTargets[index], name, url, method, headers, bodyTemplate };
+            options.webhookTargets = currentTargets;
+        }
+        editingWebhookTargetId = null;
+        resetWebhookTargetForm();
+        renderWebhookTargetsList();
+        renderDefaultExportTypeOptions();
+        save({ message: `Updated webhook target "${name}"`, type: 'success' });
+    } else {
+        // Add new target
+        const newTarget = {
+            id: buildWebhookTargetId(),
+            name,
+            url,
+            method,
+            headers,
+            bodyTemplate
+        };
 
-    const currentTargets = getNormalizedWebhookTargets();
-    options.webhookTargets = [...currentTargets, newTarget];
+        const currentTargets = getNormalizedWebhookTargets();
+        options.webhookTargets = [...currentTargets, newTarget];
 
-    resetWebhookTargetForm();
+        resetWebhookTargetForm();
 
-    renderWebhookTargetsList();
-    renderDefaultExportTypeOptions();
-    save({ message: `Added webhook target "${name}"`, type: 'success' });
+        renderWebhookTargetsList();
+        renderDefaultExportTypeOptions();
+        save({ message: `Added webhook target "${name}"`, type: 'success' });
+    }
 }
 
 function removeWebhookTarget(targetId) {
     const targets = getNormalizedWebhookTargets();
     const removedTarget = targets.find((t) => t.id === targetId);
     options.webhookTargets = targets.filter((t) => t.id !== targetId);
+
+    // If editing the removed target, cancel edit
+    if (editingWebhookTargetId === targetId) {
+        editingWebhookTargetId = null;
+        resetWebhookTargetForm();
+    }
 
     // If this target was the default, reset to markdown
     if (options.defaultExportType === `webhook:${targetId}`) {
@@ -718,15 +781,19 @@ function resetWebhookTargetForm() {
     if (bodyTextarea) bodyTextarea.value = DEFAULT_WEBHOOK_BODY_TEMPLATE;
     const headersList = document.getElementById('webhookHeadersList');
     if (headersList) headersList.innerHTML = '';
+
+    const summary = document.getElementById('webhookEditorSummary');
+    if (summary) summary.textContent = 'Add Webhook Target';
+    editingWebhookTargetId = null;
 }
 
 function initWebhookTargetControls() {
     document.getElementById('webhookAddTarget')?.addEventListener('click', () => {
         try {
-            handleAddWebhookTarget();
+            handleSaveWebhookTarget();
         } catch (error) {
-            console.error('Failed to add webhook target:', error);
-            showToast('Failed to add webhook target', 'error');
+            console.error('Failed to save webhook target:', error);
+            showToast('Failed to save webhook target', 'error');
         }
     });
 
@@ -767,11 +834,36 @@ function initWebhookTargetControls() {
         row.querySelector('.webhook-header-key')?.focus();
     });
 
+    // Delegate click events on the targets list (edit + remove)
     document.getElementById('webhookTargetsList')?.addEventListener('click', (event) => {
-        const removeButton = event.target.closest('.assistant-target-item__remove');
-        if (removeButton) {
-            removeWebhookTarget(removeButton.dataset.targetId);
+        const button = event.target.closest('[data-target-id]');
+        if (!button) {
+            return;
         }
+
+        const action = button.dataset.action;
+
+        if (action === 'edit-webhook') {
+            const targetId = button.dataset.targetId;
+            const targets = getNormalizedWebhookTargets();
+            const target = targets.find((t) => t.id === targetId);
+            if (!target) {
+                return;
+            }
+
+            editingWebhookTargetId = targetId;
+            populateWebhookTargetForm(target);
+
+            const summary = document.getElementById('webhookEditorSummary');
+            if (summary) summary.textContent = `Edit: ${target.name}`;
+
+            const editor = document.getElementById('webhookTargetEditor');
+            if (editor) editor.open = true;
+            return;
+        }
+
+        // Fallback: remove (also handles clicks on .assistant-target-item__remove without data-action)
+        removeWebhookTarget(button.dataset.targetId);
     });
 }
 
