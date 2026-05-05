@@ -20,6 +20,7 @@
   }
 
   const POPUP_PRIMARY_ACTIONS = new Set(['markdown', 'text', 'html', 'pdf', 'copy', 'sendTo']);
+  const WEBHOOK_EXPORT_PREFIX = 'webhook:';
   const BUILTIN_SEND_TO_TARGETS = new Set(['chatgpt', 'claude', 'perplexity']);
   const DEFAULT_SEND_TO_TARGET = 'chatgpt';
   const DEFAULT_SEND_TO_MAX_URL_LENGTH = 3600;
@@ -104,7 +105,10 @@
 
   function normalizePopupPrimaryAction(value, fallbackValue = 'markdown') {
     const normalizedValue = String(value || '').trim();
-    return POPUP_PRIMARY_ACTIONS.has(normalizedValue) ? normalizedValue : fallbackValue;
+    if (POPUP_PRIMARY_ACTIONS.has(normalizedValue) || normalizedValue.startsWith(WEBHOOK_EXPORT_PREFIX)) {
+      return normalizedValue;
+    }
+    return fallbackValue;
   }
 
   function normalizeDefaultSendToTarget(targetValue, customTargets = [], fallbackValue = DEFAULT_SEND_TO_TARGET) {
@@ -125,6 +129,68 @@
     return Number.isFinite(parsedValue) && parsedValue > 0
       ? parsedValue
       : normalizedFallback;
+  }
+
+  const VALID_WEBHOOK_METHODS = new Set(['POST', 'PUT', 'PATCH']);
+
+  function normalizeWebhookTargets(targets) {
+    if (!Array.isArray(targets)) {
+      return [];
+    }
+
+    const seenIds = new Set();
+    return targets.reduce((normalized, target) => {
+      if (!isPlainObject(target)) {
+        return normalized;
+      }
+
+      const id = String(target.id || '').trim();
+      const name = String(target.name || '').trim();
+      const url = String(target.url || '').trim();
+      const method = String(target.method || 'POST').trim().toUpperCase();
+      const bodyTemplate = String(target.bodyTemplate || '').trim();
+
+      if (!id || !name || !url) {
+        return normalized;
+      }
+
+      if (seenIds.has(id)) {
+        return normalized;
+      }
+
+      let parsedUrl;
+      try {
+        parsedUrl = new URL(url);
+      } catch {
+        return normalized;
+      }
+
+      if (parsedUrl.protocol !== 'https:') {
+        return normalized;
+      }
+
+      const normalizedMethod = VALID_WEBHOOK_METHODS.has(method) ? method : 'POST';
+
+      let normalizedBody = bodyTemplate;
+      if (normalizedBody) {
+        try {
+          JSON.parse(normalizedBody);
+        } catch {
+          normalizedBody = '';
+        }
+      }
+
+      const headers = Array.isArray(target.headers) ? target.headers.filter((h) => {
+        return isPlainObject(h) && String(h.key || '').trim().length > 0;
+      }).map((h) => ({
+        key: String(h.key || '').trim(),
+        value: String(h.value || '').trim()
+      })) : [];
+
+      seenIds.add(id);
+      normalized.push({ id, name, url: parsedUrl.href, method: normalizedMethod, headers, bodyTemplate: normalizedBody });
+      return normalized;
+    }, []);
   }
 
   function deepClone(value) {
@@ -194,6 +260,16 @@
       normalized.sendToMaxUrlLength,
       normalizeSendToMaxUrlLength(safeDefaults.sendToMaxUrlLength)
     );
+    normalized.webhookTargets = normalizeWebhookTargets(normalized.webhookTargets);
+
+    const exportType = String(normalized.defaultExportType || '').trim();
+    if (exportType.startsWith(WEBHOOK_EXPORT_PREFIX)) {
+      const targetId = exportType.slice(WEBHOOK_EXPORT_PREFIX.length);
+      const targetExists = normalized.webhookTargets.some((t) => t.id === targetId);
+      if (!targetExists) {
+        normalized.defaultExportType = deepClone(safeDefaults.defaultExportType || 'markdown');
+      }
+    }
 
     return normalized;
   }
@@ -272,7 +348,8 @@
     validateSendToUrlTemplate,
     normalizeCustomSendToTargets,
     normalizeDefaultSendToTarget,
-    normalizeSendToMaxUrlLength
+    normalizeSendToMaxUrlLength,
+    normalizeWebhookTargets
   };
 
   root.markSnipOptionsState = api;

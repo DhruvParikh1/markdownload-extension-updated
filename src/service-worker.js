@@ -720,6 +720,112 @@ const {
   markSnipBlobUrls
 } = downloadTracker.getState();
 
+const WEBHOOK_FETCH_TIMEOUT_MS = 30000;
+
+async function handleWebhookSend(message) {
+  const { targetId, markdown, title, sourceUrl } = message;
+  if (!targetId || !markdown) {
+    return { success: false, error: 'Missing required parameters' };
+  }
+
+  const storage = await browser.storage.sync.get(['webhookTargets', 'includeTemplate', 'frontmatter', 'backmatter']);
+  const targets = Array.isArray(storage.webhookTargets) ? storage.webhookTargets : [];
+  const target = targets.find((t) => t.id === targetId);
+  if (!target) {
+    return { success: false, error: 'Webhook target not found. Check your settings.' };
+  }
+
+  const article = {
+    title: title || '',
+    content: markdown,
+    pageURL: sourceUrl || '',
+    excerpt: '',
+    byline: '',
+    keywords: [],
+    date: new Date().toISOString()
+  };
+
+  const render = (template) => {
+    if (typeof template !== 'string' || !template) return template;
+    return globalThis.markSnipTemplateUtils.textReplace(template, article);
+  };
+
+  // Apply project templates (frontmatter/backmatter) to the content
+  let fullMarkdown = markdown;
+  if (storage.includeTemplate) {
+    const frontmatter = render(storage.frontmatter || '') + '\n';
+    const backmatter = '\n' + render(storage.backmatter || '');
+    fullMarkdown = frontmatter + markdown + backmatter;
+  }
+  // Override article.content so render() picks up the templated content
+  article.content = fullMarkdown;
+
+  const renderedUrl = render(target.url);
+  const renderedHeaders = {};
+  if (Array.isArray(target.headers)) {
+    target.headers.forEach((h) => {
+      if (h.key) {
+        renderedHeaders[h.key] = render(h.value);
+      }
+    });
+  }
+
+  const DEFAULT_BODY_TEMPLATE = JSON.stringify({
+    title: '{title}',
+    content: '{content}',
+    source: '{pageURL}',
+    date: '{date:YYYY-MM-DD}'
+  });
+
+  let renderedBody = null;
+  const bodyTemplate = target.bodyTemplate || DEFAULT_BODY_TEMPLATE;
+  if (bodyTemplate) {
+    // textReplace() cleans up all remaining {key} patterns (see template-utils.js:97),
+    // which would strip {content} before we can replace it manually.
+    // So we substitute {content} BEFORE passing to render/textReplace.
+    const templateWithContent = bodyTemplate.replace(/\{content\}/g, fullMarkdown);
+    renderedBody = render(templateWithContent);
+  }
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), WEBHOOK_FETCH_TIMEOUT_MS);
+
+  try {
+    const fetchOptions = {
+      method: target.method,
+      headers: renderedHeaders,
+      signal: controller.signal
+    };
+
+    if (renderedBody) {
+      fetchOptions.body = renderedBody;
+    }
+
+    const response = await fetch(renderedUrl, fetchOptions);
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      let responseBody = '';
+      try {
+        responseBody = await response.text().catch(() => '');
+      } catch {}
+      return {
+        success: false,
+        error: `Server returned ${response.status}${responseBody ? ': ' + responseBody.slice(0, 200) : ''}`,
+        status: response.status
+      };
+    }
+
+    return { success: true, status: response.status };
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      return { success: false, error: 'Request timed out. The server did not respond within 30 seconds.' };
+    }
+    return { success: false, error: `Connection failed: ${error.message}` };
+  }
+}
+
 // Add listener to handle filename conflicts from other extensions
 // onDeterminingFilename is Chrome-only
 if (browser.downloads.onDeterminingFilename) {
@@ -860,6 +966,8 @@ async function handleMessages(message, sender, _sendResponse) {
       break;
     case "get-batch-state":
       return Promise.resolve(batchState);
+    case "webhook-send":
+      return await handleWebhookSend(message);
   }
 }
 

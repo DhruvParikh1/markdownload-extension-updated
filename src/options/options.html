@@ -778,6 +778,53 @@
                     </div>
                 </div>
 
+                <!-- Webhook Targets -->
+                <div class="setting-card" id="webhookTargetsCard"
+                    data-search-keywords="webhook,remote api,http post,custom endpoint,send to url,api key,webhook target"
+                    data-setting-key="webhookTargets">
+                    <h3 class="card-title">Webhook Targets</h3>
+                    <p class="card-desc">Send clipped content to remote APIs via HTTP POST, PUT, or PATCH. Set the default target in the Default Popup Action setting above. Variables: <code>{title}</code>, <code>{content}</code>, <code>{pageURL}</code>, <code>{excerpt}</code>, <code>{byline}</code>, <code>{date:FORMAT}</code>.</p>
+
+                    <div id="webhookTargetsList" class="webhook-targets-list" aria-live="polite"></div>
+
+                    <details class="info-panel webhook-target-editor" id="webhookTargetEditor">
+                        <summary>Add Webhook Target</summary>
+                        <div class="info-panel-content">
+                            <div class="webhook-target-editor__fields">
+                                <div class="input-group">
+                                    <label class="input-label" for="webhookTargetName">Target Name</label>
+                                    <input type="text" id="webhookTargetName" class="text-input" role="textbox" placeholder="My Notes API" />
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label" for="webhookTargetUrl">URL</label>
+                                    <input type="text" id="webhookTargetUrl" class="text-input" role="textbox" placeholder="https://api.example.com/v1/pages" spellcheck="false" />
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label" for="webhookTargetMethod">Method</label>
+                                    <select id="webhookTargetMethod" class="text-input">
+                                        <option value="POST">POST</option>
+                                        <option value="PUT">PUT</option>
+                                        <option value="PATCH">PATCH</option>
+                                    </select>
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">Headers <button type="button" id="webhookAddHeader" class="btn btn-sm btn-text">+ Add</button></label>
+                                    <div id="webhookHeadersList" class="webhook-headers-list"></div>
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label" for="webhookTargetBody">Body Template (JSON)</label>
+                                    <textarea id="webhookTargetBody" class="text-input webhook-body-input" rows="6" spellcheck="false" placeholder="{&quot;title&quot;:&quot;{title}&quot;,&quot;content&quot;:&quot;{content}&quot;,&quot;source&quot;:&quot;{pageURL}&quot;}"></textarea>
+                                    <p class="input-hint">Defines the JSON structure of the HTTP request body. The <code>{content}</code> variable receives the full markdown (including frontmatter/backmatter if enabled). Leave empty to use the default template. This is separate from the project's Frontmatter/Backmatter settings, which control the markdown content itself.</p>
+                                </div>
+                                <div class="webhook-target-editor__actions">
+                                    <button type="button" id="webhookAddTarget" class="btn btn-primary">Save Target</button>
+                                    <button type="button" id="webhookCancelEdit" class="btn btn-text">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+
                 <!-- Obsidian Integration -->
                 <div class="setting-card" id="obsidian-container"
                     data-search-keywords="obsidian,obsdn,advanced uri,obsidian uri"

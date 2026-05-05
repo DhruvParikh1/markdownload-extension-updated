@@ -33,6 +33,7 @@ const defaultOptions = {
   defaultSendToTarget: 'chatgpt',
   sendToCustomTargets: [],
   sendToMaxUrlLength: 3600,
+  webhookTargets: [],
   turndownEscape: true,
   hashtagHandling: 'keep',
   contextMenus: true,
