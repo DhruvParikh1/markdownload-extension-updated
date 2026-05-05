@@ -773,9 +773,10 @@ async function handleWebhookSend(message) {
       try {
         responseBody = await response.text().catch(() => '');
       } catch {}
+      const summarizedError = globalThis.markSnipWebhookUtils.summarizeWebhookResponseText(responseBody);
       return {
         success: false,
-        error: `Server returned ${response.status}${responseBody ? ': ' + responseBody.slice(0, 200) : ''}`,
+        error: `Server returned ${response.status}${summarizedError ? ': ' + summarizedError : ''}`,
         status: response.status
       };
     }

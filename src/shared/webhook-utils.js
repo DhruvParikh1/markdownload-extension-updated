@@ -122,6 +122,151 @@
     return renderedHeaders;
   }
 
+  function compactWhitespace(value) {
+    return String(value || '').replace(/\s+/g, ' ').replace(/\s*,\s*/g, ', ').trim();
+  }
+
+  function truncateWebhookMessage(value, maxLength = 160) {
+    const text = compactWhitespace(value);
+    if (!text) {
+      return '';
+    }
+
+    if (text.length <= maxLength) {
+      return text;
+    }
+
+    return `${text.slice(0, Math.max(0, maxLength - 1)).trimEnd()}…`;
+  }
+
+  function parseNestedWebhookValue(value) {
+    if (typeof value !== 'string') {
+      return value;
+    }
+
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return '';
+    }
+
+    if (!/^[\[{]/.test(trimmed)) {
+      return trimmed;
+    }
+
+    try {
+      return JSON.parse(trimmed);
+    } catch {
+      return trimmed;
+    }
+  }
+
+  function collectWebhookSummaryParts(value, parts = [], seen = new Set()) {
+    if (parts.length >= 3 || value == null) {
+      return parts;
+    }
+
+    if (typeof value === 'string') {
+      const text = compactWhitespace(value);
+      if (!text || text.toLowerCase() === 'null') {
+        return parts;
+      }
+
+      if (text.includes(', ')) {
+        text.split(', ').forEach((segment) => {
+          if (parts.length < 3) {
+            collectWebhookSummaryParts(segment, parts, seen);
+          }
+        });
+        return parts;
+      }
+
+      if (!seen.has(text)) {
+        seen.add(text);
+        parts.push(text);
+      }
+      return parts;
+    }
+
+    if (Array.isArray(value)) {
+      value.forEach((item) => {
+        if (parts.length < 3) {
+          collectWebhookSummaryParts(parseNestedWebhookValue(item), parts, seen);
+        }
+      });
+      return parts;
+    }
+
+    if (typeof value === 'object') {
+      const objectEntries = Object.entries(value);
+      if (objectEntries.length === 1) {
+        const [, onlyValue] = objectEntries[0];
+        collectWebhookSummaryParts(parseNestedWebhookValue(onlyValue), parts, seen);
+        return parts;
+      }
+
+      const beforePriorityCount = parts.length;
+      ['message', 'error', 'details', 'detail', 'data'].forEach((key) => {
+        if (parts.length < 3 && Object.prototype.hasOwnProperty.call(value, key)) {
+          collectWebhookSummaryParts(parseNestedWebhookValue(value[key]), parts, seen);
+        }
+      });
+
+      if (parts.length > beforePriorityCount || parts.length >= 3) {
+        return parts;
+      }
+
+      objectEntries.forEach(([key, nestedValue]) => {
+        if (parts.length >= 3 || ['message', 'error', 'details', 'detail', 'data'].includes(key)) {
+          return;
+        }
+
+        const candidateParts = [];
+        collectWebhookSummaryParts(parseNestedWebhookValue(nestedValue), candidateParts, new Set());
+        if (!candidateParts.length) {
+          return;
+        }
+
+        const entryText = compactWhitespace(`${key}: ${candidateParts.join(', ')}`);
+        if (entryText && !seen.has(entryText)) {
+          seen.add(entryText);
+          parts.push(entryText);
+        }
+      });
+    }
+
+    return parts;
+  }
+
+  function summarizeWebhookResponseText(responseText, maxLength = 160) {
+    const rawText = String(responseText || '').trim();
+    if (!rawText) {
+      return '';
+    }
+
+    let source = rawText;
+    try {
+      source = JSON.parse(rawText);
+    } catch {}
+
+    const parts = collectWebhookSummaryParts(parseNestedWebhookValue(source));
+    const summary = parts.length > 1
+      ? `${parts[0]}: ${parts.slice(1).join(', ')}`
+      : (parts[0] || '');
+    return truncateWebhookMessage(summary || rawText, maxLength);
+  }
+
+  function resolveWebhookSendErrorMessage(error, fallback = 'Failed to send to webhook target') {
+    if (typeof error === 'string' && error.trim()) {
+      return error.trim();
+    }
+
+    if (typeof error?.message === 'string' && error.message.trim()) {
+      return error.message.trim();
+    }
+
+    return fallback;
+  }
+
   function buildWebhookFetchRequest({ target, article } = {}) {
     return {
       url: renderWebhookTemplateString(String(target?.url || ''), article),
@@ -135,6 +280,8 @@
     DEFAULT_WEBHOOK_BODY_TEMPLATE: getDefaultWebhookBodyTemplate(),
     renderWebhookTemplateString,
     renderWebhookJsonBody,
-    buildWebhookFetchRequest
+    buildWebhookFetchRequest,
+    summarizeWebhookResponseText,
+    resolveWebhookSendErrorMessage
   };
 });

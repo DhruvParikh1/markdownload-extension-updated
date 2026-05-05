@@ -3959,7 +3959,10 @@ async function handleWebhookSendAction(targetId, { selectionOnly = false, trigge
             setPrimaryActionFeedback(triggerButton, 'Error', 'error', 'send');
             setTimeout(resetPrimaryActionFeedback, 3000);
         }
-        showToastWithRetry('Failed to send to webhook target', targetId, { selectionOnly, triggerButton });
+        const message = globalThis.markSnipWebhookUtils?.resolveWebhookSendErrorMessage
+            ? globalThis.markSnipWebhookUtils.resolveWebhookSendErrorMessage(error)
+            : (error?.message || 'Failed to send to webhook target');
+        showToastWithRetry(message, targetId, { selectionOnly, triggerButton });
     }
 }
 

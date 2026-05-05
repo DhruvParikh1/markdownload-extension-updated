@@ -1,5 +1,7 @@
 const {
-  buildWebhookFetchRequest
+  buildWebhookFetchRequest,
+  summarizeWebhookResponseText,
+  resolveWebhookSendErrorMessage
 } = require('../../shared/webhook-utils');
 
 describe('Webhook utilities', () => {
@@ -70,5 +72,26 @@ describe('Webhook utilities', () => {
     expect(JSON.parse(request.body)).toEqual({
       content: 'plain body'
     });
+  });
+
+  test('summarizes structured server error payloads into a compact user-facing message', () => {
+    const summary = summarizeWebhookResponseText(JSON.stringify({
+      code: 305,
+      status: false,
+      message: 'Invalid Params',
+      data: '[{"vault":"vault is a required field"},{"path":"path is a required field"}]',
+      details: 'vault is a required field,path is a required field'
+    }));
+
+    expect(summary).toBe('Invalid Params: vault is a required field, path is a required field');
+  });
+
+  test('preserves runtime exception details for popup error feedback', () => {
+    expect(resolveWebhookSendErrorMessage(new Error('Could not establish connection. Receiving end does not exist.')))
+      .toBe('Could not establish connection. Receiving end does not exist.');
+    expect(resolveWebhookSendErrorMessage('  Request failed upstream  '))
+      .toBe('Request failed upstream');
+    expect(resolveWebhookSendErrorMessage({}))
+      .toBe('Failed to send to webhook target');
   });
 });
