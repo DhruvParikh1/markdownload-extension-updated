@@ -7,8 +7,11 @@
   root.markSnipNotifications = factory();
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   const SUPPORT_NOTIFICATION_THRESHOLDS = Object.freeze([25, 100, 500, 1000, 2500, 5000, 10000]);
+  const REVIEW_REQUEST_THRESHOLD = 10;
   const RELEASES_URL = 'https://github.com/DhruvParikh1/markdownload-extension-updated/releases';
   const BUY_ME_A_COFFEE_URL = 'https://buymeacoffee.com/dhruvparikh';
+  const CHROME_REVIEW_URL = 'https://chromewebstore.google.com/detail/marksnip-markdown-web-cli/kcbaglhfgbkjdnpeokaamjjkddempipm/reviews';
+  const FIREFOX_REVIEW_URL = 'https://addons.mozilla.org/en-US/firefox/addon/marksnip-markdown-web-clipper/reviews/';
   const STORAGE_DEFAULTS = Object.freeze({
     lastInstalledVersion: null,
     successfulExportsCount: 0,
@@ -18,12 +21,14 @@
     successfulBatchUrlsCount: 0,
     shownSupportThresholds: [],
     shownUpdateVersions: [],
+    shownReviewRequest: false,
     pendingNotifications: []
   });
   const STORAGE_KEYS = Object.freeze(Object.keys(STORAGE_DEFAULTS));
   const NOTIFICATION_TYPE_PRIORITY = Object.freeze({
     'version-update': 0,
-    'support-milestone': 1
+    'review-request': 1,
+    'support-milestone': 2
   });
 
   function toNonNegativeInteger(value) {
@@ -122,6 +127,7 @@
       successfulBatchUrlsCount: toNonNegativeInteger(raw.successfulBatchUrlsCount),
       shownSupportThresholds: normalizeNumericArray(raw.shownSupportThresholds),
       shownUpdateVersions: normalizeStringArray(raw.shownUpdateVersions),
+      shownReviewRequest: raw.shownReviewRequest === true,
       pendingNotifications: Array.isArray(raw.pendingNotifications)
         ? raw.pendingNotifications.map(sanitizeNotification)
         : []
@@ -244,6 +250,42 @@
     });
   }
 
+  function createReviewNotification(config) {
+    const reviewUrl = config?.browser === 'firefox' ? FIREFOX_REVIEW_URL : CHROME_REVIEW_URL;
+
+    return sanitizeNotification({
+      id: 'review-request',
+      type: 'review-request',
+      createdAt: Date.now(),
+      title: 'Enjoying MarkSnip?',
+      message: 'A quick review helps others discover MarkSnip and takes less than a minute.',
+      primaryAction: {
+        label: 'Leave a Review',
+        url: reviewUrl
+      },
+      secondaryAction: null
+    });
+  }
+
+  function queueReviewRequest(state, config) {
+    const nextState = ensureNotificationState(state);
+
+    if (nextState.shownReviewRequest) {
+      return nextState;
+    }
+
+    if (nextState.successfulExportsCount < REVIEW_REQUEST_THRESHOLD) {
+      return nextState;
+    }
+
+    const withReviewTracked = {
+      ...nextState,
+      shownReviewRequest: true
+    };
+
+    return upsertNotification(withReviewTracked, createReviewNotification(config));
+  }
+
   function queueVersionUpdate(state, config) {
     const nextState = ensureNotificationState(state);
     const currentVersion = typeof config?.currentVersion === 'string' ? config.currentVersion : null;
@@ -317,11 +359,15 @@
 
   return {
     BUY_ME_A_COFFEE_URL,
+    CHROME_REVIEW_URL,
+    FIREFOX_REVIEW_URL,
     RELEASES_URL,
+    REVIEW_REQUEST_THRESHOLD,
     STORAGE_DEFAULTS,
     STORAGE_KEYS,
     SUPPORT_NOTIFICATION_THRESHOLDS,
     applyMetricDelta,
+    createReviewNotification,
     createSupportNotification,
     createVersionUpdateNotification,
     dismissNotification,
@@ -331,6 +377,7 @@
     hasPendingNotificationType,
     markNotificationShown,
     queueNextSupportNotification,
+    queueReviewRequest,
     queueVersionUpdate,
     sortPendingNotifications,
     upsertNotification
