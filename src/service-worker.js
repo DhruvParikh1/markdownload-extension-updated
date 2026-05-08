@@ -736,15 +736,17 @@ async function handleWebhookSend(message) {
     return { success: false, error: 'Webhook target not found. Check your settings.' };
   }
 
-  const article = {
-    title: title || '',
-    content: markdown,
-    pageURL: sourceUrl || '',
-    excerpt: '',
-    byline: '',
-    keywords: [],
-    date: new Date().toISOString()
-  };
+  const article = globalThis.markSnipWebhookUtils?.buildWebhookArticleFromMessage
+    ? globalThis.markSnipWebhookUtils.buildWebhookArticleFromMessage(message)
+    : {
+      title: title || '',
+      content: markdown,
+      pageURL: sourceUrl || '',
+      excerpt: '',
+      byline: '',
+      keywords: [],
+      date: new Date().toISOString()
+    };
 
   const request = globalThis.markSnipWebhookUtils.buildWebhookFetchRequest({
     target,

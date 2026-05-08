@@ -1,5 +1,11 @@
+const fs = require('fs');
+const path = require('path');
+const vm = require('vm');
+
 const {
   buildWebhookFetchRequest,
+  buildWebhookSendMessage,
+  buildWebhookArticleFromMessage,
   summarizeWebhookResponseText,
   resolveWebhookSendErrorMessage
 } = require('../../shared/webhook-utils');
@@ -72,6 +78,69 @@ describe('Webhook utilities', () => {
     expect(JSON.parse(request.body)).toEqual({
       content: 'plain body'
     });
+  });
+
+  test('preserves webhook metadata across the popup-to-service-worker message handoff', () => {
+    const message = buildWebhookSendMessage({
+      targetId: 'notes-target',
+      markdown: '# heading\nBody',
+      clipState: {
+        title: 'Webhook Clip',
+        pageUrl: 'https://example.com/post',
+        excerpt: 'Compact summary',
+        byline: 'By Example Author',
+        keywords: ['clip', 'webhook'],
+        date: '2026-05-05T10:09:52.000Z'
+      }
+    });
+
+    expect(message).toEqual({
+      type: 'webhook-send',
+      targetId: 'notes-target',
+      markdown: '# heading\nBody',
+      title: 'Webhook Clip',
+      sourceUrl: 'https://example.com/post',
+      article: {
+        title: 'Webhook Clip',
+        content: '# heading\nBody',
+        pageURL: 'https://example.com/post',
+        excerpt: 'Compact summary',
+        byline: 'By Example Author',
+        keywords: ['clip', 'webhook'],
+        date: '2026-05-05T10:09:52.000Z'
+      }
+    });
+
+    expect(buildWebhookArticleFromMessage(message)).toEqual({
+      title: 'Webhook Clip',
+      content: '# heading\nBody',
+      pageURL: 'https://example.com/post',
+      excerpt: 'Compact summary',
+      byline: 'By Example Author',
+      keywords: ['clip', 'webhook'],
+      date: '2026-05-05T10:09:52.000Z'
+    });
+  });
+
+  test('registers browser globals without default options already loaded', () => {
+    const webhookUtilsSource = fs.readFileSync(
+      path.join(__dirname, '../../shared/webhook-utils.js'),
+      'utf8'
+    );
+
+    const sandbox = {
+      globalThis: {},
+      console
+    };
+    sandbox.globalThis = sandbox;
+
+    expect(() => {
+      vm.runInNewContext(webhookUtilsSource, sandbox, {
+        filename: 'webhook-utils.js'
+      });
+    }).not.toThrow();
+
+    expect(typeof sandbox.markSnipWebhookUtils?.buildWebhookSendMessage).toBe('function');
   });
 
   test('summarizes structured server error payloads into a compact user-facing message', () => {

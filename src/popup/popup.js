@@ -8,7 +8,11 @@ let libraryItems = [];
 let currentClipState = {
     title: '',
     markdown: '',
-    pageUrl: ''
+    pageUrl: '',
+    excerpt: '',
+    byline: '',
+    keywords: [],
+    date: ''
 };
 let libraryExportInProgress = false;
 let libraryCardCountMode = 'words';
@@ -2131,10 +2135,16 @@ function resolveClipPageUrl(article = {}) {
 }
 
 function updateCurrentClipState(nextState = {}) {
+    const normalizeKeywords = globalThis.markSnipWebhookUtils?.normalizeWebhookKeywords
+        || ((v) => Array.isArray(v) ? v.filter(k => String(k || '').trim()) : []);
     currentClipState = {
         title: String(nextState.title || '').trim(),
         markdown: String(nextState.markdown || ''),
-        pageUrl: String(nextState.pageUrl || '').trim()
+        pageUrl: String(nextState.pageUrl || '').trim(),
+        excerpt: String(nextState.excerpt || ''),
+        byline: String(nextState.byline || ''),
+        keywords: normalizeKeywords(nextState.keywords),
+        date: String(nextState.date || '').trim()
     };
     updateSaveLibraryButtonState();
     queuePersistAgentBridgeClip(currentClipState);
@@ -3206,7 +3216,11 @@ async function clipTabWithRetry(tab, maxAttempts = 2) {
                     updateCurrentClipState({
                         title: message.article?.title,
                         markdown: message.markdown,
-                        pageUrl: resolveClipPageUrl(message.article)
+                        pageUrl: resolveClipPageUrl(message.article),
+                        excerpt: message.article?.excerpt,
+                        byline: message.article?.byline,
+                        keywords: message.article?.keywords,
+                        date: message.article?.date
                     });
                     setEditorValue(message.markdown);
                     if (dom.titleInput) {
@@ -3936,11 +3950,20 @@ async function handleWebhookSendAction(targetId, { selectionOnly = false, trigge
 
     try {
         const result = await browser.runtime.sendMessage({
-            type: 'webhook-send',
-            targetId,
-            markdown: content,
-            title: getCurrentExportTitle(),
-            sourceUrl: currentClipState?.pageUrl || ''
+            ...(globalThis.markSnipWebhookUtils?.buildWebhookSendMessage
+                ? globalThis.markSnipWebhookUtils.buildWebhookSendMessage({
+                    targetId,
+                    markdown: content,
+                    title: getCurrentExportTitle(),
+                    clipState: currentClipState
+                })
+                : {
+                    type: 'webhook-send',
+                    targetId,
+                    markdown: content,
+                    title: getCurrentExportTitle(),
+                    sourceUrl: currentClipState?.pageUrl || ''
+                })
         });
 
         if (result?.success) {
@@ -4329,7 +4352,11 @@ function notify(message) {
         updateCurrentClipState({
             title: message.article?.title,
             markdown: message.markdown,
-            pageUrl: resolveClipPageUrl(message.article)
+            pageUrl: resolveClipPageUrl(message.article),
+            excerpt: message.article?.excerpt,
+            byline: message.article?.byline,
+            keywords: message.article?.keywords,
+            date: message.article?.date
         });
         if (dom.titleInput) {
             dom.titleInput.value = message.article.title;

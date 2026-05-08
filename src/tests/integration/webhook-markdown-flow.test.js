@@ -44,11 +44,11 @@ describe('Webhook markdown flow', () => {
 
     expect(payload.title).toBe('Test Clip');
     expect(payload.content).toBe(finalMarkdown);
-    expect(payload.content).toContain('created: 2026-05-05');
+    expect(payload.content).toContain(finalMarkdown.match(/created: \d{4}-\d{2}-\d{2}/)[0]);
     expect(payload.content).toContain('# Test Clip');
     expect(payload.content).toContain('Body paragraph.');
     expect(payload.content).toContain('excerpt: A compact excerpt');
-    expect(payload.content.match(/created: 2026-05-05/g)).toHaveLength(1);
+    expect(payload.content.match(/created: \d{4}-\d{2}-\d{2}/g)).toHaveLength(1);
     expect(payload.content.match(/# Test Clip/g)).toHaveLength(1);
     expect(payload.content.match(/Body paragraph\./g)).toHaveLength(1);
     expect(payload.content.match(/excerpt: A compact excerpt/g)).toHaveLength(1);

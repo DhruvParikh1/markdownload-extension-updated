@@ -56,6 +56,61 @@
     return sentinel;
   }
 
+  function normalizeWebhookKeywords(keywords) {
+    if (!Array.isArray(keywords)) {
+      return [];
+    }
+
+    return keywords.reduce((normalized, keyword) => {
+      const value = String(keyword || '').trim();
+      if (value) {
+        normalized.push(value);
+      }
+      return normalized;
+    }, []);
+  }
+
+  function buildWebhookSendMessage({ targetId, markdown, title, sourceUrl, clipState } = {}) {
+    const content = String(markdown ?? clipState?.markdown ?? '');
+    const resolvedTitle = String(title ?? clipState?.title ?? '').trim();
+    const resolvedSourceUrl = String(sourceUrl ?? clipState?.pageUrl ?? '').trim();
+    const article = {
+      title: resolvedTitle,
+      content,
+      pageURL: resolvedSourceUrl,
+      excerpt: String(clipState?.excerpt ?? ''),
+      byline: String(clipState?.byline ?? ''),
+      keywords: normalizeWebhookKeywords(clipState?.keywords),
+      date: String(clipState?.date ?? '').trim()
+    };
+
+    return {
+      type: 'webhook-send',
+      targetId,
+      markdown: content,
+      title: resolvedTitle,
+      sourceUrl: resolvedSourceUrl,
+      article
+    };
+  }
+
+  function buildWebhookArticleFromMessage(message = {}) {
+    const messageArticle = message?.article && typeof message.article === 'object'
+      ? message.article
+      : {};
+
+    const resolvedDate = String(messageArticle.date ?? '').trim() || new Date().toISOString();
+    return {
+      title: String(messageArticle.title ?? message.title ?? '').trim(),
+      content: String(messageArticle.content ?? message.markdown ?? ''),
+      pageURL: String(messageArticle.pageURL ?? message.sourceUrl ?? '').trim(),
+      excerpt: String(messageArticle.excerpt ?? ''),
+      byline: String(messageArticle.byline ?? ''),
+      keywords: normalizeWebhookKeywords(messageArticle.keywords),
+      date: resolvedDate
+    };
+  }
+
   function renderWebhookTemplateString(template, article) {
     if (typeof template !== 'string' || !template) {
       return template;
@@ -276,12 +331,21 @@
     };
   }
 
-  return {
-    DEFAULT_WEBHOOK_BODY_TEMPLATE: getDefaultWebhookBodyTemplate(),
+  const api = {
+    buildWebhookSendMessage,
+    buildWebhookArticleFromMessage,
+    normalizeWebhookKeywords,
     renderWebhookTemplateString,
     renderWebhookJsonBody,
     buildWebhookFetchRequest,
     summarizeWebhookResponseText,
     resolveWebhookSendErrorMessage
   };
+
+  Object.defineProperty(api, 'DEFAULT_WEBHOOK_BODY_TEMPLATE', {
+    enumerable: true,
+    get: getDefaultWebhookBodyTemplate
+  });
+
+  return api;
 });

@@ -188,7 +188,7 @@
       })) : [];
 
       seenIds.add(id);
-      normalized.push({ id, name, url: parsedUrl.href, method: normalizedMethod, headers, bodyTemplate: normalizedBody });
+      normalized.push({ id, name, url, method: normalizedMethod, headers, bodyTemplate: normalizedBody });
       return normalized;
     }, []);
   }
