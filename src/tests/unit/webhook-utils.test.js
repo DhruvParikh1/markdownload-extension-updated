@@ -163,4 +163,26 @@ describe('Webhook utilities', () => {
     expect(resolveWebhookSendErrorMessage({}))
       .toBe('Failed to send to webhook target');
   });
+
+  test('renders URL path templates with kebab-case placeholders', () => {
+    const request = buildWebhookFetchRequest({
+      target: {
+        url: 'https://example.com/api/{title:kebab}',
+        method: 'POST',
+        headers: [],
+        bodyTemplate: JSON.stringify({ content: '{content}' })
+      },
+      article: {
+        title: 'My Test Article',
+        content: 'body text',
+        pageURL: 'https://example.com/post',
+        excerpt: '',
+        byline: '',
+        keywords: [],
+        date: '2026-05-05T00:00:00.000Z'
+      }
+    });
+
+    expect(request.url).toBe('https://example.com/api/my-test-article');
+  });
 });

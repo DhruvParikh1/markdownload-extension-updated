@@ -132,6 +132,32 @@ describe('Template Processing', () => {
 
       expect(result).toBe(`Created: ${today}, Modified: ${today}`);
     });
+
+    test('should use article date when available', () => {
+      const articleWithDate = { ...mockArticle, date: '2026-05-05T10:09:52.000Z' };
+      const template = 'Date: {date:YYYY-MM-DD}';
+      const result = textReplace(template, articleWithDate);
+
+      expect(result).toBe('Date: 2026-05-05');
+    });
+
+    test('should fall back to current date when article date is invalid', () => {
+      const articleBadDate = { ...mockArticle, date: 'not-a-date' };
+      const template = 'Date: {date:YYYY-MM-DD}';
+      const result = textReplace(template, articleBadDate);
+      const today = moment().format('YYYY-MM-DD');
+
+      expect(result).toBe(`Date: ${today}`);
+    });
+
+    test('should fall back to current date when article date is empty string', () => {
+      const articleEmptyDate = { ...mockArticle, date: '' };
+      const template = 'Date: {date:YYYY-MM-DD}';
+      const result = textReplace(template, articleEmptyDate);
+      const today = moment().format('YYYY-MM-DD');
+
+      expect(result).toBe(`Date: ${today}`);
+    });
   });
 
   describe('Keywords Formatting', () => {

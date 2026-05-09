@@ -2637,7 +2637,11 @@ async function handleManualLibrarySave(e) {
     const snapshot = {
         title: dom.titleInput?.value || currentClipState.title,
         markdown: getEditorValue(),
-        pageUrl: currentClipState.pageUrl
+        pageUrl: currentClipState.pageUrl,
+        excerpt: currentClipState.excerpt,
+        byline: currentClipState.byline,
+        keywords: currentClipState.keywords,
+        date: currentClipState.date
     };
 
     if (!snapshot.pageUrl || !String(snapshot.markdown || '').trim()) {

@@ -69,7 +69,8 @@
       }
     }
 
-    const now = new Date();
+    const parsedDate = article.date ? new Date(article.date) : null;
+    const now = parsedDate && !isNaN(parsedDate.getTime()) ? parsedDate : new Date();
     const dateRegex = /{date:(.+?)}/g;
     const matches = string.match(dateRegex);
     if (matches && matches.forEach) {

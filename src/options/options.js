@@ -305,7 +305,7 @@ function normalizeWebhookTargetsState(targets) {
         })) : [];
 
         seenIds.add(id);
-        result.push({ id, name, url: parsedUrl.href, method, headers, bodyTemplate });
+        result.push({ id, name, url, method, headers, bodyTemplate });
         return result;
     }, []);
 }
@@ -2763,6 +2763,7 @@ const loaded = () => {
 		        if (input.id === 'settings-search') return;
 		        if (input.closest('#siteRulesCard')) return;
                 if (input.closest('#defaultSendToTargetCard') || input.closest('#assistantTargetsCard')) return;
+                if (input.closest('#webhookTargetEditor')) return;
 		        // Skip permission panel buttons (they have their own handlers)
 		        if (['agentBridgePermContinue', 'agentBridgePermCancel', 'agentBridgePermRetry', 'agentBridgePermDismiss'].includes(input.id)) return;
 	        // Skip colorblind theme dropdown (has its own handlers)
