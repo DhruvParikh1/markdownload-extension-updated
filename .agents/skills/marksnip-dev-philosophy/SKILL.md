@@ -103,11 +103,15 @@ When a fix is option-dependent, also run the relevant option mode. For hidden-co
 npm.cmd run verify:live-snapshots:hidden
 ```
 
-When an issue includes a public reproduction URL, add that URL as a case in `src/tests/helpers/live-public-cases.js` and run that case explicitly:
+When an issue includes a public reproduction URL, the default live snapshot cases are not enough. Add the exact reproduction URL as a case in `src/tests/helpers/live-public-cases.js` and run that case explicitly before finalizing:
 
 ```powershell
 npm.cmd run snapshot:live-markdown -- --cases <case-id>
 ```
+
+This applies even when the fix is implemented with a deterministic local fixture. The fixture proves the targeted behavior; the live reproduction URL proves the original page still exercises the expected browser, permission, extraction, and conversion path.
+
+If the reproduction page requires manual intervention, open it through the live workflow or a headed Playwright run, wait for the user to complete the challenge, then capture the case. If the live reproduction URL cannot be captured because of bot protection, permissions, login, paywall, network access, or another external blocker, record the blocker clearly and still run the closest deterministic E2E/integration coverage plus the default live snapshot cases.
 
 Review the generated `src/test-artifacts/live-markdown-comparisons/<run-id>/diff/summary.json` before finalizing. A diff is not automatically a failure, but it must be understood and described as intentional or risky.
 

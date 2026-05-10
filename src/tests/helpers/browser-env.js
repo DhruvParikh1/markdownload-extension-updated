@@ -7,6 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const { JSDOM } = require('jsdom');
 const turndownFactory = require('../../shared/turndown-factory');
+const mathMLApi = require('../../shared/mathml-to-tex');
 
 /**
  * Create a browser-like environment with required libraries loaded
@@ -64,7 +65,10 @@ function createBrowserEnvironment() {
  */
 function createTurndownService(options = {}) {
   const env = createBrowserEnvironment();
-  const { service } = turndownFactory.createTurndownService(options, env);
+  const { service } = turndownFactory.createTurndownService(options, {
+    ...env,
+    mathMLApi
+  });
 
   return { service, env };
 }

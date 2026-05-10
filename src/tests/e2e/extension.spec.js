@@ -11,7 +11,8 @@ const path = require('path');
 const extensionPath = path.join(__dirname, '../..');
 const fixtureHost = 'https://fixtures.marksnip.test';
 const fixtureFiles = {
-  '/extension/deterministic-article.html': path.join(__dirname, '../fixtures/e2e-pages/extension/deterministic-article.html')
+  '/extension/deterministic-article.html': path.join(__dirname, '../fixtures/e2e-pages/extension/deterministic-article.html'),
+  '/extension/mathml-article.html': path.join(__dirname, '../fixtures/e2e-pages/extension/mathml-article.html')
 };
 
 async function installFixtureRoutes(context) {
@@ -220,6 +221,55 @@ test.describe('MarkSnip Extension E2E', () => {
         return state.libraryItems?.length || 0;
       }, { timeout: 10000 }).toBe(firstLibraryCount);
       await popupAgain.close().catch(() => {});
+    } finally {
+      await popupPage.close().catch(() => {});
+      await fixturePage.close().catch(() => {});
+    }
+  });
+
+  test('clips native MathML as TeX through the popup flow', async () => {
+    const fixturePage = await context.newPage();
+    const popupPage = await context.newPage();
+
+    try {
+      await fixturePage.goto(`${fixtureHost}/extension/mathml-article.html`);
+      await fixturePage.waitForLoadState('networkidle');
+      await expect(fixturePage.getByRole('heading', { name: 'MathML Article Fixture' })).toBeVisible();
+      await fixturePage.bringToFront();
+
+      const fixtureTabId = await serviceWorker.evaluate(async ({ targetUrl }) => {
+        const tabs = await browser.tabs.query({});
+        return tabs.find((tab) => tab.url === targetUrl)?.id || null;
+      }, { targetUrl: fixturePage.url() });
+      expect(fixtureTabId).toBeTruthy();
+
+      await popupPage.goto(`chrome-extension://${extensionId}/popup/popup.html`);
+      await expect(popupPage.locator('#container')).toBeVisible();
+
+      await popupPage.evaluate(async (tabId) => {
+        await clipSite(tabId);
+      }, fixtureTabId);
+
+      await expect.poll(async () => {
+        return await popupPage.evaluate(() => {
+          if (typeof cm !== 'undefined' && cm?.getValue) {
+            return cm.getValue();
+          }
+          return document.getElementById('md')?.value || '';
+        });
+      }, { timeout: 45000 }).toContain('$P_{i,j,t_a}$');
+
+      const markdown = await popupPage.evaluate(() => {
+        if (typeof cm !== 'undefined' && cm?.getValue) {
+          return cm.getValue();
+        }
+        return document.getElementById('md')?.value || '';
+      });
+
+      expect(markdown).toContain('$P_{i,j,t_a}$');
+      expect(markdown).toContain('$$\nE=mc^{2}\n$$');
+      expect(markdown).not.toContain('Pi,j,t_a');
+      expect(markdown).not.toContain('Error clipping the page');
     } finally {
       await popupPage.close().catch(() => {});
       await fixturePage.close().catch(() => {});

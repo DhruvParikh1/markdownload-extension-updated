@@ -1068,10 +1068,14 @@ function turndown(content, options, article) {
   // handle multiple lines math
   turndownService.addRule('mathjax', {
     filter(node, options) {
-      return article.math.hasOwnProperty(node.id);
+      return article.math?.hasOwnProperty(node.id) || String(node.nodeName).toLowerCase() === 'math';
     },
     replacement(content, node, options) {
-      const math = article.math[node.id];
+      const math = article.math?.[node.id] || extractMathMLInfoFromNode(node);
+      if (!math?.tex) {
+        return content;
+      }
+
       let tex = math.tex.trim().replaceAll('\xa0', '');
 
       if (math.inline) {
@@ -1344,6 +1348,55 @@ function buildRecoveredArticle(firstPassArticle, recoveredHtml) {
   };
 }
 
+function getMathMLApi() {
+  return typeof MarkSnipMathML !== 'undefined' ? MarkSnipMathML : null;
+}
+
+function extractMathMLInfoFromNode(mathNode) {
+  const mathMLApi = getMathMLApi();
+  if (!mathNode || !mathMLApi?.mathmlToTex) {
+    return null;
+  }
+
+  const tex = mathMLApi.mathmlToTex(mathNode);
+  if (!tex) {
+    return null;
+  }
+
+  return {
+    tex,
+    inline: !mathMLApi.isDisplayMath?.(mathNode)
+  };
+}
+
+function extractMathMLInfoFromString(mathMLSource) {
+  if (!mathMLSource?.trim()) {
+    return null;
+  }
+
+  const findMathElement = documentNode => (
+    documentNode.querySelector('math') ||
+    documentNode.getElementsByTagName('math')?.[0] ||
+    documentNode.getElementsByTagNameNS?.('*', 'math')?.[0] ||
+    null
+  );
+
+  const parser = new DOMParser();
+  const parsed = parser.parseFromString(mathMLSource, "application/xml");
+  const mathNode = findMathElement(parsed);
+  const hasParserError = !!parsed.querySelector('parsererror');
+  if (mathNode && !hasParserError) {
+    return extractMathMLInfoFromNode(mathNode);
+  }
+
+  const htmlParsed = parser.parseFromString(mathMLSource, "text/html");
+  return extractMathMLInfoFromNode(findMathElement(htmlParsed));
+}
+
+function isMathMLSourceType(type) {
+  return /(?:^|[/+])mml\b|mathml/i.test(String(type || ''));
+}
+
 function prepareDomForReadability(dom, options, recoveryApi) {
   // Now options is defined
   if (!options.preserveCodeFormatting) {
@@ -1395,10 +1448,13 @@ function prepareDomForReadability(dom, options, recoveryApi) {
 
   // Process MathJax elements (same as original)
   dom.body.querySelectorAll('script[id^=MathJax-Element-]')?.forEach(mathSource => {
-    const type = mathSource.attributes.type.value;
+    const type = mathSource.getAttribute('type') || '';
+    const mathMLInfo = isMathMLSourceType(type)
+      ? extractMathMLInfoFromString(mathSource.innerText)
+      : null;
     storeMathInfo(mathSource, {
-      tex: mathSource.innerText,
-      inline: type ? !type.includes('mode=display') : false
+      tex: mathMLInfo?.tex || mathSource.innerText,
+      inline: mathMLInfo?.inline ?? (type ? !type.includes('mode=display') : false)
     });
   });
 
@@ -1431,6 +1487,34 @@ function prepareDomForReadability(dom, options, recoveryApi) {
       tex: tex,
       inline: true
     });
+  });
+
+  // Process native MathML, including MathJax assistive MathML and pages that
+  // publish MathML directly instead of source TeX.
+  dom.body.querySelectorAll('math')?.forEach(mathNode => {
+    if (mathNode.closest('.katex-mathml') || mathNode.closest('[marksnip-latex]')) {
+      return;
+    }
+
+    const mathInfo = extractMathMLInfoFromNode(mathNode);
+    if (!mathInfo) {
+      return;
+    }
+
+    storeMathInfo(mathNode, mathInfo);
+  });
+
+  dom.body.querySelectorAll('[data-mathml]')?.forEach(mathMLContainer => {
+    if (mathMLContainer.querySelector('math')) {
+      return;
+    }
+
+    const mathInfo = extractMathMLInfoFromString(mathMLContainer.getAttribute('data-mathml'));
+    if (!mathInfo) {
+      return;
+    }
+
+    storeMathInfo(mathMLContainer, mathInfo);
   });
 
   // Process code highlight elements

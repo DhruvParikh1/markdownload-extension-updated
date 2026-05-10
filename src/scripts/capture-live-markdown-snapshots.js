@@ -3,8 +3,25 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { spawnSync } = require('child_process');
-const { chromium } = require('@playwright/test');
+const { chromium } = require('playwright-extra');
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 const { liveClipCases } = require('../tests/helpers/live-public-cases');
+
+const STEALTH_DISABLED_EVASIONS = [
+  'chrome.runtime',
+  'chrome.app',
+  'chrome.csi',
+  'chrome.loadTimes',
+  'iframe.contentWindow'
+];
+
+function buildStealthPlugin() {
+  const stealth = StealthPlugin();
+  for (const name of STEALTH_DISABLED_EVASIONS) {
+    stealth.enabledEvasions.delete(name);
+  }
+  return stealth;
+}
 
 const extensionRoot = path.resolve(__dirname, '..');
 const repoRoot = path.resolve(extensionRoot, '..');
@@ -17,7 +34,11 @@ function parseArgs(argv) {
     outputRoot: path.join(extensionRoot, 'test-artifacts', 'live-markdown-comparisons'),
     headless: false,
     keepWorkDir: false,
-    storageOptions: {}
+    waitAfterLoadMs: 0,
+    storageOptions: {},
+    stealth: true,
+    captchaWaitMs: 60000,
+    allowSkips: false
   };
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -37,8 +58,26 @@ function parseArgs(argv) {
       index += 1;
     } else if (arg === '--headless') {
       args.headless = true;
+    } else if (arg === '--wait-after-load' && next) {
+      const seconds = Number(next);
+      if (!Number.isFinite(seconds) || seconds < 0) {
+        throw new Error('--wait-after-load must be a non-negative number of seconds');
+      }
+      args.waitAfterLoadMs = seconds * 1000;
+      index += 1;
     } else if (arg === '--keep-work-dir') {
       args.keepWorkDir = true;
+    } else if (arg === '--no-stealth') {
+      args.stealth = false;
+    } else if (arg === '--captcha-wait' && next) {
+      const seconds = Number(next);
+      if (!Number.isFinite(seconds) || seconds < 0) {
+        throw new Error('--captcha-wait must be a non-negative number of seconds');
+      }
+      args.captchaWaitMs = seconds * 1000;
+      index += 1;
+    } else if (arg === '--allow-skips') {
+      args.allowSkips = true;
     } else if (arg === '--include-hidden-content') {
       args.storageOptions.skipHiddenContent = false;
     } else if (arg === '--skip-hidden-content' && next) {
@@ -70,11 +109,17 @@ Options:
   --ref HEAD          Git ref used for the base extension copy
   --output-root <dir> Artifact root
   --headless          Run Chromium headless
+  --wait-after-load <seconds>
+                      Wait after each page load before selector/capture
   --skip-hidden-content <on|off>
                       Store the extension option before capture
   --include-hidden-content
                       Alias for --skip-hidden-content off
   --keep-work-dir     Keep the exported base extension copy
+  --no-stealth        Disable Playwright stealth evasions (debug aid)
+  --captcha-wait <seconds>
+                      Window for manually solving captcha (default 60)
+  --allow-skips       Treat captcha-/permission-blocked cases as non-failures
 `);
 }
 
@@ -240,6 +285,10 @@ async function waitForMarkdown(popupPage, liveCase) {
 
   while (Date.now() - startedAt < 60000) {
     latest = (await readPopupClipState(popupPage)).markdown || '';
+    const blockedStatus = classifyClipError(latest);
+    if (blockedStatus) {
+      throw new Error(`Clip output was blocked: ${blockedStatus}`);
+    }
     if (
       expectedSnippet && latest.includes(expectedSnippet) ||
       latest.trim().length > 500 && !latest.includes('Error clipping the page')
@@ -252,7 +301,93 @@ async function waitForMarkdown(popupPage, liveCase) {
   throw new Error(`Timed out waiting for markdown for ${liveCase.id}. Latest length: ${latest.length}`);
 }
 
-async function captureCase(context, extensionId, serviceWorker, liveCase) {
+const CAPTCHA_TITLE_MARKERS = [
+  'Just a moment',
+  'Verifying you are human',
+  'Attention Required',
+  'Checking your browser',
+  'Please verify',
+  'Cloudflare',
+  'Access denied'
+];
+
+const CAPTCHA_CONTENT_MARKERS = [
+  'Are you a robot?',
+  'captcha challenge',
+  'Verification successful. Waiting for',
+  'Please confirm you are a human'
+];
+
+const CAPTCHA_SELECTORS = [
+  'iframe[src*="challenges.cloudflare.com"]',
+  'iframe[src*="hcaptcha.com"]',
+  'iframe[src*="recaptcha"]',
+  '#cf-challenge-running',
+  '#challenge-form',
+  '[id*="captcha" i]'
+];
+
+const PERMISSION_ERROR_MARKERS = [
+  'Cannot access contents of the page',
+  'Extension manifest must request permission',
+  'Cannot access a chrome',
+  'cannot be scripted'
+];
+
+async function detectCaptcha(page) {
+  const title = await page.title().catch(() => '');
+  if (CAPTCHA_TITLE_MARKERS.some(marker => title.includes(marker))) {
+    return true;
+  }
+  for (const selector of CAPTCHA_SELECTORS) {
+    const visible = await page.locator(selector).first().isVisible().catch(() => false);
+    if (visible) {
+      return true;
+    }
+  }
+  return false;
+}
+
+async function waitForCaptchaClear(page, liveCase, ms) {
+  console.log(`[captcha] Detected on ${liveCase.id}. Waiting up to ${Math.round(ms / 1000)}s — solve it in the visible window if you can.`);
+  await page.bringToFront().catch(() => {});
+  const deadline = Date.now() + ms;
+  while (Date.now() < deadline) {
+    if (!(await detectCaptcha(page))) {
+      return true;
+    }
+    await page.waitForTimeout(2000);
+  }
+  return false;
+}
+
+function classifyClipError(clipMarkdown) {
+  const text = String(clipMarkdown || '');
+  if (CAPTCHA_CONTENT_MARKERS.some(marker => text.includes(marker))) {
+    return 'captcha-blocked';
+  }
+  if (PERMISSION_ERROR_MARKERS.some(marker => text.includes(marker))) {
+    return 'permission-blocked';
+  }
+  if (text.includes('Error clipping the page')) {
+    return 'failed';
+  }
+  return null;
+}
+
+function classifyCaptureError(errorMessage, clipMarkdown) {
+  const fromClip = classifyClipError(clipMarkdown);
+  if (fromClip) {
+    return fromClip;
+  }
+  const message = String(errorMessage || '');
+  if (message.includes('Timeout') && message.includes('selector')) {
+    return 'selector-timeout';
+  }
+  return 'failed';
+}
+
+async function captureCase(context, extensionId, serviceWorker, liveCase, options) {
   const livePage = await context.newPage();
   const popupPage = await context.newPage();
 
@@ -261,6 +396,26 @@ async function captureCase(context, extensionId, serviceWorker, liveCase) {
       waitUntil: 'domcontentloaded',
       timeout: 60000
     });
+
+    if (await detectCaptcha(livePage)) {
+      const cleared = await waitForCaptchaClear(livePage, liveCase, options.captchaWaitMs);
+      if (!cleared) {
+        return {
+          ok: false,
+          status: 'captcha-blocked',
+          error: 'Captcha did not clear within the configured wait window.',
+          page: await capturePageState(livePage, liveCase, null).catch(() => null),
+          clip: { markdown: '', title: '' }
+        };
+      }
+    }
+
+    const waitAfterLoadMs = Math.max(options.waitAfterLoadMs || 0, liveCase.waitAfterLoadMs || 0);
+    if (waitAfterLoadMs > 0) {
+      console.log(`Waiting ${Math.round(waitAfterLoadMs / 1000)}s before capturing ${liveCase.id}.`);
+      await livePage.bringToFront();
+      await livePage.waitForTimeout(waitAfterLoadMs);
+    }
     await livePage.waitForSelector(liveCase.selector, { timeout: 60000 });
     const pageState = await capturePageState(
       livePage,
@@ -285,14 +440,17 @@ async function captureCase(context, extensionId, serviceWorker, liveCase) {
 
     return {
       ok: true,
+      status: 'passed',
       page: pageState,
       clip: clipState
     };
   } catch (error) {
     const clipState = await readPopupClipState(popupPage).catch(() => ({ markdown: '', title: '' }));
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return {
       ok: false,
-      error: error instanceof Error ? error.message : String(error),
+      status: classifyCaptureError(errorMessage, clipState.markdown),
+      error: errorMessage,
       page: livePage.isClosed() ? null : await capturePageState(livePage, liveCase, null).catch(() => null),
       clip: clipState
     };
@@ -302,17 +460,32 @@ async function captureCase(context, extensionId, serviceWorker, liveCase) {
   }
 }
 
-function buildCaseRecord(versionLabel, liveCase, result) {
+function buildCaseRecord(versionLabel, liveCase, result, options) {
   const markdown = result.clip?.markdown || '';
-  const missingSnippets = (liveCase.snippets || []).filter(snippet => !markdown.includes(snippet));
+  const versionSnippets = versionLabel === 'current'
+    ? liveCase.currentSnippets || []
+    : liveCase.baseSnippets || [];
+  const expectedSnippets = [...(liveCase.snippets || []), ...versionSnippets];
+  const missingSnippets = expectedSnippets.filter(snippet => !markdown.includes(snippet));
+
+  const baseStatus = result.status || (result.ok ? 'passed' : 'failed');
+  const status = baseStatus === 'passed' && missingSnippets.length > 0
+    ? 'failed'
+    : baseStatus;
+  const blocked = status === 'captcha-blocked' || status === 'permission-blocked';
 
   return {
     version: versionLabel,
     caseId: liveCase.id,
     caseName: liveCase.name,
     url: liveCase.url,
-    ok: result.ok && missingSnippets.length === 0,
+    status,
+    ok: status === 'passed',
+    blocked,
     error: result.error || null,
+    stealth: options?.stealth
+      ? { enabled: true, disabledEvasions: STEALTH_DISABLED_EVASIONS }
+      : { enabled: false },
     page: result.page,
     clip: {
       title: result.clip?.title || '',
@@ -351,8 +524,8 @@ async function captureVersion(versionLabel, extensionPath, cases, runDir, option
     const records = [];
     for (const liveCase of cases) {
       console.log(`[${versionLabel}] Capturing ${liveCase.id}: ${liveCase.url}`);
-      const result = await captureCase(context, extensionId, serviceWorker, liveCase);
-      const record = buildCaseRecord(versionLabel, liveCase, result);
+      const result = await captureCase(context, extensionId, serviceWorker, liveCase, options);
+      const record = buildCaseRecord(versionLabel, liveCase, result, options);
       records.push(record);
 
       writeText(path.join(markdownDir, `${liveCase.id}.md`), result.clip?.markdown || '');
@@ -402,9 +575,12 @@ function buildDiff(baseMarkdownPath, currentMarkdownPath) {
   return [result.stdout, result.stderr].filter(Boolean).join('\n');
 }
 
-function compareVersions(cases, runDir) {
+function compareVersions(cases, runDir, baseRecords, currentRecords) {
   const diffDir = path.join(runDir, 'diff');
   ensureDir(diffDir);
+
+  const baseById = new Map((baseRecords || []).map(record => [record.caseId, record]));
+  const currentById = new Map((currentRecords || []).map(record => [record.caseId, record]));
 
   const summaries = cases.map(liveCase => {
     const baseMarkdownPath = path.join(runDir, 'base', 'markdown', `${liveCase.id}.md`);
@@ -418,10 +594,27 @@ function compareVersions(cases, runDir) {
 
     writeText(diffPath, diffText);
 
+    const baseRecord = baseById.get(liveCase.id);
+    const currentRecord = currentById.get(liveCase.id);
+    const baseStatus = baseRecord?.status || 'missing';
+    const currentStatus = currentRecord?.status || 'missing';
+    const blockedSide = baseRecord?.blocked
+      ? 'base'
+      : currentRecord?.blocked
+        ? 'current'
+        : null;
+    const blockedRecord = blockedSide === 'base' ? baseRecord : blockedSide === 'current' ? currentRecord : null;
+    const status = blockedSide
+      ? `${blockedSide}:${blockedRecord.status}`
+      : (baseHash === currentHash ? 'unchanged' : 'changed');
+
     return {
       caseId: liveCase.id,
       url: liveCase.url,
-      changed: baseHash !== currentHash,
+      status,
+      changed: status === 'changed',
+      baseStatus,
+      currentStatus,
       base: {
         markdownPath: path.relative(runDir, baseMarkdownPath),
         markdownLength: baseMarkdown.length,
@@ -433,7 +626,7 @@ function compareVersions(cases, runDir) {
         markdownHash: currentHash
       },
       diffPath: path.relative(runDir, diffPath),
-      firstDifferentLine: firstDifferentLine(baseMarkdown, currentMarkdown)
+      firstDifferentLine: blockedSide ? null : firstDifferentLine(baseMarkdown, currentMarkdown)
     };
   });
 
@@ -448,6 +641,13 @@ async function main() {
   const runDir = path.join(options.outputRoot, runId);
   ensureDir(runDir);
 
+  if (options.stealth) {
+    chromium.use(buildStealthPlugin());
+    console.log(`Stealth enabled (disabled evasions: ${STEALTH_DISABLED_EVASIONS.join(', ')})`);
+  } else {
+    console.log('Stealth disabled (--no-stealth)');
+  }
+
   console.log(`Writing live markdown comparison artifacts to ${runDir}`);
   const baseExport = exportBaseExtension(options.ref, runDir);
 
@@ -459,6 +659,12 @@ async function main() {
     baseExtensionPath: options.keepWorkDir ? baseExport.extensionDir : null,
     baseExtensionPathNote: options.keepWorkDir ? null : 'Temporary base extension export is removed after capture.',
     storageOptions: options.storageOptions,
+    waitAfterLoadMs: options.waitAfterLoadMs,
+    captchaWaitMs: options.captchaWaitMs,
+    allowSkips: options.allowSkips,
+    stealth: options.stealth
+      ? { enabled: true, disabledEvasions: STEALTH_DISABLED_EVASIONS }
+      : { enabled: false },
     platform: `${os.platform()} ${os.release()}`,
     cases: cases.map(liveCase => ({
       id: liveCase.id,
@@ -469,7 +675,7 @@ async function main() {
 
   const baseRecords = await captureVersion('base', baseExport.extensionDir, cases, runDir, options);
   const currentRecords = await captureVersion('current', extensionRoot, cases, runDir, options);
-  const comparisons = compareVersions(cases, runDir);
+  const comparisons = compareVersions(cases, runDir, baseRecords, currentRecords);
 
   writeJson(path.join(runDir, 'summary.json'), {
     ...metadata,
@@ -485,17 +691,29 @@ async function main() {
 
   console.log('\nComparison summary:');
   comparisons.forEach(comparison => {
-    const marker = comparison.changed ? 'changed' : 'unchanged';
-    console.log(`- ${comparison.caseId}: ${marker} (${comparison.base.markdownLength} -> ${comparison.current.markdownLength} chars)`);
+    console.log(`- ${comparison.caseId}: ${comparison.status} (${comparison.base.markdownLength} -> ${comparison.current.markdownLength} chars)`);
   });
   console.log(`\nArtifacts: ${runDir}`);
 
-  const failedRecords = [...baseRecords, ...currentRecords].filter(record => !record.ok);
+  const allRecords = [...baseRecords, ...currentRecords];
+  const blockedRecords = allRecords.filter(record => record.blocked);
+  const failedRecords = allRecords.filter(record => !record.ok && !record.blocked);
+
+  if (blockedRecords.length) {
+    blockedRecords.forEach(record => {
+      console.warn(`Blocked: ${record.version}/${record.caseId} (${record.status}): ${record.error || ''}`);
+    });
+  }
+
   if (failedRecords.length) {
     failedRecords.forEach(record => {
-      console.error(`Capture failed for ${record.version}/${record.caseId}: ${record.error || 'missing expected snippets'}`);
+      console.error(`Capture failed for ${record.version}/${record.caseId} (${record.status}): ${record.error || 'missing expected snippets'}`);
     });
     throw new Error(`${failedRecords.length} live markdown snapshot capture(s) failed. See artifacts above.`);
+  }
+
+  if (blockedRecords.length && !options.allowSkips) {
+    throw new Error(`${blockedRecords.length} case(s) blocked (captcha/permission). Re-run with --allow-skips to ignore, or fix the underlying issue.`);
   }
 }
 
