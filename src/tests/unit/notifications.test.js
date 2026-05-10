@@ -62,6 +62,42 @@ describe('notification helpers', () => {
     );
   });
 
+  test('prioritizes support cards ahead of review requests', () => {
+    let state = notifications.applyMetricDelta(
+      notifications.ensureNotificationState(),
+      { exports: 25 }
+    );
+
+    state = notifications.queueReviewRequest(state, {});
+    state = notifications.queueNextSupportNotification(state, {});
+
+    expect(notifications.getNextPendingNotification(state)).toEqual(
+      expect.objectContaining({
+        id: 'support-milestone:25',
+        type: 'support-milestone'
+      })
+    );
+  });
+
+  test('queues a support milestone instead of a review request when both are eligible', () => {
+    let state = notifications.applyMetricDelta(
+      notifications.ensureNotificationState(),
+      { exports: 25 }
+    );
+
+    state = notifications.queueUsageNotifications(state, {});
+
+    expect(state.shownReviewRequest).toBe(false);
+    expect(state.shownSupportThresholds).toEqual([25]);
+    expect(state.pendingNotifications).toHaveLength(1);
+    expect(state.pendingNotifications[0]).toEqual(
+      expect.objectContaining({
+        id: 'support-milestone:25',
+        type: 'support-milestone'
+      })
+    );
+  });
+
   test('marks a notification as shown without removing it', () => {
     let state = notifications.queueVersionUpdate(
       notifications.ensureNotificationState(),

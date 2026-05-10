@@ -27,8 +27,8 @@
   const STORAGE_KEYS = Object.freeze(Object.keys(STORAGE_DEFAULTS));
   const NOTIFICATION_TYPE_PRIORITY = Object.freeze({
     'version-update': 0,
-    'review-request': 1,
-    'support-milestone': 2
+    'support-milestone': 1,
+    'review-request': 2
   });
 
   function toNonNegativeInteger(value) {
@@ -357,6 +357,21 @@
     );
   }
 
+  function queueUsageNotifications(state, config) {
+    let nextState = queueNextSupportNotification(state, {
+      buyMeACoffeeUrl: config?.buyMeACoffeeUrl,
+      releaseNotesUrl: config?.releaseNotesUrl
+    });
+
+    if (hasPendingNotificationType(nextState, 'support-milestone')) {
+      return nextState;
+    }
+
+    return queueReviewRequest(nextState, {
+      browser: config?.browser
+    });
+  }
+
   return {
     BUY_ME_A_COFFEE_URL,
     CHROME_REVIEW_URL,
@@ -378,6 +393,7 @@
     markNotificationShown,
     queueNextSupportNotification,
     queueReviewRequest,
+    queueUsageNotifications,
     queueVersionUpdate,
     sortPendingNotifications,
     upsertNotification

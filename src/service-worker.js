@@ -488,10 +488,8 @@ async function recordNotificationMetrics(delta, options = {}) {
   const state = await runNotificationStateTask(async () => {
     let state = await loadNotificationState();
     state = notificationHelpers.applyMetricDelta(state, normalizedDelta);
-    state = notificationHelpers.queueReviewRequest(state, {
-      browser: getCurrentBrowserLabel()
-    });
-    state = notificationHelpers.queueNextSupportNotification(state, {
+    state = notificationHelpers.queueUsageNotifications(state, {
+      browser: getCurrentBrowserLabel(),
       buyMeACoffeeUrl: notificationHelpers.BUY_ME_A_COFFEE_URL,
       releaseNotesUrl: notificationHelpers.RELEASES_URL
     });
