@@ -113,6 +113,21 @@ Review the generated `src/test-artifacts/live-markdown-comparisons/<run-id>/diff
 
 If live network or browser access is unavailable, do not pretend the verification passed. Say that the live snapshot workflow could not be run, include the blocker, and rely on the narrower local tests only as a fallback.
 
+### Option-Sensitive Verification
+
+When a change depends on an option, test the meaningful option modes through the real extension path. Do not assume that testing one mode proves the other mode works.
+
+For option-dependent extraction changes, verify both sides of the behavior:
+- The newly expected content appears in the mode that enables it
+- Content that was already visible before the change is still preserved
+- The disabled/default mode still matches the intended baseline behavior
+
+Snapshot artifacts should make the effective options clear. When comparing outputs, confirm which option values produced each artifact before drawing conclusions from the diff.
+
+When adding or changing an option default, verify the default through the same path users exercise: shared defaults, popup/UI state, background/runtime options, and the live snapshot harness must agree. Inspecting a constant is not enough.
+
+For public reproduction URLs, add targeted assertions or checklist items for the known failure mode. Snapshot diffs are useful, but a known bug should also have semantic checks that would have caught the original regression.
+
 ---
 
 ## Summary
