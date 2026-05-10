@@ -38,8 +38,8 @@ describe('Content Script DOM Capture', () => {
     expect(document.getElementById('hidden-img')).toBe(beforeHiddenImage);
   });
 
-  test('captured DOM should be cleaned while live DOM stays intact', () => {
-    const result = getSelectionAndDom();
+  test('captured DOM should be cleaned while live DOM stays intact when hidden-content skipping is enabled', () => {
+    const result = getSelectionAndDom({ skipHiddenContent: true });
     const parser = new DOMParser();
     const capturedDocument = parser.parseFromString(result.dom, 'text/html');
 
@@ -50,6 +50,17 @@ describe('Content Script DOM Capture', () => {
     expect(document.getElementById('hidden-img')).toBeTruthy();
     expect(document.getElementById('hidden-div')).toBeTruthy();
     expect(document.head.querySelector('base')).toBeNull();
+  });
+
+  test('captured DOM retains hidden content by default', () => {
+    const result = getSelectionAndDom();
+    const parser = new DOMParser();
+    const capturedDocument = parser.parseFromString(result.dom, 'text/html');
+
+    expect(capturedDocument.getElementById('hidden-img')).toBeTruthy();
+    expect(capturedDocument.getElementById('hidden-div')).toBeTruthy();
+    expect(capturedDocument.getElementById('visible-img')).toBeTruthy();
+    expect(capturedDocument.getElementById('visible-div')).toBeTruthy();
   });
 
   test('captured DOM can retain hidden content when hidden-content skipping is disabled', () => {

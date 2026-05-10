@@ -1694,7 +1694,7 @@ const setCurrentChoice = result => {
 
     options.preserveCodeFormatting = options.preserveCodeFormatting === true;
     options.autoDetectCodeLanguage = options.autoDetectCodeLanguage !== false;
-    options.skipHiddenContent = options.skipHiddenContent !== false;
+    options.skipHiddenContent = options.skipHiddenContent === true;
 
     document.querySelector("[name='frontmatter']").value = options.frontmatter;
     document.querySelector("[name='backmatter']").value = options.backmatter;

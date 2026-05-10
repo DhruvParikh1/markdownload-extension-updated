@@ -4,7 +4,7 @@ function notifyExtension() {
 }
 
 function shouldSkipHiddenContent(captureOptions = {}) {
-    return captureOptions?.skipHiddenContent !== false;
+    return captureOptions?.skipHiddenContent === true;
 }
 
 function getHTMLOfDocument(captureOptions = {}) {

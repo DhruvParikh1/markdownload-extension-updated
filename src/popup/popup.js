@@ -3370,7 +3370,7 @@ const clipSite = id => {
         }
 
         const captureOptions = {
-            skipHiddenContent: currentOptions?.skipHiddenContent !== false
+            skipHiddenContent: currentOptions?.skipHiddenContent === true
         };
 
         return browser.scripting.executeScript({

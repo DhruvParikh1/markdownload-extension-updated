@@ -1538,7 +1538,7 @@ async function getTabContentForOffscreen(tabId, selection, requestId, options = 
     const tabInfo = await browser.tabs.get(tabId).catch(() => null);
     const fallbackPageUrl = tabInfo?.url || null;
     const captureOptions = {
-      skipHiddenContent: options?.skipHiddenContent !== false
+      skipHiddenContent: options?.skipHiddenContent === true
     };
     
     const results = await browser.scripting.executeScript({
@@ -1595,7 +1595,7 @@ async function forwardGetArticleContent(tabId, selection, originalRequestId, opt
     const tabInfo = await browser.tabs.get(tabId).catch(() => null);
     const fallbackPageUrl = tabInfo?.url || null;
     const captureOptions = {
-      skipHiddenContent: options?.skipHiddenContent !== false
+      skipHiddenContent: options?.skipHiddenContent === true
     };
     
     const results = await browser.scripting.executeScript({

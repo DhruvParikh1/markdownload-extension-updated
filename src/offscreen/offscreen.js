@@ -1504,7 +1504,7 @@ function finalizeArticleMetadata(article, dom, pageUrl, math, recoveryApi, optio
     recoveredContent = restoredHeadingContent;
   }
 
-  if (options?.skipHiddenContent === false && typeof recoveryApi.restoreHiddenContentFromSource === 'function') {
+  if (options?.skipHiddenContent !== true && typeof recoveryApi.restoreHiddenContentFromSource === 'function') {
     const restoredHiddenContent = recoveryApi.restoreHiddenContentFromSource(dom, recoveredContent);
     if (restoredHiddenContent) {
       recoveredContent = restoredHiddenContent;
@@ -1579,7 +1579,7 @@ function finalizeArticleMetadata(article, dom, pageUrl, math, recoveryApi, optio
 
 function extractArticleWithRecovery(domString, options) {
   const recoveryApi = getReadabilityRecoveryApi();
-  const shouldIncludeHiddenContent = options?.skipHiddenContent === false;
+  const shouldIncludeHiddenContent = options?.skipHiddenContent !== true;
   const readabilityOptions = {
     skipHiddenContent: true
   };

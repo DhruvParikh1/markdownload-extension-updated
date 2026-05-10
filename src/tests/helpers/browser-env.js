@@ -156,7 +156,7 @@ function parseArticle(html, url = 'https://example.com', options = {}) {
 
   const env = createBrowserEnvironment();
   const recoveryApi = env.ReadabilityRecovery;
-  const shouldIncludeHiddenContent = options?.skipHiddenContent === false;
+  const shouldIncludeHiddenContent = options?.skipHiddenContent !== true;
   const readabilityOptions = {
     skipHiddenContent: true
   };

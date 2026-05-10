@@ -96,7 +96,7 @@ describe('Real Readability Integration', () => {
       expect(article.content).toContain('main content');
     });
 
-    test('should preserve hidden article content only when hidden-content skipping is disabled', () => {
+    test('should preserve hidden article content by default and skip it only when enabled', () => {
       const html = `
         <!DOCTYPE html>
         <html>
@@ -123,15 +123,15 @@ describe('Real Readability Integration', () => {
         </html>
       `;
 
-      const { article: defaultArticle } = parseArticle(html);
-      const { article: includeHiddenArticle } = parseArticle(html, { skipHiddenContent: false });
+      const { article: includeHiddenArticle } = parseArticle(html);
+      const { article: skipHiddenArticle } = parseArticle(html, { skipHiddenContent: true });
 
-      expect(defaultArticle).not.toBeNull();
-      expect(defaultArticle.content).not.toContain('ARIA hidden answer token');
-      expect(defaultArticle.content).not.toContain('Display none answer token');
       expect(includeHiddenArticle).not.toBeNull();
       expect(includeHiddenArticle.content).toContain('ARIA hidden answer token');
       expect(includeHiddenArticle.content).toContain('Display none answer token');
+      expect(skipHiddenArticle).not.toBeNull();
+      expect(skipHiddenArticle.content).not.toContain('ARIA hidden answer token');
+      expect(skipHiddenArticle.content).not.toContain('Display none answer token');
     });
 
     test('should include hidden accordion content without narrowing extraction to only the accordion body', () => {
