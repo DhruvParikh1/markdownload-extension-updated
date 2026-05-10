@@ -41,6 +41,7 @@
       backmatter: '',
       imagePrefix: '',
       disallowedChars: '',
+      disallowedCharReplacement: '',
       ...baseOptions,
       tableFormatting: baseOptions.tableFormatting
         ? { ...baseOptions.tableFormatting }
@@ -59,9 +60,9 @@
       options.backmatter = '';
     }
 
-    options.imagePrefix = textReplace(options.imagePrefix, article, options.disallowedChars)
+    options.imagePrefix = textReplace(options.imagePrefix, article, options.disallowedChars, options.disallowedCharReplacement)
       .split('/')
-      .map((segment) => generateValidFileName(segment, options.disallowedChars))
+      .map((segment) => generateValidFileName(segment, options.disallowedChars, options.disallowedCharReplacement))
       .join('/');
 
     return options;

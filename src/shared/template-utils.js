@@ -38,28 +38,45 @@
     return now.toISOString();
   }
 
-  function generateValidFileName(title, disallowedChars = null) {
+  const ILLEGAL_FILENAME_RE = /[\/\?<>\\:\*\|":]/g;
+  const NON_BREAKING_SPACE_RE = new RegExp('\u00A0', 'g');
+
+  function escapeRegExp(value) {
+    return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  function normalizeFileNameReplacement(replacement = '') {
+    if (!replacement) return '';
+    return String(replacement)
+      .replace(ILLEGAL_FILENAME_RE, '')
+      .replace(NON_BREAKING_SPACE_RE, ' ');
+  }
+
+  function generateValidFileName(title, disallowedChars = null, disallowedCharReplacement = '') {
     if (!title) return title;
     title = title + '';
 
-    const illegalRe = /[\/\?<>\\:\*\|":]/g;
-    let name = title.replace(illegalRe, '').replace(new RegExp('\u00A0', 'g'), ' ');
+    const replacement = normalizeFileNameReplacement(disallowedCharReplacement);
+    let name = title
+      .replace(ILLEGAL_FILENAME_RE, () => replacement)
+      .replace(NON_BREAKING_SPACE_RE, ' ');
 
     if (disallowedChars) {
       for (let c of disallowedChars) {
-        if (`[\\^$.|?*+()`.includes(c)) c = `\\${c}`;
-        name = name.replace(new RegExp(c, 'g'), '');
+        name = name.replace(new RegExp(escapeRegExp(c), 'g'), () => replacement);
       }
     }
 
     return name;
   }
 
-  function textReplace(string, article, disallowedChars = null) {
+  function textReplace(string, article, disallowedChars = null, disallowedCharReplacement = '') {
+    const shouldSanitizeValues = disallowedChars !== null && disallowedChars !== undefined;
+
     for (const key in article) {
       if (Object.prototype.hasOwnProperty.call(article, key) && key !== 'content') {
         let s = (article[key] || '') + '';
-        if (s && disallowedChars) s = generateValidFileName(s, disallowedChars);
+        if (s && shouldSanitizeValues) s = generateValidFileName(s, disallowedChars, disallowedCharReplacement);
 
         string = string.replace(new RegExp('{' + key + '}', 'g'), s)
           .replace(new RegExp('{' + key + ':kebab}', 'g'), s.replace(/ /g, '-').toLowerCase())

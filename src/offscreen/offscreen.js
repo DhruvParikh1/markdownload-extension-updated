@@ -445,7 +445,7 @@ async function handleContextMenuCopy(info, tabId, providedOptions = null) {
       tabId: tabId,
       vault: obsidianVault,
       folder: obsidianFolder,
-      title: generateValidFileName(title, resolved.options.disallowedChars)
+      title: generateValidFileName(title, resolved.options.disallowedChars, resolved.options.disallowedCharReplacement)
     });
     return true;
   }
@@ -466,7 +466,7 @@ async function handleContextMenuCopy(info, tabId, providedOptions = null) {
       tabId: tabId,
       vault: obsidianVault,
       folder: obsidianFolder,
-      title: generateValidFileName(title, resolved.options.disallowedChars)
+      title: generateValidFileName(title, resolved.options.disallowedChars, resolved.options.disallowedCharReplacement)
     });
     return true;
   }
@@ -549,8 +549,8 @@ function createEffectiveMarkdownOptions(article, providedOptions = null, downloa
     options.backmatter = '';
   }
 
-  options.imagePrefix = textReplace(options.imagePrefix, article, options.disallowedChars)
-    .split('/').map(s => generateValidFileName(s, options.disallowedChars)).join('/');
+  options.imagePrefix = textReplace(options.imagePrefix, article, options.disallowedChars, options.disallowedCharReplacement)
+    .split('/').map(s => generateValidFileName(s, options.disallowedChars, options.disallowedCharReplacement)).join('/');
 
   return options;
 }
@@ -1759,8 +1759,8 @@ async function getArticleFromContent(tabId, selection = false, options = null) {
 async function formatTitle(article, providedOptions = null) {
   const options = providedOptions || defaultOptions;
   
-  let title = textReplace(options.title, article, options.disallowedChars + '/');
-  title = title.split('/').map(s => generateValidFileName(s, options.disallowedChars)).join('/');
+  let title = textReplace(options.title, article, options.disallowedChars + '/', options.disallowedCharReplacement);
+  title = title.split('/').map(s => generateValidFileName(s, options.disallowedChars, options.disallowedCharReplacement)).join('/');
   return title;
 }
 
@@ -1772,8 +1772,8 @@ async function formatMdClipsFolder(article, providedOptions = null) {
 
   let mdClipsFolder = '';
   if (options.mdClipsFolder && options.downloadMode == 'downloadsApi') {
-    mdClipsFolder = textReplace(options.mdClipsFolder, article, options.disallowedChars);
-    mdClipsFolder = mdClipsFolder.split('/').map(s => generateValidFileName(s, options.disallowedChars)).join('/');
+    mdClipsFolder = textReplace(options.mdClipsFolder, article, options.disallowedChars, options.disallowedCharReplacement);
+    mdClipsFolder = mdClipsFolder.split('/').map(s => generateValidFileName(s, options.disallowedChars, options.disallowedCharReplacement)).join('/');
     if (!mdClipsFolder.endsWith('/')) mdClipsFolder += '/';
   }
 
@@ -1788,8 +1788,8 @@ async function formatObsidianFolder(article, providedOptions = null) {
 
   let obsidianFolder = '';
   if (options.obsidianFolder) {
-    obsidianFolder = textReplace(options.obsidianFolder, article, options.disallowedChars);
-    obsidianFolder = obsidianFolder.split('/').map(s => generateValidFileName(s, options.disallowedChars)).join('/');
+    obsidianFolder = textReplace(options.obsidianFolder, article, options.disallowedChars, options.disallowedCharReplacement);
+    obsidianFolder = obsidianFolder.split('/').map(s => generateValidFileName(s, options.disallowedChars, options.disallowedCharReplacement)).join('/');
     if (!obsidianFolder.endsWith('/')) obsidianFolder += '/';
   }
 
@@ -1799,16 +1799,18 @@ async function formatObsidianFolder(article, providedOptions = null) {
 /**
 * Replace placeholder strings with article info
 */
-function textReplace(string, article, disallowedChars = null) {
+function textReplace(string, article, disallowedChars = null, disallowedCharReplacement = '') {
  if (getTemplateUtilsApi()?.textReplace) {
-   return getTemplateUtilsApi().textReplace(string, article, disallowedChars);
+   return getTemplateUtilsApi().textReplace(string, article, disallowedChars, disallowedCharReplacement);
  }
+
+ const shouldSanitizeValues = disallowedChars !== null && disallowedChars !== undefined;
 
  // Same implementation as original
  for (const key in article) {
    if (article.hasOwnProperty(key) && key != "content") {
      let s = (article[key] || '') + '';
-     if (s && disallowedChars) s = generateValidFileName(s, disallowedChars);
+     if (s && shouldSanitizeValues) s = generateValidFileName(s, disallowedChars, disallowedCharReplacement);
 
      string = string.replace(new RegExp('{' + key + '}', 'g'), s)
        .replace(new RegExp('{' + key + ':kebab}', 'g'), s.replace(/ /g, '-').toLowerCase())
@@ -1855,9 +1857,20 @@ function textReplace(string, article, disallowedChars = null) {
 /**
 * Generate valid filename
 */
-function generateValidFileName(title, disallowedChars = null) {
+function escapeRegExp(value) {
+ return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function normalizeFileNameReplacement(replacement = '') {
+ if (!replacement) return '';
+ return String(replacement)
+   .replace(/[\/\?<>\\:\*\|":]/g, '')
+   .replace(new RegExp('\u00A0', 'g'), ' ');
+}
+
+function generateValidFileName(title, disallowedChars = null, disallowedCharReplacement = '') {
  if (getTemplateUtilsApi()?.generateValidFileName) {
-   return getTemplateUtilsApi().generateValidFileName(title, disallowedChars);
+   return getTemplateUtilsApi().generateValidFileName(title, disallowedChars, disallowedCharReplacement);
  }
 
  if (!title) return title;
@@ -1865,12 +1878,12 @@ function generateValidFileName(title, disallowedChars = null) {
  // Remove < > : " / \ | ? * 
  var illegalRe = /[\/\?<>\\:\*\|":]/g;
  // And non-breaking spaces
- var name = title.replace(illegalRe, "").replace(new RegExp('\u00A0', 'g'), ' ');
+ const replacement = normalizeFileNameReplacement(disallowedCharReplacement);
+ var name = title.replace(illegalRe, () => replacement).replace(new RegExp('\u00A0', 'g'), ' ');
  
  if (disallowedChars) {
    for (let c of disallowedChars) {
-     if (`[\\^$.|?*+()`.includes(c)) c = `\\${c}`;
-     name = name.replace(new RegExp(c, 'g'), '');
+     name = name.replace(new RegExp(escapeRegExp(c), 'g'), () => replacement);
    }
  }
  
@@ -1946,7 +1959,7 @@ function getImageFilename(src, options, prependFilePath = true) {
    filename = filename + '.idunno';
  }
 
- filename = generateValidFileName(filename, options.disallowedChars);
+ filename = generateValidFileName(filename, options.disallowedChars, options.disallowedCharReplacement);
 
  return imagePrefix + filename;
 }
@@ -2208,10 +2221,10 @@ async function downloadViaContentScript(markdown, title, tabId, imageList, mdCli
     let filename;
     if (mdClipsFolder) {
       // Flatten the path by including folder in filename
-      filename = `${mdClipsFolder.replace(/\//g, '_')}${generateValidFileName(title, options.disallowedChars)}.md`;
+      filename = `${mdClipsFolder.replace(/\//g, '_')}${generateValidFileName(title, options.disallowedChars, options.disallowedCharReplacement)}.md`;
       console.log(`🔗 [Offscreen] Flattening subfolder path: "${mdClipsFolder}" + "${title}" -> "${filename}"`);
     } else {
-      filename = generateValidFileName(title, options.disallowedChars) + ".md";
+      filename = generateValidFileName(title, options.disallowedChars, options.disallowedCharReplacement) + ".md";
     }
     
     const base64Content = base64EncodeUnicode(markdown);

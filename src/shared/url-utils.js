@@ -85,7 +85,11 @@
       filename = filename + '.idunno';
     }
 
-    filename = generateValidFileName(filename, effectiveOptions.disallowedChars);
+    filename = generateValidFileName(
+      filename,
+      effectiveOptions.disallowedChars,
+      effectiveOptions.disallowedCharReplacement
+    );
 
     return imagePrefix + filename;
   }

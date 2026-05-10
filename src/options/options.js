@@ -1464,6 +1464,7 @@ const saveOptions = e => {
         backmatter: document.querySelector("[name='backmatter']").value,
         title: document.querySelector("[name='title']").value,
         disallowedChars: document.querySelector("[name='disallowedChars']").value,
+        disallowedCharReplacement: document.querySelector("[name='disallowedCharReplacement']").value,
         includeTemplate: document.querySelector("[name='includeTemplate']").checked,
         saveAs: document.querySelector("[name='saveAs']").checked,
         downloadImages: document.querySelector("[name='downloadImages']").checked,
@@ -1700,6 +1701,7 @@ const setCurrentChoice = result => {
     document.querySelector("[name='backmatter']").value = options.backmatter;
     document.querySelector("[name='title']").value = options.title;
     document.querySelector("[name='disallowedChars']").value = options.disallowedChars;
+    document.querySelector("[name='disallowedCharReplacement']").value = options.disallowedCharReplacement || '';
     document.querySelector("[name='includeTemplate']").checked = options.includeTemplate;
     document.querySelector("[name='saveAs']").checked = options.saveAs;
     document.querySelector("[name='downloadImages']").checked = options.downloadImages;

@@ -222,17 +222,25 @@ describe('Download Filename Conflict Handling', () => {
 });
 
 describe('Empty Filename Handling', () => {
-  const generateValidFileName = (title, disallowedChars = null) => {
+  const escapeRegExp = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const normalizeFileNameReplacement = (replacement = '') => {
+    if (!replacement) return '';
+    return String(replacement)
+      .replace(/[\/\?<>\\:\*\|":]/g, '')
+      .replace(new RegExp('\u00A0', 'g'), ' ');
+  };
+
+  const generateValidFileName = (title, disallowedChars = null, disallowedCharReplacement = '') => {
     if (!title) return title;
     else title = title + '';
     
     var illegalRe = /[\/\?<>\\:\*\|":]/g;
-    var name = title.replace(illegalRe, "").replace(new RegExp('\u00A0', 'g'), ' ');
+    const replacement = normalizeFileNameReplacement(disallowedCharReplacement);
+    var name = title.replace(illegalRe, () => replacement).replace(new RegExp('\u00A0', 'g'), ' ');
     
     if (disallowedChars) {
       for (let c of disallowedChars) {
-        if (`[\\^$.|?*+()`.includes(c)) c = `\\${c}`;
-        name = name.replace(new RegExp(c, 'g'), '');
+        name = name.replace(new RegExp(escapeRegExp(c), 'g'), () => replacement);
       }
     }
     
@@ -289,6 +297,11 @@ describe('Empty Filename Handling', () => {
     test('should remove custom disallowed characters', () => {
       expect(generateValidFileName('Test [File]', '[]')).toBe('Test File');
       expect(generateValidFileName('Test#File^Name', '#^')).toBe('TestFileName');
+    });
+
+    test('should replace illegal and custom disallowed characters when configured', () => {
+      expect(generateValidFileName('Test/File:Name', '', '_')).toBe('Test_File_Name');
+      expect(generateValidFileName('Test#File^Name', '#^', '-')).toBe('Test-File-Name');
     });
 
     test('should handle empty input', () => {

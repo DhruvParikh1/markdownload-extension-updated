@@ -1073,12 +1073,13 @@ async function handleLibraryExportRequest(message, sender) {
   const files = libraryExportApi?.createLibraryExportFiles
     ? libraryExportApi.createLibraryExportFiles(items, {
       disallowedChars: options.disallowedChars,
+      disallowedCharReplacement: options.disallowedCharReplacement,
       generateValidFileName,
       ensureUniquePath: ensureUniqueBatchEntryPath,
       usedPaths
     })
     : items.map((item) => ({
-      filename: ensureUniqueBatchEntryPath(`${String(generateValidFileName(String(item?.title || '').trim() || 'Untitled', options.disallowedChars) || 'Untitled').trim() || 'Untitled'}.md`, usedPaths),
+      filename: ensureUniqueBatchEntryPath(`${String(generateValidFileName(String(item?.title || '').trim() || 'Untitled', options.disallowedChars, options.disallowedCharReplacement) || 'Untitled').trim() || 'Untitled'}.md`, usedPaths),
       content: String(item?.markdown || '')
     }));
   const zipFilename = libraryExportApi?.createLibraryExportZipFilename
@@ -1106,12 +1107,13 @@ async function handleLibraryExportIndividualRequest(message, sender) {
   const files = libraryExportApi?.createLibraryExportFiles
     ? libraryExportApi.createLibraryExportFiles(items, {
       disallowedChars: options.disallowedChars,
+      disallowedCharReplacement: options.disallowedCharReplacement,
       generateValidFileName,
       ensureUniquePath: ensureUniqueBatchEntryPath,
       usedPaths
     })
     : items.map((item) => ({
-      filename: ensureUniqueBatchEntryPath(`${String(generateValidFileName(String(item?.title || '').trim() || 'Untitled', options.disallowedChars) || 'Untitled').trim() || 'Untitled'}.md`, usedPaths),
+      filename: ensureUniqueBatchEntryPath(`${String(generateValidFileName(String(item?.title || '').trim() || 'Untitled', options.disallowedChars, options.disallowedCharReplacement) || 'Untitled').trim() || 'Untitled'}.md`, usedPaths),
       content: String(item?.markdown || '')
     }));
 
@@ -2465,12 +2467,14 @@ async function toggleSetting(setting, options = null) {
 /**
 * Replace placeholder strings with article info
 */
-function textReplace(string, article, disallowedChars = null) {
+function textReplace(string, article, disallowedChars = null, disallowedCharReplacement = '') {
+  const shouldSanitizeValues = disallowedChars !== null && disallowedChars !== undefined;
+
   // Replace values from article object
   for (const key in article) {
     if (article.hasOwnProperty(key) && key != "content") {
       let s = (article[key] || '') + '';
-      if (s && disallowedChars) s = generateValidFileName(s, disallowedChars);
+      if (s && shouldSanitizeValues) s = generateValidFileName(s, disallowedChars, disallowedCharReplacement);
 
       string = string.replace(new RegExp('{' + key + '}', 'g'), s)
         .replace(new RegExp('{' + key + ':kebab}', 'g'), s.replace(/ /g, '-').toLowerCase())
@@ -2517,18 +2521,29 @@ function textReplace(string, article, disallowedChars = null) {
 /**
 * Generate valid filename
 */
-function generateValidFileName(title, disallowedChars = null) {
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function normalizeFileNameReplacement(replacement = '') {
+  if (!replacement) return '';
+  return String(replacement)
+    .replace(/[\/\?<>\\:\*\|":]/g, '')
+    .replace(new RegExp('\u00A0', 'g'), ' ');
+}
+
+function generateValidFileName(title, disallowedChars = null, disallowedCharReplacement = '') {
   if (!title) return title;
   else title = title + '';
   // Remove < > : " / \ | ? * 
   var illegalRe = /[\/\?<>\\:\*\|":]/g;
   // And non-breaking spaces
-  var name = title.replace(illegalRe, "").replace(new RegExp('\u00A0', 'g'), ' ');
+  const replacement = normalizeFileNameReplacement(disallowedCharReplacement);
+  var name = title.replace(illegalRe, () => replacement).replace(new RegExp('\u00A0', 'g'), ' ');
   
   if (disallowedChars) {
     for (let c of disallowedChars) {
-      if (`[\\^$.|?*+()`.includes(c)) c = `\\${c}`;
-      name = name.replace(new RegExp(c, 'g'), '');
+      name = name.replace(new RegExp(escapeRegExp(c), 'g'), () => replacement);
     }
   }
   
@@ -2537,8 +2552,8 @@ function generateValidFileName(title, disallowedChars = null) {
 
 async function formatTitle(article, providedOptions = null) {
   const options = providedOptions || defaultOptions;
-  let title = textReplace(options.title, article, options.disallowedChars + '/');
-  title = title.split('/').map(s => generateValidFileName(s, options.disallowedChars)).join('/');
+  let title = textReplace(options.title, article, options.disallowedChars + '/', options.disallowedCharReplacement);
+  title = title.split('/').map(s => generateValidFileName(s, options.disallowedChars, options.disallowedCharReplacement)).join('/');
   return title;
 }
 
@@ -3024,7 +3039,7 @@ async function _handleDownloadDirectly(markdown, title, tabId, imageList = {}, m
       
       // Final fallback: content script method
       await ensureScripts(tabId);
-      const filename = mdClipsFolder + generateValidFileName(title, options.disallowedChars) + ".md";
+      const filename = mdClipsFolder + generateValidFileName(title, options.disallowedChars, options.disallowedCharReplacement) + ".md";
       const base64Content = base64EncodeUnicode(markdown);
       
       await browser.scripting.executeScript({
@@ -3045,7 +3060,7 @@ async function _handleDownloadDirectly(markdown, title, tabId, imageList = {}, m
     console.log(`🔗 [Service Worker] Using content script fallback`);
     
     await ensureScripts(tabId);
-    const filename = mdClipsFolder + generateValidFileName(title, options.disallowedChars) + ".md";
+    const filename = mdClipsFolder + generateValidFileName(title, options.disallowedChars, options.disallowedCharReplacement) + ".md";
     const base64Content = base64EncodeUnicode(markdown);
     
     await browser.scripting.executeScript({
@@ -3079,7 +3094,7 @@ function buildGeneratedDownloadFilename(title, mdClipsFolder = '', options = nul
 
   safeTitle = safeTitle
     .split('/')
-    .map((segment) => generateValidFileName(segment, effectiveOptions.disallowedChars))
+    .map((segment) => generateValidFileName(segment, effectiveOptions.disallowedChars, effectiveOptions.disallowedCharReplacement))
     .join('/');
 
   if (!safeTitle || safeTitle.replace(/\//g, '').trim() === '') {
@@ -3090,7 +3105,7 @@ function buildGeneratedDownloadFilename(title, mdClipsFolder = '', options = nul
   if (safeFolder) {
     safeFolder = safeFolder
       .split('/')
-      .map((segment) => generateValidFileName(segment, effectiveOptions.disallowedChars))
+      .map((segment) => generateValidFileName(segment, effectiveOptions.disallowedChars, effectiveOptions.disallowedCharReplacement))
       .join('/');
 
     if (safeFolder && !safeFolder.endsWith('/')) {
@@ -3291,7 +3306,7 @@ async function downloadMarkdown(markdown, title, tabId, imageList = {}, mdClipsF
     // Content link mode - use content script
     try {
       await ensureScripts(tabId);
-      const filename = mdClipsFolder + generateValidFileName(title, options.disallowedChars) + ".md";
+      const filename = mdClipsFolder + generateValidFileName(title, options.disallowedChars, options.disallowedCharReplacement) + ".md";
       const base64Content = base64EncodeUnicode(markdown);
       
       console.log(`🔗 [Service Worker] Using content script download: ${filename}`);

@@ -65,6 +65,7 @@ const baseOptions = {
   imagePrefix: '{pageTitle}/',
   mdClipsFolder: '',
   disallowedChars: '[]#^',
+  disallowedCharReplacement: '',
   downloadMode: 'downloadsApi',
   defaultExportType: 'markdown',
   defaultSendToTarget: 'chatgpt',

@@ -20,6 +20,39 @@ describe('Template utils helpers', () => {
 
       expect(cleaned).toBe('Funky file name');
     });
+
+    test('replaces reserved filename characters when configured', () => {
+      const cleaned = generateValidFileName('billing/plans:pro400', '', '_');
+
+      expect(cleaned).toBe('billing_plans_pro400');
+    });
+
+    test('replaces custom disallowed characters when configured', () => {
+      const cleaned = generateValidFileName('Example [Draft] #2', '[]#', '-');
+
+      expect(cleaned).toBe('Example -Draft- -2');
+    });
+
+    test('strips reserved characters from unsafe replacement text', () => {
+      const cleaned = generateValidFileName('billing/plans', '', '/');
+
+      expect(cleaned).toBe('billingplans');
+    });
+  });
+
+  describe('textReplace filename sanitization', () => {
+    const { textReplace } = require('../../shared/template-utils');
+
+    test('replaces reserved characters in substituted article values only', () => {
+      const result = textReplace(
+        '{pageTitle}/archive',
+        { pageTitle: 'Billing/Plans:Pro400' },
+        '/',
+        '_'
+      );
+
+      expect(result).toBe('Billing_Plans_Pro400/archive');
+    });
   });
 
   describe('formatDate fallback', () => {

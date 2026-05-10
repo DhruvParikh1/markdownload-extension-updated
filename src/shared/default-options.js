@@ -29,6 +29,7 @@ const defaultOptions = {
   imagePrefix: '{pageTitle}/',
   mdClipsFolder: null,
   disallowedChars: '[]#^',
+  disallowedCharReplacement: '',
   downloadMode: 'downloadsApi',
   defaultExportType: 'markdown',
   defaultSendToTarget: 'chatgpt',

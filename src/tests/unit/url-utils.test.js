@@ -91,7 +91,7 @@ describe('URL utils', () => {
       const filename = getImageFilename('https://example.com/photo.jpg', options, false);
 
       expect(filename).toBe('pics/photo.jpg');
-      expect(global.markSnipTemplateUtils.generateValidFileName).toHaveBeenCalledWith('photo.jpg', undefined);
+      expect(global.markSnipTemplateUtils.generateValidFileName).toHaveBeenCalledWith('photo.jpg', undefined, undefined);
     });
 
     test('adds fallback extension when the source lacks a dot', () => {
@@ -99,6 +99,20 @@ describe('URL utils', () => {
       const filename = getImageFilename('https://example.com/path/image', options);
 
       expect(filename).toContain('.idunno');
+    });
+
+    test('passes configured filename replacement to image filename sanitizer', () => {
+      const options = {
+        title: 'Notes',
+        imagePrefix: '',
+        disallowedChars: '#',
+        disallowedCharReplacement: '_'
+      };
+
+      getImageFilename('https://example.com/photo#draft.jpg', options, false);
+
+      expect(global.markSnipTemplateUtils.generateValidFileName)
+        .toHaveBeenLastCalledWith('photo#draft.jpg', '#', '_');
     });
 
     test('falls back to the bundled template utils when no runtime helper is present', () => {

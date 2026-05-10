@@ -68,10 +68,11 @@
     const ensureUniquePath = options.ensureUniquePath || ensureUniqueLibraryExportPath;
     const usedPaths = options.usedPaths instanceof Set ? options.usedPaths : new Set();
     const disallowedChars = options.disallowedChars || null;
+    const disallowedCharReplacement = options.disallowedCharReplacement || '';
 
     return (Array.isArray(items) ? items : []).map((item) => {
       const normalizedTitle = String(item?.title || '').trim() || 'Untitled';
-      const sanitizedTitle = String(generateValidFileName(normalizedTitle, disallowedChars) || '').trim() || 'Untitled';
+      const sanitizedTitle = String(generateValidFileName(normalizedTitle, disallowedChars, disallowedCharReplacement) || '').trim() || 'Untitled';
       const filename = ensureUniquePath(`${sanitizedTitle}.md`, usedPaths);
 
       return {

@@ -312,11 +312,17 @@
                 </div>
 
                 <!-- Disallowed chars -->
-                <div class="setting-card" data-setting-key="disallowedChars">
+                <div class="setting-card" data-setting-key="disallowedChars,disallowedCharReplacement"
+                    data-search-keywords="filename substitution,filename replacement,delimiter,separator,invalid characters,illegal characters">
                     <h3 class="card-title">Disallowed characters</h3>
-                    <p class="card-desc">Characters to strip from title/filename — in addition to <code>/</code>, <code>?</code>, <code>&lt;</code>, <code>&gt;</code>, <code>\</code>, <code>:</code>, <code>*</code>, <code>|</code>, <code>"</code></p>
+                    <p class="card-desc">Characters to strip or replace in title/filename - in addition to <code>/</code>, <code>?</code>, <code>&lt;</code>, <code>&gt;</code>, <code>\</code>, <code>:</code>, <code>*</code>, <code>|</code>, <code>"</code></p>
                     <div class="input-group">
+                        <label class="input-label" for="disallowedChars">Additional characters</label>
                         <input type="text" id="disallowedChars" name="disallowedChars" class="text-input" role="textbox" />
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label" for="disallowedCharReplacement">Replacement text</label>
+                        <input type="text" id="disallowedCharReplacement" name="disallowedCharReplacement" class="text-input" role="textbox" placeholder="Leave blank to strip" />
                     </div>
                 </div>
 
