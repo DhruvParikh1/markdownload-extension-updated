@@ -106,6 +106,24 @@ const liveClipCases = [
       '$P_{i,j,t_a}\\,\\text{and}\\,P_{i,j,t}$',
       '\\begin{cases}'
     ]
+  },
+  {
+    id: 'wechat-code-block-newlines',
+    name: 'clips a WeChat article with code block newlines via popup flow',
+    url: 'https://mp.weixin.qq.com/s/CZmoztuvC2mYssA2VVtWgg',
+    selector: 'h1',
+    titleContains: 'edu漏洞之若依nday漏洞复现',
+    snippets: [
+      'edu漏洞之若依nday漏洞复现',
+      '若依nday漏洞二'
+    ],
+    baseSnippets: [
+      'POST /system/user/list HTTP/1.1Host: xxxContent-Length: 153'
+    ],
+    currentSnippets: [
+      'POST /system/user/list HTTP/1.1\nHost: xxx\nContent-Length: 153',
+      'pageSize=10&pageNum=1&orderByColumn=createTime'
+    ]
   }
 ];
 

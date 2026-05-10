@@ -35,6 +35,20 @@ describe('Code Block Conversion', () => {
     expect(result).toContain('line 1\nline 2');
   });
 
+  test('preserves line breaks represented by br tags inside code spans', () => {
+    const dom = new JSDOM('<!doctype html><html><body></body></html>');
+    const node = dom.window.document.createElement('pre');
+    node.innerHTML = '<code><span>POST /system/user/list HTTP/1.1</span><span><br></span><span>Host: xxx</span><span><br></span><span>Content-Length: 153</span></code>';
+
+    const result = convertToFencedCodeBlock(node, {
+      fence: '```',
+      preserveCodeFormatting: false
+    });
+
+    expect(result).toContain('POST /system/user/list HTTP/1.1\nHost: xxx\nContent-Length: 153');
+    expect(result).not.toContain('HTTP/1.1Host: xxx');
+  });
+
   test('collapses runs of 3+ blank lines to 2 in non-preserve mode', () => {
     const dom = new JSDOM('<!doctype html><html><body></body></html>');
     const node = dom.window.document.createElement('pre');

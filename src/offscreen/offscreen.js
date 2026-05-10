@@ -576,17 +576,29 @@ async function convertArticleToMarkdown(article, downloadImages = null, provided
 
 function processCodeBlock(node, options) {
   const shouldAutoDetectLanguage = options.autoDetectCodeLanguage !== false;
+  const sharedApi = getCodeBlockUtilsApi();
 
   // If preserveCodeFormatting is enabled, return original HTML content
   if (options.preserveCodeFormatting) {
     return {
-      code: node.innerHTML,
+      code: sharedApi?.extractCodeText
+        ? sharedApi.extractCodeText(node, options)
+        : node.innerHTML,
       language: getCodeLanguage(node)
     };
   }
 
   // Get the raw text content
-  let code = node.textContent.trim();
+  let code;
+  if (sharedApi?.extractCodeText) {
+    code = sharedApi.extractCodeText(node, options).trim();
+  } else {
+    const clonedNode = node.cloneNode(true);
+    clonedNode.querySelectorAll('br-keep, br').forEach(br => {
+      br.replaceWith('\n');
+    });
+    code = clonedNode.textContent.trim();
+  }
   
   // Detect language
   let language = getCodeLanguage(node);

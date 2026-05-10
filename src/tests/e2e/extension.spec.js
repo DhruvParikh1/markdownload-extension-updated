@@ -12,7 +12,8 @@ const extensionPath = path.join(__dirname, '../..');
 const fixtureHost = 'https://fixtures.marksnip.test';
 const fixtureFiles = {
   '/extension/deterministic-article.html': path.join(__dirname, '../fixtures/e2e-pages/extension/deterministic-article.html'),
-  '/extension/mathml-article.html': path.join(__dirname, '../fixtures/e2e-pages/extension/mathml-article.html')
+  '/extension/mathml-article.html': path.join(__dirname, '../fixtures/e2e-pages/extension/mathml-article.html'),
+  '/extension/wechat-code-block.html': path.join(__dirname, '../fixtures/e2e-pages/extension/wechat-code-block.html')
 };
 
 async function installFixtureRoutes(context) {
@@ -269,6 +270,55 @@ test.describe('MarkSnip Extension E2E', () => {
       expect(markdown).toContain('$P_{i,j,t_a}$');
       expect(markdown).toContain('$$\nE=mc^{2}\n$$');
       expect(markdown).not.toContain('Pi,j,t_a');
+      expect(markdown).not.toContain('Error clipping the page');
+    } finally {
+      await popupPage.close().catch(() => {});
+      await fixturePage.close().catch(() => {});
+    }
+  });
+
+  test('clips span and br based code blocks with preserved newlines', async () => {
+    const fixturePage = await context.newPage();
+    const popupPage = await context.newPage();
+
+    try {
+      await fixturePage.goto(`${fixtureHost}/extension/wechat-code-block.html`);
+      await fixturePage.waitForLoadState('networkidle');
+      await expect(fixturePage.getByRole('heading', { name: 'WeChat Code Block Fixture' })).toBeVisible();
+      await fixturePage.bringToFront();
+
+      const fixtureTabId = await serviceWorker.evaluate(async ({ targetUrl }) => {
+        const tabs = await browser.tabs.query({});
+        return tabs.find((tab) => tab.url === targetUrl)?.id || null;
+      }, { targetUrl: fixturePage.url() });
+      expect(fixtureTabId).toBeTruthy();
+
+      await popupPage.goto(`chrome-extension://${extensionId}/popup/popup.html`);
+      await expect(popupPage.locator('#container')).toBeVisible();
+
+      await popupPage.evaluate(async (tabId) => {
+        await clipSite(tabId);
+      }, fixtureTabId);
+
+      await expect.poll(async () => {
+        return await popupPage.evaluate(() => {
+          if (typeof cm !== 'undefined' && cm?.getValue) {
+            return cm.getValue();
+          }
+          return document.getElementById('md')?.value || '';
+        });
+      }, { timeout: 45000 }).toContain('POST /system/user/list HTTP/1.1\nHost: xxx\nContent-Length: 153');
+
+      const markdown = await popupPage.evaluate(() => {
+        if (typeof cm !== 'undefined' && cm?.getValue) {
+          return cm.getValue();
+        }
+        return document.getElementById('md')?.value || '';
+      });
+
+      expect(markdown).toMatch(/```[^\n]*\nPOST \/system\/user\/list HTTP\/1\.1\nHost: xxx\nContent-Length: 153/);
+      expect(markdown).toContain('\n\npageSize=10&pageNum=1&orderByColumn=createTime\n```');
+      expect(markdown).not.toContain('HTTP/1.1Host: xxx');
       expect(markdown).not.toContain('Error clipping the page');
     } finally {
       await popupPage.close().catch(() => {});
