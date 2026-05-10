@@ -1962,6 +1962,7 @@ const defaultOptions = {
     includeTemplate: false,
     clipSelection: true,
     downloadImages: false,
+    skipHiddenContent: true,
     defaultExportType: 'markdown',
     defaultSendToTarget: DEFAULT_SEND_TO_TARGET,
     sendToCustomTargets: [],
@@ -3368,17 +3369,22 @@ const clipSite = id => {
             return null;
         }
 
+        const captureOptions = {
+            skipHiddenContent: currentOptions?.skipHiddenContent !== false
+        };
+
         return browser.scripting.executeScript({
             target: { tabId: tab.id },
-            func: async () => {
+            func: async (captureOptions) => {
                 if (typeof marksnipPrepareForCapture === 'function') {
                     await marksnipPrepareForCapture();
                 }
                 if (typeof getSelectionAndDom === 'function') {
-                    return getSelectionAndDom();
+                    return getSelectionAndDom(captureOptions);
                 }
                 return null;
-            }
+            },
+            args: [captureOptions]
         })
         .then((result) => {
             if (result && result[0]?.result) {

@@ -3,7 +3,11 @@ function notifyExtension() {
     browser.runtime.sendMessage({ type: "clip", dom: content});
 }
 
-function getHTMLOfDocument() {
+function shouldSkipHiddenContent(captureOptions = {}) {
+    return captureOptions?.skipHiddenContent !== false;
+}
+
+function getHTMLOfDocument(captureOptions = {}) {
     const clonedDocument = document.implementation.createHTMLDocument('');
     const clonedHtml = document.documentElement.cloneNode(true);
     clonedDocument.replaceChild(clonedHtml, clonedDocument.documentElement);
@@ -40,7 +44,7 @@ function getHTMLOfDocument() {
     }
 
     // remove hidden content from the cloned page only
-    if (document.body && clonedDocument.body) {
+    if (shouldSkipHiddenContent(captureOptions) && document.body && clonedDocument.body) {
         removeHiddenNodes(document.body, clonedDocument.body);
     }
 
@@ -283,9 +287,9 @@ async function marksnipPrepareForCapture() {
     }
 }
 
-function getSelectionAndDom() {
+function getSelectionAndDom(captureOptions = {}) {
     try {
-      const dom = getHTMLOfDocument();
+      const dom = getHTMLOfDocument(captureOptions);
       const selection = getHTMLOfSelection();
       
       if (!dom) {

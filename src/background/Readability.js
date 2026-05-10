@@ -64,6 +64,7 @@ function Readability(doc, options) {
   this._disableJSONLD = !!options.disableJSONLD;
   this._allowedVideoRegex = options.allowedVideoRegex || this.REGEXPS.videos;
   this._linkDensityModifier = options.linkDensityModifier || 0;
+  this._skipHiddenContent = options.skipHiddenContent !== false;
 
   // Start with all flags set
   this._flags =
@@ -2842,6 +2843,10 @@ Readability.prototype = {
   },
 
   _isProbablyVisible(node) {
+    if (!this._skipHiddenContent) {
+      return true;
+    }
+
     // Have to null-check node.style and node.className.includes to deal with SVG and MathML nodes.
     return (
       (!node.style || node.style.display != "none") &&

@@ -1480,6 +1480,7 @@ const saveOptions = e => {
             defaultOptions?.sendToMaxUrlLength
         ),
         turndownEscape: document.querySelector("[name='turndownEscape']").checked,
+        skipHiddenContent: document.querySelector("[name='skipHiddenContent']").checked,
         hashtagHandling: getCheckedValue(document.querySelectorAll("input[name='hashtagHandling']")),
         contextMenus: document.querySelector("[name='contextMenus']").checked,
         batchProcessingEnabled: document.querySelector("[name='batchProcessingEnabled']").checked,
@@ -1693,6 +1694,7 @@ const setCurrentChoice = result => {
 
     options.preserveCodeFormatting = options.preserveCodeFormatting === true;
     options.autoDetectCodeLanguage = options.autoDetectCodeLanguage !== false;
+    options.skipHiddenContent = options.skipHiddenContent !== false;
 
     document.querySelector("[name='frontmatter']").value = options.frontmatter;
     document.querySelector("[name='backmatter']").value = options.backmatter;
@@ -1704,6 +1706,7 @@ const setCurrentChoice = result => {
     document.querySelector("[name='imagePrefix']").value = options.imagePrefix;
     document.querySelector("[name='mdClipsFolder']").value = result.mdClipsFolder;
     document.querySelector("[name='turndownEscape']").checked = options.turndownEscape;
+    document.querySelector("[name='skipHiddenContent']").checked = options.skipHiddenContent;
     document.querySelector("[name='contextMenus']").checked = options.contextMenus;
     document.querySelector("[name='batchProcessingEnabled']").checked = options.batchProcessingEnabled !== false;
     document.querySelector("[name='obsidianIntegration']").checked = options.obsidianIntegration;

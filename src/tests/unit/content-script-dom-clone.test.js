@@ -52,6 +52,17 @@ describe('Content Script DOM Capture', () => {
     expect(document.head.querySelector('base')).toBeNull();
   });
 
+  test('captured DOM can retain hidden content when hidden-content skipping is disabled', () => {
+    const result = getSelectionAndDom({ skipHiddenContent: false });
+    const parser = new DOMParser();
+    const capturedDocument = parser.parseFromString(result.dom, 'text/html');
+
+    expect(capturedDocument.getElementById('hidden-img')).toBeTruthy();
+    expect(capturedDocument.getElementById('hidden-div')).toBeTruthy();
+    expect(capturedDocument.getElementById('visible-img')).toBeTruthy();
+    expect(capturedDocument.getElementById('visible-div')).toBeTruthy();
+  });
+
   test('marksnipPrepareForCapture should request MathJax sync for rendered nodes', async () => {
     const mathNode = document.createElement('mjx-container');
     document.getElementById('visible-div').appendChild(mathNode);

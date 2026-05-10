@@ -798,11 +798,11 @@ async function handleMessages(message, sender, _sendResponse) {
       break;
 
     case "get-tab-content":
-      await getTabContentForOffscreen(message.tabId, message.selection, message.requestId);
+      await getTabContentForOffscreen(message.tabId, message.selection, message.requestId, message.options);
       break;
 
     case "forward-get-article-content":
-      await forwardGetArticleContent(message.tabId, message.selection, message.originalRequestId);
+      await forwardGetArticleContent(message.tabId, message.selection, message.originalRequestId, message.options);
       break;
 
     case "execute-content-download":
@@ -1531,25 +1531,29 @@ async function handleBatchConversionInServiceWorker(message) {
  *  @param {boolean} selection - Whether to get selection or full content
  * @param {string} requestId - Request ID to track this specific request
  */
-async function getTabContentForOffscreen(tabId, selection, requestId) {
+async function getTabContentForOffscreen(tabId, selection, requestId, options = null) {
   try {
     console.log(`Getting tab content for ${tabId}`);
     await ensureScripts(tabId);
     const tabInfo = await browser.tabs.get(tabId).catch(() => null);
     const fallbackPageUrl = tabInfo?.url || null;
+    const captureOptions = {
+      skipHiddenContent: options?.skipHiddenContent !== false
+    };
     
     const results = await browser.scripting.executeScript({
       target: { tabId: tabId },
-      func: async () => {
+      func: async (captureOptions) => {
         if (typeof marksnipPrepareForCapture === 'function') {
           await marksnipPrepareForCapture();
         }
         if (typeof getSelectionAndDom === 'function') {
-          return getSelectionAndDom();
+          return getSelectionAndDom(captureOptions);
         }
         console.warn('getSelectionAndDom not found');
         return null;
-      }
+      },
+      args: [captureOptions]
     });
     
     console.log(`Script execution results for tab ${tabId}:`, results);
@@ -1585,23 +1589,27 @@ async function getTabContentForOffscreen(tabId, selection, requestId) {
  * @param {boolean} selection - Whether to get selection or full content
  * @param {string} originalRequestId - Original request ID to track this specific request
  * */
-async function forwardGetArticleContent(tabId, selection, originalRequestId) {
+async function forwardGetArticleContent(tabId, selection, originalRequestId, options = null) {
   try {
     await ensureScripts(tabId);
     const tabInfo = await browser.tabs.get(tabId).catch(() => null);
     const fallbackPageUrl = tabInfo?.url || null;
+    const captureOptions = {
+      skipHiddenContent: options?.skipHiddenContent !== false
+    };
     
     const results = await browser.scripting.executeScript({
       target: { tabId: tabId },
-      func: async () => {
+      func: async (captureOptions) => {
         if (typeof marksnipPrepareForCapture === 'function') {
           await marksnipPrepareForCapture();
         }
         if (typeof getSelectionAndDom === 'function') {
-          return getSelectionAndDom();
+          return getSelectionAndDom(captureOptions);
         }
         return null;
-      }
+      },
+      args: [captureOptions]
     });
     
     if (results && results[0]?.result) {
@@ -1611,7 +1619,8 @@ async function forwardGetArticleContent(tabId, selection, originalRequestId) {
         requestId: originalRequestId,
         dom: results[0].result.dom,
         selection: selection ? results[0].result.selection : null,
-        pageUrl: results[0].result.pageUrl || fallbackPageUrl
+        pageUrl: results[0].result.pageUrl || fallbackPageUrl,
+        options: options || defaultOptions
       });
     } else {
       throw new Error('Failed to get content from tab');

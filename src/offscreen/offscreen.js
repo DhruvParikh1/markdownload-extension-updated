@@ -131,8 +131,9 @@ function handleMessages(message, sender) {
     if (message.type === 'article-dom-data') {
       return (async () => {
         try {
+          const options = message.options || defaultOptions;
           const domForArticle = buildDomWithSelection(message.dom, message.selection, true);
-          const article = await getArticleFromDom(domForArticle, defaultOptions, message.pageUrl);
+          const article = await getArticleFromDom(domForArticle, options, message.pageUrl);
           
           // Send the article back to service worker
           await browser.runtime.sendMessage({
@@ -1482,7 +1483,7 @@ function prepareDomForReadability(dom, options, recoveryApi) {
   return { dom, math };
 }
 
-function finalizeArticleMetadata(article, dom, pageUrl, math, recoveryApi) {
+function finalizeArticleMetadata(article, dom, pageUrl, math, recoveryApi, options = defaultOptions, recoveryDom = dom) {
   if (!article) {
     throw new Error('Readability failed to extract article');
   }
@@ -1490,17 +1491,24 @@ function finalizeArticleMetadata(article, dom, pageUrl, math, recoveryApi) {
   let recoveredContent = article.content;
 
   const restoredTableContent = typeof recoveryApi.restoreSemanticTables === 'function'
-    ? recoveryApi.restoreSemanticTables(dom, recoveredContent)
+    ? recoveryApi.restoreSemanticTables(recoveryDom || dom, recoveredContent)
     : null;
   if (restoredTableContent) {
     recoveredContent = restoredTableContent;
   }
 
   const restoredHeadingContent = typeof recoveryApi.restoreMissingPrimaryHeadings === 'function'
-    ? recoveryApi.restoreMissingPrimaryHeadings(dom, recoveredContent)
+    ? recoveryApi.restoreMissingPrimaryHeadings(recoveryDom || dom, recoveredContent)
     : null;
   if (restoredHeadingContent) {
     recoveredContent = restoredHeadingContent;
+  }
+
+  if (options?.skipHiddenContent === false && typeof recoveryApi.restoreHiddenContentFromSource === 'function') {
+    const restoredHiddenContent = recoveryApi.restoreHiddenContentFromSource(dom, recoveredContent);
+    if (restoredHiddenContent) {
+      recoveredContent = restoredHiddenContent;
+    }
   }
 
   if (recoveredContent !== article.content) {
@@ -1571,22 +1579,40 @@ function finalizeArticleMetadata(article, dom, pageUrl, math, recoveryApi) {
 
 function extractArticleWithRecovery(domString, options) {
   const recoveryApi = getReadabilityRecoveryApi();
+  const shouldIncludeHiddenContent = options?.skipHiddenContent === false;
+  const readabilityOptions = {
+    skipHiddenContent: true
+  };
 
   const firstPassParser = new DOMParser();
   const firstPassDom = firstPassParser.parseFromString(domString, "text/html");
   const firstPassPrepared = prepareDomForReadability(firstPassDom, options, recoveryApi);
-  const firstPassReadabilityDom = firstPassPrepared.dom.cloneNode(true);
-  const firstPassArticle = new Readability(firstPassReadabilityDom).parse();
+  // Keep Readability scoring anchored to the visible page. Hidden content is restored
+  // into the selected article later so collapsible bodies do not become the article.
+  const firstPassRecoveryDom = shouldIncludeHiddenContent && typeof recoveryApi.cloneDocumentWithoutHiddenContent === 'function'
+    ? recoveryApi.cloneDocumentWithoutHiddenContent(firstPassPrepared.dom)
+    : firstPassPrepared.dom;
+  const firstPassReadabilityDom = firstPassRecoveryDom.cloneNode(true);
+  let firstPassArticle = new Readability(firstPassReadabilityDom, readabilityOptions).parse();
+  let firstPassUsesHiddenFallback = false;
+
+  if (!firstPassArticle?.content && shouldIncludeHiddenContent) {
+    const hiddenFallbackDom = firstPassPrepared.dom.cloneNode(true);
+    firstPassArticle = new Readability(hiddenFallbackDom, { skipHiddenContent: false }).parse();
+    firstPassUsesHiddenFallback = !!firstPassArticle?.content;
+  }
 
   if (!firstPassArticle?.content) {
     return null;
   }
 
-  const recoveryPlan = recoveryApi.analyzeNarrowExtraction(firstPassPrepared.dom, firstPassArticle.content);
+  const firstPassSourceDom = firstPassUsesHiddenFallback ? firstPassPrepared.dom : firstPassRecoveryDom;
+  const recoveryPlan = recoveryApi.analyzeNarrowExtraction(firstPassSourceDom, firstPassArticle.content);
   if (!recoveryPlan) {
     return {
       article: firstPassArticle,
       dom: firstPassPrepared.dom,
+      recoveryDom: firstPassSourceDom,
       math: firstPassPrepared.math
     };
   }
@@ -1594,22 +1620,27 @@ function extractArticleWithRecovery(domString, options) {
   const secondPassParser = new DOMParser();
   const secondPassDom = secondPassParser.parseFromString(domString, "text/html");
   const secondPassPrepared = prepareDomForReadability(secondPassDom, options, recoveryApi);
-  const recoveryResult = recoveryApi.applyRepeatedSectionPromotion(secondPassPrepared.dom, recoveryPlan);
+  const secondPassRecoveryDom = shouldIncludeHiddenContent && typeof recoveryApi.cloneDocumentWithoutHiddenContent === 'function'
+    ? recoveryApi.cloneDocumentWithoutHiddenContent(secondPassPrepared.dom)
+    : secondPassPrepared.dom;
+  const recoveryResult = recoveryApi.applyRepeatedSectionPromotion(secondPassRecoveryDom, recoveryPlan);
   if (!recoveryResult.changed) {
     return {
       article: firstPassArticle,
       dom: firstPassPrepared.dom,
+      recoveryDom: firstPassSourceDom,
       math: firstPassPrepared.math
     };
   }
 
   const recoveryFragment = recoveryApi.buildRepeatedSectionFragment
-    ? recoveryApi.buildRepeatedSectionFragment(secondPassPrepared.dom, recoveryPlan)
+    ? recoveryApi.buildRepeatedSectionFragment(secondPassRecoveryDom, recoveryPlan)
     : null;
   if (!recoveryFragment?.html) {
     return {
       article: firstPassArticle,
       dom: firstPassPrepared.dom,
+      recoveryDom: firstPassSourceDom,
       math: firstPassPrepared.math
     };
   }
@@ -1637,6 +1668,7 @@ function extractArticleWithRecovery(domString, options) {
     return {
       article: firstPassArticle,
       dom: firstPassPrepared.dom,
+      recoveryDom: firstPassSourceDom,
       math: firstPassPrepared.math
     };
   }
@@ -1644,6 +1676,7 @@ function extractArticleWithRecovery(domString, options) {
   return {
     article: secondPassArticle,
     dom: secondPassPrepared.dom,
+    recoveryDom: secondPassRecoveryDom,
     math: secondPassPrepared.math
   };
 }
@@ -1663,7 +1696,9 @@ async function getArticleFromDom(domString, options, pageUrl = null) {
     extracted.dom,
     pageUrl,
     extracted.math,
-    getReadabilityRecoveryApi()
+    getReadabilityRecoveryApi(),
+    options,
+    extracted.recoveryDom
   );
 }
 
@@ -1700,7 +1735,8 @@ async function getArticleFromContent(tabId, selection = false, options = null) {
       type: "get-tab-content",
       tabId: tabId,
       selection: selection,
-      requestId: requestId
+      requestId: requestId,
+      options: options || defaultOptions
     });
     
     const articlePayload = await resultPromise;
@@ -2510,14 +2546,15 @@ async function downloadBatchZip(message) {
  */
 async function handleGetArticleContent(message) {
   try {
-    const { tabId, selection, requestId } = message;
+    const { tabId, selection, requestId, options } = message;
     
     // Forward the request to the service worker
     await browser.runtime.sendMessage({
       type: 'forward-get-article-content',
       originalRequestId: requestId,
       tabId: tabId,
-      selection: selection
+      selection: selection,
+      options: options || defaultOptions
     });
     
   } catch (error) {

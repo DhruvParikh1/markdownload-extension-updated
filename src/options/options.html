@@ -1300,6 +1300,24 @@ const helloWorld = () => {
                     </div>
                 </div>
 
+                <!-- Hidden Content -->
+                <div class="setting-card" id="skipHiddenContent-container" data-setting-key="skipHiddenContent" data-search-keywords="hidden content accordion collapsed aria-hidden display none">
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <label class="toggle-label-text" for="skipHiddenContent">Skip Hidden Content</label>
+                            <p class="toggle-hint">
+                                Ignore content hidden with CSS, the <code>hidden</code> attribute, or
+                                <code>aria-hidden="true"</code>. Disable this to include collapsed accordions
+                                and other hidden DOM content in clips.
+                            </p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input name="skipHiddenContent" id="skipHiddenContent" type="checkbox" />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
                 <!-- Hashtag Handling -->
                 <div class="setting-card" id="hashtagHandling-container" data-setting-key="hashtagHandling">
                     <h3 class="card-title">Hashtag Handling</h3>
