@@ -87,6 +87,34 @@ An issue requests an option to include `aria-hidden` content. The sample page ha
 
 ---
 
+## Live Snapshot Verification
+
+For every MarkSnip bug fix or feature, include the live markdown snapshot workflow in the verification pass unless the change clearly cannot affect clipping, extraction, conversion, options, popup capture, service-worker routing, or browser output. If it is skipped, state the concrete reason.
+
+Default live snapshot command:
+
+```powershell
+npm.cmd run verify:live-snapshots
+```
+
+When a fix is option-dependent, also run the relevant option mode. For hidden-content changes, run:
+
+```powershell
+npm.cmd run verify:live-snapshots:hidden
+```
+
+When an issue includes a public reproduction URL, add that URL as a case in `src/tests/helpers/live-public-cases.js` and run that case explicitly:
+
+```powershell
+npm.cmd run snapshot:live-markdown -- --cases <case-id>
+```
+
+Review the generated `src/test-artifacts/live-markdown-comparisons/<run-id>/diff/summary.json` before finalizing. A diff is not automatically a failure, but it must be understood and described as intentional or risky.
+
+If live network or browser access is unavailable, do not pretend the verification passed. Say that the live snapshot workflow could not be run, include the blocker, and rely on the narrower local tests only as a fallback.
+
+---
+
 ## Summary
 
 When you receive a bug report or feature request:

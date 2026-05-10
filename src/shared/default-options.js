@@ -7,7 +7,7 @@ const defaultOptions = {
   fence: "```",
   preserveCodeFormatting: false,
   autoDetectCodeLanguage: true,
-  skipHiddenContent: false,
+  skipHiddenContent: true,
   emDelimiter: "_",
   strongDelimiter: "**",
   linkStyle: "inlined",

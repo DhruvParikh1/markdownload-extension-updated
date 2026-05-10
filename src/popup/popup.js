@@ -1962,7 +1962,7 @@ const defaultOptions = {
     includeTemplate: false,
     clipSelection: true,
     downloadImages: false,
-    skipHiddenContent: true,
+    skipHiddenContent: false,
     defaultExportType: 'markdown',
     defaultSendToTarget: DEFAULT_SEND_TO_TARGET,
     sendToCustomTargets: [],
