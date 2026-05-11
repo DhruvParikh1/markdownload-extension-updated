@@ -256,6 +256,74 @@ test.describe('Command And Download Regression E2E', () => {
     );
   });
 
+  test('does not open the Firefox fallback offscreen tab when popup bridge is ready', async () => {
+    const result = await serviceWorker.evaluate(async () => {
+      if (typeof self.handleClipRequest !== 'function') {
+        throw new Error('Missing function in service worker: handleClipRequest');
+      }
+
+      const originals = {
+        hasNativeOffscreenDocumentSupport: self.hasNativeOffscreenDocumentSupport,
+        getOptions: self.getOptions,
+        tabsCreate: browser.tabs.create,
+        tabsQuery: browser.tabs.query,
+        tabsGet: browser.tabs.get,
+        sendMessage: browser.runtime.sendMessage,
+      };
+
+      const createdTabs = [];
+      const sentMessages = [];
+
+      try {
+        self.hasNativeOffscreenDocumentSupport = () => false;
+        self.getOptions = async () => ({ ...defaultOptions });
+        browser.tabs.query = async () => [];
+        browser.tabs.get = async () => {
+          throw new Error('No fallback tab');
+        };
+        browser.tabs.create = async (createProperties) => {
+          createdTabs.push(createProperties);
+          return { id: 9001, ...createProperties };
+        };
+        browser.runtime.sendMessage = async (message) => {
+          sentMessages.push(message);
+          return { ok: true };
+        };
+
+        self.markFirefoxOffscreenPageReady({
+          url: browser.runtime.getURL('offscreen/offscreen.html')
+        });
+
+        await handleClipRequest({
+          type: 'clip',
+          dom: '<!doctype html><html><body><article>Fixture</article></body></html>',
+          selection: null,
+          pageUrl: 'https://example.com/',
+          offscreenBridgeReady: true
+        }, 123);
+      } finally {
+        self.hasNativeOffscreenDocumentSupport = originals.hasNativeOffscreenDocumentSupport;
+        self.getOptions = originals.getOptions;
+        browser.tabs.create = originals.tabsCreate;
+        browser.tabs.query = originals.tabsQuery;
+        browser.tabs.get = originals.tabsGet;
+        browser.runtime.sendMessage = originals.sendMessage;
+      }
+
+      return { createdTabs, sentMessages };
+    });
+
+    expect(result.createdTabs).toEqual([]);
+    expect(result.sentMessages).toHaveLength(1);
+    expect(result.sentMessages[0]).toEqual(
+      expect.objectContaining({
+        target: 'offscreen',
+        type: 'process-content',
+        tabId: 123,
+      }),
+    );
+  });
+
   test('uses content script fallback path for contentLink mode', async () => {
     const result = await serviceWorker.evaluate(async () => {
       if (typeof self.downloadMarkdown !== 'function') {
@@ -408,6 +476,138 @@ test.describe('Command And Download Regression E2E', () => {
       {
         delta: { copies: 1, exports: 1 },
         options: { tabId: 902 },
+      },
+    ]);
+  });
+
+  test('uses Obsidian URI data transport without clipboard copy when payload fits', async () => {
+    const result = await serviceWorker.evaluate(async () => {
+      if (typeof self.handleObsidianIntegration !== 'function') {
+        throw new Error('Missing function in service worker: handleObsidianIntegration');
+      }
+
+      const originals = {
+        ensureScripts: self.ensureScripts,
+        executeScript: browser.scripting.executeScript,
+        tabsUpdate: browser.tabs.update,
+        recordNotificationMetrics: self.recordNotificationMetrics,
+      };
+
+      const updates = [];
+      const metricCalls = [];
+      let ensureScriptsCount = 0;
+      let executeScriptCount = 0;
+
+      try {
+        self.ensureScripts = async () => {
+          ensureScriptsCount += 1;
+        };
+        browser.scripting.executeScript = async () => {
+          executeScriptCount += 1;
+          return [{ result: true }];
+        };
+        browser.tabs.update = async (payload) => {
+          updates.push(payload);
+          return { id: 1, ...payload };
+        };
+        self.recordNotificationMetrics = async (delta, options) => {
+          metricCalls.push({ delta, options });
+          return { ok: true };
+        };
+
+        await handleObsidianIntegration({
+          markdown: '# Short note\n\nBody',
+          tabId: 321,
+          vault: 'Research Vault',
+          folder: 'Clips',
+          title: 'Short Note'
+        });
+      } finally {
+        self.ensureScripts = originals.ensureScripts;
+        browser.scripting.executeScript = originals.executeScript;
+        browser.tabs.update = originals.tabsUpdate;
+        self.recordNotificationMetrics = originals.recordNotificationMetrics;
+      }
+
+      return { updates, metricCalls, ensureScriptsCount, executeScriptCount };
+    });
+
+    expect(result.ensureScriptsCount).toBe(0);
+    expect(result.executeScriptCount).toBe(0);
+    expect(result.updates).toHaveLength(1);
+    expect(result.updates[0].url).toContain('obsidian://adv-uri?');
+    expect(result.updates[0].url).toContain('data=%23%20Short%20note%0A%0ABody');
+    expect(result.updates[0].url).not.toContain('clipboard=true');
+    expect(result.metricCalls).toEqual([
+      {
+        delta: { obsidianSends: 1, exports: 1 },
+        options: { tabId: 321 },
+      },
+    ]);
+  });
+
+  test('falls back to Obsidian clipboard transport for oversized payloads', async () => {
+    const result = await serviceWorker.evaluate(async () => {
+      if (typeof self.handleObsidianIntegration !== 'function') {
+        throw new Error('Missing function in service worker: handleObsidianIntegration');
+      }
+
+      const originals = {
+        ensureScripts: self.ensureScripts,
+        executeScript: browser.scripting.executeScript,
+        tabsUpdate: browser.tabs.update,
+        recordNotificationMetrics: self.recordNotificationMetrics,
+      };
+
+      const updates = [];
+      const metricCalls = [];
+      let ensureScriptsCount = 0;
+      let executeScriptCount = 0;
+
+      try {
+        self.ensureScripts = async () => {
+          ensureScriptsCount += 1;
+        };
+        browser.scripting.executeScript = async () => {
+          executeScriptCount += 1;
+          return [{ result: true }];
+        };
+        browser.tabs.update = async (payload) => {
+          updates.push(payload);
+          return { id: 1, ...payload };
+        };
+        self.recordNotificationMetrics = async (delta, options) => {
+          metricCalls.push({ delta, options });
+          return { ok: true };
+        };
+
+        await handleObsidianIntegration({
+          markdown: 'Long markdown body '.repeat(1000),
+          tabId: 654,
+          vault: 'Research Vault',
+          folder: 'Clips',
+          title: 'Large Note'
+        });
+      } finally {
+        self.ensureScripts = originals.ensureScripts;
+        browser.scripting.executeScript = originals.executeScript;
+        browser.tabs.update = originals.tabsUpdate;
+        self.recordNotificationMetrics = originals.recordNotificationMetrics;
+      }
+
+      return { updates, metricCalls, ensureScriptsCount, executeScriptCount };
+    });
+
+    expect(result.ensureScriptsCount).toBe(1);
+    expect(result.executeScriptCount).toBe(1);
+    expect(result.updates).toHaveLength(1);
+    expect(result.updates[0].url).toContain('obsidian://adv-uri?');
+    expect(result.updates[0].url).toContain('clipboard=true');
+    expect(result.updates[0].url).not.toContain('data=');
+    expect(result.metricCalls).toEqual([
+      {
+        delta: { obsidianSends: 1, exports: 1 },
+        options: { tabId: 654 },
       },
     ]);
   });

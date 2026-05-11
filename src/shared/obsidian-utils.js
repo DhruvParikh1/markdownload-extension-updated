@@ -60,6 +60,73 @@
     return nextOptions;
   }
 
+  const DEFAULT_OBSIDIAN_DATA_URI_MAX_LENGTH = 6000;
+
+  function ensureMarkdownExtension(title) {
+    const value = String(title || 'Untitled').trim() || 'Untitled';
+    return value.endsWith('.md') ? value : `${value}.md`;
+  }
+
+  function buildObsidianFilepath(folder, title) {
+    let folderPath = String(folder || '');
+    if (folderPath && !folderPath.endsWith('/')) {
+      folderPath += '/';
+    }
+
+    return folderPath + ensureMarkdownExtension(title);
+  }
+
+  function encodeQueryParameter(key, value) {
+    return `${encodeURIComponent(key)}=${encodeURIComponent(String(value ?? ''))}`;
+  }
+
+  function buildAdvancedUri(parameters) {
+    return `obsidian://adv-uri?${Object.entries(parameters)
+      .map(([key, value]) => encodeQueryParameter(key, value))
+      .join('&')}`;
+  }
+
+  function createObsidianAdvancedUri({
+    vault = '',
+    folder = '',
+    title = 'Untitled',
+    markdown = '',
+    maxDataUriLength = DEFAULT_OBSIDIAN_DATA_URI_MAX_LENGTH
+  } = {}) {
+    const filepath = buildObsidianFilepath(folder, title);
+    const baseParameters = {
+      vault,
+      filepath,
+      mode: 'new'
+    };
+
+    const dataUri = buildAdvancedUri({
+      ...baseParameters,
+      data: markdown
+    });
+
+    if (markdown && dataUri.length <= maxDataUriLength) {
+      return {
+        uri: dataUri,
+        transport: 'data',
+        filepath,
+        length: dataUri.length
+      };
+    }
+
+    const clipboardUri = buildAdvancedUri({
+      ...baseParameters,
+      clipboard: 'true'
+    });
+
+    return {
+      uri: clipboardUri,
+      transport: 'clipboard',
+      filepath,
+      length: clipboardUri.length
+    };
+  }
+
   function createObsidianSourceImageMap(imageList = {}) {
     const sourceImageMap = {};
 
@@ -105,6 +172,9 @@
   }
 
   const api = {
+    DEFAULT_OBSIDIAN_DATA_URI_MAX_LENGTH,
+    buildObsidianFilepath,
+    createObsidianAdvancedUri,
     createObsidianSourceImageMap,
     getObsidianTransportOptions,
     prepareMarkdownForObsidian

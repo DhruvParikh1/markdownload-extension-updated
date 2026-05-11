@@ -10,6 +10,7 @@ if (typeof importScripts === 'function') {
     'shared/default-options.js',
     'shared/template-utils.js',
     'shared/agent-bridge-state.js',
+    'shared/obsidian-utils.js',
     'shared/library-export.js',
     'shared/context-menus.js',
     'shared/download-tracker.js'
@@ -786,7 +787,7 @@ async function handleMessages(message, sender, _sendResponse) {
       }
       break;
     case "offscreen-ready":
-      // The offscreen document is ready - no action needed
+      markFirefoxOffscreenPageReady(sender);
       break;
     case "markdown-result":
       await handleMarkdownResult(message);
@@ -1766,13 +1767,52 @@ async function handleImageDownloadsContentScript(message) {
  * Track the Firefox offscreen extension page tab
  */
 let firefoxOffscreenTabId = null;
+let firefoxOffscreenPageReadyAt = 0;
+const FIREFOX_OFFSCREEN_READY_RECENT_MS = 5000;
+
+function hasNativeOffscreenDocumentSupport() {
+  return typeof chrome !== 'undefined' && !!chrome.offscreen;
+}
+
+function markFirefoxOffscreenPageReady(sender = {}) {
+  const senderUrl = sender?.url || '';
+  if (!senderUrl.includes('/offscreen/offscreen.html')) {
+    return;
+  }
+
+  firefoxOffscreenPageReadyAt = Date.now();
+  if (Number.isInteger(sender?.tab?.id)) {
+    firefoxOffscreenTabId = sender.tab.id;
+  }
+}
+
+function hasRecentFirefoxOffscreenPageReady() {
+  return firefoxOffscreenPageReadyAt > 0 &&
+    Date.now() - firefoxOffscreenPageReadyAt < FIREFOX_OFFSCREEN_READY_RECENT_MS;
+}
+
+async function waitForFirefoxOffscreenBridge(timeoutMs = 1500) {
+  const startedAt = Date.now();
+  while (Date.now() - startedAt < timeoutMs) {
+    if (firefoxOffscreenPageReadyAt > 0) {
+      return true;
+    }
+    await new Promise(resolve => setTimeout(resolve, 50));
+  }
+  return firefoxOffscreenPageReadyAt > 0;
+}
+
+self.hasNativeOffscreenDocumentSupport = hasNativeOffscreenDocumentSupport;
+self.markFirefoxOffscreenPageReady = markFirefoxOffscreenPageReady;
 
 /**
  * Ensures the offscreen document exists (Chrome) or an equivalent
  * extension page is loaded (Firefox).
  */
-async function ensureOffscreenDocumentExists() {
-  if (typeof chrome !== 'undefined' && chrome.offscreen) {
+async function ensureOffscreenDocumentExists(options = {}) {
+  const allowFirefoxTab = options.allowFirefoxTab !== false;
+
+  if (self.hasNativeOffscreenDocumentSupport()) {
     // Chrome — use native offscreen API
     const offscreenUrl = chrome.runtime.getURL('offscreen/offscreen.html');
     const existingContexts = await chrome.runtime.getContexts({
@@ -1788,6 +1828,15 @@ async function ensureOffscreenDocumentExists() {
       justification: 'HTML to Markdown conversion'
     });
   } else {
+    if (!allowFirefoxTab) {
+      await waitForFirefoxOffscreenBridge();
+      return;
+    }
+
+    if (hasRecentFirefoxOffscreenPageReady()) {
+      return;
+    }
+
     // Firefox — load offscreen.html as a regular extension page.
     // Check if we already have a live tab for it.
     if (firefoxOffscreenTabId != null) {
@@ -1824,7 +1873,10 @@ async function ensureOffscreenDocumentExists() {
  * Handle clip request — uses offscreen document on both Chrome and Firefox.
  */
 async function handleClipRequest(message, tabId) {
-  await ensureOffscreenDocumentExists();
+  const allowFirefoxTab = message?.offscreenBridgeReady !== true;
+  await ensureOffscreenDocumentExists({
+    allowFirefoxTab
+  });
 
   const options = await getOptions();
   const requestId = generateRequestId();
@@ -1834,7 +1886,7 @@ async function handleClipRequest(message, tabId) {
     pageUrl = tabInfo?.url || null;
   }
 
-  await browser.runtime.sendMessage({
+  const processMessage = {
     target: 'offscreen',
     type: 'process-content',
     requestId: requestId,
@@ -1844,7 +1896,19 @@ async function handleClipRequest(message, tabId) {
     },
     tabId: tabId,
     options: options
-  });
+  };
+
+  try {
+    await browser.runtime.sendMessage(processMessage);
+  } catch (error) {
+    if (self.hasNativeOffscreenDocumentSupport() || !allowFirefoxTab) {
+      throw error;
+    }
+
+    firefoxOffscreenPageReadyAt = 0;
+    await ensureOffscreenDocumentExists({ allowFirefoxTab: true });
+    await browser.runtime.sendMessage(processMessage);
+  }
 }
 
 /**
@@ -2348,25 +2412,22 @@ async function handleStorageChange(changes, areaName) {
 /**
  * Open Obsidian URI in current tab
  */
-async function openObsidianUri(vault, folder, title) {
+async function openObsidianUri(vault, folder, title, markdown = '', options = {}) {
   try {
-    // Ensure folder ends with / if it's not empty
-    let folderPath = folder || '';
-    if (folderPath && !folderPath.endsWith('/')) {
-      folderPath += '/';
-    }
+    const uriInfo = markSnipObsidian.createObsidianAdvancedUri({
+      vault,
+      folder,
+      title,
+      markdown,
+      maxDataUriLength: options.maxDataUriLength
+    });
 
-    // Ensure title has .md extension
-    const filename = title.endsWith('.md') ? title : title + '.md';
-    const filepath = folderPath + filename;
-
-    // Use correct URI scheme: adv-uri (not advanced-uri)
-    const uri = `obsidian://adv-uri?vault=${encodeURIComponent(vault)}&filepath=${encodeURIComponent(filepath)}&clipboard=true&mode=new`;
-
-    console.log('Opening Obsidian URI:', uri);
-    await browser.tabs.update({ url: uri });
+    console.log(`Opening Obsidian URI via ${uriInfo.transport} transport:`, uriInfo.uri);
+    await browser.tabs.update({ url: uriInfo.uri });
+    return uriInfo;
   } catch (error) {
     console.error('Failed to open Obsidian URI:', error);
+    throw error;
   }
 }
 
@@ -2377,13 +2438,29 @@ async function handleObsidianIntegration(message) {
   const { markdown, tabId, vault, folder, title } = message;
 
   try {
+    const uriInfo = markSnipObsidian.createObsidianAdvancedUri({
+      vault,
+      folder,
+      title,
+      markdown
+    });
+
+    if (uriInfo.transport === 'data') {
+      console.log('[Service Worker] Using Obsidian URI data transport; clipboard copy skipped.');
+      await browser.tabs.update({ url: uriInfo.uri });
+      await recordNotificationMetrics({ obsidianSends: 1, exports: 1 }, {
+        tabId
+      });
+      return;
+    }
+
     console.log('[Service Worker] Copying markdown to clipboard in tab:', tabId);
 
     // Ensure content script is loaded
     await ensureScripts(tabId);
 
     // Copy to clipboard using execCommand (doesn't require user gesture)
-    await browser.scripting.executeScript({
+    const copyResults = await browser.scripting.executeScript({
       target: { tabId: tabId },
       func: (markdownText) => {
         // Use execCommand directly since Clipboard API requires user gesture
@@ -2411,6 +2488,10 @@ async function handleObsidianIntegration(message) {
       args: [markdown]
     });
 
+    if (copyResults?.[0]?.result !== true) {
+      throw new Error('Failed to copy markdown for Obsidian clipboard transport.');
+    }
+
     console.log('[Service Worker] Clipboard copy initiated, waiting for clipboard to sync...');
 
     // Wait for clipboard to fully sync to system before navigating away
@@ -2421,7 +2502,7 @@ async function handleObsidianIntegration(message) {
     console.log('[Service Worker] Opening Obsidian URI...');
 
     // Open Obsidian URI
-    await openObsidianUri(vault, folder, title);
+    await browser.tabs.update({ url: uriInfo.uri });
     await recordNotificationMetrics({ obsidianSends: 1, exports: 1 }, {
       tabId
     });

@@ -3356,9 +3356,56 @@ const showOrHideClipOption = selection => {
     }
 }
 
+let popupOffscreenBridgePromise = null;
+
+function hasNativeOffscreenDocumentSupport() {
+    return typeof chrome !== 'undefined' && !!chrome.offscreen;
+}
+
+function ensurePopupOffscreenBridge() {
+    if (hasNativeOffscreenDocumentSupport()) {
+        return Promise.resolve(false);
+    }
+
+    if (popupOffscreenBridgePromise) {
+        return popupOffscreenBridgePromise;
+    }
+
+    popupOffscreenBridgePromise = new Promise((resolve) => {
+        const existingFrame = document.getElementById('marksnip-offscreen-bridge');
+        if (existingFrame) {
+            resolve(true);
+            return;
+        }
+
+        const frame = document.createElement('iframe');
+        let settled = false;
+        const finish = (ready) => {
+            if (settled) return;
+            settled = true;
+            resolve(ready);
+        };
+
+        frame.id = 'marksnip-offscreen-bridge';
+        frame.src = browser.runtime.getURL('offscreen/offscreen.html');
+        frame.setAttribute('aria-hidden', 'true');
+        frame.tabIndex = -1;
+        frame.style.cssText = 'position:absolute;width:0;height:0;border:0;opacity:0;pointer-events:none;';
+        frame.addEventListener('load', () => {
+            setTimeout(() => finish(true), 50);
+        }, { once: true });
+        frame.addEventListener('error', () => finish(true), { once: true });
+
+        document.body.appendChild(frame);
+        setTimeout(() => finish(true), 2500);
+    });
+
+    return popupOffscreenBridgePromise;
+}
+
 // Updated clipSite function to use scripting API
 const clipSite = id => {
-    return resolveClipTargetTab(id).then((tab) => {
+    return resolveClipTargetTab(id).then(async (tab) => {
         if (!tab?.id) {
             throw new Error("No active tab found");
         }
@@ -3372,6 +3419,7 @@ const clipSite = id => {
         const captureOptions = {
             skipHiddenContent: currentOptions?.skipHiddenContent === true
         };
+        const offscreenBridgeReady = await ensurePopupOffscreenBridge();
 
         return browser.scripting.executeScript({
             target: { tabId: tab.id },
@@ -3393,7 +3441,8 @@ const clipSite = id => {
                     type: "clip",
                     dom: result[0].result.dom,
                     selection: result[0].result.selection,
-                    pageUrl: result[0].result.pageUrl || null
+                    pageUrl: result[0].result.pageUrl || null,
+                    offscreenBridgeReady
                 }
                 if (currentOptions) {
                     return browser.runtime.sendMessage({

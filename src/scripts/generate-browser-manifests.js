@@ -3,20 +3,21 @@ const path = require("path");
 
 const SRC_DIR = path.resolve(__dirname, "..");
 const BUILD_ROOT = path.join(SRC_DIR, ".build");
-const CHROME_DIR = path.join(BUILD_ROOT, "chrome");
-const FIREFOX_DIR = path.join(BUILD_ROOT, "firefox");
 
 const EXCLUDED_NAMES = new Set([
   "node_modules",
   "tests",
   "web-ext-artifacts",
   ".build",
+  "coverage",
   ".gitignore",
   "package.json",
   "package-lock.json",
   "jest.config.js",
   "playwright.config.js",
-  "scripts"
+  "scripts",
+  "test-artifacts",
+  "test-results"
 ]);
 
 function copyDirectory(sourceDir, targetDir) {
@@ -45,19 +46,14 @@ function writeManifest(targetDir, manifest) {
   fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
 }
 
-function main() {
-  const sourceManifestPath = path.join(SRC_DIR, "manifest.json");
-  const sourceManifest = JSON.parse(fs.readFileSync(sourceManifestPath, "utf8"));
-
-  fs.rmSync(BUILD_ROOT, { recursive: true, force: true });
-
-  copyDirectory(SRC_DIR, CHROME_DIR);
-  copyDirectory(SRC_DIR, FIREFOX_DIR);
-
+function createChromeManifest(sourceManifest) {
   const chromeManifest = JSON.parse(JSON.stringify(sourceManifest));
   chromeManifest.background = { service_worker: "service-worker.js" };
   delete chromeManifest.browser_specific_settings;
+  return chromeManifest;
+}
 
+function createFirefoxManifest(sourceManifest) {
   const firefoxManifest = JSON.parse(JSON.stringify(sourceManifest));
   firefoxManifest.background = {
     scripts: [
@@ -75,12 +71,51 @@ function main() {
     p => p !== 'offscreen'
   );
 
-  writeManifest(CHROME_DIR, chromeManifest);
-  writeManifest(FIREFOX_DIR, firefoxManifest);
-
-  console.log("Generated browser manifests:");
-  console.log(`- Chrome:  ${path.relative(SRC_DIR, path.join(CHROME_DIR, "manifest.json"))}`);
-  console.log(`- Firefox: ${path.relative(SRC_DIR, path.join(FIREFOX_DIR, "manifest.json"))}`);
+  return firefoxManifest;
 }
 
-main();
+function buildBrowserManifests(options = {}) {
+  const srcDir = options.srcDir || SRC_DIR;
+  const buildRoot = options.buildRoot || BUILD_ROOT;
+  const logger = options.logger || console.log;
+  const chromeDir = path.join(buildRoot, "chrome");
+  const firefoxDir = path.join(buildRoot, "firefox");
+  const sourceManifestPath = path.join(srcDir, "manifest.json");
+  const sourceManifest = JSON.parse(fs.readFileSync(sourceManifestPath, "utf8"));
+
+  fs.rmSync(buildRoot, { recursive: true, force: true });
+
+  copyDirectory(srcDir, chromeDir);
+  copyDirectory(srcDir, firefoxDir);
+
+  const chromeManifest = createChromeManifest(sourceManifest);
+  const firefoxManifest = createFirefoxManifest(sourceManifest);
+
+  writeManifest(chromeDir, chromeManifest);
+  writeManifest(firefoxDir, firefoxManifest);
+
+  logger("Generated browser manifests:");
+  logger(`- Chrome:  ${path.relative(srcDir, path.join(chromeDir, "manifest.json"))}`);
+  logger(`- Firefox: ${path.relative(srcDir, path.join(firefoxDir, "manifest.json"))}`);
+
+  return {
+    chromeDir,
+    firefoxDir,
+    chromeManifest,
+    firefoxManifest
+  };
+}
+
+function main() {
+  buildBrowserManifests();
+}
+
+if (require.main === module) {
+  main();
+}
+
+module.exports = {
+  createChromeManifest,
+  createFirefoxManifest,
+  buildBrowserManifests
+};

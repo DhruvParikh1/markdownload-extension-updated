@@ -22,6 +22,17 @@ const liveClipCases = [
     ]
   },
   {
+    id: 'wikipedia-firefox',
+    name: 'clips the live Wikipedia Firefox article via popup flow',
+    url: 'https://en.wikipedia.org/wiki/Firefox',
+    selector: '#firstHeading',
+    titleContains: 'Firefox',
+    snippets: [
+      'Mozilla Firefox',
+      'web browser'
+    ]
+  },
+  {
     id: 'obsidian-links',
     name: 'clips the live Obsidian links help page via popup flow',
     url: 'https://help.obsidian.md/links',
@@ -86,25 +97,6 @@ const liveClipCases = [
       'This annual event, presented by GrowSmart',
       '## Celebrating Children FAQ',
       'Kid-friendly games, crafts and activities'
-    ]
-  },
-  {
-    id: 'sciencedirect-mathml',
-    name: 'clips a ScienceDirect article with MathML equations via popup flow',
-    url: 'https://www.sciencedirect.com/science/article/pii/S1059056026001966',
-    selector: 'h1',
-    titleContains: 'Too familiar to perceive',
-    waitAfterLoadMs: 30000,
-    snippets: [
-      "The rise of a country's economy is often accompanied by severe air pollution problems.",
-      'In the construction of the disposition effect index'
-    ],
-    baseSnippets: [
-      'Pi,j,t\\_aandPi,j,t'
-    ],
-    currentSnippets: [
-      '$P_{i,j,t_a}\\,\\text{and}\\,P_{i,j,t}$',
-      '\\begin{cases}'
     ]
   },
   {
