@@ -383,25 +383,37 @@ function removeProfile(profileDir, keepProfile) {
     fs.rmSync(profileResolved, {
       recursive: true,
       force: true,
-    maxRetries: 20,
-    retryDelay: 250
-  });
+      maxRetries: 20,
+      retryDelay: 250
+    });
   } catch (error) {
     console.warn(`Could not remove temporary Firefox profile; keeping it for inspection: ${profileResolved}`);
     console.warn(error instanceof Error ? error.message : String(error));
   }
 }
 
-function getExtensionUuidFromTree(tree) {
-  const extensionUrl = (tree.contexts || [])
-    .map(context => context.url || '')
-    .find(url => url.startsWith('moz-extension://'));
+function flattenContexts(contexts = []) {
+  const flattened = [];
+  for (const context of contexts) {
+    flattened.push(context);
+    flattened.push(...flattenContexts(context.children || []));
+  }
+  return flattened;
+}
 
-  if (!extensionUrl) {
+function getExtensionContextFromTree(tree) {
+  const extensionContext = flattenContexts(tree.contexts || [])
+    .find(context => String(context.url || '').startsWith('moz-extension://'));
+
+  if (!extensionContext?.url || !extensionContext?.context) {
     return null;
   }
 
-  return new URL(extensionUrl).host;
+  return {
+    context: extensionContext.context,
+    url: extensionContext.url,
+    uuid: new URL(extensionContext.url).host
+  };
 }
 
 async function waitForPopupReady(client, popupContext, timeoutMs) {
@@ -580,15 +592,15 @@ async function main() {
     await wait(1000);
 
     const tree = await client.send('browsingContext.getTree', {});
-    const extensionUuid = getExtensionUuidFromTree(tree);
-    if (!extensionUuid) {
-      throw new Error('Could not resolve moz-extension UUID after installing the Firefox build.');
+    const extensionContext = getExtensionContextFromTree(tree);
+    if (!extensionContext) {
+      throw new Error('Could not resolve an extension page context after installing the Firefox build.');
     }
 
-    const popupContext = (await client.send('browsingContext.create', { type: 'tab' })).context;
+    const popupContext = extensionContext.context;
     await client.send('browsingContext.navigate', {
       context: popupContext,
-      url: `moz-extension://${extensionUuid}/popup/popup.html`,
+      url: `moz-extension://${extensionContext.uuid}/popup/popup.html`,
       wait: 'none'
     });
     await wait(1000);
