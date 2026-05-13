@@ -1,5 +1,14 @@
 // create the context menus
+function contextMenuMessage(key, substitutions, fallback) {
+  return globalThis.markSnipI18n?.t(key, substitutions, fallback) || fallback || key;
+}
+
+function contextMenuI18nReady() {
+  return globalThis.markSnipI18n?.ready?.().catch(() => {}) || Promise.resolve();
+}
+
 async function createMenus() {
+  await contextMenuI18nReady();
   const options = await getOptions();
 
   browser.contextMenus.removeAll();
@@ -10,31 +19,31 @@ async function createMenus() {
     try {
       browser.contextMenus.create({
         id: "download-markdown-tab",
-        title: "Download Tab as Markdown",
+        title: contextMenuMessage("contextDownloadTab", null, "Download Tab as Markdown"),
         contexts: ["tab"]
       }, () => { });
 
       browser.contextMenus.create({
         id: "tab-download-markdown-alltabs",
-        title: "Download All Tabs as Markdown",
+        title: contextMenuMessage("contextDownloadAllTabs", null, "Download All Tabs as Markdown"),
         contexts: ["tab"]
       }, () => { });
 
       browser.contextMenus.create({
         id: "copy-tab-as-markdown-link-tab",
-        title: "Copy Tab URL as Markdown Link",
+        title: contextMenuMessage("contextCopyTabLink", null, "Copy Tab URL as Markdown Link"),
         contexts: ["tab"]
       }, () => { });
 
       browser.contextMenus.create({
         id: "copy-tab-as-markdown-link-all-tab",
-        title: "Copy All Tab URLs as Markdown Link List",
+        title: contextMenuMessage("contextCopyAllTabLinks", null, "Copy All Tab URLs as Markdown Link List"),
         contexts: ["tab"]
       }, () => { });
 
       browser.contextMenus.create({
         id: "copy-tab-as-markdown-link-selected-tab",
-        title: "Copy Selected Tab URLs as Markdown Link List",
+        title: contextMenuMessage("contextCopySelectedTabLinks", null, "Copy Selected Tab URLs as Markdown Link List"),
         contexts: ["tab"]
       }, () => { });
 
@@ -47,7 +56,7 @@ async function createMenus() {
       browser.contextMenus.create({
         id: "tabtoggle-includeTemplate",
         type: "checkbox",
-        title: "Include front/back template",
+        title: contextMenuMessage("contextToggleTemplate", null, "Include front/back template"),
         contexts: ["tab"],
         checked: options.includeTemplate
       }, () => { });
@@ -55,7 +64,7 @@ async function createMenus() {
       browser.contextMenus.create({
         id: "tabtoggle-downloadImages",
         type: "checkbox",
-        title: "Download Images",
+        title: contextMenuMessage("contextToggleImages", null, "Download Images"),
         contexts: ["tab"],
         checked: options.downloadImages
       }, () => { });
@@ -65,7 +74,7 @@ async function createMenus() {
     // add the download all tabs option to the page context menu as well
     browser.contextMenus.create({
       id: "download-markdown-alltabs",
-      title: "Download All Tabs as Markdown",
+      title: contextMenuMessage("contextDownloadAllTabs", null, "Download All Tabs as Markdown"),
       contexts: ["all"]
     }, () => { });
     browser.contextMenus.create({
@@ -77,12 +86,12 @@ async function createMenus() {
     // download actions
     browser.contextMenus.create({
       id: "download-markdown-selection",
-      title: "Download Selection As Markdown",
+      title: contextMenuMessage("contextDownloadSelection", null, "Download Selection As Markdown"),
       contexts: ["selection"]
     }, () => { });
     browser.contextMenus.create({
       id: "download-markdown-all",
-      title: "Download Tab As Markdown",
+      title: contextMenuMessage("contextDownloadTab", null, "Download Tab As Markdown"),
       contexts: ["all"]
     }, () => { });
 
@@ -95,37 +104,37 @@ async function createMenus() {
     // copy to clipboard actions
     browser.contextMenus.create({
       id: "copy-markdown-selection",
-      title: "Copy Selection As Markdown",
+      title: contextMenuMessage("contextCopySelection", null, "Copy Selection As Markdown"),
       contexts: ["selection"]
     }, () => { });
     browser.contextMenus.create({
       id: "copy-markdown-link",
-      title: "Copy Link As Markdown",
+      title: contextMenuMessage("contextCopyLink", null, "Copy Link As Markdown"),
       contexts: ["link"]
     }, () => { });
     browser.contextMenus.create({
       id: "copy-markdown-image",
-      title: "Copy Image As Markdown",
+      title: contextMenuMessage("contextCopyImage", null, "Copy Image As Markdown"),
       contexts: ["image"]
     }, () => { });
     browser.contextMenus.create({
       id: "copy-markdown-all",
-      title: "Copy Tab As Markdown",
+      title: contextMenuMessage("contextCopyTab", null, "Copy Tab As Markdown"),
       contexts: ["all"]
     }, () => { });
     browser.contextMenus.create({
       id: "copy-tab-as-markdown-link",
-      title: "Copy Tab URL as Markdown Link",
+      title: contextMenuMessage("contextCopyTabLink", null, "Copy Tab URL as Markdown Link"),
       contexts: ["all"]
     }, () => { });
     browser.contextMenus.create({
       id: "copy-tab-as-markdown-link-all",
-      title: "Copy All Tab URLs as Markdown Link List",
+      title: contextMenuMessage("contextCopyAllTabLinks", null, "Copy All Tab URLs as Markdown Link List"),
       contexts: ["all"]
     }, () => { });
     browser.contextMenus.create({
       id: "copy-tab-as-markdown-link-selected",
-      title: "Copy Selected Tab URLs as Markdown Link List",
+      title: contextMenuMessage("contextCopySelectedTabLinks", null, "Copy Selected Tab URLs as Markdown Link List"),
       contexts: ["all"]
     }, () => { });
   
@@ -139,12 +148,12 @@ async function createMenus() {
       // copy to clipboard actions
       browser.contextMenus.create({
         id: "copy-markdown-obsidian",
-        title: "Send Text selection to Obsidian",
+        title: contextMenuMessage("contextSendSelectionObsidian", null, "Send Text selection to Obsidian"),
         contexts: ["selection"]
       }, () => { });
       browser.contextMenus.create({
         id: "copy-markdown-obsall",
-        title: "Send Tab to Obsidian",
+        title: contextMenuMessage("contextSendTabObsidian", null, "Send Tab to Obsidian"),
         contexts: ["all"]
       }, () => { });
     }
@@ -158,7 +167,7 @@ async function createMenus() {
     browser.contextMenus.create({
       id: "toggle-includeTemplate",
       type: "checkbox",
-      title: "Include front/back template",
+      title: contextMenuMessage("contextToggleTemplate", null, "Include front/back template"),
       contexts: ["all"],
       checked: options.includeTemplate
     }, () => { });
@@ -166,7 +175,7 @@ async function createMenus() {
     browser.contextMenus.create({
       id: "toggle-downloadImages",
       type: "checkbox",
-      title: "Download Images",
+      title: contextMenuMessage("contextToggleImages", null, "Download Images"),
       contexts: ["all"],
       checked: options.downloadImages
     }, () => { });

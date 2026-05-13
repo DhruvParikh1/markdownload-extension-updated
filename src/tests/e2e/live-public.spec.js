@@ -16,7 +16,8 @@ const {
 const { liveClipCases } = require('../helpers/live-public-cases');
 
 const extensionPath = path.join(__dirname, '../..');
-const livePublicArtifactRoot = path.join(extensionPath, 'test-artifacts', 'live-public');
+const repoRoot = path.resolve(extensionPath, '..');
+const livePublicArtifactRoot = path.join(repoRoot, 'test-artifacts', 'live-public');
 
 async function getTabIdForUrl(serviceWorker, url) {
   return await serviceWorker.evaluate(async ({ targetUrl }) => {

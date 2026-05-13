@@ -58,7 +58,7 @@ If you only want a single live spec, you can still run it directly:
 
 - `npm run test:e2e -- tests/e2e/live-public.spec.js`
 
-Each live case also writes local triage artifacts to `src/test-artifacts/live-public/<case-id>/`:
+Each live case also writes local triage artifacts to `<repo>/test-artifacts/live-public/<case-id>/`:
 
 - `latest-success/` stores the most recent passing HTML snapshot, clipped markdown, and summary.
 - `history/<timestamp>-passed|failed/` stores every captured run without overwriting the last successful baseline.

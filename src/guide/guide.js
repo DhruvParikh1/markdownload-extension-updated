@@ -16,6 +16,10 @@
   const COLORBLIND_VARIANT_CLASS_NAMES = ['colorblind-theme-deuteranopia', 'colorblind-theme-protanopia', 'colorblind-theme-tritanopia'];
   const ACCENT_CLASS_NAMES = ['accent-sage', 'accent-ocean', 'accent-slate', 'accent-rose', 'accent-amber'];
 
+  function guideMessage(key, substitutions, fallback) {
+    return globalThis.markSnipI18n?.t(key, substitutions, fallback) || fallback || key;
+  }
+
   function normalizeColorBlindTheme(value) {
     return ['deuteranopia', 'protanopia', 'tritanopia'].includes(value) ? value : 'deuteranopia';
   }
@@ -147,7 +151,7 @@
 
       if (result.matches.length === 0) {
         resultsList.innerHTML = '';
-        resultsCount.textContent = '0 results';
+        resultsCount.textContent = guideMessage('guideSearchResultsCountZero', null, '0 results');
         noResults.style.display = '';
         noResultsQ.textContent = query;
         return;
@@ -156,7 +160,9 @@
       noResults.style.display = 'none';
       const sorted = result.matches.slice().sort((a, b) => b.score - a.score);
 
-      resultsCount.textContent = sorted.length + ' result' + (sorted.length !== 1 ? 's' : '');
+      resultsCount.textContent = sorted.length === 1
+        ? guideMessage('guideSearchResultsCountOne', null, '1 result')
+        : guideMessage('guideSearchResultsCountMany', [sorted.length], `${sorted.length} results`);
 
       resultsList.innerHTML = sorted.map(m => {
         const el = m.element;
@@ -324,7 +330,10 @@
   /* ════════════════════════════════════════
      Init
      ════════════════════════════════════════ */
-  function init() {
+  async function init() {
+    if (globalThis.markSnipI18n?.localizeDocument) {
+      await globalThis.markSnipI18n.localizeDocument(document).catch(() => {});
+    }
     loadSettings();
     initWelcomeBanner();
     initSearch();

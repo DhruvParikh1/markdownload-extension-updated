@@ -58,6 +58,7 @@ function createFirefoxManifest(sourceManifest) {
   firefoxManifest.background = {
     scripts: [
       "browser-polyfill.min.js",
+      "shared/i18n.js",
       "background/moment.min.js",
       "shared/notifications.js",
       "shared/default-options.js",

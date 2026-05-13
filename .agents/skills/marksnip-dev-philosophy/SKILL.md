@@ -113,7 +113,7 @@ This applies even when the fix is implemented with a deterministic local fixture
 
 If the reproduction page requires manual intervention, open it through the live workflow or a headed Playwright run, wait for the user to complete the challenge, then capture the case. If the live reproduction URL cannot be captured because of bot protection, permissions, login, paywall, network access, or another external blocker, record the blocker clearly and still run the closest deterministic E2E/integration coverage plus the default live snapshot cases.
 
-Review the generated `src/test-artifacts/live-markdown-comparisons/<run-id>/diff/summary.json` before finalizing. A diff is not automatically a failure, but it must be understood and described as intentional or risky.
+Review the generated `test-artifacts/live-markdown-comparisons/<run-id>/diff/summary.json` before finalizing. A diff is not automatically a failure, but it must be understood and described as intentional or risky.
 
 If live network or browser access is unavailable, do not pretend the verification passed. Say that the live snapshot workflow could not be run, include the blocker, and rely on the narrower local tests only as a fallback.
 

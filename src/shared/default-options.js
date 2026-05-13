@@ -51,6 +51,7 @@ const defaultOptions = {
   showThemeToggleInPopup: true,
   showUserGuideIcon: true,
   editorTheme: 'default',
+  uiLanguage: 'auto',
   siteRules: [],
 }
 

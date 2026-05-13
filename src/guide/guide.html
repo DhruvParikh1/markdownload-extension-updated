@@ -86,7 +86,7 @@
                 <li><a href="#obsidian-downloads" class="toc-link">Obsidian &amp; Downloads</a>
                     <ul class="toc-sublist">
                         <li><a href="#obsidian-integration" class="toc-link">Obsidian Integration</a></li>
-                        <li><a href="#download-mode" class="toc-link">Download Mode</a></li>
+                        <li><a href="#download-mode" class="toc-link" data-i18n="guideObsidianMode">Download Mode</a></li>
                         <li><a href="#image-downloads" class="toc-link">Image Downloads</a></li>
                     </ul>
                 </li>
@@ -97,7 +97,7 @@
                         <li><a href="#agent-bridge-permission" class="toc-link">Agent Bridge Permission</a></li>
                     </ul>
                 </li>
-                <li><a href="#troubleshooting" class="toc-link">Troubleshooting / FAQ</a></li>
+                <li><a href="#troubleshooting" class="toc-link" data-i18n="guideTocTroubleshooting">Troubleshooting / FAQ</a></li>
                 <li><a href="#text-substitutions" class="toc-link">Text Substitutions</a></li>
             </ul>
         </nav>
@@ -399,13 +399,13 @@ author: {byline}
                     <h3 class="subsection-heading"><a href="#download-settings" class="anchor-link">#</a>Downloads</h3>
                     <h4>Context Menus</h4>
                     <p>Toggles the right-click context menu items on and off. Default: <strong>On</strong>.</p>
-                    <h4>Default Popup Action</h4>
+                    <h4 data-i18n="guideSettingsDownloadsAction">Default Popup Action</h4>
                     <p>Controls the popup's primary action buttons. Choose <strong>Markdown</strong>, <strong>Plain text</strong>, <strong>HTML</strong>, <strong>PDF</strong>, or <strong>Send to Assistant</strong>. This does not change context-menu downloads, keyboard download shortcuts, batch output, Library exports, Agent Bridge output, or Obsidian sends.</p>
-                    <h4>Default Assistant Target</h4>
+                    <h4 data-i18n="guideSettingsDownloadsTarget">Default Assistant Target</h4>
                     <p>When <strong>Send to Assistant</strong> is selected, choose the popup's default destination such as <strong>ChatGPT</strong>, <strong>Claude</strong>, <strong>Perplexity</strong>, or one of your custom assistant URLs.</p>
                     <h4>Assistant Targets</h4>
                     <p>ChatGPT, Claude, and Perplexity are built in. Add custom HTTPS assistant URLs that accept a <code>{prompt}</code> placeholder in the query string. MarkSnip inserts the current Markdown into that placeholder when you send from the popup.</p>
-                    <h4>Assistant URL Length Cap</h4>
+                    <h4 data-i18n="guideSettingsDownloadsLength">Assistant URL Length Cap</h4>
                     <p>Controls how long a generated assistant URL can be before MarkSnip falls back to copying the Markdown to your clipboard and opening the assistant landing page instead. The default is <strong>3600</strong>, and changing it is not recommended.</p>
                 </div>
 
@@ -421,13 +421,13 @@ author: {byline}
                     <h4>Horizontal Rule Style</h4>
                     <p>Choose between <code>***</code>, <code>---</code>, or <code>___</code> (default).</p>
 
-                    <h4>Bullet List Marker</h4>
+                    <h4 data-i18n="guideSettingsMarkdownBullet">Bullet List Marker</h4>
                     <p><code>*</code>, <code>-</code> (default), or <code>+</code>.</p>
 
                     <h4>Code Block Style</h4>
                     <p><strong>Indented</strong> (four-space indent) or <strong>Fenced</strong> (default, wrapped in <code>```</code> or <code>~~~</code>).</p>
 
-                    <h4>Preserve Code Block HTML Formatting</h4>
+                    <h4 data-i18n="guideSettingsMarkdownPreserve">Preserve Code Block HTML Formatting</h4>
                     <p>When enabled, preserves the original HTML formatting inside code blocks. Default: <strong>Off</strong>.</p>
 
                     <h4>Emphasis &amp; Strong Delimiters</h4>
@@ -445,7 +445,7 @@ author: {byline}
                                 <tr><td>Strip Images</td><td><em>(image removed)</em></td><td>No</td></tr>
                                 <tr><td>Pure Markdown (default)</td><td><code>![](folder/image.jpg)</code></td><td>Yes</td></tr>
                                 <tr><td>Base64 Encoded</td><td><code>![](data:image/png;base64,...)</code></td><td>Yes</td></tr>
-                                <tr><td>Obsidian Internal Embed</td><td><code>![[folder/image.jpg]]</code></td><td>Yes</td></tr>
+                                <tr><td data-i18n="guideSettingsMarkdownImageObsidian">Obsidian Internal Embed</td><td><code>![[folder/image.jpg]]</code></td><td>Yes</td></tr>
                                 <tr><td>Obsidian Embed (no folder)</td><td><code>![[image.jpg]]</code></td><td>Yes</td></tr>
                             </tbody>
                         </table>
@@ -516,7 +516,7 @@ author: {byline}
                     data-guide-section="Download Mode"
                     data-guide-summary="Choose between Downloads API and Content Link"
                     data-search-keywords="downloads api,content link,download mode,save as dialog">
-                    <h3 class="subsection-heading"><a href="#download-mode" class="anchor-link">#</a>Download Mode</h3>
+                    <h3 class="subsection-heading"><a href="#download-mode" class="anchor-link">#</a><span data-i18n="guideObsidianMode">Download Mode</span></h3>
                     <div class="ref-table-wrap">
                         <table class="ref-table">
                             <thead><tr><th>Mode</th><th>Description</th></tr></thead>
@@ -612,7 +612,7 @@ author: {byline}
                 data-guide-section="Troubleshooting / FAQ"
                 data-guide-summary="Common issues and solutions"
                 data-search-keywords="troubleshooting,faq,help,problem,issue,bug,not working,error,fix">
-                <h2 class="section-heading"><a href="#troubleshooting" class="anchor-link">#</a>Troubleshooting / FAQ</h2>
+                <h2 class="section-heading"><a href="#troubleshooting" class="anchor-link">#</a><span data-i18n="guideTroubleshootingTitle">Troubleshooting / FAQ</span></h2>
                 <div class="section-body">
                     <div class="faq-item">
                         <h4>The popup shows "Processing page..." and nothing happens</h4>
@@ -620,7 +620,7 @@ author: {byline}
                     </div>
                     <div class="faq-item">
                         <h4>Images are not downloading</h4>
-                        <p>Make sure <strong>Download Mode</strong> is set to "Downloads API" and the <strong>Images</strong> toggle is enabled. Content Link mode does not support image downloads.</p>
+                        <p>Make sure <strong data-i18n="guideObsidianMode">Download Mode</strong> is set to "Downloads API" and the <strong>Images</strong> toggle is enabled. Content Link mode does not support image downloads.</p>
                     </div>
                     <div class="faq-item">
                         <h4>Send to Obsidian is not visible</h4>
@@ -719,6 +719,7 @@ author: {byline}
     </div><!-- /.guide-window -->
 
     <script src="../browser-polyfill.min.js"></script>
+    <script src="../shared/i18n.js"></script>
     <script src="../shared/default-options.js"></script>
     <script src="../shared/search-core.js"></script>
     <script src="guide.js"></script>

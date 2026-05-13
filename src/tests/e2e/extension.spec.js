@@ -149,6 +149,67 @@ test.describe('MarkSnip Extension E2E', () => {
     }
   });
 
+  test('popup direct labels honor saved uiLanguage override', async () => {
+    const popupPage = await context.newPage();
+    try {
+      await setSyncStorage(serviceWorker, {
+        uiLanguage: 'es',
+        defaultExportType: 'markdown'
+      });
+      await serviceWorker.evaluate(async () => {
+        await self.markSnipI18n?.setUiLanguage?.('es');
+      });
+
+      await popupPage.goto(`chrome-extension://${extensionId}/popup/popup.html`);
+      await expect(popupPage.locator('#container')).toBeVisible();
+      await expect(popupPage.locator('#download .split-btn__label')).toHaveText('Descargar');
+      await expect(popupPage.locator('#download')).toHaveAttribute('aria-label', 'Descargar');
+    } finally {
+      await serviceWorker.evaluate(async () => {
+        await browser.storage.sync.set({ uiLanguage: 'auto' });
+        await self.markSnipI18n?.setUiLanguage?.('auto');
+      }).catch(() => {});
+      await popupPage.close().catch(() => {});
+    }
+  });
+
+  test('link picker overlay honors saved uiLanguage override', async () => {
+    const fixturePage = await context.newPage();
+    try {
+      await setSyncStorage(serviceWorker, { uiLanguage: 'es' });
+      await serviceWorker.evaluate(async () => {
+        await self.markSnipI18n?.setUiLanguage?.('es');
+      });
+
+      await fixturePage.goto(`${fixtureHost}/extension/deterministic-article.html`);
+      await fixturePage.waitForLoadState('networkidle');
+      await fixturePage.bringToFront();
+
+      const fixtureTabId = await serviceWorker.evaluate(async ({ targetUrl }) => {
+        const tabs = await browser.tabs.query({});
+        return tabs.find((tab) => tab.url === targetUrl)?.id || null;
+      }, { targetUrl: fixturePage.url() });
+      expect(fixtureTabId).toBeTruthy();
+
+      await serviceWorker.evaluate(async ({ tabId }) => {
+        await browser.scripting.executeScript({
+          target: { tabId },
+          files: ['/browser-polyfill.min.js', '/shared/i18n.js', '/contentScript/contentScript.js']
+        });
+        await browser.tabs.sendMessage(tabId, { type: 'ACTIVATE_LINK_PICKER' });
+      }, { tabId: fixtureTabId });
+
+      await expect(fixturePage.locator('#marksnip-link-picker-panel')).toBeVisible();
+      await expect(fixturePage.locator('.marksnip-link-picker-panel-title')).toHaveText('Selector de Enlaces');
+    } finally {
+      await serviceWorker.evaluate(async () => {
+        await browser.storage.sync.set({ uiLanguage: 'auto' });
+        await self.markSnipI18n?.setUiLanguage?.('auto');
+      }).catch(() => {});
+      await fixturePage.close().catch(() => {});
+    }
+  });
+
   test('clips deterministic fixture page through popup flow and produces markdown', async () => {
     const fixturePage = await context.newPage();
     const popupPage = await context.newPage();

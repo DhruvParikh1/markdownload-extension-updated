@@ -3,6 +3,7 @@
 if (typeof importScripts === 'function') {
   importScripts(
     'browser-polyfill.min.js',
+    'shared/i18n.js',
     'background/moment.min.js',
     'background/apache-mime-types.js',
     'shared/notifications.js',
@@ -55,7 +56,9 @@ if (browser.tabs?.onUpdated?.addListener) {
 }
 
 // Create context menus when service worker starts
-createMenus();
+createMenus().catch((error) => {
+  console.error('[ContextMenus] Failed to create menus:', error);
+});
 initializeAgentBridge().catch((error) => {
   console.error('[Agent Bridge] Failed to initialize:', error);
 });
@@ -80,6 +83,14 @@ let agentBridgeConnectPromise = null;
 let agentBridgeReconnectTimer = null;
 let agentBridgeSuccessfulConnect = false;
 let agentBridgeOffscreenReady = false;
+
+function i18nMessage(key, substitutions, fallback) {
+  return globalThis.markSnipI18n?.t(key, substitutions, fallback) || fallback || key;
+}
+
+function ensureI18nReady() {
+  return globalThis.markSnipI18n?.ready?.().catch(() => {}) || Promise.resolve();
+}
 
 function runNotificationStateTask(task) {
   const run = notificationStateTaskChain.then(() => task(), () => task());
@@ -487,6 +498,7 @@ async function recordNotificationMetrics(delta, options = {}) {
   }
 
   const state = await runNotificationStateTask(async () => {
+    await ensureI18nReady();
     let state = await loadNotificationState();
     state = notificationHelpers.applyMetricDelta(state, normalizedDelta);
     state = notificationHelpers.queueUsageNotifications(state, {
@@ -539,6 +551,7 @@ async function dismissPendingNotification(notificationId) {
   clearPendingNotificationDisplayLock(notificationId);
 
   return runNotificationStateTask(async () => {
+    await ensureI18nReady();
     let state = notificationHelpers.dismissNotification(await loadNotificationState(), notificationId);
     state = notificationHelpers.queueNextSupportNotification(state, {
       buyMeACoffeeUrl: notificationHelpers.BUY_ME_A_COFFEE_URL,
@@ -553,6 +566,7 @@ async function handleInstalled(details) {
   const currentVersion = browser.runtime.getManifest().version;
 
   await runNotificationStateTask(async () => {
+    await ensureI18nReady();
     let state = await loadNotificationState();
     const previousInstalledVersion = state.lastInstalledVersion;
 
@@ -1140,9 +1154,13 @@ async function handleLibraryExportIndividualRequest(message, sender) {
 
 async function injectBatchProgressOverlay(tabId, current, total, url, pageTitle, accentColors) {
   try {
+    await ensureI18nReady();
+    const title = i18nMessage('batchOverlayTitle', null, 'MarkSnip - Batch Processing');
+    const cancelLabel = i18nMessage('batchOverlayCancelBtn', null, 'Cancel Batch');
+    const cancellingLabel = i18nMessage('batchOverlayCancelling', null, 'Cancelling...');
     await browser.scripting.executeScript({
       target: { tabId },
-      func: (current, total, url, pageTitle, colors) => {
+      func: (current, total, url, pageTitle, colors, labels) => {
         // Remove any previous overlay
         const existing = document.getElementById('marksnip-batch-overlay');
         if (existing) existing.remove();
@@ -1221,21 +1239,25 @@ async function injectBatchProgressOverlay(tabId, current, total, url, pageTitle,
         const panel = document.createElement('div');
         panel.id = 'marksnip-batch-overlay';
         panel.innerHTML = `
-          <div class="marksnip-bo-title">MarkSnip — Batch Processing</div>
+          <div class="marksnip-bo-title">${labels.title}</div>
           <div class="marksnip-bo-count">${current} / ${total}</div>
           <div class="marksnip-bo-url" title="${url}">${displayText}</div>
           <div class="marksnip-bo-bar-bg"><div class="marksnip-bo-bar" style="width:${pct}%"></div></div>
-          <button class="marksnip-bo-cancel" id="marksnip-bo-cancel-btn">Cancel Batch</button>
+          <button class="marksnip-bo-cancel" id="marksnip-bo-cancel-btn">${labels.cancel}</button>
         `;
         document.body.appendChild(panel);
 
         document.getElementById('marksnip-bo-cancel-btn').addEventListener('click', () => {
           const btn = document.getElementById('marksnip-bo-cancel-btn');
-          if (btn) { btn.textContent = 'Cancelling...'; btn.disabled = true; }
+          if (btn) { btn.textContent = labels.cancelling; btn.disabled = true; }
           browser.runtime.sendMessage({ type: 'cancel-batch' }).catch(() => {});
         });
       },
-      args: [current, total, url, pageTitle, accentColors]
+      args: [current, total, url, pageTitle, accentColors, {
+        title,
+        cancel: cancelLabel,
+        cancelling: cancellingLabel
+      }]
     });
   } catch (e) {
     console.debug('[Batch] Could not inject progress overlay:', e);
@@ -1244,9 +1266,13 @@ async function injectBatchProgressOverlay(tabId, current, total, url, pageTitle,
 
 async function updateBatchProgressOverlay(tabId, current, total, url, pageTitle, statusText) {
   try {
+    await ensureI18nReady();
+    const title = statusText
+      ? i18nMessage('batchOverlayStatusTitle', [statusText], `MarkSnip - ${statusText}`)
+      : '';
     await browser.scripting.executeScript({
       target: { tabId },
-      func: (current, total, url, pageTitle, statusText) => {
+      func: (current, total, url, pageTitle, title) => {
         const panel = document.getElementById('marksnip-batch-overlay');
         if (!panel) return;
         const pct = total > 0 ? Math.round((current / total) * 100) : 0;
@@ -1257,9 +1283,9 @@ async function updateBatchProgressOverlay(tabId, current, total, url, pageTitle,
         if (countEl) countEl.textContent = `${current} / ${total}`;
         if (urlEl) { urlEl.textContent = pageTitle || url; urlEl.title = url; }
         if (barEl) barEl.style.width = `${pct}%`;
-        if (titleEl && statusText) titleEl.textContent = `MarkSnip — ${statusText}`;
+        if (titleEl && title) titleEl.textContent = title;
       },
-      args: [current, total, url, pageTitle, statusText]
+      args: [current, total, url, pageTitle, title]
     });
   } catch (e) {
     // Tab may have navigated or closed
@@ -2398,6 +2424,9 @@ async function handleStorageChange(changes, areaName) {
   // Only handle sync storage changes
   if (areaName === 'sync') {
     console.log('Options changed, recreating context menus...');
+    if (Object.prototype.hasOwnProperty.call(changes, 'uiLanguage')) {
+      await globalThis.markSnipI18n?.setUiLanguage?.(changes.uiLanguage.newValue || 'auto').catch(() => {});
+    }
     // Recreate all context menus with updated options
     await createMenus();
     return;
@@ -2677,6 +2706,7 @@ async function ensureScripts(tabId) {
               target: { tabId: tabId },
               files: [
                   "/browser-polyfill.min.js",
+                  "/shared/i18n.js",
                   "/contentScript/contentScript.js"
               ]
           });

@@ -31,7 +31,7 @@ function parseArgs(argv) {
   const args = {
     cases: defaultCaseIds,
     ref: 'HEAD',
-    outputRoot: path.join(extensionRoot, 'test-artifacts', 'live-markdown-comparisons'),
+    outputRoot: path.join(repoRoot, 'test-artifacts', 'live-markdown-comparisons'),
     headless: false,
     keepWorkDir: false,
     waitAfterLoadMs: 0,

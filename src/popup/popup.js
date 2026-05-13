@@ -129,34 +129,54 @@ const EXPORT_BUTTON_ICONS = {
 };
 const EXPORT_TYPE_CONFIG = {
     markdown: {
-        mainLabel: 'Download',
-        selectionLabel: 'Download Selection',
-        dropdownLabel: 'Markdown (.md)',
+        mainLabelKey: 'popupDownloadBtn',
+        mainLabelFallback: 'Download',
+        selectionLabelKey: 'popupDownloadSelectionBtn',
+        selectionLabelFallback: 'Download Selection',
+        dropdownLabelKey: 'popupExportMarkdown',
+        dropdownLabelFallback: 'Markdown (.md)',
         icon: 'download'
     },
     text: {
-        mainLabel: 'Download TXT',
-        selectionLabel: 'Download Selection as TXT',
-        dropdownLabel: 'Plain Text (.txt)',
+        mainLabelKey: 'popupDownloadTextBtn',
+        mainLabelFallback: 'Download TXT',
+        selectionLabelKey: 'popupDownloadTextSelectionBtn',
+        selectionLabelFallback: 'Download Selection as TXT',
+        dropdownLabelKey: 'popupExportText',
+        dropdownLabelFallback: 'Plain Text (.txt)',
         icon: 'download',
         fileExtension: 'txt',
         mimeType: 'text/plain;charset=utf-8'
     },
     html: {
-        mainLabel: 'Download HTML',
-        selectionLabel: 'Download Selection as HTML',
-        dropdownLabel: 'HTML (.html)',
+        mainLabelKey: 'popupDownloadHtmlBtn',
+        mainLabelFallback: 'Download HTML',
+        selectionLabelKey: 'popupDownloadHtmlSelectionBtn',
+        selectionLabelFallback: 'Download Selection as HTML',
+        dropdownLabelKey: 'popupExportHtml',
+        dropdownLabelFallback: 'HTML (.html)',
         icon: 'download',
         fileExtension: 'html',
         mimeType: 'text/html;charset=utf-8'
     },
     pdf: {
-        mainLabel: 'Save as PDF',
-        selectionLabel: 'Save Selection as PDF',
-        dropdownLabel: 'Save as PDF',
+        mainLabelKey: 'popupExportPdf',
+        mainLabelFallback: 'Save as PDF',
+        selectionLabelKey: 'popupDownloadPdfSelectionBtn',
+        selectionLabelFallback: 'Save Selection as PDF',
+        dropdownLabelKey: 'popupExportPdf',
+        dropdownLabelFallback: 'Save as PDF',
         icon: 'file'
     }
 };
+
+function popupMessage(key, substitutions, fallback) {
+    return globalThis.markSnipI18n?.t(key, substitutions, fallback) || fallback || key;
+}
+
+function popupI18nReady() {
+    return globalThis.markSnipI18n?.ready?.().catch(() => {}) || Promise.resolve();
+}
 
 function normalizeColorBlindTheme(value) {
     return ['deuteranopia', 'protanopia', 'tritanopia'].includes(value) ? value : 'deuteranopia';
@@ -418,7 +438,7 @@ const progressUI = {
     reset() {
         this.bar.style.width = '0%';
         this.count.textContent = '0/0';
-        this.status.textContent = 'Processing URLs...';
+        this.status.textContent = popupMessage('popupProcessingUrls', null, 'Processing URLs...');
         this.currentUrl.textContent = '';
     },
     
@@ -434,7 +454,7 @@ const progressUI = {
     showCancelButton() {
         this.cancelBtn.style.display = 'block';
         this.cancelBtn.disabled = false;
-        this.cancelBtn.textContent = 'Cancel';
+        this.cancelBtn.textContent = popupMessage('popupCancelBtn', null, 'Cancel');
     },
 
     hideCancelButton() {
@@ -452,7 +472,13 @@ function resolveDefaultExportType(options = currentOptions) {
 }
 
 function getExportTypeConfig(exportType) {
-    return EXPORT_TYPE_CONFIG[resolveDefaultExportType({ defaultExportType: exportType })] || EXPORT_TYPE_CONFIG.markdown;
+    const config = EXPORT_TYPE_CONFIG[resolveDefaultExportType({ defaultExportType: exportType })] || EXPORT_TYPE_CONFIG.markdown;
+    return {
+        ...config,
+        mainLabel: popupMessage(config.mainLabelKey, null, config.mainLabelFallback),
+        selectionLabel: popupMessage(config.selectionLabelKey, null, config.selectionLabelFallback),
+        dropdownLabel: popupMessage(config.dropdownLabelKey, null, config.dropdownLabelFallback)
+    };
 }
 
 function getPopupPrimaryActionConfig(options = currentOptions) {
@@ -460,16 +486,16 @@ function getPopupPrimaryActionConfig(options = currentOptions) {
     if (primaryActionType === 'sendTo') {
         const target = resolveSendToTarget(undefined, options);
         return {
-            mainLabel: `Send to ${target.label}`,
-            selectionLabel: `Send Selection to ${target.label}`,
+            mainLabel: popupMessage('popupSendToTargetTitle', [target.label], `Send to ${target.label}`),
+            selectionLabel: popupMessage('popupSendSelectionToTargetTitle', [target.label], `Send Selection to ${target.label}`),
             icon: target.iconKey || 'send'
         };
     }
 
     if (primaryActionType === 'copy') {
         return {
-            mainLabel: 'Copy',
-            selectionLabel: 'Copy Selection',
+            mainLabel: popupMessage('popupCopyBtn', null, 'Copy'),
+            selectionLabel: popupMessage('popupCopySelectionBtn', null, 'Copy Selection'),
             icon: 'copy'
         };
     }
@@ -538,7 +564,7 @@ function renderSendToDropdownOptions(options = currentOptions) {
             <span class="dd-item__label"></span>
         `;
         button.querySelector('.dd-item__label').textContent = target.name;
-        button.title = `Send to ${target.name}`;
+        button.title = popupMessage('popupSendToTargetTitle', [target.name], `Send to ${target.name}`);
         button.addEventListener('click', async (event) => {
             event.preventDefault();
             try {
@@ -1345,7 +1371,7 @@ async function getPrintStyles() {
 }
 
 function buildPrintableDocument({ title, bodyHtml, styles }) {
-    const safeTitle = escapeHtml(title || 'Untitled');
+    const safeTitle = escapeHtml(title || popupMessage('popupUntitledFallback', null, 'Untitled'));
     return `<!DOCTYPE html>
 <html>
 <head>
@@ -1365,7 +1391,8 @@ function buildPrintableDocument({ title, bodyHtml, styles }) {
 }
 
 function getCurrentExportTitle() {
-    return String(dom.titleInput?.value || currentClipState.title || 'Untitled').trim() || 'Untitled';
+    const fallbackTitle = popupMessage('popupUntitledFallback', null, 'Untitled');
+    return String(dom.titleInput?.value || currentClipState.title || fallbackTitle).trim() || fallbackTitle;
 }
 
 function renderHtmlToPlainText(bodyHtml) {
@@ -1518,14 +1545,14 @@ async function handlePrintExport(kind = 'print', { markdown = getEditorValue(), 
         throw new Error('No Markdown content available to print');
     }
 
-    const nextTitle = String(title || '').trim() || 'Untitled';
+    const nextTitle = String(title || '').trim() || popupMessage('popupUntitledFallback', null, 'Untitled');
     const [htmlDocument, activeTab] = await Promise.all([
         buildHtmlExportDocument(nextMarkdown, nextTitle),
         getActiveTab()
     ]);
 
     if (!activeTab?.id) {
-        throw new Error('No active tab found');
+        throw new Error(popupMessage('popupNoActiveTabError', null, 'No active tab found'));
     }
 
     await executePrintDocument(activeTab.id, htmlDocument, kind);
@@ -1831,7 +1858,7 @@ dom.batchSaveModeToggle?.addEventListener("change", saveBatchSettings);
 progressUI.cancelBtn?.addEventListener("click", () => {
     browser.runtime.sendMessage({ type: 'cancel-batch' }).catch(() => {});
     progressUI.cancelBtn.disabled = true;
-    progressUI.cancelBtn.textContent = 'Cancelling...';
+    progressUI.cancelBtn.textContent = popupMessage('popupCancelling', null, 'Cancelling...');
 });
 
 function getSelectedBatchSaveMode() {
@@ -1895,7 +1922,7 @@ dom.urlList?.addEventListener("input", () => {
 async function showBatchProcess(e) {
     e.preventDefault();
     if (currentOptions?.batchProcessingEnabled === false) {
-        showError("Batch Processing is disabled in Options", false);
+        showError(popupMessage('popupBatchDisabledError', null, 'Batch Processing is disabled in Options'), false);
         return;
     }
 
@@ -1938,7 +1965,7 @@ async function activateLinkPicker(e) {
         // Ensure content script is injected
         await browser.scripting.executeScript({
             target: { tabId: activeTab.id },
-            files: ["/browser-polyfill.min.js", "/contentScript/contentScript.js"]
+            files: ["/browser-polyfill.min.js", "/shared/i18n.js", "/contentScript/contentScript.js"]
         }).catch(err => {
             // Script might already be injected, that's okay
             console.log("Content script may already be injected:", err);
@@ -1954,7 +1981,7 @@ async function activateLinkPicker(e) {
 
     } catch (error) {
         console.error("Error activating link picker:", error);
-        alert("Failed to activate link picker. Please try again.");
+        alert(popupMessage('popupAlertFailedToActivateLinkPicker', null, 'Failed to activate link picker. Please try again.'));
     }
 }
 
@@ -2233,7 +2260,7 @@ async function deleteLibraryItem(itemId) {
     }
 
     const item = libraryItems.find((entry) => entry.id === itemId);
-    const itemTitle = item?.title || 'Untitled';
+    const itemTitle = item?.title || popupMessage('popupUntitledFallback', null, 'Untitled');
     const filtered = libraryItems.filter((entry) => entry.id !== itemId);
 
     try {
@@ -2294,8 +2321,8 @@ function renderLibraryItems(options = {}) {
 
     const autoSaveEnabled = librarySettings?.autoSaveOnPopupOpen !== false;
     libraryUI.emptyText.textContent = autoSaveEnabled
-        ? 'Open the popup on any page and the current clip will be saved here automatically.'
-        : 'Manual mode is on. Use "Save Clip" to add the current page to your local library.';
+        ? popupMessage('popupLibraryAutoSaveEmpty', null, 'Open the popup on any page and the current clip will be saved here automatically.')
+        : popupMessage('popupLibraryManualModeEmpty', null, 'Manual mode is on. Use "Save Clip" to add the current page to your local library.');
     libraryUI.emptyState.hidden = libraryItems.length > 0;
 
     const nextRenderStateKey = getLibraryRenderStateKey();
@@ -2325,7 +2352,7 @@ function renderLibraryItems(options = {}) {
 
         const title = document.createElement('h3');
         title.className = 'library-card-title';
-        title.textContent = item.title || 'Untitled';
+        title.textContent = item.title || popupMessage('popupUntitledFallback', null, 'Untitled');
 
         const timestamp = document.createElement('time');
         timestamp.className = 'library-card-time';
@@ -2352,7 +2379,7 @@ function renderLibraryItems(options = {}) {
         const copyButton = document.createElement('button');
         copyButton.type = 'button';
         copyButton.className = 'btn btn-secondary btn-sm';
-        copyButton.textContent = 'Copy';
+        copyButton.textContent = popupMessage('popupCopyBtn', null, 'Copy');
         copyButton.addEventListener('click', () => {
             copyLibraryItemMarkdown(item.id, copyButton);
         });
@@ -2360,7 +2387,14 @@ function renderLibraryItems(options = {}) {
         const deleteButton = document.createElement('button');
         deleteButton.type = 'button';
         deleteButton.className = 'btn btn-sm library-card-delete';
-        deleteButton.setAttribute('aria-label', `Delete clip: ${item.title || 'Untitled'}`);
+        deleteButton.setAttribute(
+            'aria-label',
+            popupMessage(
+                'popupDeleteClipAria',
+                [item.title || popupMessage('popupUntitledFallback', null, 'Untitled')],
+                `Delete clip: ${item.title || popupMessage('popupUntitledFallback', null, 'Untitled')}`
+            )
+        );
         deleteButton.innerHTML = `
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <polyline points="3 6 5 6 21 6"/>
@@ -2394,7 +2428,7 @@ function renderLibraryItems(options = {}) {
         if (card.classList.contains('library-card--current')) {
             const badge = document.createElement('span');
             badge.className = 'library-card-current-badge';
-            badge.textContent = 'Current page';
+            badge.textContent = popupMessage('popupLibraryCurrentPageBadge', null, 'Current page');
             card.appendChild(badge);
         }
         if (item.previewText) {
@@ -2420,8 +2454,8 @@ function updateLibraryUIState() {
 
     if (libraryUI.toolbarNote) {
         libraryUI.toolbarNote.textContent = manualMode
-            ? 'Manual mode is on. Press Save Clip to save the current page.'
-            : 'Library saves the current page automatically the first time this popup loads it.';
+            ? popupMessage('popupLibraryManualToolbarNote', null, 'Manual mode is on. Press Save Clip to save the current page.')
+            : popupMessage('popupLibraryAutoToolbarNote', null, 'Library saves the current page automatically the first time this popup loads it.');
     }
 
     updateSaveLibraryButtonState();
@@ -2949,16 +2983,29 @@ function validateAndPreviewUrls() {
     urlValidation.style.display = 'block';
     urlValidation.classList.remove('has-invalid', 'all-invalid');
 
+    const validPart = validCount === 1
+        ? popupMessage('popupUrlValidationValidOne', null, '1 valid URL')
+        : popupMessage('popupUrlValidationValidMany', [validCount], `${validCount} valid URLs`);
+    const invalidPart = invalidCount === 1
+        ? popupMessage('popupUrlValidationInvalidOne', null, '1 invalid line')
+        : popupMessage('popupUrlValidationInvalidMany', [invalidCount], `${invalidCount} invalid lines`);
+
     if (validCount === 0) {
-        urlValidation.textContent = `${invalidCount} invalid line${invalidCount !== 1 ? 's' : ''} — no valid URLs`;
+        urlValidation.textContent = invalidCount === 1
+            ? popupMessage('popupUrlValidationNoValidOne', null, '1 invalid line - no valid URLs')
+            : popupMessage('popupUrlValidationNoValidMany', [invalidCount], `${invalidCount} invalid lines - no valid URLs`);
         urlValidation.classList.add('all-invalid');
         convertBtn.disabled = true;
     } else if (invalidCount > 0) {
-        urlValidation.textContent = `${validCount} valid URL${validCount !== 1 ? 's' : ''}, ${invalidCount} invalid line${invalidCount !== 1 ? 's' : ''}`;
+        urlValidation.textContent = popupMessage(
+            'popupUrlValidationMixedFormat',
+            [validPart, invalidPart],
+            `${validPart}, ${invalidPart}`
+        );
         urlValidation.classList.add('has-invalid');
         convertBtn.disabled = false;
     } else {
-        urlValidation.textContent = `${validCount} valid URL${validCount !== 1 ? 's' : ''}`;
+        urlValidation.textContent = validPart;
         convertBtn.disabled = false;
     }
 }
@@ -3150,7 +3197,7 @@ async function handleBatchConversion(e) {
     e.preventDefault();
 
     if (currentOptions?.batchProcessingEnabled === false) {
-        showError("Batch Processing is disabled in Options", false);
+        showError(popupMessage('popupBatchDisabledError', null, 'Batch Processing is disabled in Options'), false);
         return;
     }
     
@@ -3158,7 +3205,7 @@ async function handleBatchConversion(e) {
     const urlObjects = processUrlInput(urlText);
     
     if (urlObjects.length === 0) {
-        showError("Please enter valid URLs or markdown links (one per line)", false);
+        showError(popupMessage('popupEnterValidUrlsError', null, 'Please enter valid URLs or markdown links (one per line)'), false);
         return;
     }
     const batchSaveMode = getSelectedBatchSaveMode();
@@ -3170,7 +3217,7 @@ async function handleBatchConversion(e) {
         dom.convertUrlsButton.style.display = 'none';
         progressUI.show();
         progressUI.reset();
-        progressUI.setStatus('Starting background batch...');
+        progressUI.setStatus(popupMessage('popupStartingBackgroundBatch', null, 'Starting background batch...'));
 
         try {
             const originalTabId = await getActiveTabId();
@@ -3236,7 +3283,7 @@ async function handleBatchConversion(e) {
 
                 await browser.scripting.executeScript({
                     target: { tabId: tab.id },
-                    files: ["/browser-polyfill.min.js", "/contentScript/contentScript.js"]
+                    files: ["/browser-polyfill.min.js", "/shared/i18n.js", "/contentScript/contentScript.js"]
                 });
 
                 await activateTabForCapture(tab.id, 1500);
@@ -3407,7 +3454,7 @@ function ensurePopupOffscreenBridge() {
 const clipSite = id => {
     return resolveClipTargetTab(id).then(async (tab) => {
         if (!tab?.id) {
-            throw new Error("No active tab found");
+            throw new Error(popupMessage('popupNoActiveTabError', null, 'No active tab found'));
         }
 
         if (isRestrictedTabUrl(tab.url || '')) {
@@ -3536,7 +3583,8 @@ async function initializePopup() {
         const [options, localState, activeTab] = await Promise.all([
             browser.storage.sync.get(defaultOptions).catch(() => ({ ...defaultOptions })),
             browser.storage.local.get('countMode').catch(() => ({})),
-            getActiveTab()
+            getActiveTab(),
+            popupI18nReady()
         ]);
 
         if (localState.countMode && COUNT_MODES.includes(localState.countMode)) {
@@ -3568,7 +3616,7 @@ async function initializePopup() {
         scheduleDeferredStartupTasks();
 
         if (!activeTab?.id) {
-            showError("No active tab found");
+            showError(popupMessage('popupNoActiveTabError', null, 'No active tab found'));
             await editorPromise;
             return;
         }
@@ -3706,7 +3754,7 @@ function handleLinkPickerComplete(links) {
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="20 6 9 17 4 12"/>
         </svg>
-        Added ${links.length} links!
+        ${popupMessage('popupAddedLinksFeedback', [links.length], `Added ${links.length} links!`)}
     `;
     pickLinksBtn.classList.add("success");
 
@@ -3721,7 +3769,7 @@ function sendDownloadMessage(text, title = dom.titleInput?.value || '') {
     if (text != null) {
         return getActiveTab().then(tab => {
             if (!tab?.id) {
-                throw new Error('No active tab found');
+                throw new Error(popupMessage('popupNoActiveTabError', null, 'No active tab found'));
             }
             const message = {
                 type: "download",
@@ -3742,14 +3790,14 @@ function shouldClosePopupAfterExport(kind) {
 }
 
 async function sendGeneratedDownloadMessage(kind, markdown, title = getCurrentExportTitle()) {
-    const nextTitle = String(title || '').trim() || 'Untitled';
+    const nextTitle = String(title || '').trim() || popupMessage('popupUntitledFallback', null, 'Untitled');
     const exportType = resolveDefaultExportType({ defaultExportType: kind });
     const config = getExportTypeConfig(exportType);
     const { content, fileExtension, mimeType } = await buildGeneratedExport(exportType, markdown, nextTitle);
     const activeTab = await getActiveTab();
 
     if (!activeTab?.id) {
-        throw new Error('No active tab found');
+        throw new Error(popupMessage('popupNoActiveTabError', null, 'No active tab found'));
     }
 
     return browser.runtime.sendMessage({
@@ -3819,7 +3867,7 @@ async function handleSendToAction(targetId = currentOptions?.defaultSendToTarget
     const content = selectionOnly ? getEditorSelection() : getEditorValue();
     if (!String(content || '').trim()) {
         if (triggerButton) {
-            setPrimaryActionFeedback(triggerButton, 'Nothing to send', 'error');
+            setPrimaryActionFeedback(triggerButton, popupMessage('popupNothingToSendFeedback', null, 'Nothing to send'), 'error');
             setTimeout(resetPrimaryActionFeedback, 1800);
         }
         return;
@@ -3850,7 +3898,7 @@ async function handleSendToAction(targetId = currentOptions?.defaultSendToTarget
         window.close();
     } catch (error) {
         if (triggerButton) {
-            setPrimaryActionFeedback(triggerButton, 'Failed', 'error');
+            setPrimaryActionFeedback(triggerButton, popupMessage('popupFailedFeedback', null, 'Failed'), 'error');
             setTimeout(resetPrimaryActionFeedback, 2200);
         }
         throw error;
@@ -3896,7 +3944,7 @@ async function handlePrimaryCopyAction({ selectionOnly = false, triggerButton = 
     const textToCopy = selectionOnly ? getEditorSelection() : getEditorValue();
     if (!String(textToCopy || '').trim()) {
         if (triggerButton) {
-            setPrimaryActionFeedback(triggerButton, 'Nothing to copy', 'error', 'copy');
+            setPrimaryActionFeedback(triggerButton, popupMessage('popupNothingToCopyFeedback', null, 'Nothing to copy'), 'error', 'copy');
             setTimeout(resetPrimaryActionFeedback, 1800);
         }
         return;
@@ -3909,7 +3957,9 @@ async function handlePrimaryCopyAction({ selectionOnly = false, triggerButton = 
         if (triggerButton) {
             setPrimaryActionFeedback(
                 triggerButton,
-                selectionOnly ? 'Copied Selection!' : 'Copied!',
+                selectionOnly
+                    ? popupMessage('popupCopiedSelectionFeedback', null, 'Copied Selection!')
+                    : popupMessage('popupCopiedFeedback', null, 'Copied!'),
                 'success',
                 'copy'
             );
@@ -3917,7 +3967,7 @@ async function handlePrimaryCopyAction({ selectionOnly = false, triggerButton = 
         }
     } catch (error) {
         if (triggerButton) {
-            setPrimaryActionFeedback(triggerButton, 'Failed', 'error', 'copy');
+            setPrimaryActionFeedback(triggerButton, popupMessage('popupFailedFeedback', null, 'Failed'), 'error', 'copy');
             setTimeout(resetPrimaryActionFeedback, 2000);
         }
         throw error;
@@ -4116,11 +4166,11 @@ async function sendToObsidian(e) {
             getEditorValue(),
             sourceImageMap || {}
         );
-        const title = dom.titleInput?.value || 'Untitled';
+        const title = dom.titleInput?.value || popupMessage('popupUntitledFallback', null, 'Untitled');
 
         const currentTab = await getActiveTab();
         if (!currentTab?.id) {
-            throw new Error('No active tab found');
+            throw new Error(popupMessage('popupNoActiveTabError', null, 'No active tab found'));
         }
 
         // Send message to service worker to handle Obsidian integration

@@ -7,7 +7,7 @@ const { execFileSync, spawn } = require('child_process');
 
 const extensionRoot = path.resolve(__dirname, '..');
 const repoRoot = path.resolve(extensionRoot, '..');
-const artifactRoot = path.join(extensionRoot, 'test-artifacts', 'firefox-live-smoke');
+const artifactRoot = path.join(repoRoot, 'test-artifacts', 'firefox-live-smoke');
 const extensionPath = path.join(extensionRoot, '.build', 'firefox');
 const mathMLFixturePath = path.join(extensionRoot, 'tests', 'fixtures', 'e2e-pages', 'extension', 'mathml-article.html');
 
