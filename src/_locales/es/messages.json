@@ -3489,6 +3489,10 @@
     "message": "Español",
     "description": "Label for the Spanish language option"
   },
+  "optionsAppearanceLanguageChinese": {
+    "message": "简体中文",
+    "description": "Label for the Simplified Chinese language option"
+  },
   "optionsLanguageSavedToast": {
     "message": "Idioma actualizado: recargando…",
     "description": "Toast shown after the user changes the interface language"
