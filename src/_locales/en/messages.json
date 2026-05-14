@@ -3501,6 +3501,10 @@
     "message": "한국어",
     "description": "Label for the Korean language option"
   },
+  "optionsAppearanceLanguageHindi": {
+    "message": "हिन्दी",
+    "description": "Label for the Hindi language option"
+  },
   "optionsLanguageSavedToast": {
     "message": "Language updated — reloading…",
     "description": "Toast shown after the user changes the interface language"
