@@ -3497,6 +3497,10 @@
     "message": "日本語",
     "description": "Label for the Japanese language option"
   },
+  "optionsAppearanceLanguageKorean": {
+    "message": "한국어",
+    "description": "Label for the Korean language option"
+  },
   "optionsLanguageSavedToast": {
     "message": "言語が更新されました — 再読み込み中…",
     "description": "Toast shown after the user changes the interface language"

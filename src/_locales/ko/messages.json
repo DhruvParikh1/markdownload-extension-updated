@@ -1,10 +1,10 @@
 {
   "extensionName": {
-    "message": "MarkSnip - Markdown 网页剪藏",
+    "message": "MarkSnip - 마크다운 웹 클리퍼",
     "description": "The name of the extension"
   },
   "extensionDescription": {
-    "message": "一键将网页剪藏为 Markdown。将文章、文档、代码和表格保存为干净的 Markdown 格式，供 AI 助手和 LLM 使用。支持 Obsidian 等。",
+    "message": "원클릭 마크다운 웹 클리퍼. 기사, 문서, 코드 및 표를 AI 에이전트 및 LLM용 깔끔한 마크다운으로 저장합니다. Obsidian 등을 지원합니다.",
     "description": "The description of the extension"
   },
   "actionTitle": {
@@ -12,91 +12,91 @@
     "description": "Default title for the extension action"
   },
   "cmdDownloadTab": {
-    "message": "将当前标签页保存为 Markdown",
+    "message": "현재 탭을 마크다운으로 저장",
     "description": "Command description"
   },
   "cmdCopyTab": {
-    "message": "将当前标签页作为 Markdown 复制到剪贴板",
+    "message": "현재 탭을 마크다운으로 클립보드에 복사",
     "description": "Command description"
   },
   "cmdCopySelection": {
-    "message": "将当前选区作为 Markdown 复制到剪贴板",
+    "message": "현재 선택 영역을 마크다운으로 클립보드에 복사",
     "description": "Command description"
   },
   "cmdCopyTabLink": {
-    "message": "将当前标签页 URL 作为 Markdown 链接复制到剪贴板",
+    "message": "현재 탭 URL을 마크다운 링크로 클립보드에 복사",
     "description": "Command description"
   },
   "cmdCopySelectedTabLink": {
-    "message": "将所选标签页 URL 作为 Markdown 链接复制到剪贴板",
+    "message": "선택한 탭 URL을 마크다운 링크로 클립보드에 복사",
     "description": "Command description"
   },
   "cmdSendToObsidianSelection": {
-    "message": "将当前选区作为 Markdown 复制到 Obsidian",
+    "message": "현재 선택 영역을 마크다운으로 Obsidian에 복사",
     "description": "Command description"
   },
   "cmdSendToObsidianTab": {
-    "message": "将当前标签页作为 Markdown 复制到 Obsidian",
+    "message": "현재 탭을 마크다운으로 Obsidian에 복사",
     "description": "Command description"
   },
   "contextDownloadTab": {
-    "message": "将标签页下载为 Markdown",
+    "message": "탭을 마크다운으로 다운로드",
     "description": "Context menu item"
   },
   "contextDownloadAllTabs": {
-    "message": "将所有标签页下载为 Markdown",
+    "message": "모든 탭을 마크다운으로 다운로드",
     "description": "Context menu item"
   },
   "contextCopyTabLink": {
-    "message": "将标签页 URL 复制为 Markdown 链接",
+    "message": "탭 URL을 마크다운 링크로 복사",
     "description": "Context menu item"
   },
   "contextCopyAllTabLinks": {
-    "message": "将所有标签页 URL 复制为 Markdown 链接列表",
+    "message": "모든 탭 URL을 마크다운 링크 목록으로 복사",
     "description": "Context menu item"
   },
   "contextCopySelectedTabLinks": {
-    "message": "将所选标签页 URL 复制为 Markdown 链接列表",
+    "message": "선택한 탭 URL을 마크다운 링크 목록으로 복사",
     "description": "Context menu item"
   },
   "contextToggleTemplate": {
-    "message": "包含顶部/底部模板",
+    "message": "앞/뒤 템플릿 포함",
     "description": "Context menu item"
   },
   "contextToggleImages": {
-    "message": "下载图片",
+    "message": "이미지 다운로드",
     "description": "Context menu item"
   },
   "contextDownloadSelection": {
-    "message": "将选区下载为 Markdown",
+    "message": "선택 영역을 마크다운으로 다운로드",
     "description": "Context menu item"
   },
   "contextCopySelection": {
-    "message": "将选区复制为 Markdown",
+    "message": "선택 영역을 마크다운으로 복사",
     "description": "Context menu item"
   },
   "contextCopyLink": {
-    "message": "将链接复制为 Markdown",
+    "message": "링크를 마크다운으로 복사",
     "description": "Context menu item"
   },
   "contextCopyImage": {
-    "message": "将图片复制为 Markdown",
+    "message": "이미지를 마크다운으로 복사",
     "description": "Context menu item"
   },
   "contextCopyTab": {
-    "message": "将标签页复制为 Markdown",
+    "message": "탭을 마크다운으로 복사",
     "description": "Context menu item"
   },
   "contextSendSelectionObsidian": {
-    "message": "将所选文本发送到 Obsidian",
+    "message": "텍스트 선택 영역을 Obsidian으로 전송",
     "description": "Context menu item"
   },
   "contextSendTabObsidian": {
-    "message": "将标签页发送到 Obsidian",
+    "message": "탭을 Obsidian으로 전송",
     "description": "Context menu item"
   },
   "notifVersionUpdateTitle": {
-    "message": "MarkSnip 已更新至 v$VERSION$",
+    "message": "MarkSnip이 v$VERSION$(으)로 업데이트되었습니다",
     "description": "Title for version update notification",
     "placeholders": {
       "version": {
@@ -105,7 +105,7 @@
     }
   },
   "notifVersionUpdateMessage": {
-    "message": "已从 v$PREVIOUS$ 更新至 v$CURRENT$。",
+    "message": "v$PREVIOUS$에서 v$CURRENT$(으)로 업데이트되었습니다.",
     "description": "Message for version update notification",
     "placeholders": {
       "previous": {
@@ -117,7 +117,7 @@
     }
   },
   "notifVersionUpdateMessageNew": {
-    "message": "MarkSnip 已更新至 v$VERSION$。",
+    "message": "MarkSnip이 v$VERSION$(으)로 업데이트되었습니다.",
     "description": "Message for new install notification",
     "placeholders": {
       "version": {
@@ -126,7 +126,7 @@
     }
   },
   "notifSupportTitle": {
-    "message": "已导出 $MILESTONE$ 个页面",
+    "message": "페이지 $MILESTONE$개 내보내기 완료",
     "description": "Title for support milestone notification",
     "placeholders": {
       "milestone": {
@@ -135,7 +135,7 @@
     }
   },
   "notifSupportMessage": {
-    "message": "MarkSnip 已帮助导出超过 $MILESTONE$ 个页面。如果它对您有帮助，请支持我们的持续开发。",
+    "message": "MarkSnip이 $MILESTONE$개가 넘는 페이지를 내보내는 데 도움을 주었습니다. 유용하게 사용하셨다면 지속적인 개발을 지원해 주세요.",
     "description": "Message for support milestone notification",
     "placeholders": {
       "milestone": {
@@ -144,111 +144,111 @@
     }
   },
   "notifReviewTitle": {
-    "message": "喜欢 MarkSnip 吗？",
+    "message": "MarkSnip이 마음에 드시나요?",
     "description": "Title for review request notification"
   },
   "notifReviewMessage": {
-    "message": "快速评价可以帮助其他人发现 MarkSnip，只需不到一分钟的时间。",
+    "message": "간단한 리뷰는 다른 사람들이 MarkSnip을 발견하는 데 도움이 되며 작성하는 데 1분도 채 걸리지 않습니다.",
     "description": "Message for review request notification"
   },
   "notifActionBuyCoffee": {
-    "message": "请我喝杯咖啡",
+    "message": "커피 한 잔 사주기",
     "description": "Notification action button"
   },
   "notifActionReleaseNotes": {
-    "message": "查看发布说明",
+    "message": "릴리스 노트 보기",
     "description": "Notification action button"
   },
   "notifActionLeaveReview": {
-    "message": "留下评价",
+    "message": "리뷰 남기기",
     "description": "Notification action button"
   },
   "popupLoadingText": {
-    "message": "正在处理页面...",
+    "message": "페이지 처리 중...",
     "description": "Loading indicator text"
   },
   "popupImagesToggle": {
-    "message": "图片",
+    "message": "이미지",
     "description": "Toggle switch label"
   },
   "popupTemplateToggle": {
-    "message": "模板",
+    "message": "템플릿",
     "description": "Toggle switch label"
   },
   "popupContentLabel": {
-    "message": "内容：",
+    "message": "콘텐츠:",
     "description": "Label for content scope segmented control"
   },
   "popupScopeSelection": {
-    "message": "选区",
+    "message": "선택 영역",
     "description": "Segmented control option"
   },
   "popupScopeDocument": {
-    "message": "文档",
+    "message": "문서",
     "description": "Segmented control option"
   },
   "popupTitleLabel": {
-    "message": "标题",
+    "message": "제목",
     "description": "Label for title input"
   },
   "popupTitlePlaceholder": {
-    "message": "文档标题...",
+    "message": "문서 제목...",
     "description": "Placeholder for title input"
   },
   "popupEditorLabel": {
-    "message": "Markdown",
+    "message": "마크다운",
     "description": "Label above the markdown editor"
   },
   "popupPreviewToggleTitle": {
-    "message": "切换预览",
+    "message": "미리보기 전환",
     "description": "Tooltip for preview toggle button"
   },
   "popupCopySelectionBtn": {
-    "message": "复制选区",
+    "message": "선택 영역 복사",
     "description": "Button label"
   },
   "popupCopyBtn": {
-    "message": "复制",
+    "message": "복사",
     "description": "Button label"
   },
   "popupDownloadSelectionBtn": {
-    "message": "下载选区",
+    "message": "선택 영역 다운로드",
     "description": "Button label"
   },
   "popupSendToObsidianBtn": {
-    "message": "发送到 Obsidian",
+    "message": "Obsidian으로 전송",
     "description": "Button label"
   },
   "popupDownloadBtn": {
-    "message": "下载",
+    "message": "다운로드",
     "description": "Button label"
   },
   "popupExportArrowTitle": {
-    "message": "更多导出选项",
+    "message": "추가 내보내기 옵션",
     "description": "Tooltip for export dropdown arrow"
   },
   "popupSendToLabel": {
-    "message": "发送至",
+    "message": "보내기",
     "description": "Dropdown section label"
   },
   "popupExportAsLabel": {
-    "message": "导出为",
+    "message": "내보내기 형식",
     "description": "Dropdown section label"
   },
   "popupExportMarkdown": {
-    "message": "Markdown (.md)",
+    "message": "마크다운 (.md)",
     "description": "Dropdown option"
   },
   "popupExportText": {
-    "message": "纯文本 (.txt)",
+    "message": "일반 텍스트 (.txt)",
     "description": "Dropdown option"
   },
   "popupDownloadTextBtn": {
-    "message": "下载 TXT",
+    "message": "TXT 다운로드",
     "description": "Primary action label for plain text export"
   },
   "popupDownloadTextSelectionBtn": {
-    "message": "将选区下载为 TXT",
+    "message": "선택 영역을 TXT로 다운로드",
     "description": "Selection action label for plain text export"
   },
   "popupExportHtml": {
@@ -256,135 +256,135 @@
     "description": "Dropdown option"
   },
   "popupDownloadHtmlBtn": {
-    "message": "下载 HTML",
+    "message": "HTML 다운로드",
     "description": "Primary action label for HTML export"
   },
   "popupDownloadHtmlSelectionBtn": {
-    "message": "将选区下载为 HTML",
+    "message": "선택 영역을 HTML로 다운로드",
     "description": "Selection action label for HTML export"
   },
   "popupExportPdf": {
-    "message": "保存为 PDF",
+    "message": "PDF로 저장",
     "description": "Dropdown option"
   },
   "popupDownloadPdfSelectionBtn": {
-    "message": "将选区保存为 PDF",
+    "message": "선택 영역을 PDF로 저장",
     "description": "Selection action label for PDF export"
   },
   "popupExportPdfNote": {
-    "message": "通过打印",
+    "message": "인쇄를 통해",
     "description": "Note next to Save as PDF option"
   },
   "popupExportPrint": {
-    "message": "打印",
+    "message": "인쇄",
     "description": "Dropdown option"
   },
   "popupBatchProcessingTitle": {
-    "message": "批量处理",
+    "message": "일괄 처리",
     "description": "Title for batch processing section"
   },
   "popupUrlsLabel": {
-    "message": "URL（每行一个）",
+    "message": "URL (한 줄에 하나씩)",
     "description": "Label for batch URLs textarea"
   },
   "popupUrlsPlaceholder": {
-    "message": "https://example.com/page1\nhttps://example.com/page2\n\n或使用 markdown 链接：\n[页面标题](https://example.com)",
+    "message": "https://example.com/page1\nhttps://example.com/page2\n\n또는 마크다운 링크를 사용하세요:\n[페이지 제목](https://example.com)",
     "description": "Placeholder for batch URLs textarea"
   },
   "popupPickLinksBtn": {
-    "message": "从页面中拾取链接",
+    "message": "페이지에서 링크 선택",
     "description": "Button label"
   },
   "popupBatchSaveZip": {
-    "message": "ZIP 文件",
+    "message": "ZIP 파일",
     "description": "Toggle option for batch save mode"
   },
   "popupBatchSaveIndividual": {
-    "message": "单独文件",
+    "message": "개별 파일",
     "description": "Toggle option for batch save mode"
   },
   "popupProgressProcessing": {
-    "message": "正在处理...",
+    "message": "처리 중...",
     "description": "Progress indicator status"
   },
   "popupCancelBtn": {
-    "message": "取消",
+    "message": "취소",
     "description": "Button label"
   },
   "popupConvertAllUrlsBtn": {
-    "message": "转换所有 URL",
+    "message": "모든 URL 변환",
     "description": "Button label"
   },
   "popupLibraryTitle": {
-    "message": "库",
+    "message": "라이브러리",
     "description": "Title for library section"
   },
   "popupSaveClipBtn": {
-    "message": "保存剪藏",
+    "message": "클립 저장",
     "description": "Button label"
   },
   "popupExportAllBtn": {
-    "message": "全部导出",
+    "message": "모두 내보내기",
     "description": "Button label"
   },
   "popupDownloadZipBtn": {
-    "message": "下载为 ZIP",
+    "message": "ZIP으로 다운로드",
     "description": "Dropdown option"
   },
   "popupIndividualFilesBtn": {
-    "message": "单独的 .md 文件",
+    "message": "개별 .md 파일",
     "description": "Dropdown option"
   },
   "popupCopyAllLinksBtn": {
-    "message": "复制所有链接",
+    "message": "모든 링크 복사",
     "description": "Dropdown option"
   },
   "popupLibraryEmptyTitle": {
-    "message": "暂无已保存的剪藏",
+    "message": "아직 저장된 클립이 없습니다",
     "description": "Empty state title for library"
   },
   "popupShortcutsTitle": {
-    "message": "键盘快捷键",
+    "message": "키보드 단축키",
     "description": "Title for shortcuts modal"
   },
   "popupThemeToggleTitle": {
-    "message": "切换到深色模式",
+    "message": "다크 모드로 전환",
     "description": "Tooltip for theme toggle"
   },
   "popupUserGuideTitle": {
-    "message": "用户指南",
+    "message": "사용자 가이드",
     "description": "Tooltip for user guide button"
   },
   "popupBatchProcessTitle": {
-    "message": "批量处理",
+    "message": "일괄 처리",
     "description": "Tooltip for batch process button"
   },
   "popupLibraryToggleTitle": {
-    "message": "库",
+    "message": "라이브러리",
     "description": "Tooltip for library toggle button"
   },
   "popupSettingsTitle": {
-    "message": "设置",
+    "message": "설정",
     "description": "Tooltip for settings button"
   },
   "popupGuideLink": {
-    "message": "用户指南",
+    "message": "사용자 가이드",
     "description": "Dropdown link label"
   },
   "popupShortcutsLink": {
-    "message": "键盘快捷键",
+    "message": "키보드 단축키",
     "description": "Dropdown link label"
   },
   "popupAlertNoLinksSelected": {
-    "message": "未选择任何链接。请在点击“完成”前选择包含链接的元素。",
+    "message": "선택된 링크가 없습니다. 완료를 클릭하기 전에 링크가 포함된 요소를 선택해 주세요.",
     "description": "Alert message when no links are selected in picker"
   },
   "popupAlertFailedToActivateLinkPicker": {
-    "message": "无法激活链接拾取器。请重试。",
+    "message": "링크 선택기를 활성화하지 못했습니다. 다시 시도해 주세요.",
     "description": "Alert message when link picker fails to activate"
   },
   "optionsTitle": {
-    "message": "MarkSnip 设置",
+    "message": "MarkSnip 설정",
     "description": "Page title for options page"
   },
   "optionsHeaderTitle": {
@@ -392,191 +392,191 @@
     "description": "Header title on options page"
   },
   "optionsHeaderSubtitle": {
-    "message": "选项",
+    "message": "설정",
     "description": "Header subtitle on options page"
   },
   "optionsSearchPlaceholder": {
-    "message": "搜索设置...",
+    "message": "설정 검색...",
     "description": "Placeholder for settings search input"
   },
   "optionsTabTemplates": {
-    "message": "模板",
+    "message": "템플릿",
     "description": "Sidebar tab label"
   },
   "optionsTabAppearance": {
-    "message": "外观",
+    "message": "모양",
     "description": "Sidebar tab label"
   },
   "optionsTabExports": {
-    "message": "导出与集成",
+    "message": "내보내기 및 통합",
     "description": "Sidebar tab label"
   },
   "optionsTabLibrary": {
-    "message": "库",
+    "message": "라이브러리",
     "description": "Sidebar tab label"
   },
   "optionsTabMarkdown": {
-    "message": "Markdown",
+    "message": "마크다운",
     "description": "Sidebar tab label"
   },
   "optionsTabTables": {
-    "message": "表格",
+    "message": "표",
     "description": "Sidebar tab label"
   },
   "optionsTabSiteRules": {
-    "message": "站点规则",
+    "message": "사이트 규칙",
     "description": "Sidebar tab label"
   },
   "optionsTabImportExport": {
-    "message": "导入 / 导出",
+    "message": "가져오기 / 내보내기",
     "description": "Sidebar tab label"
   },
   "optionsHelpCategory": {
-    "message": "帮助与资源",
+    "message": "도움말 및 리소스",
     "description": "Sidebar category label"
   },
   "optionsUserGuideLink": {
-    "message": "用户指南",
+    "message": "사용자 가이드",
     "description": "Sidebar link label"
   },
   "optionsCommunityCategory": {
-    "message": "社区",
+    "message": "커뮤니티",
     "description": "Sidebar category label"
   },
   "optionsBuyCoffeeLink": {
-    "message": "请我喝杯咖啡",
+    "message": "커피 한 잔 사주기",
     "description": "Sidebar link label"
   },
   "optionsLeaveReviewLink": {
-    "message": "留下评价",
+    "message": "리뷰 남기기",
     "description": "Sidebar link label"
   },
   "optionsReportIssueLink": {
-    "message": "报告问题",
+    "message": "문제 신고",
     "description": "Sidebar link label"
   },
   "optionsSectionTemplatesTitle": {
-    "message": "模板",
+    "message": "템플릿",
     "description": "Section title"
   },
   "optionsSectionTemplatesDesc": {
-    "message": "为您的剪藏 Markdown 文件配置标题、顶部模板和底部模板。",
+    "message": "클립된 마크다운 파일의 제목, 앞부분 템플릿(front-matter) 및 뒷부분 템플릿(back-matter)을 구성합니다.",
     "description": "Section description"
   },
   "optionsTemplateVarRefTitle": {
-    "message": "模板变量参考",
+    "message": "템플릿 변수 참조",
     "description": "Summary title for variable reference details"
   },
   "optionsTitleTemplateLabel": {
-    "message": "标题模板",
+    "message": "제목 템플릿",
     "description": "Setting card title"
   },
   "optionsTitleTemplateInput": {
-    "message": "标题 / 文件名模板",
+    "message": "제목 / 파일명 템플릿",
     "description": "Input label"
   },
   "optionsDisallowedCharsLabel": {
-    "message": "不允许的字符",
+    "message": "허용되지 않는 문자",
     "description": "Setting card title"
   },
   "optionsDisallowedCharsDesc": {
-    "message": "要在标题/文件名中剥离或替换的字符 - 除了 /、?、<、>、\\\\、:、*、|、\" 之外",
+    "message": "/, ?, <, >, \\\\, :, *, |, \" 외에 제목/파일명에서 제거하거나 대체할 문자",
     "description": "Setting description"
   },
   "optionsDisallowedCharsAdditional": {
-    "message": "附加字符",
+    "message": "추가 문자",
     "description": "Input label"
   },
   "optionsDisallowedCharsReplacement": {
-    "message": "替换文本",
+    "message": "대체 텍스트",
     "description": "Input label"
   },
   "optionsDisallowedCharsReplacementPlaceholder": {
-    "message": "留空以剥离",
+    "message": "제거하려면 비워 두세요",
     "description": "Input placeholder"
   },
   "optionsFrontmatterLabel": {
-    "message": "顶部模板 (Front-matter)",
+    "message": "앞부분 템플릿(Front-matter)",
     "description": "Setting card title"
   },
   "optionsFrontmatterInput": {
-    "message": "出现在输出文件顶部的文本",
+    "message": "출력 파일의 맨 위에 나타나는 텍스트",
     "description": "Input label"
   },
   "optionsLivePreviewLabel": {
-    "message": "实时预览",
+    "message": "실시간 미리보기",
     "description": "Preview section label"
   },
   "optionsLivePreviewRaw": {
-    "message": "原始输出",
+    "message": "원시 출력",
     "description": "Preview section meta label"
   },
   "optionsPreviewHint": {
-    "message": "预览使用示例元数据和当前日期/时间。",
+    "message": "미리보기는 예제 메타데이터와 현재 날짜/시간을 사용합니다.",
     "description": "Hint text for preview"
   },
   "optionsBackmatterLabel": {
-    "message": "底部模板 (Back-matter)",
+    "message": "뒷부분 템플릿(Back-matter)",
     "description": "Setting card title"
   },
   "optionsBackmatterInput": {
-    "message": "出现在输出文件底部的文本",
+    "message": "출력 파일의 맨 아래에 나타나는 텍스트",
     "description": "Input label"
   },
   "optionsIncludeTemplateToggle": {
-    "message": "将顶部/底部模板附加到剪藏文本",
+    "message": "클립된 텍스트에 앞/뒤 템플릿 추가",
     "description": "Toggle label"
   },
   "optionsIncludeTemplateHint": {
-    "message": "与弹窗的“模板”开关相同。启用后，每个剪藏都将包含您的顶部模板和底部模板。",
+    "message": "팝업의 템플릿 토글과 동일합니다. 활성화하면 각 클립에 앞부분 템플릿과 뒷부분 템플릿이 포함됩니다.",
     "description": "Toggle hint"
   },
   "optionsSectionAppearanceTitle": {
-    "message": "外观",
+    "message": "모양",
     "description": "Section title"
   },
   "optionsSectionAppearanceDesc": {
-    "message": "自定义 MarkSnip 弹窗的外观。",
+    "message": "MarkSnip 팝업의 모양을 사용자 지정합니다.",
     "description": "Section description"
   },
   "optionsColorModeTitle": {
-    "message": "颜色模式",
+    "message": "색상 모드",
     "description": "Setting card title"
   },
   "optionsColorModeSystem": {
-    "message": "系统默认",
+    "message": "시스템 기본값",
     "description": "Radio button label"
   },
   "optionsColorModeLight": {
-    "message": "浅色",
+    "message": "라이트",
     "description": "Radio button label"
   },
   "optionsColorModeDark": {
-    "message": "深色",
+    "message": "다크",
     "description": "Radio button label"
   },
   "optionsShowThemeToggle": {
-    "message": "在弹窗头部显示快速主题切换",
+    "message": "팝업 헤더에 빠른 테마 토글 표시",
     "description": "Toggle label"
   },
   "optionsShowThemeToggleHint": {
-    "message": "在弹窗头部添加一个按钮，用于一键切换浅色和深色模式。",
+    "message": "라이트 모드와 다크 모드 사이를 원클릭으로 전환할 수 있는 헤더 버튼을 팝업에 추가합니다.",
     "description": "Toggle hint"
   },
   "optionsSpecialThemesTitle": {
-    "message": "特殊主题",
+    "message": "특수 테마",
     "description": "Setting card title"
   },
   "optionsSpecialThemesDesc": {
-    "message": "在弹窗、选项页面、指南和编辑器中应用定制的美学风格。",
+    "message": "팝업, 설정 페이지, 가이드 및 편집기 전반에 걸쳐 맞춤형 디자인을 적용합니다.",
     "description": "Setting description"
   },
   "optionsThemeNone": {
-    "message": "无",
+    "message": "없음",
     "description": "Radio button label"
   },
   "optionsThemeColorBlind": {
-    "message": "色盲友好",
+    "message": "색맹",
     "description": "Radio button label"
   },
   "optionsThemeClaude": {
@@ -600,75 +600,75 @@
     "description": "Radio button label"
   },
   "optionsColorBlindProfile": {
-    "message": "色盲配置文件",
+    "message": "색맹 프로필",
     "description": "Input label"
   },
   "optionsColorBlindDeuteranopia": {
-    "message": "绿色盲 (Deuteranopia)",
+    "message": "제2색맹 (녹색맹)",
     "description": "Dropdown option"
   },
   "optionsColorBlindProtanopia": {
-    "message": "红色盲 (Protanopia)",
+    "message": "제1색맹 (적색맹)",
     "description": "Dropdown option"
   },
   "optionsColorBlindTritanopia": {
-    "message": "蓝色盲 (Tritanopia)",
+    "message": "제3색맹 (청황색맹)",
     "description": "Dropdown option"
   },
   "optionsColorBlindHint": {
-    "message": "在弹窗、选项页面、指南和编辑器中使用 WCAG AA 标准的调色板。",
+    "message": "팝업, 설정 페이지, 가이드 및 편집기 전반에 걸쳐 WCAG AA 팔레트를 사용합니다.",
     "description": "Hint text"
   },
   "optionsShowThemeIcon": {
-    "message": "显示主题图标",
+    "message": "테마 아이콘 표시",
     "description": "Toggle label"
   },
   "optionsShowThemeIconHint": {
-    "message": "当使用支持的特殊主题时，在头部显示吉祥物图标。",
+    "message": "지원되는 특수 테마를 사용할 때 헤더에 마스코트 아이콘을 표시합니다.",
     "description": "Toggle hint"
   },
   "optionsAccentColorTitle": {
-    "message": "强调色",
+    "message": "강조 색상",
     "description": "Setting card title"
   },
   "optionsAccentThemeNote": {
-    "message": "特殊主题处于活动状态时，将控制强调色。",
+    "message": "활성화된 특수 테마는 활성 상태일 때 강조 색상을 제어합니다.",
     "description": "Note text"
   },
   "optionsAccentSage": {
-    "message": "🌿 鼠尾草绿",
+    "message": "🌿 세이지 그린",
     "description": "Radio button label"
   },
   "optionsAccentOcean": {
-    "message": "🌊 海洋蓝",
+    "message": "🌊 오션 블루",
     "description": "Radio button label"
   },
   "optionsAccentSlate": {
-    "message": "🪨 石板灰",
+    "message": "🪨 슬레이트 그레이",
     "description": "Radio button label"
   },
   "optionsAccentRose": {
-    "message": "🌹 玫瑰红",
+    "message": "🌹 로즈",
     "description": "Radio button label"
   },
   "optionsAccentAmber": {
-    "message": "🍯 琥珀黄",
+    "message": "🍯 앰버",
     "description": "Radio button label"
   },
   "optionsEditorThemeTitle": {
-    "message": "编辑器主题",
+    "message": "편집기 테마",
     "description": "Setting card title"
   },
   "optionsEditorThemeDesc": {
-    "message": "为弹窗中的 Markdown 编辑器选择一种语法高亮主题。",
+    "message": "팝업의 마크다운 편집기용 구문 강조 테마를 선택하세요.",
     "description": "Setting description"
   },
   "optionsEditorThemeLockNote": {
-    "message": "特殊主题处于活动状态时，将提供其自带的浅色和深色编辑器主题。",
+    "message": "활성화된 특수 테마는 활성 상태일 때 자체적인 라이트 및 다크 편집기 테마를 제공합니다.",
     "description": "Note text"
   },
   "optionsEditorThemeDefault": {
-    "message": "默认",
+    "message": "기본값",
     "description": "Radio button label"
   },
   "optionsEditorThemeDracula": {
@@ -696,71 +696,71 @@
     "description": "Radio button label"
   },
   "optionsEditorThemeDarkOnlyNote": {
-    "message": "仅支持深色模式 — 在浅色模式下会回退到默认主题",
+    "message": "다크 모드 전용 — 라이트 모드에서는 기본값으로 대체됩니다",
     "description": "Tooltip note for dark-only themes"
   },
   "optionsPopupBehaviorTitle": {
-    "message": "弹窗行为",
+    "message": "팝업 동작",
     "description": "Setting card title"
   },
   "optionsCompactMode": {
-    "message": "紧凑模式",
+    "message": "컴팩트 모드",
     "description": "Toggle label"
   },
   "optionsCompactModeHint": {
-    "message": "隐藏快速设置面板并减少内边距，呈现极简弹窗。头部仍可访问设置图标。",
+    "message": "빠른 설정 패널을 숨기고 패딩을 줄여 최소한의 팝업을 만듭니다. 설정 아이콘은 헤더에서 계속 접근할 수 있습니다.",
     "description": "Toggle hint"
   },
   "optionsShowUserGuideIcon": {
-    "message": "显示用户指南图标",
+    "message": "사용자 가이드 아이콘 표시",
     "description": "Toggle label"
   },
   "optionsShowUserGuideIconHint": {
-    "message": "在弹窗头部显示用户指南按钮，以便快速获取帮助。",
+    "message": "도움말에 빠르게 접근할 수 있도록 팝업 헤더에 사용자 가이드 버튼을 표시합니다.",
     "description": "Toggle hint"
   },
   "optionsSectionExportsTitle": {
-    "message": "导出与集成",
+    "message": "내보내기 및 통합",
     "description": "Section title"
   },
   "optionsSectionExportsDesc": {
-    "message": "配置文件的导出方式，并管理与 Obsidian、助手以及 Agent Bridge 的集成。",
+    "message": "파일을 내보내는 방법을 구성하고 Obsidian, 어시스턴트 및 Agent Bridge와의 통합을 관리합니다.",
     "description": "Section description"
   },
   "optionsEnableContextMenus": {
-    "message": "启用上下文菜单",
+    "message": "컨텍스트 메뉴 활성화",
     "description": "Toggle label"
   },
   "optionsEnableContextMenusHint": {
-    "message": "显示右键菜单项以剪藏页面、选区、链接和标签页。",
+    "message": "페이지, 선택한 텍스트, 링크 및 탭을 클리핑하기 위한 마우스 오른쪽 버튼 클릭 작업을 표시합니다.",
     "description": "Toggle hint"
   },
   "optionsEnableBatchProcessing": {
-    "message": "启用批量处理",
+    "message": "일괄 처리 활성화",
     "description": "Toggle label"
   },
   "optionsEnableBatchProcessingHint": {
-    "message": "在弹窗中显示批量处理入口，并允许批量转换 URL。",
+    "message": "팝업에 일괄 처리 항목을 표시하고 대량 URL 변환을 허용합니다.",
     "description": "Toggle hint"
   },
   "optionsDefaultPopupActionTitle": {
-    "message": "默认弹窗操作",
+    "message": "기본 팝업 작업",
     "description": "Setting card title"
   },
   "optionsDefaultPopupActionDesc": {
-    "message": "控制弹窗的主操作按钮和选区操作按钮。上下文菜单、快捷键、批量导出、库导出、Agent Bridge 和 Obsidian 仍保持基于 Markdown 的操作。",
+    "message": "팝업의 주 작업 버튼과 선택 작업 버튼만 제어합니다. 컨텍스트 메뉴, 단축키, 일괄 내보내기, 라이브러리 내보내기, Agent Bridge 및 Obsidian은 마크다운 기반으로 유지됩니다.",
     "description": "Setting description"
   },
   "optionsExportCopy": {
-    "message": "复制到剪贴板",
+    "message": "클립보드에 복사",
     "description": "Radio button label"
   },
   "optionsExportMarkdown": {
-    "message": "Markdown (.md)",
+    "message": "마크다운 (.md)",
     "description": "Radio button label"
   },
   "optionsExportText": {
-    "message": "纯文本 (.txt)",
+    "message": "일반 텍스트 (.txt)",
     "description": "Radio button label"
   },
   "optionsExportHtml": {
@@ -772,83 +772,83 @@
     "description": "Radio button label"
   },
   "optionsExportSendTo": {
-    "message": "发送给助手",
+    "message": "어시스턴트로 전송",
     "description": "Radio button label"
   },
   "optionsDownloadModeTitle": {
-    "message": "下载模式",
+    "message": "다운로드 모드",
     "description": "Setting card title"
   },
   "optionsDownloadModeDesc": {
-    "message": "下载 Markdown 文件的方法。如果您在使用 Downloads API 时遇到问题（有时会与其他下载扩展发生冲突，导致生成随机文件名等症状），请将其设置为“内容链接”。",
+    "message": "마크다운 파일 다운로드에 사용할 방법입니다. Downloads API에 문제가 있는 경우 \"콘텐츠 링크(Content Link)\"로 설정하세요 (경우에 따라 다른 다운로드 확장 프로그램과 충돌이 발생하여 파일명이 무작위로 생성되는 등의 증상이 나타날 수 있습니다).",
     "description": "Setting description"
   },
   "optionsDownloadModeNote": {
-    "message": "注意：“内容链接”模式将禁用某些功能，例如下载图片或在文件名中使用子文件夹。",
+    "message": "참고: \"콘텐츠 링크\" 모드는 이미지 다운로드나 파일명에 하위 폴더를 사용하는 등의 일부 기능을 비활성화합니다.",
     "description": "Note text"
   },
   "optionsDownloadModeApi": {
-    "message": "Downloads API（推荐）",
+    "message": "Downloads API (권장)",
     "description": "Radio button label"
   },
   "optionsDownloadModeLink": {
-    "message": "内容链接",
+    "message": "콘텐츠 링크",
     "description": "Radio button label"
   },
   "optionsSaveAsToggle": {
-    "message": "始终显示“另存为”对话框",
+    "message": "항상 다른 이름으로 저장 대화상자 표시",
     "description": "Toggle label"
   },
   "optionsSaveAsHint": {
-    "message": "无视浏览器设置",
+    "message": "브라우저 설정과 관계없이 적용됩니다",
     "description": "Toggle hint"
   },
   "optionsDownloadImagesToggle": {
-    "message": "在 Markdown 文件旁边下载图片",
+    "message": "마크다운 파일과 함께 이미지 다운로드",
     "description": "Toggle label"
   },
   "optionsDownloadImagesHint": {
-    "message": "在 Downloads API 模式下，图片文件也会被保存，并且 Markdown 中的图片链接将被重写为这些本地文件。",
+    "message": "Downloads API 모드에서는 이미지 파일도 함께 저장되며 마크다운 이미지 링크는 해당 로컬 파일로 다시 작성됩니다.",
     "description": "Toggle hint"
   },
   "optionsImagePrefixLabel": {
-    "message": "图片文件名前缀模板",
+    "message": "이미지 파일명 접두사 템플릿",
     "description": "Input label"
   },
   "optionsClipsFolderTitle": {
-    "message": "剪藏文件夹",
+    "message": "클립 폴더",
     "description": "Setting card title"
   },
   "optionsClipsFolderLabel": {
-    "message": "Downloads/ 目录下用于存储 MarkSnip 剪藏的文件夹",
+    "message": "MarkSnip 클립을 저장할 Downloads/ 내부 폴더",
     "description": "Input label"
   },
   "optionsDefaultAssistantTargetTitle": {
-    "message": "默认助手目标",
+    "message": "기본 어시스턴트 대상",
     "description": "Setting card title"
   },
   "optionsDefaultAssistantTargetDesc": {
-    "message": "当弹窗的主操作设置为“发送给助手”时使用。如果选定的自定义目标被移除，MarkSnip 将回退到 ChatGPT。",
+    "message": "팝업의 주 작업이 어시스턴트로 전송으로 설정된 경우 사용됩니다. 선택한 사용자 지정 대상이 제거되면 MarkSnip은 ChatGPT로 대체됩니다.",
     "description": "Setting description"
   },
   "optionsAssistantTargetsTitle": {
-    "message": "助手目标",
+    "message": "어시스턴트 대상",
     "description": "Setting card title"
   },
   "optionsAssistantTargetsDesc": {
-    "message": "内置了 ChatGPT、Claude 和 Perplexity。您可以添加在查询字符串中接受 {prompt} 占位符的自定义 HTTPS URL。",
+    "message": "ChatGPT, Claude 및 Perplexity가 내장되어 있습니다. 쿼리 문자열에 {prompt} 자리 표시자를 허용하는 사용자 지정 HTTPS URL을 추가하세요.",
     "description": "Setting description"
   },
   "optionsCustomTargetName": {
-    "message": "目标名称",
+    "message": "대상 이름",
     "description": "Input label"
   },
   "optionsCustomTargetNamePlaceholder": {
-    "message": "Gemini 工作区",
+    "message": "Gemini Workspace",
     "description": "Input placeholder"
   },
   "optionsCustomTargetUrl": {
-    "message": "URL 模板",
+    "message": "URL 템플릿",
     "description": "Input label"
   },
   "optionsCustomTargetUrlPlaceholder": {
@@ -856,111 +856,111 @@
     "description": "Input placeholder"
   },
   "optionsAddTargetBtn": {
-    "message": "添加目标",
+    "message": "대상 추가",
     "description": "Button label"
   },
   "optionsAssistantTargetHint": {
-    "message": "只能使用一个 {prompt} 占位符。示例：https://example.com/new?q={prompt}",
+    "message": "{prompt} 자리 표시자를 정확히 하나 사용하세요. 예: https://example.com/new?q={prompt}",
     "description": "Hint text"
   },
   "optionsAssistantUrlLengthTitle": {
-    "message": "助手 URL 长度上限",
+    "message": "어시스턴트 URL 길이 제한",
     "description": "Setting card title"
   },
   "optionsAssistantUrlLengthDesc": {
-    "message": "“发送给助手”链接的高级设置。如果生成的助手 URL 超过此值，MarkSnip 将把 Markdown 复制到您的剪贴板，并转而打开助手的着陆页。默认值：3600。不建议修改此设置。",
+    "message": "어시스턴트로 전송 링크를 위한 고급 설정입니다. 생성된 어시스턴트 URL이 이 값을 초과하면 MarkSnip은 마크다운을 클립보드에 복사하고 대신 어시스턴트 랜딩 페이지를 엽니다. 기본값: 3600. 이 값을 변경하는 것은 권장하지 않습니다.",
     "description": "Setting description"
   },
   "optionsMaxUrlLengthLabel": {
-    "message": "最大 URL 长度",
+    "message": "최대 URL 길이",
     "description": "Input label"
   },
   "optionsObsidianIntegrationTitle": {
-    "message": "Obsidian 集成",
+    "message": "Obsidian 통합",
     "description": "Setting card title"
   },
   "optionsObsidianIntegrationDesc": {
-    "message": "为了与 Obsidian 集成，您需要安装并启用社区插件 Advanced Obsidian URI。该插件通过使用剪贴板作为创建新文件的来源，帮助绕过 URL 中的字符限制。以此方式发送的图片仍为远程链接；附件文件不会被复制到您的库中。",
+    "message": "Obsidian과 통합하려면 커뮤니티 플러그인 Advanced Obsidian URI를 설치하고 활성화해야 합니다. 이 플러그인은 클립보드를 새 파일을 만드는 소스로 사용하여 URL의 문자 수 제한을 우회하는 데 도움이 됩니다. 이 방법으로 전송된 이미지는 원격 링크로 유지되며 첨부 파일은 보관소에 복사되지 않습니다.",
     "description": "Setting description"
   },
   "optionsEnableObsidian": {
-    "message": "启用 Obsidian 集成",
+    "message": "Obsidian 통합 활성화",
     "description": "Toggle label"
   },
   "guideQuickStartHeading": {
-    "message": "快速入门",
+    "message": "빠른 시작",
     "description": "Heading in guide"
   },
   "guideQuickStart1": {
-    "message": "点击浏览器工具栏中的 MarkSnip 图标以打开弹窗。",
+    "message": "팝업을 열려면 브라우저 툴바에서 MarkSnip 아이콘을 클릭하세요.",
     "description": "Instruction step"
   },
   "guideQuickStart2": {
-    "message": "当前页面将通过 Mozilla Readability 提取主要内容，然后使用 Turndown 转换为 Markdown。",
+    "message": "현재 페이지는 Mozilla Readability를 거쳐 주 콘텐츠를 추출한 다음, Turndown을 사용하여 마크다운으로 변환됩니다.",
     "description": "Instruction step"
   },
   "guideQuickStart3": {
-    "message": "使用内置的 CodeMirror 编辑器编辑、复制或下载 Markdown。",
+    "message": "내장된 CodeMirror 편집기를 사용하여 마크다운을 편집, 복사 또는 다운로드하세요.",
     "description": "Instruction step"
   },
   "guideQuickStartTip": {
-    "message": "提示：使用 Alt+Shift+M 即可不点击图标打开弹窗。",
+    "message": "팁: 아이콘을 클릭하지 않고 팝업을 열려면 Alt+Shift+M을 사용하세요.",
     "description": "Tip text"
   },
   "guideWelcomeTitle": {
-    "message": "欢迎使用 MarkSnip！",
+    "message": "MarkSnip에 오신 것을 환영합니다!",
     "description": "Welcome banner title"
   },
   "guideWelcomeDesc1": {
-    "message": "感谢您安装 MarkSnip。本指南将帮助您开始将网页剪藏为干净的 Markdown。",
+    "message": "MarkSnip을 설치해 주셔서 감사합니다. 이 가이드는 웹 페이지를 깔끔한 마크다운으로 클리핑하는 방법을 시작하는 데 도움이 될 것입니다.",
     "description": "Welcome text"
   },
   "guideWelcomeDesc2": {
-    "message": "您可以从下方的“快速入门”部分开始，或者浏览左侧的目录。",
+    "message": "아래의 빠른 시작 섹션에서 시작하거나 왼쪽의 목차를 찾아보세요.",
     "description": "Welcome text"
   },
   "guideTroubleshootingTitle": {
-    "message": "故障排除 / 常见问题 (FAQ)",
+    "message": "문제 해결 / FAQ",
     "description": "Heading in guide"
   },
   "guideFaq1Title": {
-    "message": "弹窗显示“正在处理页面...”但没有任何反应",
+    "message": "팝업에 \"페이지 처리 중...\"이라고 표시되고 아무 일도 일어나지 않습니다",
     "description": "FAQ question"
   },
   "guideFaq1Desc": {
-    "message": "有些页面会阻止内容脚本。请尝试刷新页面，或检查 MarkSnip 是否具有访问该站点的权限。浏览器内部页面（chrome://、about:）无法被剪藏。",
+    "message": "일부 페이지는 콘텐츠 스크립트를 차단합니다. 페이지를 새로 고치거나 MarkSnip이 사이트에 액세스할 권한이 있는지 확인해 보세요. 내부 브라우저 페이지(chrome://, about:)는 클리핑할 수 없습니다.",
     "description": "FAQ answer"
   },
   "guideFaq2Title": {
-    "message": "图片未下载",
+    "message": "이미지가 다운로드되지 않습니다",
     "description": "FAQ question"
   },
   "guideFaq2Desc": {
-    "message": "确保下载模式设置为“Downloads API”并且开启了“图片”开关。内容链接模式不支持图片下载。",
+    "message": "다운로드 모드가 \"Downloads API\"로 설정되어 있고 이미지 토글이 활성화되어 있는지 확인하세요. 콘텐츠 링크 모드는 이미지 다운로드를 지원하지 않습니다.",
     "description": "FAQ answer"
   },
   "guideFaq3Title": {
-    "message": "看不到“发送到 Obsidian”",
+    "message": "Obsidian으로 전송 버튼이 보이지 않습니다",
     "description": "FAQ question"
   },
   "guideFaq3Desc": {
-    "message": "在设置中启用 Obsidian 集成。您还需要在 Obsidian 中安装 Advanced Obsidian URI 社区插件。",
+    "message": "설정에서 Obsidian 통합을 활성화하세요. 또한 Obsidian에 Advanced Obsidian URI 커뮤니티 플러그인이 설치되어 있어야 합니다.",
     "description": "FAQ answer"
   },
   "optionsObsidianVaultLabel": {
-    "message": "Obsidian 库名称 (Vault Name)",
+    "message": "Obsidian 보관소 이름",
     "description": "Label for Obsidian Vault Name"
   },
   "optionsObsidianVaultPlaceholder": {
-    "message": "如果留空，将使用主库。请指定它。",
+    "message": "비워 두면 기본 보관소를 사용합니다. 지정해 주세요.",
     "description": "Placeholder for Obsidian Vault Name"
   },
   "optionsObsidianFolderLabel": {
-    "message": "Obsidian 文件夹名称 (Folder Name)",
+    "message": "Obsidian 폴더 이름",
     "description": "Label for Obsidian Folder Name"
   },
   "optionsObsidianFolderPlaceholder": {
-    "message": "输入文件夹名称，例如 Clippers",
+    "message": "폴더 이름을 입력하세요 (예: Clippers)",
     "description": "Placeholder for Obsidian Folder Name"
   },
   "optionsAgentBridgeTitle": {
@@ -968,1627 +968,1627 @@
     "description": "Title for Agent Bridge section"
   },
   "optionsAgentBridgeDesc": {
-    "message": "安装一次本地 MarkSnip 伴侣程序，然后允许本地工具直接拉取当前页面的 Markdown，而无需使用下载功能。",
+    "message": "로컬 MarkSnip 컴패니언을 한 번 설치하면 로컬 도구가 다운로드를 사용하지 않고 현재 페이지의 마크다운을 직접 가져올 수 있습니다.",
     "description": "Description for Agent Bridge"
   },
   "optionsAgentBridgeEnableLabel": {
-    "message": "启用 Agent Bridge",
+    "message": "Agent Bridge 활성화",
     "description": "Label to enable Agent Bridge"
   },
   "optionsAgentBridgeEnableHint": {
-    "message": "关闭时，MarkSnip 将不会打开本地伴侣连接。",
+    "message": "꺼져 있으면 MarkSnip이 로컬 컴패니언 연결을 열지 않습니다.",
     "description": "Hint for Agent Bridge toggle"
   },
   "optionsAgentBridgePermPreflightTitle": {
-    "message": "启用本地伴侣访问权限？",
+    "message": "로컬 컴패니언 액세스를 활성화하시겠습니까?",
     "description": "Title for Agent Bridge permission preflight"
   },
   "optionsAgentBridgePermPreflightDesc": {
-    "message": "MarkSnip 即将请求浏览器允许与本地 MarkSnip 伴侣通信。",
+    "message": "MarkSnip이 브라우저에 로컬 MarkSnip 컴패니언과 통신할 권한을 요청하려고 합니다.",
     "description": "Description for Agent Bridge permission preflight"
   },
   "optionsAgentBridgePermBullet1": {
-    "message": "仅用于 Agent Bridge",
+    "message": "Agent Bridge에만 사용됨",
     "description": "Agent Bridge permission bullet 1"
   },
   "optionsAgentBridgePermBullet2": {
-    "message": "仅限本地机器",
+    "message": "로컬 머신에만 해당",
     "description": "Agent Bridge permission bullet 2"
   },
   "optionsAgentBridgePermBullet3": {
-    "message": "没有它，常规的剪藏功能依然可以工作",
+    "message": "이 권한 없이도 일반 클리핑은 여전히 작동함",
     "description": "Agent Bridge permission bullet 3"
   },
   "optionsAgentBridgePermContinue": {
-    "message": "继续",
+    "message": "계속",
     "description": "Continue button for Agent Bridge permission"
   },
   "optionsAgentBridgePermCancel": {
-    "message": "取消",
+    "message": "취소",
     "description": "Cancel button for Agent Bridge permission"
   },
   "optionsAgentBridgePermGuide": {
-    "message": "查看设置指南",
+    "message": "설정 가이드 보기",
     "description": "Link to setup guide for Agent Bridge permission"
   },
   "optionsAgentBridgePermDeniedDesc": {
-    "message": "未授予权限。Agent Bridge 保持关闭状态。常规剪藏功能不受影响。",
+    "message": "권한이 부여되지 않았습니다. Agent Bridge는 꺼진 상태로 유지됩니다. 일반 클리핑은 변경되지 않습니다.",
     "description": "Description when Agent Bridge permission is denied"
   },
   "optionsAgentBridgePermRetry": {
-    "message": "重试",
+    "message": "다시 시도",
     "description": "Retry button for Agent Bridge permission"
   },
   "optionsAgentBridgeStatusLabel": {
-    "message": "状态",
+    "message": "상태",
     "description": "Label for Agent Bridge status"
   },
   "optionsAgentBridgeStatusTextDisabled": {
-    "message": "已禁用",
+    "message": "비활성화됨",
     "description": "Disabled status text for Agent Bridge"
   },
   "optionsAgentBridgeStatusHint": {
-    "message": "启用 Agent Bridge 以允许 MarkSnip 连接到本地伴侣。",
+    "message": "Agent Bridge를 활성화하여 MarkSnip이 로컬 컴패니언에 연결할 수 있도록 합니다.",
     "description": "Hint for Agent Bridge status"
   },
   "optionsAgentBridgeCheckStatus": {
-    "message": "检查连接",
+    "message": "연결 확인",
     "description": "Button to check Agent Bridge connection status"
   },
   "optionsAgentBridgeSetupGuideTitle": {
-    "message": "设置指南",
+    "message": "설정 가이드",
     "description": "Title for Agent Bridge setup guide"
   },
   "optionsAgentBridgeSetupGuideStep1": {
-    "message": "要将 MarkSnip 连接到本地 CLI 工具，请遵循以下步骤：",
+    "message": "MarkSnip을 로컬 CLI 도구에 연결하려면 다음 단계를 따르세요:",
     "description": "Step 1 of Agent Bridge setup guide"
   },
   "optionsAgentBridgeSetupGuideStep2a": {
-    "message": "从",
+    "message": "다음 페이지에서 사용 중인 OS에 맞는 컴패니언 아카이브를 다운로드하세요:",
     "description": "Step 2a of Agent Bridge setup guide"
   },
   "optionsAgentBridgeSetupGuideStep2b": {
-    "message": "发布 (Releases) 页面",
+    "message": "릴리스 페이지",
     "description": "Step 2b of Agent Bridge setup guide"
   },
   "optionsAgentBridgeSetupGuideStep3": {
-    "message": "运行安装命令以注册本机消息传递主机：",
+    "message": "설치 명령을 실행하여 네이티브 메시징 호스트를 등록합니다:",
     "description": "Step 3 of Agent Bridge setup guide"
   },
   "optionsAgentBridgeSetupGuideStep4": {
-    "message": "启用上方的开关，MarkSnip 将自动连接。",
+    "message": "위의 토글을 활성화하면 MarkSnip이 자동으로 연결됩니다.",
     "description": "Step 4 of Agent Bridge setup guide"
   },
   "optionsAgentBridgeSetupNote": {
-    "message": "仅限本地的功能。Bridge 设置不会被导出，也不会在机器之间同步。",
+    "message": "로컬 전용 기능입니다. 브리지 설정은 내보내기되지 않으며 기기 간에 동기화되지 않습니다.",
     "description": "Note for Agent Bridge setup"
   },
   "optionsLibrarySection": {
-    "message": "库",
+    "message": "라이브러리",
     "description": "Title for Library section"
   },
   "optionsLibrarySectionDesc": {
-    "message": "管理仅在这个浏览器本地保存剪藏的弹窗库。",
+    "message": "현재 브라우저에만 로컬로 저장된 클립을 보관하는 팝업 라이브러리를 관리합니다.",
     "description": "Description for Library section"
   },
   "optionsLibraryEnableLabel": {
-    "message": "启用库",
+    "message": "라이브러리 활성화",
     "description": "Label to enable Library"
   },
   "optionsLibraryEnableHint": {
-    "message": "在弹窗中显示库视图。关闭它会隐藏该功能，但不会删除已保存的项目。",
+    "message": "팝업에 라이브러리 보기를 표시합니다. 끄면 저장된 항목을 삭제하지 않고 기능을 숨깁니다.",
     "description": "Hint for Library toggle"
   },
   "optionsLibraryAutoSaveLabel": {
-    "message": "弹窗打开时自动保存页面",
+    "message": "팝업이 열릴 때 자동으로 페이지 저장",
     "description": "Label for automatic save option"
   },
   "optionsLibraryAutoSaveHint": {
-    "message": "关闭时，弹窗的库将显示一个手动的<strong>保存剪藏</strong>按钮。",
+    "message": "꺼져 있으면 팝업 라이브러리에 대신 수동 <strong>클립 저장</strong> 버튼이 표시됩니다.",
     "description": "Hint for automatic save option"
   },
   "optionsLibraryItemsToKeepTitle": {
-    "message": "保留的项目",
+    "message": "유지할 항목 수",
     "description": "Title for Library Items to Keep"
   },
   "optionsLibraryItemsToKeepDesc": {
-    "message": "本地保存的库剪藏的最大数量。降低此值会立即清理较旧的项目。",
+    "message": "로컬에 유지할 최대 저장 라이브러리 클립 수입니다. 이 값을 낮추면 오래된 항목이 즉시 삭제됩니다.",
     "description": "Description for Library Items to Keep"
   },
   "optionsLibraryItemsToKeepLabel": {
-    "message": "已存剪藏限制",
+    "message": "저장 클립 한도",
     "description": "Label for saved clip limit"
   },
   "optionsLibraryItemsToKeepNote": {
-    "message": "库的设置包含在设置导入/导出中。但已保存的库项目仍然仅限本地，不被包含在内。",
+    "message": "라이브러리 설정은 설정 가져오기/내보내기에 포함됩니다. 저장된 라이브러리 항목은 로컬 전용으로 유지되며 제외됩니다.",
     "description": "Note for Library Items to Keep"
   },
   "optionsLibraryClearTitle": {
-    "message": "清空库",
+    "message": "라이브러리 지우기",
     "description": "Title to clear Library"
   },
   "optionsLibraryClearDesc": {
-    "message": "从本地存储中删除所有已保存的库项目。此操作无法撤销。",
+    "message": "로컬 저장소에서 모든 저장된 라이브러리 항목을 삭제합니다. 이 작업은 되돌릴 수 없습니다.",
     "description": "Description to clear Library"
   },
   "optionsLibraryClearBtn": {
-    "message": "清空库",
+    "message": "라이브러리 지우기",
     "description": "Button to clear Library"
   },
   "optionsMarkdownSection": {
-    "message": "Markdown",
+    "message": "마크다운",
     "description": "Title for Markdown section"
   },
   "optionsMarkdownSectionDesc": {
-    "message": "配置如何将 HTML 转换为 Markdown 语法。",
+    "message": "HTML이 마크다운 구문으로 변환되는 방식을 구성합니다.",
     "description": "Description for Markdown section"
   },
   "optionsHeadingStyleTitle": {
-    "message": "标题样式",
+    "message": "제목(Heading) 스타일",
     "description": "Title for Heading Style"
   },
   "optionsHeadingStyleSetext": {
-    "message": "Setext 样式",
+    "message": "Setext 스타일",
     "description": "Option for Setext-Style headings"
   },
   "optionsHeadingStyleAtx": {
-    "message": "Atx 样式",
+    "message": "Atx 스타일",
     "description": "Option for Atx-Style headings"
   },
   "optionsHrTitle": {
-    "message": "水平分割线",
+    "message": "가로줄(Horizontal Rule)",
     "description": "Title for Horizontal Rule"
   },
   "optionsBulletListMarkerTitle": {
-    "message": "无序列表标记",
+    "message": "글머리 기호 목록 마커",
     "description": "Title for Bullet List Marker"
   },
   "optionsCodeBlocksTitle": {
-    "message": "代码块",
+    "message": "코드 블록",
     "description": "Title for Code Blocks"
   },
   "optionsCodeBlocksIndented": {
-    "message": "缩进",
+    "message": "들여쓰기(Indented)",
     "description": "Option for Indented code blocks"
   },
   "optionsCodeBlocksFenced": {
-    "message": "围栏 (Fenced)",
+    "message": "울타리(Fenced)",
     "description": "Option for Fenced code blocks"
   },
   "optionsPreserveCodeFormattingLabel": {
-    "message": "保留代码块的 HTML 格式",
+    "message": "코드 블록 HTML 서식 보존",
     "description": "Label to preserve code block HTML formatting"
   },
   "optionsPreserveCodeFormattingHint": {
-    "message": "启用后，保留代码块内原始的 HTML 格式。这对于保持确切的视觉格式很有用，但可能会使 Markdown 难以阅读和在其他工具中使用。禁用（默认）时，生成干净的代码块。",
+    "message": "활성화하면 코드 블록 내의 원본 HTML 서식을 보존합니다. 이는 정확한 시각적 서식을 유지하는 데 유용할 수 있지만, 마크다운을 읽거나 다른 도구에서 사용하기 어렵게 만들 수 있습니다. 비활성화(기본값)하면 깔끔한 코드 블록이 생성됩니다.",
     "description": "Hint to preserve code block HTML formatting"
   },
   "optionsAutoDetectCodeLanguageLabel": {
-    "message": "自动检测代码块语言",
+    "message": "코드 블록 언어 자동 감지",
     "description": "Label to auto-detect code block language"
   },
   "optionsAutoDetectCodeLanguageHint": {
-    "message": "当没有显式的语言时，使用 highlight.js 推断围栏代码块的语言。如果代码片段经常被标记为错误的语言，请禁用此项。",
+    "message": "명시적인 언어가 없을 때 fenced 코드 블록 언어를 추론하기 위해 highlight.js를 사용합니다. 코드 조각에 잘못된 언어 태그가 자주 붙는다면 이 옵션을 비활성화하세요.",
     "description": "Hint to auto-detect code block language"
   },
   "optionsCodeBlockFenceTitle": {
-    "message": "代码块围栏",
+    "message": "코드 블록 울타리 기호",
     "description": "Title for Code Block Fence"
   },
   "optionsEmDelimiterTitle": {
-    "message": "强调 (斜体) 分隔符",
+    "message": "강조(기울임꼴) 구분 기호",
     "description": "Title for Emphasis Delimiter"
   },
   "optionsRoamSpecificNote": {
-    "message": "(非标准。Roam 专用。)",
+    "message": "(비표준. Roam 전용.)",
     "description": "Note for Roam specific option"
   },
   "optionsStrongDelimiterTitle": {
-    "message": "加粗 分隔符",
+    "message": "강한 강조(굵게) 구분 기호",
     "description": "Title for Strong Delimiter"
   },
   "optionsLinkStyleTitle": {
-    "message": "链接样式",
+    "message": "링크 스타일",
     "description": "Title for Link Style"
   },
   "optionsLinkStyleInlined": {
-    "message": "内联 (Inlined)",
+    "message": "인라인(Inlined)",
     "description": "Option for Inlined links"
   },
   "optionsLinkStyleReferenced": {
-    "message": "引用 (Referenced)",
+    "message": "참조(Referenced)",
     "description": "Option for Referenced links"
   },
   "optionsLinkStyleStripLinks": {
-    "message": "剥离链接",
+    "message": "링크 제거",
     "description": "Option to Strip Links"
   },
   "optionsLinkReferenceStyleTitle": {
-    "message": "链接引用样式",
+    "message": "링크 참조 스타일",
     "description": "Title for Link Reference Style"
   },
   "optionsLinkReferenceStyleFull": {
-    "message": "完整 (Full)",
+    "message": "전체(Full)",
     "description": "Option for Full link references"
   },
   "optionsLinkReferenceStyleCollapsed": {
-    "message": "折叠 (Collapsed)",
+    "message": "축소(Collapsed)",
     "description": "Option for Collapsed link references"
   },
   "optionsLinkReferenceStyleShortcut": {
-    "message": "快捷键 (Shortcut)",
+    "message": "단축(Shortcut)",
     "description": "Option for Shortcut link references"
   },
   "optionsImageStyleTitle": {
-    "message": "图片样式",
+    "message": "이미지 스타일",
     "description": "Title for Image Style"
   },
   "optionsImageStyleOriginalSource": {
-    "message": "原始源",
+    "message": "원본 소스",
     "description": "Option for Original Source image style"
   },
   "optionsImageStyleStripImages": {
-    "message": "剥离图片",
+    "message": "이미지 제거",
     "description": "Option to Strip Images"
   },
   "optionsImageStyleNote1": {
-    "message": "<strong>注意：</strong> 以下选项仅在开启“下载图片”时适用。",
+    "message": "<strong>참고:</strong> 다음 항목은 이미지 다운로드가 켜져 있는 경우에만 적용됩니다.",
     "description": "Note for image styles when downloading images"
   },
   "optionsImageStyleMarkdown": {
-    "message": "纯 Markdown",
+    "message": "순수 마크다운",
     "description": "Option for Pure Markdown image style"
   },
   "optionsImageStyleBase64": {
-    "message": "Base64 编码",
+    "message": "Base64 인코딩",
     "description": "Option for Base64 Encoded image style"
   },
   "optionsImageStyleObsidian": {
-    "message": "Obsidian 内部嵌入",
+    "message": "Obsidian 내부 임베드",
     "description": "Option for Obsidian Internal Embed image style"
   },
   "optionsImageStyleObsidianNoFolder": {
-    "message": "Obsidian 嵌入 (无文件夹)",
+    "message": "Obsidian 임베드 (폴더 없음)",
     "description": "Option for Obsidian Embed without folder"
   },
   "optionsImageRefStyleTitle": {
-    "message": "图片引用样式",
+    "message": "이미지 참조 스타일",
     "description": "Title for Image Reference Style"
   },
   "optionsImageRefStyleNote": {
-    "message": "<strong>注意：</strong> 以下选项仅在图片样式为 markdown（不是 Obsidian 样式）时适用。",
+    "message": "<strong>참고:</strong> 다음 항목은 이미지 스타일이 마크다운인 경우(Obsidian 스타일이 아님)에만 적용됩니다.",
     "description": "Note for Image Reference Style"
   },
   "optionsTurndownEscapeLabel": {
-    "message": "转义 Markdown 字符",
+    "message": "마크다운 문자 이스케이프",
     "description": "Label to Escape Markdown Characters"
   },
   "optionsTurndownEscapeHint": {
-    "message": "默认情况下，反斜杠（<code>\\</code>）用于转义 HTML 输入中的 Markdown 字符。这确保这些字符不会被解释为 Markdown。例如，<code>&lt;h1&gt;1. Hello world&lt;/h1&gt;</code> 的内容需要转义为 <code>1\\. Hello world</code>，否则它将被解释为列表项而不是标题。禁用此选项会禁用此转义行为。",
+    "message": "기본적으로 백슬래시(<code>\\</code>)는 HTML 입력에서 마크다운 문자를 이스케이프하는 데 사용됩니다. 이를 통해 이러한 문자가 마크다운으로 해석되지 않도록 합니다. 예를 들어 <code>&lt;h1&gt;1. Hello world&lt;/h1&gt;</code>의 콘텐츠는 <code>1\\. Hello world</code>로 이스케이프되어야 하며, 그렇지 않으면 제목이 아닌 목록 항목으로 해석됩니다. 이 옵션을 비활성화하면 이러한 이스케이프가 비활성화됩니다.",
     "description": "Hint to Escape Markdown Characters"
   },
   "optionsSkipHiddenContentLabel": {
-    "message": "跳过隐藏内容",
+    "message": "숨겨진 콘텐츠 건너뛰기",
     "description": "Label to Skip Hidden Content"
   },
   "optionsSkipHiddenContentHint": {
-    "message": "忽略使用 CSS、<code>hidden</code> 属性或 <code>aria-hidden=\"true\"</code> 隐藏的内容。禁用此选项可将折叠的手风琴菜单和其他隐藏的 DOM 内容包含在剪藏中。",
+    "message": "CSS, <code>hidden</code> 속성 또는 <code>aria-hidden=\"true\"</code>로 숨겨진 콘텐츠를 무시합니다. 접힌 아코디언 및 기타 숨겨진 DOM 콘텐츠를 클립에 포함하려면 이 옵션을 비활성화하세요.",
     "description": "Hint to Skip Hidden Content"
   },
   "optionsHashtagHandlingTitle": {
-    "message": "话题标签处理 (Hashtag Handling)",
+    "message": "해시태그 처리",
     "description": "Title for Hashtag Handling"
   },
   "optionsHashtagHandlingDesc": {
-    "message": "控制在剪藏的文本中如何写入类似话题标签的单词（例如 <code>#AI</code>）。对于将话题标签视为标签的工具（如 Obsidian）非常有用。",
+    "message": "클립된 텍스트에서 해시태그와 유사한 단어(예: <code>#AI</code>)가 작성되는 방식을 제어합니다. 해시태그를 태그로 취급하는 Obsidian과 같은 도구에 유용합니다.",
     "description": "Description for Hashtag Handling"
   },
   "optionsHashtagHandlingKeep": {
-    "message": "保留",
+    "message": "유지",
     "description": "Option to Keep hashtags"
   },
   "optionsHashtagHandlingRemove": {
-    "message": "移除 #",
+    "message": "# 제거",
     "description": "Option to Remove hashtags"
   },
   "optionsHashtagHandlingEscape": {
-    "message": "转义 #",
+    "message": "# 이스케이프",
     "description": "Option to Escape hashtags"
   },
   "optionsHashtagHandlingExample": {
-    "message": "示例：在<strong>移除 #</strong>中，<code>#research</code> 变为 <code>research</code>，或在<strong>转义 #</strong>中变为 <code>\\#research</code>。",
+    "message": "예시: <code>#research</code>는 <strong># 제거</strong>에서 <code>research</code>가 되거나 <strong># 이스케이프</strong>에서 <code>\\#research</code>가 됩니다.",
     "description": "Example for Hashtag Handling"
   },
   "optionsTablesSection": {
-    "message": "表格",
+    "message": "표",
     "description": "Title for Tables section"
   },
   "optionsTablesSectionDesc": {
-    "message": "配置如何将 HTML 表格转换为 Markdown 表格。",
+    "message": "HTML 표가 마크다운 표로 변환되는 방식을 구성합니다.",
     "description": "Description for Tables section"
   },
   "optionsTableStripLinksLabel": {
-    "message": "剥离表格中的链接",
+    "message": "표에서 링크 제거",
     "description": "Label to strip links from tables"
   },
   "optionsTableStripLinksHint": {
-    "message": "从表格单元格中移除所有链接，仅保留文本内容。创建更干净、更易读的表格。",
+    "message": "표에서 모든 링크를 제거하고 텍스트 콘텐츠만 유지합니다. 더 깔끔하고 읽기 쉬운 표를 만듭니다.",
     "description": "Hint to strip links from tables"
   },
   "optionsTableOff": {
-    "message": "关",
+    "message": "끄기",
     "description": "Off option label"
   },
   "optionsTableOn": {
-    "message": "开",
+    "message": "켜기",
     "description": "On option label"
   },
   "optionsTableStripFormattingLabel": {
-    "message": "剥离格式（粗体、斜体等）",
+    "message": "서식(굵게, 기울임꼴 등) 제거",
     "description": "Label to strip formatting from tables"
   },
   "optionsTableStripFormattingHint": {
-    "message": "从表格单元格中移除加粗和斜体等格式。结果为纯文本表格。",
+    "message": "표 셀에서 굵게 및 기울임꼴과 같은 서식을 제거합니다. 일반 텍스트 표가 됩니다.",
     "description": "Hint to strip formatting from tables"
   },
   "optionsTablePrettyPrintLabel": {
-    "message": "美化打印表格",
+    "message": "표 예쁘게 출력",
     "description": "Label to pretty print tables"
   },
   "optionsTablePrettyPrintHint": {
-    "message": "用适当的间距和对齐方式格式化表格。使表格在 markdown 中更具可读性。",
+    "message": "적절한 간격과 정렬로 표의 형식을 지정합니다. 마크다운에서 표를 더 읽기 쉽게 만듭니다.",
     "description": "Hint to pretty print tables"
   },
   "optionsTableCenterTextLabel": {
-    "message": "居中列中文本",
+    "message": "열 중앙에 텍스트 정렬",
     "description": "Label to center text in table columns"
   },
   "optionsTableCenterTextHint": {
-    "message": "使表格列中的文本居中。创造更精致的外观。",
+    "message": "표 열 내의 텍스트를 중앙에 맞춥니다. 더 세련된 모양을 만듭니다.",
     "description": "Hint to center text in table columns"
   },
   "optionsSiteRulesSection": {
-    "message": "站点规则",
+    "message": "사이트 규칙",
     "description": "Title for Site Rules section"
   },
   "optionsSiteRulesSectionDesc": {
-    "message": "创建有序的通配符 URL 规则，这些规则将覆盖匹配站点的剪藏设置。第一个启用的匹配项将生效。",
+    "message": "일치하는 사이트에 대한 클립 설정을 재정의하는 순서가 있는 와일드카드 URL 규칙을 만듭니다. 가장 먼저 일치하는 활성 규칙이 적용됩니다.",
     "description": "Description for Site Rules section"
   },
   "optionsSiteRulesListTitle": {
-    "message": "规则列表",
+    "message": "규칙 목록",
     "description": "Title for Rule List"
   },
   "optionsSiteRulesListDesc": {
-    "message": "使用类似 <code>example.com/*</code>、<code>docs.example.com/blog/*</code> 或 <code>*.example.com/*</code> 的模式。查询字符串和哈希会被忽略。",
+    "message": "<code>example.com/*</code>, <code>docs.example.com/blog/*</code> 또는 <code>*.example.com/*</code>과 같은 패턴을 사용하세요. 쿼리 문자열 및 해시는 무시됩니다.",
     "description": "Description for Rule List patterns"
   },
   "optionsSiteRulesSummaryZero": {
-    "message": "0 条规则",
+    "message": "0개 규칙",
     "description": "Summary for 0 rules"
   },
   "optionsSiteRulesAddRuleBtn": {
-    "message": "添加规则",
+    "message": "규칙 추가",
     "description": "Button to add site rule"
   },
   "optionsSiteRulesEmptyTitle": {
-    "message": "暂无站点规则。",
+    "message": "아직 사이트 규칙이 없습니다.",
     "description": "Title when no site rules exist"
   },
   "optionsSiteRulesEmptyDesc": {
-    "message": "当您希望特定域名具有不同的模板、图片行为或表格格式时，请添加规则。",
+    "message": "특정 도메인에 대해 다른 템플릿, 이미지 동작 또는 표 서식을 원할 때 규칙을 추가하세요.",
     "description": "Description when no site rules exist"
   },
   "optionsSiteRuleEditorTitle": {
-    "message": "添加站点规则",
+    "message": "사이트 규칙 추가",
     "description": "Title for Site Rule Editor"
   },
   "optionsSiteRuleEditorHint": {
-    "message": "缺少协议（scheme）会同时匹配 <code>http</code> 和 <code>https</code>。缺少路径（path）意味着 <code>/*</code>。",
+    "message": "체계(scheme)가 누락되면 <code>http</code> 및 <code>https</code> 모두 일치합니다. 경로가 누락되면 <code>/*</code>가 암시됩니다.",
     "description": "Hint for Site Rule Editor"
   },
   "optionsSiteRuleNameLabel": {
-    "message": "规则名称",
+    "message": "규칙 이름",
     "description": "Label for Site Rule Name"
   },
   "optionsSiteRuleNamePlaceholder": {
-    "message": "文档模板",
+    "message": "Docs 템플릿",
     "description": "Placeholder for Site Rule Name"
   },
   "optionsSiteRulePatternLabel": {
-    "message": "通配符 URL 模式",
+    "message": "와일드카드 URL 패턴",
     "description": "Label for Site Rule Pattern"
   },
   "optionsSiteRuleEnabledLabel": {
-    "message": "已启用",
+    "message": "활성화됨",
     "description": "Label for Site Rule Enabled state"
   },
   "optionsSiteRuleNoOverrides": {
-    "message": "无覆盖",
+    "message": "재정의 없음",
     "description": "Empty state label for a Site Rule without overrides"
   },
   "optionsSiteRuleInvalidPattern": {
-    "message": "无效模式",
+    "message": "잘못된 패턴",
     "description": "Prefix for invalid Site Rule pattern errors"
   },
   "optionsSiteRuleMoveUpBtn": {
-    "message": "上移",
+    "message": "위로",
     "description": "Button to move a Site Rule up"
   },
   "optionsSiteRuleMoveDownBtn": {
-    "message": "下移",
+    "message": "아래로",
     "description": "Button to move a Site Rule down"
   },
   "optionsSiteRuleEditBtn": {
-    "message": "编辑",
+    "message": "편집",
     "description": "Button to edit a Site Rule"
   },
   "optionsSiteRuleDeleteBtn": {
-    "message": "删除",
+    "message": "삭제",
     "description": "Button to delete a Site Rule"
   },
   "optionsSiteRuleEnabledHint": {
-    "message": "被禁用的规则会保留在列表中，但永远不会匹配。",
+    "message": "비활성화된 규칙은 목록에 남아 있지만 절대 일치하지 않습니다.",
     "description": "Hint for Site Rule Enabled state"
   },
   "optionsSiteRuleBooleanOverridesTitle": {
-    "message": "布尔覆盖",
+    "message": "논리값(Boolean) 재정의",
     "description": "Title for Boolean Overrides"
   },
   "optionsSiteRuleTemplateLabel": {
-    "message": "模板",
+    "message": "템플릿",
     "description": "Label for Site Rule Template"
   },
   "optionsSiteRuleInherit": {
-    "message": "继承",
+    "message": "상속",
     "description": "Option to Inherit setting"
   },
   "optionsSiteRuleDownloadImagesLabel": {
-    "message": "下载图片",
+    "message": "이미지 다운로드",
     "description": "Label for Site Rule Download Images"
   },
   "optionsSiteRuleTemplateOverridesTitle": {
-    "message": "模板覆盖",
+    "message": "템플릿 재정의",
     "description": "Title for Template Overrides"
   },
   "optionsSiteRuleOverrideFrontmatter": {
-    "message": "覆盖顶部模板 (Frontmatter)",
+    "message": "앞부분 템플릿(Front-matter) 재정의",
     "description": "Label to override frontmatter"
   },
   "optionsSiteRuleOverrideBackmatter": {
-    "message": "覆盖底部模板 (Backmatter)",
+    "message": "뒷부분 템플릿(Back-matter) 재정의",
     "description": "Label to override backmatter"
   },
   "optionsSiteRuleOverrideTitle": {
-    "message": "覆盖标题模板",
+    "message": "제목 템플릿 재정의",
     "description": "Label to override title template"
   },
   "optionsSiteRuleOverrideImagePrefix": {
-    "message": "覆盖图片前缀",
+    "message": "이미지 접두사 재정의",
     "description": "Label to override image prefix"
   },
   "optionsSiteRuleOverrideMdClipsFolder": {
-    "message": "覆盖下载文件夹",
+    "message": "다운로드 폴더 재정의",
     "description": "Label to override downloads folder"
   },
   "optionsSiteRuleImageOverridesTitle": {
-    "message": "图片覆盖",
+    "message": "이미지 재정의",
     "description": "Title for Image Overrides"
   },
   "optionsSiteRuleKeepOriginalSource": {
-    "message": "保留原始源",
+    "message": "원본 소스 유지",
     "description": "Option to keep original image source"
   },
   "optionsSiteRuleTableOverridesTitle": {
-    "message": "表格格式覆盖",
+    "message": "표 서식 재정의",
     "description": "Title for Table Formatting Overrides"
   },
   "optionsSiteRuleSaveBtn": {
-    "message": "保存规则",
+    "message": "규칙 저장",
     "description": "Button to save site rule"
   },
   "optionsSiteRuleCancelBtn": {
-    "message": "取消",
+    "message": "취소",
     "description": "Button to cancel site rule editing"
   },
   "optionsImportExportSection": {
-    "message": "导入 / 导出",
+    "message": "가져오기 / 내보내기",
     "description": "Title for Import / Export section"
   },
   "optionsImportExportSectionDesc": {
-    "message": "备份您的设置或从以前的备份中恢复。",
+    "message": "설정을 백업하거나 이전 백업에서 복원합니다.",
     "description": "Description for Import / Export section"
   },
   "optionsPermissionsPrivacyTitle": {
-    "message": "权限与隐私",
+    "message": "권한 및 개인정보보호",
     "description": "Title for Permissions & Privacy"
   },
   "optionsPermissionsPrivacyDesc": {
-    "message": "MarkSnip 在本地处理页面，并且仅在您触发剪藏时才访问页面内容。",
+    "message": "MarkSnip은 로컬에서 페이지를 처리하며 클립을 트리거할 때만 페이지 콘텐츠에 접근합니다.",
     "description": "Description for Permissions & Privacy"
   },
   "optionsPermissionSiteAccessTitle": {
-    "message": "用于剪藏的站点访问权限",
+    "message": "클리핑을 위한 사이트 접근 권한",
     "description": "Title for Site Access permission"
   },
   "optionsPermissionIncludedBadge": {
-    "message": "包含在扩展中",
+    "message": "확장 프로그램에 포함됨",
     "description": "Badge indicating permission is included"
   },
   "optionsPermissionSiteAccessBullet1": {
-    "message": "需要此权限，以便 MarkSnip 能够剪藏您要求它剪藏的任何页面。",
+    "message": "MarkSnip이 요청된 페이지를 클리핑할 수 있도록 필요합니다.",
     "description": "Site access permission bullet 1"
   },
   "optionsPermissionSiteAccessBullet2": {
-    "message": "不会被用于被动监控您的浏览。",
+    "message": "수동적인 브라우징 모니터링에는 사용되지 않습니다.",
     "description": "Site access permission bullet 2"
   },
   "optionsPermissionSiteAccessBullet3": {
-    "message": "页面内容不会发送到外部服务器。",
+    "message": "페이지 콘텐츠는 외부 서버로 전송되지 않습니다.",
     "description": "Site access permission bullet 3"
   },
   "optionsPermissionSiteAccessBullet4": {
-    "message": "这由浏览器作为扩展安装的一部分进行管理。",
+    "message": "이는 브라우저에서 확장 프로그램 설치의 일부로 관리합니다.",
     "description": "Site access permission bullet 4"
   },
   "optionsPermissionLocalCompanionTitle": {
-    "message": "本地伴侣访问权限",
+    "message": "로컬 컴패니언 액세스",
     "description": "Title for Local Companion access"
   },
   "optionsPermissionOptionalBadge": {
-    "message": "可选",
+    "message": "선택 사항",
     "description": "Badge indicating permission is optional"
   },
   "optionsPermissionLocalCompanionBullet2": {
-    "message": "仅与安装在本机上的本地 MarkSnip 伴侣通信。",
+    "message": "이 기기에 설치된 로컬 MarkSnip 컴패니언하고만 통신합니다.",
     "description": "Local companion access bullet 2"
   },
   "optionsPermissionLocalCompanionBullet4": {
-    "message": "可以通过关闭 Agent Bridge 来停止。",
+    "message": "Agent Bridge를 꺼서 중지할 수 있습니다.",
     "description": "Local companion access bullet 4"
   },
   "optionsImportTitle": {
-    "message": "导入",
+    "message": "가져오기",
     "description": "Title for Import"
   },
   "optionsImportDesc": {
-    "message": "从先前导出的备份文件中恢复选项。",
+    "message": "이전에 내보낸 백업 파일에서 옵션을 복원합니다.",
     "description": "Description for Import"
   },
   "optionsImportBtn": {
-    "message": "选择文件...",
+    "message": "파일 선택...",
     "description": "Button to choose file for import"
   },
   "optionsExportTitle": {
-    "message": "导出",
+    "message": "내보내기",
     "description": "Title for Export"
   },
   "optionsExportDesc": {
-    "message": "将您当前的选项下载为 JSON 文件。",
+    "message": "현재 옵션을 JSON 파일로 다운로드합니다.",
     "description": "Description for Export"
   },
   "optionsExportBtn": {
-    "message": "导出",
+    "message": "내보내기",
     "description": "Button to export options"
   },
   "optionsResetTitle": {
-    "message": "全部重置为默认值",
+    "message": "모두 기본값으로 초기화",
     "description": "Title for Reset All"
   },
   "optionsResetDesc": {
-    "message": "将每个设置恢复为其出厂默认值。此操作无法撤销。",
+    "message": "모든 설정을 공장 기본값으로 복원합니다. 이 작업은 되돌릴 수 없습니다.",
     "description": "Description for Reset All"
   },
   "optionsResetBtn": {
-    "message": "全部重置为默认值",
+    "message": "모두 기본값으로 초기화",
     "description": "Button to reset all options"
   },
   "optionsSearchNoResultsPrefix": {
-    "message": "没有匹配 \"",
+    "message": "\"",
     "description": "Prefix for no search results message"
   },
   "optionsSearchNoResultsSuffix": {
-    "message": "\" 的设置",
+    "message": "\"와(과) 일치하는 설정이 없습니다.",
     "description": "Suffix for no search results message"
   },
   "optionsSearchGuideInstead": {
-    "message": "转而在用户指南中搜索",
+    "message": "대신 사용자 가이드 검색",
     "description": "Link text to search the guide instead"
   },
   "guideSkipLink": {
-    "message": "跳至内容",
+    "message": "콘텐츠로 건너뛰기",
     "description": "Accessibility skip link"
   },
   "guideHeaderSubtitle": {
-    "message": "用户指南",
+    "message": "사용자 가이드",
     "description": "Subtitle in guide header"
   },
   "guideSearchPlaceholder": {
-    "message": "搜索指南...",
+    "message": "가이드 검색...",
     "description": "Search input placeholder"
   },
   "guideSearchClear": {
-    "message": "清除",
+    "message": "지우기",
     "description": "Clear search button"
   },
   "guideSearchNoResults": {
-    "message": "找不到 \"",
+    "message": "다음에 대한 결과 없음: \"",
     "description": "Prefix for no search results"
   },
   "guideSearchHint": {
-    "message": "请尝试不同的关键字或浏览目录。",
+    "message": "다른 키워드를 시도하거나 목차를 찾아보세요.",
     "description": "Hint when no search results found"
   },
   "guideTocQuickStart": {
-    "message": "快速入门",
+    "message": "빠른 시작",
     "description": "TOC link for Quick Start"
   },
   "guideTocUsingPopup": {
-    "message": "使用弹窗",
+    "message": "팝업 사용",
     "description": "TOC link for Using the Popup"
   },
   "guideTocBatchProcessing": {
-    "message": "批量处理",
+    "message": "일괄 처리",
     "description": "TOC link for Batch Processing"
   },
   "guideTocContextMenus": {
-    "message": "上下文菜单与快捷键",
+    "message": "컨텍스트 메뉴 및 단축키",
     "description": "TOC link for Context Menus & Shortcuts"
   },
   "guideTocSettings": {
-    "message": "设置与自定义",
+    "message": "설정 및 사용자 지정",
     "description": "TOC link for Settings"
   },
   "guideTocObsidianDownloads": {
-    "message": "Obsidian 与下载",
+    "message": "Obsidian 및 다운로드",
     "description": "TOC link for Obsidian & Downloads"
   },
   "guideTocPermissionsPrivacy": {
-    "message": "权限与隐私",
+    "message": "권한 및 개인정보보호",
     "description": "TOC link for Permissions & Privacy"
   },
   "guideTocTroubleshooting": {
-    "message": "故障排除 / 常见问题 (FAQ)",
+    "message": "문제 해결 / FAQ",
     "description": "TOC link for Troubleshooting"
   },
   "guideTocTextSubstitutions": {
-    "message": "文本替换",
+    "message": "텍스트 대체",
     "description": "TOC link for Text Substitutions"
   },
   "guideUsingPopupHeading": {
-    "message": "使用弹窗",
+    "message": "팝업 사용",
     "description": "Heading for Using the Popup section"
   },
   "guideUsingPopupQuickSettings": {
-    "message": "快速设置",
+    "message": "빠른 설정",
     "description": "Heading for Quick Settings subsection"
   },
   "guideUsingPopupQuickSettingsDesc1": {
-    "message": "在弹窗的顶部，您可以找到两个开关：",
+    "message": "팝업 상단에 두 개의 토글 스위치가 있습니다:",
     "description": "Description for Quick Settings"
   },
   "guideUsingPopupQuickSettingsImg": {
-    "message": "<strong>图片</strong> &mdash; 开启时，图片将与您的 Markdown 文件一起下载（需要 Downloads API 模式）。",
+    "message": "<strong>이미지</strong> — 켜져 있으면 이미지가 마크다운 파일과 함께 다운로드됩니다 (Downloads API 모드 필요).",
     "description": "Images toggle description in guide"
   },
   "guideUsingPopupQuickSettingsTpl": {
-    "message": "<strong>模板</strong> &mdash; 开启时，顶部模板和底部模板将附加在输出的前后。",
+    "message": "<strong>템플릿</strong> — 켜져 있으면 앞/뒤 템플릿(front/back template)이 출력의 맨 앞/뒤에 추가됩니다.",
     "description": "Template toggle description in guide"
   },
   "guideUsingPopupScope": {
-    "message": "剪藏选区 vs. 整个文档",
+    "message": "선택 영역 대 전체 문서 클리핑",
     "description": "Heading for Clipping Scope subsection"
   },
   "guideUsingPopupScopeDesc": {
-    "message": "在开关下方是一个包含两个按钮的分段控件：",
+    "message": "토글 아래에는 두 개의 버튼이 있는 세그먼트 컨트롤이 있습니다:",
     "description": "Description for Clipping Scope"
   },
   "guideUsingPopupScopeSel": {
-    "message": "<strong>选区</strong> &mdash; 仅剪藏您在打开弹窗前在页面上选择的文本。",
+    "message": "<strong>선택 영역</strong> — 팝업을 열기 전에 페이지에서 선택한 텍스트만 클립합니다.",
     "description": "Selection scope description"
   },
   "guideUsingPopupScopeDoc": {
-    "message": "<strong>文档</strong> &mdash; 剪藏整个页面内容（如果没有选择任何内容，则为默认选项）。",
+    "message": "<strong>문서</strong> — 전체 페이지 콘텐츠를 클립합니다 (아무것도 선택되지 않은 경우 기본값).",
     "description": "Document scope description"
   },
   "guideUsingPopupTitle": {
-    "message": "编辑标题",
+    "message": "제목 편집",
     "description": "Heading for Editing the Title subsection"
   },
   "guideUsingPopupTitleDesc": {
-    "message": "<strong>标题</strong>字段决定了下载的 Markdown 文件的文件名。它会根据标题模板（可在选项中配置）自动填充，但您可以在保存之前自由编辑。",
+    "message": "<strong>제목</strong> 필드는 다운로드되는 마크다운 파일의 파일명을 결정합니다. 제목 템플릿(설정에서 구성 가능)으로 자동 채워지지만, 저장하기 전에 자유롭게 편집할 수 있습니다.",
     "description": "Description for Editing the Title"
   },
   "guideUsingPopupPreview": {
-    "message": "Markdown 预览",
+    "message": "마크다운 미리보기",
     "description": "Heading for Markdown Preview subsection"
   },
   "guideUsingPopupPreviewDesc1": {
-    "message": "弹窗的主要区域是一个带有语法高亮的 Markdown 编辑器（由 CodeMirror 提供支持）。您可以在下载前在这里进行快速编辑。",
+    "message": "팝업의 주요 영역은 구문이 강조 표시되는 마크다운 편집기(CodeMirror 기반)입니다. 다운로드하기 전에 여기에서 빠르게 편집할 수 있습니다.",
     "description": "Description 1 for Markdown Preview"
   },
   "guideUsingPopupPreviewDesc2": {
-    "message": "编辑器上方有两个按钮：",
+    "message": "편집기 위에 두 개의 버튼이 있습니다:",
     "description": "Description 2 for Markdown Preview"
   },
   "guideUsingPopupPreviewCopyAll": {
-    "message": "<strong>全部复制</strong> &mdash; 将所有 Markdown 复制到剪贴板。",
+    "message": "<strong>모두 복사</strong> — 모든 마크다운을 클립보드에 복사합니다.",
     "description": "Copy All description"
   },
   "guideUsingPopupPreviewCopySel": {
-    "message": "<strong>复制选区</strong> &mdash; 当您在<em>编辑器内</em>选择文本时出现，允许您仅复制高亮显示的部分。",
+    "message": "<strong>선택 영역 복사</strong> — <em>편집기 내에서</em> 텍스트를 선택할 때 나타나며, 강조 표시된 부분만 복사할 수 있습니다.",
     "description": "Copy Selection description"
   },
   "guideUsingPopupActions": {
-    "message": "操作按钮",
+    "message": "작업 버튼",
     "description": "Heading for Action Buttons subsection"
   },
   "guideUsingPopupActionsMain": {
-    "message": "使用您配置的弹窗默认操作。选择 Markdown (<code>.md</code>)、纯文本 (<code>.txt</code>)、HTML (<code>.html</code>)、PDF 或 <strong>发送给助手</strong>。",
+    "message": "구성된 팝업 기본 작업을 사용합니다. 마크다운(<code>.md</code>), 일반 텍스트(<code>.txt</code>), HTML(<code>.html</code>), PDF 또는 <strong>어시스턴트로 전송</strong> 중에서 선택합니다.",
     "description": "Main Action description"
   },
   "guideUsingPopupActionsSel": {
-    "message": "当在编辑器内选择文本时出现；使用相同的弹窗默认操作仅导出或发送所选文本。",
+    "message": "편집기 내에서 텍스트가 선택될 때 나타납니다. 동일한 팝업 기본 작업을 사용하여 선택한 텍스트만 내보내거나 전송합니다.",
     "description": "Selection Action description"
   },
   "guideUsingPopupActionsObsidian": {
-    "message": "将 Markdown 复制到剪贴板并通过 Advanced URI 插件打开 Obsidian 创建新笔记（仅在启用 Obsidian 集成时可见）。",
+    "message": "마크다운을 클립보드에 복사하고 Advanced URI 플러그인을 통해 Obsidian을 열어 새 메모를 만듭니다 (Obsidian 통합이 활성화된 경우에만 표시됨).",
     "description": "Send to Obsidian description"
   },
   "guideUsingPopupActionsNote": {
-    "message": "<strong>注意：</strong> 此弹窗默认操作设置仅影响弹窗操作。上下文菜单、键盘下载快捷键、批量导出、库导出、Agent Bridge 和 Obsidian 操作仍保持基于 Markdown。",
+    "message": "<strong>참고:</strong> 이 팝업 기본 작업 설정은 팝업 작업에만 영향을 줍니다. 컨텍스트 메뉴, 키보드 다운로드 단축키, 일괄 내보내기, 라이브러리 내보내기, Agent Bridge 및 Obsidian 작업은 마크다운 기반으로 유지됩니다.",
     "description": "Note for Action Buttons"
   },
   "guideBatchProcessingHeading": {
-    "message": "批量处理",
+    "message": "일괄 처리",
     "description": "Heading for Batch Processing section"
   },
   "guideBatchProcessingDesc": {
-    "message": "单击弹窗标题栏中的批量图标以切换到批量模式。",
+    "message": "팝업 헤더의 일괄 처리 아이콘을 클릭하여 일괄 처리 모드로 전환합니다.",
     "description": "Description for Batch Processing"
   },
   "guideBatchAddUrls": {
-    "message": "添加 URL",
+    "message": "URL 추가",
     "description": "Heading for Adding URLs subsection"
   },
   "guideBatchAddUrlsDesc": {
-    "message": "将 URL 粘贴到文本区域，每行一个。您也可以使用 Markdown 链接语法：",
+    "message": "텍스트 영역에 한 줄에 하나씩 URL을 붙여넣습니다. 마크다운 링크 구문을 사용할 수도 있습니다:",
     "description": "Description for Adding URLs"
   },
   "guideBatchPickLinks": {
-    "message": "从页面中拾取链接",
+    "message": "페이지에서 링크 선택",
     "description": "Heading for Pick Links from Page subsection"
   },
   "guideBatchPickLinksDesc": {
-    "message": "单击<strong>从页面中拾取链接</strong>以进入可视化链接拾取器。这会在当前页面注入一个覆盖层，让您可以通过点击链接来选择它们。浮动工具栏显示您已选择的链接数，单击<strong>完成</strong>按钮可将它们发送回批量 URL 列表。",
+    "message": "<strong>페이지에서 링크 선택</strong>을 클릭하여 시각적 링크 선택기로 들어갑니다. 이렇게 하면 현재 페이지에 오버레이가 주입되어 링크를 클릭하여 선택할 수 있습니다. 떠 있는 도구 모음에 선택한 링크 수가 표시되며, <strong>완료</strong> 버튼을 클릭하면 일괄 처리 URL 목록으로 다시 전송됩니다.",
     "description": "Description for Pick Links from Page"
   },
   "guideBatchOutputFormat": {
-    "message": "输出格式",
+    "message": "출력 형식",
     "description": "Heading for Output Format subsection"
   },
   "guideBatchOutputZip": {
-    "message": "<strong>ZIP 文件</strong> &mdash; 所有转换后的 Markdown 文件将打包成一个 <code>.zip</code> 文件下载。",
+    "message": "<strong>ZIP 파일</strong> — 변환된 모든 마크다운 파일이 하나의 <code>.zip</code> 다운로드로 묶입니다.",
     "description": "ZIP file output description"
   },
   "guideBatchOutputIndiv": {
-    "message": "<strong>单独文件</strong> &mdash; 每个页面都作为单独的 <code>.md</code> 文件下载。",
+    "message": "<strong>개별 파일</strong> — 각 페이지가 별도의 <code>.md</code> 파일로 다운로드됩니다.",
     "description": "Individual output description"
   },
   "guideBatchOutputDesc": {
-    "message": "单击<strong>转换所有 URL</strong>开始处理。进度条显示当前状态，包括计数和正在处理的 URL。",
+    "message": "처리를 시작하려면 <strong>모든 URL 변환</strong>을 클릭하세요. 진행률 표시줄에 횟수와 처리 중인 URL을 포함한 현재 상태가 표시됩니다.",
     "description": "Description for Output Format button"
   },
   "guideContextMenusHeading": {
-    "message": "上下文菜单与快捷键",
+    "message": "컨텍스트 메뉴 및 단축키",
     "description": "Heading for Context Menus & Shortcuts section"
   },
   "guideContextMenusDesc": {
-    "message": "在页面上右键单击，可以在上下文菜单下访问 MarkSnip 操作。这些操作在设置中打开<strong>启用上下文菜单</strong>时可用。",
+    "message": "컨텍스트 메뉴에서 MarkSnip 작업에 액세스하려면 페이지를 마우스 오른쪽 버튼으로 클릭하세요. 설정에서 <strong>컨텍스트 메뉴 활성화</strong>가 켜져 있을 때 사용할 수 있습니다.",
     "description": "Description for Context Menus"
   },
   "guideContextDownload": {
-    "message": "下载操作",
+    "message": "다운로드 작업",
     "description": "Heading for Download Actions subsection"
   },
   "guideContextDownloadTab": {
-    "message": "将当前标签页下载为 Markdown 文件，而无需打开弹窗。",
+    "message": "팝업을 열지 않고 현재 탭을 마크다운 파일로 다운로드합니다.",
     "description": "Download Tab description"
   },
   "guideContextDownloadSel": {
-    "message": "将高亮文本下载为 Markdown。",
+    "message": "강조 표시된 텍스트를 마크다운으로 다운로드합니다.",
     "description": "Download Selection description"
   },
   "guideContextDownloadAll": {
-    "message": "将当前窗口中每个打开的标签页下载为 Markdown 文件。",
+    "message": "현재 창에 열려 있는 모든 탭을 마크다운 파일로 다운로드합니다.",
     "description": "Download All Tabs description"
   },
   "guideContextCopy": {
-    "message": "复制操作",
+    "message": "복사 작업",
     "description": "Heading for Copy Actions subsection"
   },
   "guideContextCopyTab": {
-    "message": "将整个页面转换为 Markdown 并复制到剪贴板。",
+    "message": "전체 페이지를 마크다운으로 변환하여 클립보드에 복사합니다.",
     "description": "Copy Tab description"
   },
   "guideContextCopySel": {
-    "message": "将选区转换为 Markdown 并复制它。",
+    "message": "선택 영역을 마크다운으로 변환하여 복사합니다.",
     "description": "Copy Selection description"
   },
   "guideContextCopyLink": {
-    "message": "将右键单击的链接复制为 <code>[文本](url)</code>。",
+    "message": "오른쪽 클릭한 링크를 <code>[텍스트](url)</code> 형식으로 복사합니다.",
     "description": "Copy Link description"
   },
   "guideContextCopyImage": {
-    "message": "将右键单击的图片复制为 <code>![alt](src)</code>。",
+    "message": "오른쪽 클릭한 이미지를 <code>![alt](src)</code> 형식으로 복사합니다.",
     "description": "Copy Image description"
   },
   "guideContextCopyTabUrl": {
-    "message": "将标签页的 URL 复制为 <code>[标题](url)</code>。",
+    "message": "탭의 URL을 <code>[제목](url)</code> 형식으로 복사합니다.",
     "description": "Copy Tab URL description"
   },
   "guideContextCopyAllUrls": {
-    "message": "将所有打开的标签页 URL 复制为 Markdown 链接列表。",
+    "message": "열려 있는 모든 탭 URL을 마크다운 링크 목록으로 복사합니다.",
     "description": "Copy All Tab URLs description"
   },
   "guideContextCopySelUrls": {
-    "message": "将多选标签页 (<kbd>Ctrl</kbd>/<kbd>Cmd</kbd>) 的 URL 复制为链接列表。",
+    "message": "다중 선택된 탭(<kbd>Ctrl</kbd>/<kbd>Cmd</kbd>)의 URL을 링크 목록으로 복사합니다.",
     "description": "Copy Selected Tab URLs description"
   },
   "guideContextObsidian": {
-    "message": "Obsidian 操作",
+    "message": "Obsidian 작업",
     "description": "Heading for Obsidian Actions subsection"
   },
   "guideContextObsidianDesc": {
-    "message": "这些项目仅在启用 Obsidian 集成时显示：",
+    "message": "이 항목들은 Obsidian 통합이 활성화된 경우에만 나타납니다:",
     "description": "Description for Obsidian Actions"
   },
   "guideContextObsidianSel": {
-    "message": "将选区作为新笔记发送到 Obsidian。",
+    "message": "선택 영역을 Obsidian에 새 메모로 전송합니다.",
     "description": "Send Text Selection to Obsidian description"
   },
   "guideContextObsidianTab": {
-    "message": "将整个页面作为新笔记发送到 Obsidian。",
+    "message": "전체 페이지를 Obsidian에 새 메모로 전송합니다.",
     "description": "Send Tab to Obsidian description"
   },
   "guideContextObsidianNote": {
-    "message": "在上下文菜单的底部，您还可以找到<strong>包含顶部/底部模板</strong>和<strong>下载图片</strong>的复选框。",
+    "message": "컨텍스트 메뉴의 맨 아래에는 <strong>앞/뒤 템플릿 포함</strong>과 <strong>이미지 다운로드</strong>를 위한 체크박스도 있습니다.",
     "description": "Note for Obsidian Actions"
   },
   "guideContextShortcuts": {
-    "message": "键盘快捷键",
+    "message": "키보드 단축키",
     "description": "Heading for Keyboard Shortcuts subsection"
   },
   "guideContextShortcutsPopup": {
-    "message": "打开 MarkSnip 弹窗",
+    "message": "MarkSnip 팝업 열기",
     "description": "Shortcut for Open popup"
   },
   "guideContextShortcutsDownload": {
-    "message": "将当前标签页下载为 Markdown",
+    "message": "현재 탭을 마크다운으로 다운로드",
     "description": "Shortcut for Download tab"
   },
   "guideContextShortcutsCopy": {
-    "message": "将当前标签页作为 Markdown 复制",
+    "message": "현재 탭을 마크다운으로 복사",
     "description": "Shortcut for Copy tab"
   },
   "guideContextShortcutsLink": {
-    "message": "将当前标签页 URL 复制为 Markdown 链接",
+    "message": "현재 탭 URL을 마크다운 링크로 복사",
     "description": "Shortcut for Copy tab link"
   },
   "guideContextShortcutsExtra": {
-    "message": "没有默认快捷键的额外命令（请在浏览器的快捷键设置中自行分配）：",
+    "message": "기본 단축키가 없는 추가 명령 (브라우저의 단축키 설정에서 직접 지정하세요):",
     "description": "Extra shortcuts text"
   },
   "guideContextShortcutsExtra1": {
-    "message": "将当前选区作为 Markdown 复制",
+    "message": "현재 선택 영역을 마크다운으로 복사",
     "description": "Extra shortcut 1"
   },
   "guideContextShortcutsExtra2": {
-    "message": "将所选标签页复制为 Markdown 链接列表",
+    "message": "선택한 탭들을 마크다운 링크 목록으로 복사",
     "description": "Extra shortcut 2"
   },
   "guideContextShortcutsExtra3": {
-    "message": "将当前选区复制到 Obsidian",
+    "message": "현재 선택 영역을 Obsidian으로 복사",
     "description": "Extra shortcut 3"
   },
   "guideContextShortcutsExtra4": {
-    "message": "将当前标签页复制到 Obsidian",
+    "message": "현재 탭을 Obsidian으로 복사",
     "description": "Extra shortcut 4"
   },
   "guideSettingsHeading": {
-    "message": "设置与自定义",
+    "message": "설정 및 사용자 지정",
     "description": "Heading for Settings section"
   },
   "guideSettingsDesc": {
-    "message": "单击弹窗头部中的齿轮图标，或者右键单击 MarkSnip 图标并选择<strong>选项</strong>以打开选项页面。",
+    "message": "팝업 헤더의 톱니바퀴 아이콘을 클릭하거나 MarkSnip 아이콘을 마우스 오른쪽 버튼으로 클릭하고 <strong>옵션</strong>을 선택하여 설정 페이지를 엽니다.",
     "description": "Description for Settings section"
   },
   "guideSettingsTemplates": {
-    "message": "模板",
+    "message": "템플릿",
     "description": "Heading for Templates subsection"
   },
   "guideSettingsTemplatesTitle": {
-    "message": "标题模板",
+    "message": "제목 템플릿",
     "description": "Subheading for Title Template"
   },
   "guideSettingsTemplatesTitleDesc": {
-    "message": "控制弹窗的标题字段和生成的文件名。支持<a href=\"#text-substitutions\">自定义文本替换</a>。默认值：<code>{pageTitle}</code>",
+    "message": "팝업의 제목 필드와 결과 파일명을 제어합니다. <a href=\"#text-substitutions\">사용자 지정 텍스트 대체</a>를 사용합니다. 기본값: <code>{pageTitle}</code>",
     "description": "Description for Title Template"
   },
   "guideSettingsTemplatesFolder": {
-    "message": "下载子文件夹",
+    "message": "다운로드 하위 폴더",
     "description": "Subheading for Downloads Subfolder"
   },
   "guideSettingsTemplatesFolderDesc": {
-    "message": "浏览器下载文件夹内用于保存 Markdown 文件的子文件夹。仅在 Downloads API 模式下可用。支持<a href=\"#text-substitutions\">文本替换</a>。",
+    "message": "마크다운 파일이 저장되는 브라우저의 다운로드 폴더 내의 하위 폴더입니다. Downloads API 모드에서만 사용할 수 있습니다. <a href=\"#text-substitutions\">텍스트 대체</a>를 사용합니다.",
     "description": "Description for Downloads Subfolder"
   },
   "guideSettingsTemplatesChars": {
-    "message": "不允许的字符",
+    "message": "허용되지 않는 문자",
     "description": "Subheading for Disallowed Characters"
   },
   "guideSettingsTemplatesCharsDesc": {
-    "message": "除了系统保留字符外，自动从文件名中剥离的字符。默认值：<code>[]#^</code>（为了与 Obsidian 兼容）。",
+    "message": "시스템 예약 문자 외에 파일명에서 자동으로 제거되는 문자입니다. 기본값: <code>[]#^</code> (Obsidian 호환성 목적).",
     "description": "Description for Disallowed Characters"
   },
   "guideSettingsTemplatesFrontBack": {
-    "message": "顶部/底部模板",
+    "message": "앞/뒤 템플릿(Front/Back Templates)",
     "description": "Subheading for Front/Back Templates"
   },
   "guideSettingsTemplatesFrontBackDesc": {
-    "message": "每个剪藏 Markdown 文件前置或后置的文本。对于 YAML front-matter 或其他元数据很有用。支持<a href=\"#text-substitutions\">文本替换</a>。",
+    "message": "클립된 모든 마크다운 파일의 앞이나 뒤에 추가되는 텍스트입니다. YAML front-matter 또는 기타 메타데이터에 유용합니다. <a href=\"#text-substitutions\">텍스트 대체</a>를 사용합니다.",
     "description": "Description for Front/Back Templates"
   },
   "guideSettingsDownloads": {
-    "message": "下载",
+    "message": "다운로드",
     "description": "Heading for Downloads subsection"
   },
   "guideSettingsDownloadsMenus": {
-    "message": "上下文菜单",
+    "message": "컨텍스트 메뉴",
     "description": "Subheading for Context Menus"
   },
   "guideSettingsDownloadsMenusDesc": {
-    "message": "打开和关闭右键上下文菜单项。默认值：<strong>开</strong>。",
+    "message": "오른쪽 클릭 컨텍스트 메뉴 항목을 켜고 끕니다. 기본값: <strong>켜기</strong>.",
     "description": "Description for Context Menus"
   },
   "guideSettingsDownloadsAction": {
-    "message": "默认弹窗操作",
+    "message": "기본 팝업 작업",
     "description": "Subheading for Default Popup Action"
   },
   "guideSettingsDownloadsActionDesc": {
-    "message": "控制弹窗的主要操作按钮。选择<strong>Markdown</strong>、<strong>纯文本</strong>、<strong>HTML</strong>、<strong>PDF</strong> 或 <strong>发送给助手</strong>。这不会更改上下文菜单下载、键盘下载快捷键、批量输出、库导出、Agent Bridge 输出或 Obsidian 发送的操作。",
+    "message": "팝업의 기본 작업 버튼을 제어합니다. <strong>마크다운</strong>, <strong>일반 텍스트</strong>, <strong>HTML</strong>, <strong>PDF</strong>, 또는 <strong>어시스턴트로 전송</strong>을 선택합니다. 컨텍스트 메뉴 다운로드, 키보드 다운로드 단축키, 일괄 내보내기, 라이브러리 내보내기, Agent Bridge 출력 또는 Obsidian 전송에는 변경되지 않습니다.",
     "description": "Description for Default Popup Action"
   },
   "guideSettingsDownloadsTarget": {
-    "message": "默认助手目标",
+    "message": "기본 어시스턴트 대상",
     "description": "Subheading for Default Assistant Target"
   },
   "guideSettingsDownloadsTargetDesc": {
-    "message": "当选择<strong>发送给助手</strong>时，选择弹窗的默认目的地，如 <strong>ChatGPT</strong>、<strong>Claude</strong>、<strong>Perplexity</strong>，或您的某个自定义助手 URL。",
+    "message": "<strong>어시스턴트로 전송</strong>이 선택된 경우, <strong>ChatGPT</strong>, <strong>Claude</strong>, <strong>Perplexity</strong>, 또는 사용자 지정 어시스턴트 URL과 같은 팝업의 기본 대상을 선택합니다.",
     "description": "Description for Default Assistant Target"
   },
   "guideSettingsDownloadsTargets": {
-    "message": "助手目标",
+    "message": "어시스턴트 대상",
     "description": "Subheading for Assistant Targets"
   },
   "guideSettingsDownloadsTargetsDesc": {
-    "message": "内置了 ChatGPT、Claude 和 Perplexity。添加在查询字符串中接受 <code>{prompt}</code> 占位符的自定义 HTTPS 助手 URL。从弹窗发送时，MarkSnip 会将当前的 Markdown 插入该占位符中。",
+    "message": "ChatGPT, Claude, 및 Perplexity가 내장되어 있습니다. 쿼리 문자열에 <code>{prompt}</code> 자리 표시자를 허용하는 사용자 지정 HTTPS 어시스턴트 URL을 추가하세요. 팝업에서 보낼 때 MarkSnip이 해당 자리 표시자에 현재 마크다운을 삽입합니다.",
     "description": "Description for Assistant Targets"
   },
   "guideSettingsDownloadsLength": {
-    "message": "助手 URL 长度上限",
+    "message": "어시스턴트 URL 길이 제한",
     "description": "Subheading for Assistant URL Length Cap"
   },
   "guideSettingsDownloadsLengthDesc": {
-    "message": "控制生成的助手 URL 允许的最大长度，超过此长度，MarkSnip 将回退到将 Markdown 复制到您的剪贴板，并转而打开助手的着陆页。默认值为 <strong>3600</strong>，不建议更改。",
+    "message": "MarkSnip이 마크다운을 클립보드에 복사하고 대신 어시스턴트 랜딩 페이지를 열기 전까지 생성된 어시스턴트 URL의 길이를 제어합니다. 기본값은 <strong>3600</strong>이며, 변경하는 것은 권장하지 않습니다.",
     "description": "Description for Assistant URL Length Cap"
   },
   "guideSettingsMarkdown": {
-    "message": "Markdown 选项",
+    "message": "마크다운 옵션",
     "description": "Heading for Markdown Options subsection"
   },
   "guideSettingsMarkdownHeading": {
-    "message": "标题样式",
+    "message": "제목(Heading) 스타일",
     "description": "Subheading for Heading Style"
   },
   "guideSettingsMarkdownHeadingDesc": {
-    "message": "<strong>Setext</strong> 使用下划线 (<code>===</code> / <code>---</code>)；<strong>Atx</strong> (默认) 使用 <code>#</code> 前缀。",
+    "message": "<strong>Setext</strong>는 밑줄(<code>===</code> / <code>---</code>)을 사용합니다; <strong>Atx</strong>(기본값)는 <code>#</code> 접두사를 사용합니다.",
     "description": "Description for Heading Style"
   },
   "guideSettingsMarkdownHr": {
-    "message": "水平分割线样式",
+    "message": "가로줄(Horizontal Rule) 스타일",
     "description": "Subheading for Horizontal Rule Style"
   },
   "guideSettingsMarkdownHrDesc": {
-    "message": "在 <code>***</code>、<code>---</code>，或 <code>___</code> (默认) 之间选择。",
+    "message": "<code>***</code>, <code>---</code>, 또는 <code>___</code>(기본값) 중에서 선택하세요.",
     "description": "Description for Horizontal Rule Style"
   },
   "guideSettingsMarkdownBullet": {
-    "message": "无序列表标记",
+    "message": "글머리 기호 목록 마커",
     "description": "Subheading for Bullet List Marker"
   },
   "guideSettingsMarkdownBulletDesc": {
-    "message": "<code>*</code>、<code>-</code> (默认) 或 <code>+</code>。",
+    "message": "<code>*</code>, <code>-</code>(기본값), 또는 <code>+</code>.",
     "description": "Description for Bullet List Marker"
   },
   "guideSettingsMarkdownCode": {
-    "message": "代码块样式",
+    "message": "코드 블록 스타일",
     "description": "Subheading for Code Block Style"
   },
   "guideSettingsMarkdownCodeDesc": {
-    "message": "<strong>缩进</strong> (四个空格的缩进) 或 <strong>围栏</strong> (默认，包裹在 <code>```</code> 或 <code>~~~</code> 中)。",
+    "message": "<strong>들여쓰기(Indented)</strong>(4칸 들여쓰기) 또는 <strong>울타리(Fenced)</strong>(기본값, <code>```</code> 또는 <code>~~~</code>로 감쌈).",
     "description": "Description for Code Block Style"
   },
   "guideSettingsMarkdownPreserve": {
-    "message": "保留代码块的 HTML 格式",
+    "message": "코드 블록 HTML 서식 보존",
     "description": "Subheading for Preserve Code Block Formatting"
   },
   "guideSettingsMarkdownPreserveDesc": {
-    "message": "启用后，保留代码块内原始的 HTML 格式。默认值：<strong>关</strong>。",
+    "message": "활성화하면 코드 블록 내부의 원래 HTML 서식이 보존됩니다. 기본값: <strong>끄기</strong>.",
     "description": "Description for Preserve Code Block Formatting"
   },
   "guideSettingsMarkdownEmStrong": {
-    "message": "强调与加粗分隔符",
+    "message": "강조(Emphasis) 및 강한 강조(Strong) 구분 기호",
     "description": "Subheading for Emphasis & Strong Delimiters"
   },
   "guideSettingsMarkdownEmStrongDesc": {
-    "message": "斜体：<code>_</code> (默认)、<code>*</code>，或 <code>__</code> (用于 Roam)。加粗：<code>**</code> (默认) 或 <code>__</code>。",
+    "message": "기울임꼴(Italics): <code>_</code>(기본값), <code>*</code>, 또는 <code>__</code>(Roam 전용). 굵게(Bold): <code>**</code>(기본값) 또는 <code>__</code>.",
     "description": "Description for Emphasis & Strong Delimiters"
   },
   "guideSettingsMarkdownLink": {
-    "message": "链接样式",
+    "message": "링크 스타일",
     "description": "Subheading for Link Style"
   },
   "guideSettingsMarkdownLinkDesc": {
-    "message": "<strong>内联</strong> (默认)：<code>[Google](http://google.com)</code>。<strong>引用</strong>：底部单独的链接定义。<strong>剥离链接</strong>：完全移除链接。",
+    "message": "<strong>인라인(Inlined)</strong>(기본값): <code>[Google](http://google.com)</code>. <strong>참조(Referenced)</strong>: 하단에 별도의 링크 정의를 둡니다. <strong>링크 제거(Strip Links)</strong>: 링크를 완전히 제거합니다.",
     "description": "Description for Link Style"
   },
   "guideSettingsMarkdownImage": {
-    "message": "图片样式",
+    "message": "이미지 스타일",
     "description": "Subheading for Image Style"
   },
   "guideSettingsMarkdownImageCol1": {
-    "message": "样式",
+    "message": "스타일",
     "description": "Table column Style"
   },
   "guideSettingsMarkdownImageCol2": {
-    "message": "输出",
+    "message": "출력",
     "description": "Table column Output"
   },
   "guideSettingsMarkdownImageCol3": {
-    "message": "需要下载图片",
+    "message": "이미지 다운로드 필요 여부",
     "description": "Table column Requires Download Images"
   },
   "guideSettingsMarkdownImageNo": {
-    "message": "否",
+    "message": "아니요",
     "description": "Table cell No"
   },
   "guideSettingsMarkdownImageYes": {
-    "message": "是",
+    "message": "예",
     "description": "Table cell Yes"
   },
   "guideSettingsMarkdownImageRemoved": {
-    "message": "<em>(图片被移除)</em>",
+    "message": "<em>(이미지 제거됨)</em>",
     "description": "Table cell Image removed"
   },
   "guideSettingsMarkdownImageOriginal": {
-    "message": "原始源",
+    "message": "원본 소스",
     "description": "Table cell Original Source"
   },
   "guideSettingsMarkdownImageStrip": {
-    "message": "剥离图片",
+    "message": "이미지 제거",
     "description": "Table cell Strip Images"
   },
   "guideSettingsMarkdownImagePure": {
-    "message": "纯 Markdown (默认)",
+    "message": "순수 마크다운 (기본값)",
     "description": "Table cell Pure Markdown"
   },
   "guideSettingsMarkdownImageBase64": {
-    "message": "Base64 编码",
+    "message": "Base64 인코딩",
     "description": "Table cell Base64 Encoded"
   },
   "guideSettingsMarkdownImageObsidian": {
-    "message": "Obsidian 内部嵌入",
+    "message": "Obsidian 내부 임베드",
     "description": "Table cell Obsidian Internal Embed"
   },
   "guideSettingsMarkdownImageObsidianNo": {
-    "message": "Obsidian 嵌入 (无文件夹)",
+    "message": "Obsidian 임베드 (폴더 없음)",
     "description": "Table cell Obsidian Embed (no folder)"
   },
   "guideSettingsMarkdownEscape": {
-    "message": "转义 Markdown 字符",
+    "message": "마크다운 문자 이스케이프",
     "description": "Subheading for Escape Markdown Characters"
   },
   "guideSettingsMarkdownEscapeDesc": {
-    "message": "使用反斜杠转义特殊的 Markdown 字符，以防被误解。默认值：<strong>开</strong>。",
+    "message": "오해를 방지하기 위해 특수 마크다운 문자를 백슬래시로 이스케이프합니다. 기본값: <strong>켜기</strong>.",
     "description": "Description for Escape Markdown Characters"
   },
   "guideSettingsMarkdownHashtag": {
-    "message": "话题标签处理",
+    "message": "해시태그 처리",
     "description": "Subheading for Hashtag Handling"
   },
   "guideSettingsMarkdownHashtagDesc": {
-    "message": "<strong>保留</strong> (默认)、<strong>移除 #</strong>，或 <strong>转义 #</strong>。仅影响文章文本；Markdown 语法和代码将被保留。",
+    "message": "<strong>유지</strong>(기본값), <strong># 제거</strong>, 또는 <strong># 이스케이프</strong>. 기사 텍스트에만 영향을 미치며, 마크다운 구문과 코드는 보존됩니다.",
     "description": "Description for Hashtag Handling"
   },
   "guideSettingsTables": {
-    "message": "表格格式选项",
+    "message": "표 서식 옵션",
     "description": "Heading for Table Formatting Options"
   },
   "guideSettingsTablesCol1": {
-    "message": "选项",
+    "message": "옵션",
     "description": "Table column Option"
   },
   "guideSettingsTablesCol2": {
-    "message": "描述",
+    "message": "설명",
     "description": "Table column Description"
   },
   "guideSettingsTablesCol3": {
-    "message": "默认值",
+    "message": "기본값",
     "description": "Table column Default"
   },
   "guideSettingsTablesStripLinks": {
-    "message": "剥离表格中的链接",
+    "message": "표에서 링크 제거",
     "description": "Table cell Strip Links"
   },
   "guideSettingsTablesStripLinksDesc": {
-    "message": "从表格单元格中移除超链接，仅保留文本。",
+    "message": "표 셀에서 하이퍼링크를 제거하고 텍스트만 유지합니다.",
     "description": "Table cell Strip Links Description"
   },
   "guideSettingsTablesStripForm": {
-    "message": "剥离格式",
+    "message": "서식 제거",
     "description": "Table cell Strip Formatting"
   },
   "guideSettingsTablesStripFormDesc": {
-    "message": "从表格单元格中移除加粗、斜体和其他格式。",
+    "message": "표 셀에서 굵게, 기울임꼴 및 기타 서식을 제거합니다.",
     "description": "Table cell Strip Formatting Description"
   },
   "guideSettingsTablesPretty": {
-    "message": "美化打印表格",
+    "message": "표 예쁘게 출력",
     "description": "Table cell Pretty Print"
   },
   "guideSettingsTablesPrettyDesc": {
-    "message": "添加适当的间距和列对齐方式。",
+    "message": "적절한 간격과 열 정렬을 추가합니다.",
     "description": "Table cell Pretty Print Description"
   },
   "guideSettingsTablesCenter": {
-    "message": "居中列中文本",
+    "message": "열 중앙에 텍스트 정렬",
     "description": "Table cell Center Text"
   },
   "guideSettingsTablesCenterDesc": {
-    "message": "使表格列中的文本居中。",
+    "message": "표 열 내의 텍스트를 중앙에 맞춥니다.",
     "description": "Table cell Center Text Description"
   },
   "guideSettingsImportExport": {
-    "message": "导入 / 导出设置",
+    "message": "설정 가져오기 / 내보내기",
     "description": "Heading for Import / Export Settings"
   },
   "guideSettingsImportExportImport": {
-    "message": "<strong>导入</strong> &mdash; 从之前导出的 JSON 文件恢复设置。",
+    "message": "<strong>가져오기</strong> — 이전에 내보낸 JSON 파일에서 설정을 복원합니다.",
     "description": "Description for Import"
   },
   "guideSettingsImportExportExport": {
-    "message": "<strong>导出</strong> &mdash; 将所有当前设置保存到 JSON 文件，以便备份或传输到另一个浏览器。",
+    "message": "<strong>내보내기</strong> — 다른 브라우저로 백업하거나 전송하기 위해 모든 현재 설정을 JSON 파일에 저장합니다.",
     "description": "Description for Export"
   },
   "guideObsidianHeading": {
-    "message": "Obsidian 与下载",
+    "message": "Obsidian 및 다운로드",
     "description": "Heading for Obsidian & Downloads"
   },
   "guideObsidianIntegration": {
-    "message": "Obsidian 集成",
+    "message": "Obsidian 통합",
     "description": "Heading for Obsidian Integration"
   },
   "guideObsidianIntegrationDesc": {
-    "message": "启用此项以显示<strong>发送到 Obsidian</strong>按钮和 Obsidian 上下文菜单操作。需要 <strong>Advanced Obsidian URI</strong> 社区插件。",
+    "message": "<strong>Obsidian으로 전송</strong> 버튼과 Obsidian 컨텍스트 메뉴 작업을 표시하려면 활성화하세요. <strong>Advanced Obsidian URI</strong> 커뮤니티 플러그인이 필요합니다.",
     "description": "Description for Obsidian Integration"
   },
   "guideObsidianIntegrationVault": {
-    "message": "<strong>库名称 (Vault Name)</strong> &mdash; 留空以使用默认库。",
+    "message": "<strong>보관소 이름(Vault Name)</strong> — 기본 보관소를 사용하려면 비워 두세요.",
     "description": "Vault Name description"
   },
   "guideObsidianIntegrationFolder": {
-    "message": "<strong>文件夹名称 (Folder Name)</strong> &mdash; 支持<a href=\"#text-substitutions\">文本替换</a>（例如 <code>{date:YYYY-MM-DD}/</code>）。",
+    "message": "<strong>폴더 이름(Folder Name)</strong> — <a href=\"#text-substitutions\">텍스트 대체</a>를 지원합니다(예: <code>{date:YYYY-MM-DD}/</code>).",
     "description": "Folder Name description"
   },
   "guideObsidianIntegrationNote": {
-    "message": "<strong>注意：</strong> 通过 Obsidian 发送的图片将作为远程链接保留。扩展不会将附件文件放入库中。",
+    "message": "<strong>참고:</strong> Obsidian을 통해 전송된 이미지는 원격 링크로 유지됩니다. 확장 프로그램은 보관소 내부에 첨부 파일을 배치하지 않습니다.",
     "description": "Note for Obsidian Integration"
   },
   "guideObsidianMode": {
-    "message": "下载模式",
+    "message": "다운로드 모드",
     "description": "Heading for Download Mode"
   },
   "guideObsidianModeCol1": {
-    "message": "模式",
+    "message": "모드",
     "description": "Table column Mode"
   },
   "guideObsidianModeCol2": {
-    "message": "描述",
+    "message": "설명",
     "description": "Table column Description"
   },
   "guideObsidianModeApi": {
-    "message": "<strong>Downloads API</strong>（推荐）",
+    "message": "<strong>Downloads API</strong> (권장)",
     "description": "Downloads API mode name"
   },
   "guideObsidianModeApiDesc": {
-    "message": "使用浏览器的下载 API。支持子文件夹、图片下载和另存为对话框。",
+    "message": "브라우저의 다운로드 API를 사용합니다. 하위 폴더, 이미지 다운로드 및 다른 이름으로 저장 대화상자를 지원합니다.",
     "description": "Downloads API description"
   },
   "guideObsidianModeLink": {
-    "message": "<strong>内容链接</strong>",
+    "message": "<strong>콘텐츠 링크(Content Link)</strong>",
     "description": "Content Link mode name"
   },
   "guideObsidianModeLinkDesc": {
-    "message": "回退到用于下载的内容链接。受限较多 &mdash; 禁用图片下载和子文件夹。",
+    "message": "다운로드 시 콘텐츠 링크로 대체합니다. 기능이 제한적이며 이미지 다운로드 및 하위 폴더를 사용할 수 없습니다.",
     "description": "Content Link description"
   },
   "guideObsidianModeSaveAs": {
-    "message": "显示“另存为”对话框",
+    "message": "다른 이름으로 저장 대화상자 표시",
     "description": "Subheading for Show Save As Dialog"
   },
   "guideObsidianModeSaveAsDesc": {
-    "message": "强制每次下载都显示浏览器的“另存为”对话框。当开启“下载图片”时，不建议使用。",
+    "message": "모든 다운로드에 대해 브라우저의 다른 이름으로 저장 대화상자를 강제로 표시합니다. 이미지 다운로드가 켜져 있을 때는 권장하지 않습니다.",
     "description": "Description for Show Save As Dialog"
   },
   "guideObsidianImage": {
-    "message": "图片下载",
+    "message": "이미지 다운로드",
     "description": "Heading for Image Downloads"
   },
   "guideObsidianImageDesc": {
-    "message": "启用后（仅限 Downloads API 模式），图片将与带有本地引用的 Markdown 文件一起下载。",
+    "message": "활성화하면(Downloads API 모드에서만) 이미지가 로컬 참조와 함께 마크다운 파일과 함께 다운로드됩니다.",
     "description": "Description for Image Downloads"
   },
   "guideObsidianImagePrefix": {
-    "message": "图片文件名前缀",
+    "message": "이미지 파일명 접두사",
     "description": "Subheading for Image Filename Prefix"
   },
   "guideObsidianImagePrefixDesc": {
-    "message": "下载图片的前缀或子文件夹。支持<a href=\"#text-substitutions\">文本替换</a>。包含 <code>/</code> 会创建一个子文件夹。默认值：<code>{pageTitle}/</code>。",
+    "message": "다운로드한 이미지의 접두사 또는 하위 폴더입니다. <a href=\"#text-substitutions\">텍스트 대체</a>를 사용합니다. <code>/</code>를 포함하면 하위 폴더가 생성됩니다. 기본값: <code>{pageTitle}/</code>.",
     "description": "Description for Image Filename Prefix"
   },
   "guidePermissionsHeading": {
-    "message": "权限与隐私",
+    "message": "권한 및 개인정보보호",
     "description": "Heading for Permissions & Privacy"
   },
   "guidePermissionsIntro": {
-    "message": "MarkSnip 完全在您的浏览器内处理页面。它不会将页面内容发送到任何外部服务器。本节说明 MarkSnip 使用了哪些浏览器权限、为什么需要它们，以及它们实际在何时被行使。",
+    "message": "MarkSnip은 브라우저 내에서 완전히 페이지를 처리합니다. 페이지 콘텐츠를 외부 서버로 전송하지 않습니다. 이 섹션에서는 MarkSnip이 사용하는 브라우저 권한, 해당 권한이 필요한 이유 및 실제로 적용되는 시점을 설명합니다.",
     "description": "Intro for Permissions & Privacy"
   },
   "guidePermissionsSite": {
-    "message": "站点访问权限",
+    "message": "사이트 액세스",
     "description": "Heading for Site Access"
   },
   "guidePermissionsSiteDesc": {
-    "message": "MarkSnip 请求访问网页的权限，以便在您触发剪藏时能够跨网络剪藏页面。这涵盖弹窗剪藏、键盘快捷键、上下文菜单操作、多标签链接操作，以及对新标签页中打开的 URL 进行批量处理。",
+    "message": "MarkSnip은 웹 페이지에 대한 액세스를 요청하여 클립을 트리거할 때 웹 전체의 페이지를 클립할 수 있도록 합니다. 이는 팝업 클리핑, 키보드 단축키, 컨텍스트 메뉴 작업, 다중 탭 링크 작업 및 새 탭에서 열린 URL의 일괄 처리를 포함합니다.",
     "description": "Description for Site Access"
   },
   "guidePermissionsSiteBullet1": {
-    "message": "<strong>仅在您剪藏时激活</strong> &mdash; MarkSnip 不会监控浏览活动或在后台读取页面。",
+    "message": "<strong>클립할 때만 활성화</strong> — MarkSnip은 검색 활동을 모니터링하거나 백그라운드에서 페이지를 읽지 않습니다.",
     "description": "Site Access bullet 1"
   },
   "guidePermissionsSiteBullet2": {
-    "message": "<strong>在本地处理</strong> &mdash; 页面内容在您的浏览器内转换为 Markdown，且绝不会发送给远程服务。",
+    "message": "<strong>로컬에서 처리</strong> — 페이지 콘텐츠는 브라우저 내부에서 마크다운으로 변환되며 원격 서비스로 전송되지 않습니다.",
     "description": "Site Access bullet 2"
   },
   "guidePermissionsSiteBullet3": {
-    "message": "<strong>由浏览器管理</strong> &mdash; 您可以随时在浏览器的扩展设置中查看此权限。",
+    "message": "<strong>브라우저에서 관리</strong> — 브라우저의 확장 프로그램 설정에서 언제든지 이 권한을 검토할 수 있습니다.",
     "description": "Site Access bullet 3"
   },
   "guidePermissionsOther": {
-    "message": "其他核心权限",
+    "message": "기타 핵심 권한",
     "description": "Heading for Other Core Permissions"
   },
   "guidePermissionsOtherDesc": {
-    "message": "除站点访问外，MarkSnip 还使用一小组标准浏览器权限来使其主要功能正常工作。这些权限支持本地浏览器操作；它们不会改变剪藏保持在本地的这一事实。",
+    "message": "사이트 액세스 외에도 MarkSnip은 주요 기능이 작동하도록 소수의 표준 브라우저 권한 집합을 사용합니다. 이러한 권한은 로컬 브라우저 작업을 지원하며 클리핑이 로컬로 유지된다는 사실을 변경하지 않습니다.",
     "description": "Description for Other Core Permissions"
   },
   "guidePermissionsOtherCol1": {
-    "message": "权限",
+    "message": "권한",
     "description": "Table column Permission"
   },
   "guidePermissionsOtherCol2": {
-    "message": "MarkSnip 为什么使用它",
+    "message": "MarkSnip이 사용하는 이유",
     "description": "Table column Why MarkSnip uses it"
   },
   "guidePermissionsOtherCol3": {
-    "message": "何时发挥作用",
+    "message": "관련 시점",
     "description": "Table column When it matters"
   },
   "guidePermissionsOtherActiveTabDesc": {
-    "message": "让 MarkSnip 可以操作您明确调用它的页面。",
+    "message": "MarkSnip이 명시적으로 호출한 페이지에서 작업할 수 있도록 합니다.",
     "description": "activeTab description"
   },
   "guidePermissionsOtherActiveTabWhen": {
-    "message": "打开弹窗或在当前标签页上使用快捷键时。",
+    "message": "팝업을 열거나 현재 탭에서 단축키를 사용할 때.",
     "description": "activeTab when it matters"
   },
   "guidePermissionsOtherDownloadsDesc": {
-    "message": "通过浏览器保存 Markdown 文件、ZIP 导出以及下载的图片。",
+    "message": "마크다운 파일, ZIP 내보내기 및 다운로드한 이미지를 브라우저를 통해 저장합니다.",
     "description": "downloads description"
   },
   "guidePermissionsOtherDownloadsWhen": {
-    "message": "下载剪藏或批量导出时。",
+    "message": "클립 또는 일괄 내보내기를 다운로드할 때.",
     "description": "downloads when it matters"
   },
   "guidePermissionsOtherClipboardDesc": {
-    "message": "将生成的 Markdown 写入剪贴板。",
+    "message": "생성된 마크다운을 클립보드에 씁니다.",
     "description": "clipboardWrite description"
   },
   "guidePermissionsOtherClipboardWhen": {
-    "message": "使用“复制”操作时。",
+    "message": "복사 작업을 사용할 때.",
     "description": "clipboardWrite when it matters"
   },
   "guidePermissionsOtherStorageDesc": {
-    "message": "记住您的设置、模板、主题和功能开关。",
+    "message": "설정, 템플릿, 테마 및 기능 토글을 기억합니다.",
     "description": "storage description"
   },
   "guidePermissionsOtherStorageWhen": {
-    "message": "在您保存或恢复设置时。",
+    "message": "설정을 저장하거나 복원할 때마다.",
     "description": "storage when it matters"
   },
   "guidePermissionsOtherContextMenusDesc": {
-    "message": "添加用于页面、选区、链接、图片和标签页的右键操作。",
+    "message": "페이지, 선택 항목, 링크, 이미지 및 탭에 대한 오른쪽 클릭 작업을 추가합니다.",
     "description": "contextMenus description"
   },
   "guidePermissionsOtherContextMenusWhen": {
-    "message": "当在设置中启用了上下文菜单时。",
+    "message": "설정에서 컨텍스트 메뉴가 활성화된 경우.",
     "description": "contextMenus when it matters"
   },
   "guidePermissionsOtherScriptingDesc": {
-    "message": "在剪藏时将 MarkSnip 的捕获助手注入到页面中。",
+    "message": "클립할 때 페이지에 MarkSnip의 캡처 헬퍼를 주입합니다.",
     "description": "scripting description"
   },
   "guidePermissionsOtherScriptingWhen": {
-    "message": "无论何时 MarkSnip 读取页面内容。",
+    "message": "MarkSnip이 페이지 콘텐츠를 읽을 때마다.",
     "description": "scripting when it matters"
   },
   "guidePermissionsOtherOffscreenDesc": {
-    "message": "在 Chromium 浏览器中，为 Manifest V3 的剪贴板和下载工作流使用隐藏的文档。",
+    "message": "Chromium 브라우저의 Manifest V3 클립보드 및 다운로드 워크플로우를 위해 숨겨진 문서를 사용합니다.",
     "description": "offscreen description"
   },
   "guidePermissionsOtherOffscreenWhen": {
-    "message": "在某些复制和下载操作期间处于幕后。",
+    "message": "일부 복사 및 다운로드 작업 중에 백그라운드에서 실행됨.",
     "description": "offscreen when it matters"
   },
   "guidePermissionsBridge": {
-    "message": "Agent Bridge 权限",
+    "message": "Agent Bridge 권한",
     "description": "Heading for Agent Bridge Permission"
   },
   "guidePermissionsBridgeDesc": {
-    "message": "Agent Bridge 功能需要一个称为<strong>本地消息传递 (Native Messaging)</strong>的额外浏览器权限。这是一个<em>可选</em>权限 &mdash; 没有它，MarkSnip 依然能完美运作。",
+    "message": "Agent Bridge 기능에는 <strong>Native Messaging</strong>이라는 추가 브라우저 권한이 필요합니다. 이는 <em>선택적</em> 권한이며, MarkSnip은 이 권한 없이도 완벽하게 작동합니다.",
     "description": "Description for Agent Bridge Permission"
   },
   "guidePermissionsBridgeBullet1": {
-    "message": "<strong>它的作用</strong> &mdash; 允许 MarkSnip 与安装在您机器上的小型本地伴侣程序通信。",
+    "message": "<strong>작업 내용</strong> — MarkSnip이 머신에 설치된 작은 로컬 컴패니언 프로그램과 통신할 수 있도록 합니다.",
     "description": "Agent Bridge bullet 1"
   },
   "guidePermissionsBridgeBullet2": {
-    "message": "<strong>仅限本地</strong> &mdash; 通信仅保留在您的计算机上。不会有数据离开您的机器。",
+    "message": "<strong>로컬 전용</strong> — 통신은 컴퓨터 내에 유지됩니다. 데이터가 머신 외부로 유출되지 않습니다.",
     "description": "Agent Bridge bullet 2"
   },
   "guidePermissionsBridgeBullet3": {
-    "message": "<strong>何时被使用</strong> &mdash; 仅在启用 Agent Bridge 时。关闭该开关将停止所有本地消息传递活动。",
+    "message": "<strong>사용 시점</strong> — Agent Bridge가 활성화된 동안에만 사용됩니다. 토글을 끄면 모든 기본 메시징 활동이 중지됩니다.",
     "description": "Agent Bridge bullet 3"
   },
   "guidePermissionsBridgeBullet4": {
-    "message": "<strong>如何授予</strong> &mdash; 在设置中启用 Agent Bridge 开关。在浏览器的权限提示出现前，MarkSnip 会显示说明。",
+    "message": "<strong>권한 부여 방법</strong> — 설정에서 Agent Bridge 토글을 활성화하세요. 브라우저의 권한 프롬프트가 나타나기 전에 MarkSnip에 대한 설명이 표시됩니다.",
     "description": "Agent Bridge bullet 4"
   },
   "guidePermissionsBridgeBullet5": {
-    "message": "<strong>如何撤销</strong> &mdash; 一旦授予，此权限不能选择性地移除。如需完全撤销，必须重新安装扩展程序。关闭 Agent Bridge 开关即可停止所有本地消息活动，无需撤销权限。",
+    "message": "<strong>권한 철회 방법</strong> — 한 번 부여된 권한은 선택적으로 제거할 수 없습니다. 완전히 철회하려면 확장 프로그램을 다시 설치해야 합니다. Agent Bridge 토글을 끄면 권한을 철회할 필요 없이 모든 기본 메시징 활동이 중지됩니다.",
     "description": "Agent Bridge bullet 5"
   },
   "guidePermissionsBridgeNote": {
-    "message": "<strong>注意：</strong> 如果您拒绝该权限，常规剪藏完全不受影响。您随时可以在以后重试。",
+    "message": "<strong>참고:</strong> 권한을 거부하더라도 일반 클리핑은 전혀 영향을 받지 않습니다. 나중에 언제든지 다시 시도할 수 있습니다.",
     "description": "Agent Bridge Note"
   },
   "guideFaq4Title": {
-    "message": "上下文菜单项丢失",
+    "message": "컨텍스트 메뉴 항목이 누락되었습니다",
     "description": "FAQ 4 Title"
   },
   "guideFaq4Desc": {
-    "message": "请检查在<a href=\"#download-settings\">下载设置</a>中是否开启了<strong>启用上下文菜单</strong>。",
+    "message": "<a href=\"#download-settings\">다운로드 설정</a>에서 <strong>컨텍스트 메뉴 활성화</strong>가 켜져 있는지 확인하세요.",
     "description": "FAQ 4 Description"
   },
   "guideFaq5Title": {
-    "message": "键盘快捷键无法使用",
+    "message": "키보드 단축키가 작동하지 않습니다",
     "description": "FAQ 5 Title"
   },
   "guideFaq5Desc": {
-    "message": "其他扩展程序可能占用了相同的快捷键。请打开浏览器的扩展程序快捷键设置重新分配按键。",
+    "message": "다른 확장 프로그램이 동일한 단축키를 사용하고 있을 수 있습니다. 브라우저의 확장 프로그램 단축키 설정을 열어 키를 다시 할당하세요.",
     "description": "FAQ 5 Description"
   },
   "guideFaq6Title": {
-    "message": "Markdown 输出看起来不对",
+    "message": "마크다운 출력이 잘못되었습니다",
     "description": "FAQ 6 Title"
   },
   "guideFaq6Desc": {
-    "message": "请检查<a href=\"#markdown-options\">Markdown 选项</a>，以调整标题样式、链接样式、代码块样式以及转义设置来匹配您的工作流。",
+    "message": "<a href=\"#markdown-options\">마크다운 옵션</a>을 확인하여 워크플로우에 맞게 제목 스타일, 링크 스타일, 코드 블록 스타일 및 이스케이프 설정을 조정하세요.",
     "description": "FAQ 6 Description"
   },
   "guideTextSubHeading": {
-    "message": "自定义文本替换",
+    "message": "사용자 지정 텍스트 대체",
     "description": "Heading for Custom Text Substitutions"
   },
   "guideTextSubIntro": {
-    "message": "标题模板、下载子文件夹、顶部/底部模板、图片文件名前缀以及 Obsidian 文件夹名称均支持这些变量：",
+    "message": "제목 템플릿, 다운로드 하위 폴더, 앞/뒤 템플릿, 이미지 파일명 접두사, Obsidian 폴더 이름은 모두 다음 변수를 지원합니다:",
     "description": "Intro for Text Substitutions"
   },
   "guideTextSubMeta": {
-    "message": "文章元数据",
+    "message": "기사 메타데이터",
     "description": "Heading for Article Metadata"
   },
   "guideTextSubCol1": {
-    "message": "变量",
+    "message": "변수",
     "description": "Table column Variable"
   },
   "guideTextSubCol2": {
-    "message": "描述",
+    "message": "설명",
     "description": "Table column Description"
   },
   "guideTextSubMetaTitle": {
-    "message": "文章标题 (由 Readability 确定)",
+    "message": "기사 제목 (Readability에서 결정)",
     "description": "Article title description"
   },
   "guideTextSubMetaPageTitle": {
-    "message": "页面的实际标题 (<code>&lt;title&gt;</code> 标签)",
+    "message": "실제 페이지의 제목 (<code>&lt;title&gt;</code> 태그)",
     "description": "Page title description"
   },
   "guideTextSubMetaLength": {
-    "message": "文章的长度 (以字符计)",
+    "message": "기사의 길이 (문자 수)",
     "description": "Length description"
   },
   "guideTextSubMetaExcerpt": {
-    "message": "文章描述或内容摘要",
+    "message": "기사 설명 또는 콘텐츠의 짧은 발췌",
     "description": "Excerpt description"
   },
   "guideTextSubMetaByline": {
-    "message": "作者元数据",
+    "message": "작성자 메타데이터",
     "description": "Byline description"
   },
   "guideTextSubMetaDir": {
-    "message": "内容方向 (例如 <code>ltr</code>)",
+    "message": "콘텐츠 방향 (예: <code>ltr</code>)",
     "description": "Direction description"
   },
   "guideTextSubMetaBaseUri": {
-    "message": "解析文档/基础 URI",
+    "message": "구문 분석된 문서/기본 URI",
     "description": "Base URI description"
   },
   "guideTextSubMetaUrl": {
-    "message": "标签页的地址栏 URL",
+    "message": "탭의 주소 표시줄 URL",
     "description": "Page URL description"
   },
   "guideTextSubMetaKeywords": {
-    "message": "Meta 关键字，以逗号分隔",
+    "message": "메타 키워드, 쉼표로 구분",
     "description": "Keywords description"
   },
   "guideTextSubUrl": {
-    "message": "URL 组件",
+    "message": "URL 구성 요소",
     "description": "Heading for URL Components"
   },
   "guideTextSubUrlOrigin": {
-    "message": "协议 (Scheme) + 域名 + 端口",
+    "message": "체계(Scheme) + 도메인 + 포트",
     "description": "Origin description"
   },
   "guideTextSubUrlHost": {
-    "message": "主机名 + 端口",
+    "message": "호스트 이름 + 포트",
     "description": "Host description"
   },
   "guideTextSubUrlHostname": {
-    "message": "仅域名",
+    "message": "도메인만",
     "description": "Hostname description"
   },
   "guideTextSubUrlPort": {
-    "message": "端口号",
+    "message": "포트 번호",
     "description": "Port description"
   },
   "guideTextSubUrlProtocol": {
-    "message": "带有尾部 <code>:</code> 的协议",
+    "message": "끝에 <code>:</code>가 포함된 프로토콜",
     "description": "Protocol description"
   },
   "guideTextSubUrlPathname": {
-    "message": "URL 路径",
+    "message": "URL 경로",
     "description": "Pathname description"
   },
   "guideTextSubUrlSearch": {
-    "message": "包含 <code>?</code> 的查询字符串",
+    "message": "<code>?</code>가 포함된 쿼리 문자열",
     "description": "Search description"
   },
   "guideTextSubUrlHash": {
-    "message": "包含 <code>#</code> 的片段标识符",
+    "message": "<code>#</code>가 포함된 프래그먼트 식별자",
     "description": "Hash description"
   },
   "guideTextSubUrlNote": {
-    "message": "所有的 URL 组件都可以使用前缀 <code>page</code> （例如 <code>{pageOrigin}</code>，<code>{pageHostname}</code>）。",
+    "message": "모든 URL 구성 요소는 접두사 <code>page</code>를 붙여 사용할 수도 있습니다 (예: <code>{pageOrigin}</code>, <code>{pageHostname}</code>).",
     "description": "Note for URL components"
   },
   "guideTextSubDate": {
-    "message": "日期/时间",
+    "message": "날짜/시간",
     "description": "Heading for Date/Time"
   },
   "guideTextSubDateDesc": {
-    "message": "使用 <code>{date:FORMAT}</code> 以及 Moment.js 的格式化标记。示例：<code>{date:YYYY-MM-DD}</code>。",
+    "message": "Moment.js 형식 토큰과 함께 <code>{date:FORMAT}</code>을 사용합니다. 예: <code>{date:YYYY-MM-DD}</code>.",
     "description": "Description for Date/Time"
   },
   "guideTextSubTags": {
-    "message": "Meta 标签",
+    "message": "메타 태그",
     "description": "Heading for Meta Tags"
   },
   "guideTextSubTagsDesc": {
-    "message": "可以引用任何 <code>&lt;meta&gt;</code> 标签的值，例如 <code>{og:image}</code>，<code>{og:description}</code>。",
+    "message": "임의의 <code>&lt;meta&gt;</code> 태그 값을 참조할 수 있습니다. 예: <code>{og:image}</code>, <code>{og:description}</code>.",
     "description": "Description for Meta Tags"
   },
   "guideTextSubParams": {
-    "message": "参数化 (Parameterizations)",
+    "message": "매개변수화",
     "description": "Heading for Parameterizations"
   },
   "guideTextSubParamsDesc": {
-    "message": "通过附加冒号和样式来更改任何文本变量（<code>{date}</code> 和 <code>{keywords}</code> 除外）的大小写：",
+    "message": "콜론과 스타일을 추가하여 모든 텍스트 변수(<code>{date}</code> 및 <code>{keywords}</code> 제외)의 대소문자를 변경할 수 있습니다:",
     "description": "Description for Parameterizations"
   },
   "guideTextSubParamsCol1": {
-    "message": "语法",
+    "message": "구문",
     "description": "Table column Syntax"
   },
   "guideTextSubParamsCol2": {
-    "message": "样式",
+    "message": "스타일",
     "description": "Table column Style"
   },
   "guideTextSubParamsCol3": {
-    "message": "示例",
+    "message": "예시",
     "description": "Table column Example"
   },
   "guideTextSubParamsLower": {
-    "message": "全部小写",
+    "message": "모두 소문자",
     "description": "lowercase example"
   },
   "guideTextSubParamsUpper": {
-    "message": "全部大写",
+    "message": "모두 대문자",
     "description": "uppercase example"
   },
   "guideTextSubParamsNote": {
-    "message": "<strong>注意：</strong> 并非所有网站都提供所有元数据值。缺失的值将被空字符串替换。",
+    "message": "<strong>참고:</strong> 모든 웹사이트가 모든 메타데이터 값을 제공하는 것은 아닙니다. 누락된 값은 빈 문자열로 대체됩니다.",
     "description": "Note for Parameterizations"
   },
   "guidePageTitle": {
-    "message": "MarkSnip 用户指南",
+    "message": "MarkSnip 사용자 가이드",
     "description": "Guide page title"
   },
   "guideOpenSettingsTitle": {
-    "message": "打开设置",
+    "message": "설정 열기",
     "description": "Tooltip for opening settings from the guide"
   },
   "guideSearchAriaLabel": {
-    "message": "搜索用户指南",
+    "message": "사용자 가이드 검색",
     "description": "ARIA label for guide search input"
   },
   "guideTocAriaLabel": {
-    "message": "目录",
+    "message": "목차",
     "description": "ARIA label for guide table of contents"
   },
   "guideSearchResultsAriaLabel": {
-    "message": "搜索结果",
+    "message": "검색 결과",
     "description": "ARIA label for guide search results region"
   },
   "guideSearchClearAriaLabel": {
-    "message": "清除搜索",
+    "message": "검색 지우기",
     "description": "ARIA label for guide search clear button"
   },
   "guideWelcomeDismissLabel": {
-    "message": "关闭欢迎消息",
+    "message": "환영 메시지 닫기",
     "description": "ARIA label for dismissing guide welcome message"
   },
   "guideSearchResultsCountZero": {
-    "message": "0 个结果",
+    "message": "0개 결과",
     "description": "Guide search result count when there are no results"
   },
   "guideSearchResultsCountOne": {
-    "message": "1 个结果",
+    "message": "1개 결과",
     "description": "Guide search result count when there is one result"
   },
   "guideSearchResultsCountMany": {
-    "message": "$COUNT$ 个结果",
+    "message": "결과 $COUNT$개",
     "description": "Guide search result count when there are multiple results",
     "placeholders": {
       "count": {
@@ -2597,323 +2597,323 @@
     }
   },
   "guideTocClippingScope": {
-    "message": "剪藏范围",
+    "message": "클리핑 범위",
     "description": "TOC link for Clipping Scope"
   },
   "guideTocTableOptions": {
-    "message": "表格选项",
+    "message": "표 서식 옵션",
     "description": "TOC link for Table Options"
   },
   "guideSummaryQuickStart": {
-    "message": "分三步开始使用 MarkSnip",
+    "message": "3단계로 알아보는 MarkSnip 시작하기",
     "description": "Guide search summary for Quick Start"
   },
   "guideSummaryUsingPopup": {
-    "message": "用于剪藏页面的主弹窗界面",
+    "message": "페이지 클리핑을 위한 기본 팝업 인터페이스",
     "description": "Guide search summary for Using the Popup"
   },
   "guideSummaryQuickSettings": {
-    "message": "切换图片和模板的包含",
+    "message": "이미지 및 템플릿 포함 토글",
     "description": "Guide search summary for Quick Settings"
   },
   "guideSummaryClippingScope": {
-    "message": "在选区剪藏和完整文档剪藏之间选择",
+    "message": "선택 영역과 전체 문서 클리핑 중에서 선택",
     "description": "Guide search summary for Clipping Scope"
   },
   "guideSummaryEditingTitle": {
-    "message": "为您下载的 Markdown 设置文件名",
+    "message": "다운로드한 마크다운의 파일명 설정",
     "description": "Guide search summary for Editing the Title"
   },
   "guideSummaryMarkdownPreview": {
-    "message": "在内置编辑器中编辑并复制 Markdown",
+    "message": "내장 편집기에서 마크다운 편집 및 복사",
     "description": "Guide search summary for Markdown Preview"
   },
   "guideSummaryActionButtons": {
-    "message": "下载、发送、复制，或将 Markdown 发送到 Obsidian",
+    "message": "다운로드, 전송, 복사 또는 마크다운을 Obsidian으로 전송",
     "description": "Guide search summary for Action Buttons"
   },
   "guideSummaryBatchProcessing": {
-    "message": "一次性将多个 URL 转换为 Markdown",
+    "message": "여러 URL을 마크다운으로 한 번에 변환",
     "description": "Guide search summary for Batch Processing"
   },
   "guideSummaryAddingUrls": {
-    "message": "粘贴 URL 或使用 Markdown 链接语法",
+    "message": "URL을 붙여넣거나 마크다운 링크 구문 사용",
     "description": "Guide search summary for Adding URLs"
   },
   "guideSummaryPickLinks": {
-    "message": "从当前页面中可视化选择链接",
+    "message": "현재 페이지에서 시각적으로 링크 선택",
     "description": "Guide search summary for Pick Links from Page"
   },
   "guideSummaryOutputFormat": {
-    "message": "选择 ZIP 或是单独文件下载",
+    "message": "ZIP 또는 개별 파일 다운로드 선택",
     "description": "Guide search summary for Output Format"
   },
   "guideSummaryContextMenus": {
-    "message": "右键操作和键盘快捷键",
+    "message": "오른쪽 클릭 작업 및 키보드 단축키",
     "description": "Guide search summary for Context Menus and Shortcuts"
   },
   "guideSummaryDownloadActions": {
-    "message": "上下文菜单下载选项",
+    "message": "컨텍스트 메뉴 다운로드 옵션",
     "description": "Guide search summary for Download Actions"
   },
   "guideSummaryCopyActions": {
-    "message": "上下文菜单复制选项",
+    "message": "컨텍스트 메뉴 복사 옵션",
     "description": "Guide search summary for Copy Actions"
   },
   "guideSummaryObsidianActions": {
-    "message": "Obsidian 的上下文菜单操作",
+    "message": "Obsidian을 위한 컨텍스트 메뉴 작업",
     "description": "Guide search summary for Obsidian Actions"
   },
   "guideSummaryKeyboardShortcuts": {
-    "message": "默认键盘快捷键及其自定义",
+    "message": "기본 키보드 단축키 및 사용자 지정",
     "description": "Guide search summary for Keyboard Shortcuts"
   },
   "guideSummarySettings": {
-    "message": "配置所有的扩展选项",
+    "message": "모든 확장 프로그램 옵션 구성",
     "description": "Guide search summary for Settings and Customization"
   },
   "guideSummaryTemplates": {
-    "message": "标题模板、顶部模板和底部模板",
+    "message": "제목 템플릿, 앞부분(front-matter) 및 뒷부분(back-matter)",
     "description": "Guide search summary for Templates"
   },
   "guideSummaryDownloadSettings": {
-    "message": "配置下载行为和上下文菜单",
+    "message": "다운로드 동작 및 컨텍스트 메뉴 구성",
     "description": "Guide search summary for Download Settings"
   },
   "guideSummaryMarkdownOptions": {
-    "message": "标题样式、代码块、链接、图片等",
+    "message": "제목 스타일, 코드 블록, 링크, 이미지 등",
     "description": "Guide search summary for Markdown Options"
   },
   "guideSummaryTableOptions": {
-    "message": "配置已剪藏 Markdown 的表格格式",
+    "message": "클립된 마크다운의 표 서식 구성",
     "description": "Guide search summary for Table Options"
   },
   "guideSummaryImportExport": {
-    "message": "备份并恢复您的设置",
+    "message": "설정 백업 및 복원",
     "description": "Guide search summary for Import / Export"
   },
   "guideSummaryObsidianDownloads": {
-    "message": "Obsidian 集成、下载模式及图片处理",
+    "message": "Obsidian 통합, 다운로드 모드 및 이미지 처리",
     "description": "Guide search summary for Obsidian and Downloads"
   },
   "guideSummaryObsidianIntegration": {
-    "message": "直接将剪藏页面发送至 Obsidian",
+    "message": "클립된 페이지를 Obsidian으로 직접 전송",
     "description": "Guide search summary for Obsidian Integration"
   },
   "guideSummaryDownloadMode": {
-    "message": "在 Downloads API 和内容链接模式之间选择",
+    "message": "Downloads API와 콘텐츠 링크 중에서 선택",
     "description": "Guide search summary for Download Mode"
   },
   "guideSummaryImageDownloads": {
-    "message": "下载图片连同 Markdown 文件",
+    "message": "마크다운 파일과 함께 이미지 다운로드",
     "description": "Guide search summary for Image Downloads"
   },
   "guideSummaryPermissionsPrivacy": {
-    "message": "MarkSnip 使用了哪些权限及原因",
+    "message": "MarkSnip이 사용하는 권한 및 이유",
     "description": "Guide search summary for Permissions and Privacy"
   },
   "guideSummarySiteAccessPermission": {
-    "message": "为何 MarkSnip 请求访问所有站点的权限",
+    "message": "MarkSnip이 모든 사이트에 대한 액세스를 요청하는 이유",
     "description": "Guide search summary for Site Access Permission"
   },
   "guideSummaryOtherCorePermissions": {
-    "message": "其他内置权限用于何处",
+    "message": "나머지 기본 권한의 사용 목적",
     "description": "Guide search summary for Other Core Permissions"
   },
   "guideSummaryAgentBridgePermission": {
-    "message": "用于 Agent Bridge 的可选本地消息传递权限",
+    "message": "Agent Bridge를 위한 선택적 네이티브 메시징 권한",
     "description": "Guide search summary for Agent Bridge Permission"
   },
   "guideSummaryTroubleshooting": {
-    "message": "常见问题及其解决方案",
+    "message": "일반적인 문제 및 해결책",
     "description": "Guide search summary for Troubleshooting / FAQ"
   },
   "guideSummaryTextSubstitutions": {
-    "message": "用于模板、标题和文件名的变量",
+    "message": "템플릿, 제목 및 파일명을 위한 변수",
     "description": "Guide search summary for Text Substitutions"
   },
   "optionsSectionsAriaLabel": {
-    "message": "选项部分",
+    "message": "옵션 섹션",
     "description": "ARIA label for the options sidebar tab list"
   },
   "optionsTemplateVarRefIntro": {
-    "message": "对于标题，以及顶部和底部的自定义文本，您可以使用以下文本替换值。请注意并非所有网站都会提供所有值。",
+    "message": "제목과 앞/뒷부분 사용자 지정 텍스트의 경우 다음 텍스트 교체 값을 사용할 수 있습니다. 모든 웹사이트가 모든 값을 제공하는 것은 아닙니다.",
     "description": "Intro text for options template variable reference"
   },
   "optionsTemplateVarArticleTitle": {
-    "message": "{title} - 文章标题",
+    "message": "{title} - 기사 제목",
     "description": "Template variable reference for article title"
   },
   "optionsTemplateVarPageTitle": {
-    "message": "{pageTitle} - 页面的实际标题",
+    "message": "{pageTitle} - 실제 페이지의 제목",
     "description": "Template variable reference for page title"
   },
   "optionsTemplateVarLength": {
-    "message": "{length} - 文章长度，以字符为单位",
+    "message": "{length} - 기사 길이(문자 수)",
     "description": "Template variable reference for article length"
   },
   "optionsTemplateVarExcerpt": {
-    "message": "{excerpt} - 文章描述或内容的简短摘要",
+    "message": "{excerpt} - 기사 설명 또는 콘텐츠의 짧은 발췌",
     "description": "Template variable reference for excerpt"
   },
   "optionsTemplateVarByline": {
-    "message": "{byline} - 作者元数据",
+    "message": "{byline} - 작성자 메타데이터",
     "description": "Template variable reference for byline"
   },
   "optionsTemplateVarDir": {
-    "message": "{dir} - 内容方向",
+    "message": "{dir} - 콘텐츠 방향",
     "description": "Template variable reference for content direction"
   },
   "optionsTemplateVarDate": {
-    "message": "{date:FORMAT} - 当前的日期和时间。请检查格式参考",
+    "message": "{date:FORMAT} - 현재 날짜와 시간입니다. 형식 참조를 확인하세요",
     "description": "Template variable reference for date"
   },
   "optionsTemplateVarKeywords": {
-    "message": "{keywords} - Meta 关键字（如果存在）。默认用逗号分隔。",
+    "message": "{keywords} - 메타 키워드 (있는 경우). 기본적으로 쉼표로 구분됩니다.",
     "description": "Template variable reference for keywords"
   },
   "optionsTemplateVarKeywordsSeparator": {
-    "message": "{keywords:SEPARATOR} - 以 SEPARATOR 分隔的 Meta 关键字。例如，要以空格分隔，使用 {keywords: }",
+    "message": "{keywords:SEPARATOR} - SEPARATOR로 구분된 메타 키워드입니다. 예를 들어 공백으로 구분하려면 {keywords: }를 사용하세요",
     "description": "Template variable reference for custom keyword separator"
   },
   "optionsTemplateVarMetaTags": {
-    "message": "如果剪藏的页面支持，此处还支持上面未提及的所有 meta 标签。例如，尝试 {og:image} 或其他广泛支持的 meta 标签。",
+    "message": "위에 언급되지 않은 모든 메타 태그도 지원합니다(클립하는 페이지에서 지원하는 경우). 예를 들어 {og:image} 또는 기타 널리 지원되는 메타 태그를 시도해 보세요.",
     "description": "Template variable reference for arbitrary meta tags"
   },
   "optionsTemplateVarUrlInfo": {
-    "message": "URL 信息：",
+    "message": "URL 정보:",
     "description": "Heading for URL template variable reference"
   },
   "optionsTemplateVarBaseUri": {
-    "message": "{baseURI} - 解析的文档/基础 URI（旧版行为）。",
+    "message": "{baseURI} - 구문 분석된 문서/기본 URI (이전 동작).",
     "description": "Template variable reference for base URI"
   },
   "optionsTemplateVarPageUrl": {
-    "message": "{pageURL} / {tabURL} - 标签页的当前地址栏 URL。",
+    "message": "{pageURL} / {tabURL} - 탭의 현재 주소 표시줄 URL입니다.",
     "description": "Template variable reference for page URL"
   },
   "optionsTemplateVarOrigin": {
-    "message": "{origin} - 来自 {baseURI} 的来源（协议 + 域名 + 端口）。",
+    "message": "{origin} - {baseURI}의 출처 (체계 + 도메인 + 포트).",
     "description": "Template variable reference for origin"
   },
   "optionsTemplateVarHost": {
-    "message": "{host} - 来自 {baseURI} 的主机（主机名，如有端口也包含）。",
+    "message": "{host} - {baseURI}의 호스트 (호스트 이름, 포트가 있는 경우 포트 포함).",
     "description": "Template variable reference for host"
   },
   "optionsTemplateVarHostname": {
-    "message": "{hostname} - 来自 {baseURI} 的主机名。",
+    "message": "{hostname} - {baseURI}의 호스트 이름.",
     "description": "Template variable reference for hostname"
   },
   "optionsTemplateVarPort": {
-    "message": "{port} - 来自 {baseURI} 的端口号。",
+    "message": "{port} - {baseURI}의 포트 번호.",
     "description": "Template variable reference for port"
   },
   "optionsTemplateVarProtocol": {
-    "message": "{protocol} - 来自 {baseURI} 的协议，包含尾部的 :。",
+    "message": "{protocol} - {baseURI}의 프로토콜 체계 (끝의 : 포함).",
     "description": "Template variable reference for protocol"
   },
   "optionsTemplateVarPathname": {
-    "message": "{pathname} - 来自 {baseURI} 的路径，不包含查询字符串或片段。",
+    "message": "{pathname} - 쿼리 문자열이나 프래그먼트를 포함하지 않은 {baseURI}의 경로.",
     "description": "Template variable reference for pathname"
   },
   "optionsTemplateVarSearch": {
-    "message": "{search} - 来自 {baseURI} 的查询字符串，包含 ?。",
+    "message": "{search} - {baseURI}의 쿼리 문자열 (? 포함).",
     "description": "Template variable reference for query string"
   },
   "optionsTemplateVarHash": {
-    "message": "{hash} - 来自 {baseURI} 的片段标识符，包含 #。",
+    "message": "{hash} - {baseURI}의 프래그먼트 식별자 (# 포함).",
     "description": "Template variable reference for hash"
   },
   "optionsTemplateVarPageComponents": {
-    "message": "{pageOrigin}, {pageHost}, {pageHostname}, {pagePort}, {pageProtocol}, {pagePathname}, {pageSearch}, {pageHash} - 与上方相同的 URL 组件，但来自 {pageURL}。",
+    "message": "{pageOrigin}, {pageHost}, {pageHostname}, {pagePort}, {pageProtocol}, {pagePathname}, {pageSearch}, {pageHash} - 위와 동일한 URL 구성 요소이지만 {pageURL}에서 가져옵니다.",
     "description": "Template variable reference for page URL components"
   },
   "optionsTemplateVarExamplesTitle": {
-    "message": "示例：",
+    "message": "예시:",
     "description": "Heading for template variable examples"
   },
   "optionsTemplateVarSpaExample": {
-    "message": "SPA 路由示例（Gemini 风格）：",
+    "message": "SPA 경로 예시 (Gemini 스타일):",
     "description": "Heading for SPA route template variable example"
   },
   "optionsTemplateVarAddressBarUrl": {
-    "message": "地址栏 URL：",
+    "message": "주소 표시줄 URL:",
     "description": "Label for address bar URL example"
   },
   "optionsTemplateVarParsedBaseUri": {
-    "message": "解析的/基础 URI：",
+    "message": "구문 분석된/기본 URI:",
     "description": "Label for parsed base URI example"
   },
   "optionsTemplateVarStandardExample": {
-    "message": "标准页面示例（无特殊基础行为）：",
+    "message": "표준 페이지 예시 (특별한 기본 동작 없음):",
     "description": "Heading for standard template variable example"
   },
   "optionsTemplateVarSameUrlNote": {
-    "message": "{baseURI} 和 {pageURL} 通常是相同的。",
+    "message": "{baseURI}와 {pageURL}은 대개 같습니다.",
     "description": "Template variable example note"
   },
   "optionsTemplateVarSnippetsTitle": {
-    "message": "模板片段：",
+    "message": "템플릿 스니펫:",
     "description": "Heading for template snippets"
   },
   "optionsTemplateVarRecommendedSource": {
-    "message": "来源：{pageURL}（推荐用于当前标签页的 URL）",
+    "message": "source: {pageURL} (현재 탭 URL에 권장)",
     "description": "Template snippet for recommended source URL"
   },
   "optionsTemplateVarBaseSource": {
-    "message": "基础来源：{baseURI}（文档/基础 URI）",
+    "message": "source_base: {baseURI} (문서/기본 URI)",
     "description": "Template snippet for base source URL"
   },
   "optionsTemplateVarSourceParts": {
-    "message": "部分来源：{pageOrigin}{pagePathname}{pageSearch}{pageHash}",
+    "message": "source_parts: {pageOrigin}{pagePathname}{pageSearch}{pageHash}",
     "description": "Template snippet for source URL parts"
   },
   "optionsTemplateVarParameterizationIntro": {
-    "message": "此外，您可以使用以下语法参数化任何文本变量（日期和关键字除外）：",
+    "message": "추가로, 다음 구문을 사용하여 모든 텍스트 변수(date 및 keywords 제외)를 매개변수화할 수 있습니다:",
     "description": "Intro for template variable parameterization"
   },
   "optionsTemplateVarPascalDesc": {
-    "message": "PascalCase: 每个单词首字母大写",
+    "message": "PascalCase: 모든 단어 대문자 시작",
     "description": "Description for the {variable:pascal} template filter"
   },
   "optionsTemplateVarCamelDesc": {
-    "message": "camelCase: 除第一个单词外，每个单词首字母大写",
+    "message": "camelCase: 첫 단어를 제외한 모든 단어 대문자 시작",
     "description": "Description for the {variable:camel} template filter"
   },
   "optionsTemplateVarKebabDesc": {
-    "message": "kebab-case: 单词间有连字符，全部小写",
+    "message": "kebab-case: 단어 사이에 하이픈, 모두 소문자",
     "description": "Description for the {variable:kebab} template filter"
   },
   "optionsTemplateVarSnakeDesc": {
-    "message": "snake_case: 单词间有下划线，全部小写",
+    "message": "snake_case: 단어 사이에 밑줄, 모두 소문자",
     "description": "Description for the {variable:snake} template filter"
   },
   "optionsTemplateVarLowercaseDesc": {
-    "message": "lowercase: 所有字母小写",
+    "message": "lowercase: 모든 문자 소문자",
     "description": "Description for the {variable:lowercase} template filter"
   },
   "optionsTemplateVarUppercaseDesc": {
-    "message": "UPPERCASE: 所有字母大写",
+    "message": "UPPERCASE: 모든 문자 대문자",
     "description": "Description for the {variable:uppercase} template filter"
   },
   "optionsTemplateVarAsciiDesc": {
-    "message": "ASCII only: 剥离重音符号和非 ASCII 字符",
+    "message": "ASCII only: 악센트 및 비 ASCII 문자 제거",
     "description": "Description for the {variable:ascii} template filter"
   },
   "optionsTemplateVarSlugifyDesc": {
-    "message": "URL slug: 小写、ASCII、字母数字或连字符",
+    "message": "URL slug: 소문자, ASCII, 영숫자 또는 하이픈",
     "description": "Description for the {variable:slugify} template filter"
   },
   "optionsAssistantTargetsEmpty": {
-    "message": "还没有自定义助手目标。ChatGPT、Claude 和 Perplexity 始终可用。",
+    "message": "아직 사용자 지정 어시스턴트 대상이 없습니다. ChatGPT, Claude 및 Perplexity는 항상 사용할 수 있습니다.",
     "description": "Empty state for custom assistant targets list"
   },
   "optionsAssistantTargetRemoveBtn": {
-    "message": "移除",
+    "message": "제거",
     "description": "Button label to remove a custom assistant target"
   },
   "optionsAssistantTargetRemoveAria": {
-    "message": "移除 $NAME$",
+    "message": "$NAME$ 제거",
     "description": "ARIA label to remove a custom assistant target",
     "placeholders": {
       "name": {
@@ -2922,11 +2922,11 @@
     }
   },
   "optionsAssistantTargetNameRequired": {
-    "message": "请输入目标名称",
+    "message": "대상 이름을 입력하세요",
     "description": "Toast when adding a custom assistant target without a name"
   },
   "optionsAssistantTargetAdded": {
-    "message": "已添加 \"$NAME$\"",
+    "message": "\"$NAME$\" 추가됨",
     "description": "Toast when a custom assistant target is added",
     "placeholders": {
       "name": {
@@ -2935,7 +2935,7 @@
     }
   },
   "optionsAssistantTargetRemoved": {
-    "message": "已移除 \"$NAME$\"",
+    "message": "\"$NAME$\" 제거됨",
     "description": "Toast when a custom assistant target is removed",
     "placeholders": {
       "name": {
@@ -2944,15 +2944,15 @@
     }
   },
   "optionsAssistantTargetAddFailed": {
-    "message": "无法添加助手目标",
+    "message": "어시스턴트 대상을 추가하지 못했습니다",
     "description": "Toast when adding a custom assistant target fails"
   },
   "optionsSiteRuleEditTitle": {
-    "message": "编辑站点规则",
+    "message": "사이트 규칙 편집",
     "description": "Title for editing an existing site rule"
   },
   "optionsSiteRulesSummaryOne": {
-    "message": "1 条规则 - 已启用 $ENABLED$ 条",
+    "message": "1개 규칙 - $ENABLED$개 활성화됨",
     "description": "Summary text for site rules list when there is exactly one rule",
     "placeholders": {
       "enabled": {
@@ -2961,7 +2961,7 @@
     }
   },
   "optionsSiteRulesSummaryMany": {
-    "message": "$RULES$ 条规则 - 已启用 $ENABLED$ 条",
+    "message": "$RULES$개 규칙 - $ENABLED$개 활성화됨",
     "description": "Summary text for site rules list when there are zero or many rules",
     "placeholders": {
       "rules": {
@@ -2973,59 +2973,59 @@
     }
   },
   "optionsAgentBridgeGrantPermission": {
-    "message": "授予权限",
+    "message": "권한 부여",
     "description": "Button label to grant Agent Bridge permission"
   },
   "optionsAgentBridgeGrantPermissionAria": {
-    "message": "为 Agent Bridge 授予本地消息传递权限",
+    "message": "Agent Bridge에 대한 네이티브 메시징 권한 부여",
     "description": "ARIA label for granting Agent Bridge permission"
   },
   "optionsAgentBridgeCheckStatusAria": {
-    "message": "检查 Agent Bridge 连接状态",
+    "message": "Agent Bridge 연결 상태 확인",
     "description": "ARIA label for checking Agent Bridge status"
   },
   "optionsAgentBridgeCopyInstallCommandAria": {
-    "message": "复制安装命令到剪贴板",
+    "message": "설치 명령을 클립보드에 복사",
     "description": "ARIA label for copying Agent Bridge install command"
   },
   "optionsAgentBridgePermissionUnsupported": {
-    "message": "此浏览器无法在此处请求本地消息传递权限",
+    "message": "이 브라우저는 여기에서 네이티브 메시징 권한을 요청할 수 없습니다",
     "description": "Toast when native messaging permission cannot be requested"
   },
   "optionsAgentBridgePermissionNotGranted": {
-    "message": "未授予 Agent Bridge 权限",
+    "message": "Agent Bridge 권한이 부여되지 않았습니다",
     "description": "Toast when Agent Bridge permission is denied"
   },
   "optionsAgentBridgeReloadingStatus": {
-    "message": "正在重新加载扩展",
+    "message": "확장 프로그램 새로고침 중",
     "description": "Agent Bridge status text while reloading"
   },
   "optionsAgentBridgeReloadingHint": {
-    "message": "权限已授予。MarkSnip 将重新加载一次以完成启用 Agent Bridge。",
+    "message": "권한이 부여되었습니다. Agent Bridge 활성화를 완료하기 위해 MarkSnip이 한 번 새로고침됩니다.",
     "description": "Agent Bridge hint while reloading after permission grant"
   },
   "optionsAgentBridgeReloadingBtn": {
-    "message": "重新加载中...",
+    "message": "새로고침 중...",
     "description": "Agent Bridge button text while reloading"
   },
   "optionsAgentBridgeRequestingBtn": {
-    "message": "正在请求...",
+    "message": "요청 중...",
     "description": "Agent Bridge button text while requesting permission"
   },
   "optionsAgentBridgeEnabledToast": {
-    "message": "已启用 Agent Bridge",
+    "message": "Agent Bridge 활성화됨",
     "description": "Toast when Agent Bridge is enabled"
   },
   "optionsAgentBridgeDisabledToast": {
-    "message": "已禁用 Agent Bridge",
+    "message": "Agent Bridge 비활성화됨",
     "description": "Toast when Agent Bridge is disabled"
   },
   "optionsAgentBridgeToggleHintEnabled": {
-    "message": "在此开关开启时，MarkSnip 会打开本地消息传递连接。",
+    "message": "이 토글이 켜져 있는 동안 MarkSnip이 네이티브 메시징 연결을 엽니다.",
     "description": "Hint for enabled Agent Bridge toggle"
   },
   "optionsAgentBridgeHostVersion": {
-    "message": "主机版本 $VERSION$",
+    "message": "호스트 $VERSION$",
     "description": "Agent Bridge host version label",
     "placeholders": {
       "version": {
@@ -3034,119 +3034,119 @@
     }
   },
   "optionsAgentBridgeGrantingBtn": {
-    "message": "正在授予...",
+    "message": "부여 중...",
     "description": "Agent Bridge button text while granting permission"
   },
   "optionsAgentBridgeCheckingBtn": {
-    "message": "正在检查...",
+    "message": "확인 중...",
     "description": "Agent Bridge button text while checking connection"
   },
   "optionsAgentBridgeCheckingConnection": {
-    "message": "正在检查连接",
+    "message": "연결 확인 중",
     "description": "Agent Bridge status text while checking connection"
   },
   "optionsAgentBridgePermissionGrantedToast": {
-    "message": "已授予 Agent Bridge 权限",
+    "message": "Agent Bridge 권한이 부여됨",
     "description": "Toast when Agent Bridge permission is granted"
   },
   "optionsAgentBridgeStatusRefreshedToast": {
-    "message": "Agent Bridge 状态已刷新",
+    "message": "Agent Bridge 상태가 새로고침됨",
     "description": "Toast when Agent Bridge status refresh completes"
   },
   "optionsAgentBridgeInstallCommandCopiedToast": {
-    "message": "已复制安装命令",
+    "message": "설치 명령이 복사됨",
     "description": "Toast when Agent Bridge install command is copied"
   },
   "optionsAgentBridgeInstallCommandCopyFailedToast": {
-    "message": "无法复制安装命令",
+    "message": "설치 명령을 복사하지 못했습니다",
     "description": "Toast when Agent Bridge install command copy fails"
   },
   "optionsSavedToast": {
-    "message": "选项已保存 💾",
+    "message": "옵션이 저장되었습니다 💾",
     "description": "Toast when options are saved"
   },
   "optionsExampleArticleTitle": {
-    "message": "示例文章",
+    "message": "예시 기사",
     "description": "Sample article title used in template preview"
   },
   "optionsExampleArticleSummary": {
-    "message": "一个用于模板预览输出的简明示例摘要。",
+    "message": "템플릿 미리보기 출력을 위한 간단한 샘플 요약입니다.",
     "description": "Sample article summary used in template preview"
   },
   "optionsTemplatePreviewEmpty": {
-    "message": "暂无可预览的内容。",
+    "message": "아직 미리 볼 내용이 없습니다.",
     "description": "Empty template preview output"
   },
   "optionsLibrarySettingsSavedToast": {
-    "message": "已保存库设置",
+    "message": "라이브러리 설정이 저장되었습니다",
     "description": "Toast when library settings are saved"
   },
   "optionsLibraryClearConfirm": {
-    "message": "是否删除此浏览器中所有已保存的库剪藏？此操作无法撤销。",
+    "message": "이 브라우저에서 저장된 모든 라이브러리 클립을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
     "description": "Confirmation before clearing saved Library clips"
   },
   "optionsLibraryClearedToast": {
-    "message": "库已清空",
+    "message": "라이브러리가 지워졌습니다",
     "description": "Toast when Library clips are cleared"
   },
   "optionsResetDefaultTitle": {
-    "message": "重置为默认",
+    "message": "기본값으로 초기화",
     "description": "Tooltip for per-setting reset button"
   },
   "optionsResetSettingBtn": {
-    "message": "重置",
+    "message": "초기화",
     "description": "Button to reset one setting"
   },
   "optionsSettingResetToast": {
-    "message": "设置已重置为默认值",
+    "message": "설정이 기본값으로 초기화되었습니다",
     "description": "Toast when a setting is reset to default"
   },
   "optionsResetAllConfirm": {
-    "message": "是否将所有设置重置为默认值？此操作无法撤销。",
+    "message": "모든 설정을 기본값으로 초기화하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
     "description": "Confirmation before resetting all settings"
   },
   "optionsResetAllToast": {
-    "message": "所有设置已重置为默认值",
+    "message": "모든 설정이 기본값으로 초기화되었습니다",
     "description": "Toast when all settings are reset"
   },
   "optionsPermissionLocalCompanionBullet1": {
-    "message": "仅用于 Agent Bridge。",
+    "message": "Agent Bridge에만 사용됩니다.",
     "description": "Local companion permission bullet 1"
   },
   "optionsPermissionLocalCompanionBullet3": {
-    "message": "没有它常规剪藏也能正常工作。",
+    "message": "이 권한 없이도 일반 클리핑은 작동합니다.",
     "description": "Local companion permission bullet 3"
   },
   "popupLogoAlt": {
-    "message": "MarkSnip 图标",
+    "message": "MarkSnip 로고",
     "description": "Alt text for MarkSnip popup logo"
   },
   "popupOpenLibraryAria": {
-    "message": "打开库",
+    "message": "라이브러리 열기",
     "description": "ARIA label for opening the popup Library"
   },
   "popupContentScopeAria": {
-    "message": "内容范围",
+    "message": "콘텐츠 범위",
     "description": "ARIA label for popup content scope control"
   },
   "popupCloseLibraryAria": {
-    "message": "关闭库",
+    "message": "라이브러리 닫기",
     "description": "ARIA label for closing the popup Library"
   },
   "popupCloseShortcutsAria": {
-    "message": "关闭快捷键",
+    "message": "단축키 닫기",
     "description": "ARIA label for closing the shortcuts modal"
   },
   "popupProcessingUrls": {
-    "message": "正在处理 URL...",
+    "message": "URL 처리 중...",
     "description": "Batch progress status while processing URLs"
   },
   "popupStartingBackgroundBatch": {
-    "message": "正在启动后台批量处理...",
+    "message": "백그라운드 일괄 처리 시작 중...",
     "description": "Batch progress status while handing work to the background script"
   },
   "popupPreviewRenderFailed": {
-    "message": "预览渲染失败：$ERROR$",
+    "message": "미리보기 렌더링 실패: $ERROR$",
     "description": "Preview rendering failure message",
     "placeholders": {
       "error": {
@@ -3155,15 +3155,15 @@
     }
   },
   "popupCancelling": {
-    "message": "正在取消...",
+    "message": "취소 중...",
     "description": "Button text while cancelling an operation"
   },
   "popupBatchDisabledError": {
-    "message": "在选项中已禁用批量处理",
+    "message": "옵션에서 일괄 처리가 비활성화되어 있습니다",
     "description": "Error when batch processing is disabled"
   },
   "popupSendToTargetTitle": {
-    "message": "发送到 $TARGET$",
+    "message": "$TARGET$(으)로 전송",
     "description": "Tooltip for custom assistant target in popup",
     "placeholders": {
       "target": {
@@ -3172,7 +3172,7 @@
     }
   },
   "popupSendSelectionToTargetTitle": {
-    "message": "将选区发送到 $TARGET$",
+    "message": "선택 영역을 $TARGET$(으)로 전송",
     "description": "Button label for sending selected text to an assistant target",
     "placeholders": {
       "target": {
@@ -3181,27 +3181,27 @@
     }
   },
   "popupCopiedFeedback": {
-    "message": "已复制！",
+    "message": "복사되었습니다!",
     "description": "Temporary success feedback after copying"
   },
   "popupCopiedSelectionFeedback": {
-    "message": "已复制选区！",
+    "message": "선택 영역이 복사되었습니다!",
     "description": "Temporary success feedback after copying a selection"
   },
   "popupNothingToCopyFeedback": {
-    "message": "没有可复制的内容",
+    "message": "복사할 내용이 없습니다",
     "description": "Temporary feedback when no content is available to copy"
   },
   "popupNothingToSendFeedback": {
-    "message": "没有可发送的内容",
+    "message": "전송할 내용이 없습니다",
     "description": "Temporary feedback when no content is available to send"
   },
   "popupFailedFeedback": {
-    "message": "失败",
+    "message": "실패",
     "description": "Temporary failure feedback"
   },
   "popupDeleteClipAria": {
-    "message": "删除剪藏：$TITLE$",
+    "message": "클립 삭제: $TITLE$",
     "description": "ARIA label for deleting a Library clip",
     "placeholders": {
       "title": {
@@ -3210,19 +3210,19 @@
     }
   },
   "popupShortcutsLoading": {
-    "message": "正在加载...",
+    "message": "불러오는 중...",
     "description": "Shortcuts modal loading text"
   },
   "popupShortcutsLoadError": {
-    "message": "无法加载快捷键。",
+    "message": "단축키를 불러올 수 없습니다.",
     "description": "Shortcuts modal error text"
   },
   "popupUrlValidationValidOne": {
-    "message": "1 个有效的 URL",
+    "message": "1개의 유효한 URL",
     "description": "Batch URL validation count phrase when exactly one URL is valid"
   },
   "popupUrlValidationValidMany": {
-    "message": "$VALID$ 个有效的 URL",
+    "message": "$VALID$개의 유효한 URL",
     "description": "Batch URL validation count phrase when zero or many URLs are valid",
     "placeholders": {
       "valid": {
@@ -3231,11 +3231,11 @@
     }
   },
   "popupUrlValidationInvalidOne": {
-    "message": "1 个无效的行",
+    "message": "1개의 잘못된 줄",
     "description": "Batch URL validation count phrase when exactly one line is invalid"
   },
   "popupUrlValidationInvalidMany": {
-    "message": "$INVALID$ 个无效的行",
+    "message": "$INVALID$개의 잘못된 줄",
     "description": "Batch URL validation count phrase when zero or many lines are invalid",
     "placeholders": {
       "invalid": {
@@ -3244,11 +3244,11 @@
     }
   },
   "popupUrlValidationNoValidOne": {
-    "message": "1 个无效的行 - 没有有效的 URL",
+    "message": "1개의 잘못된 줄 - 유효한 URL 없음",
     "description": "Batch URL validation message when exactly one line is invalid and none are valid"
   },
   "popupUrlValidationNoValidMany": {
-    "message": "$INVALID$ 个无效的行 - 没有有效的 URL",
+    "message": "$INVALID$개의 잘못된 줄 - 유효한 URL 없음",
     "description": "Batch URL validation message when zero or many lines are invalid and none are valid",
     "placeholders": {
       "invalid": {
@@ -3257,7 +3257,7 @@
     }
   },
   "popupUrlValidationMixedFormat": {
-    "message": "$VALID_PART$，$INVALID_PART$",
+    "message": "$VALID_PART$, $INVALID_PART$",
     "description": "Format string joining the valid and invalid URL count phrases",
     "placeholders": {
       "valid_part": {
@@ -3269,15 +3269,15 @@
     }
   },
   "popupEnterValidUrlsError": {
-    "message": "请输入有效的 URL 或 markdown 链接（每行一个）",
+    "message": "유효한 URL 또는 마크다운 링크를 입력하세요 (한 줄에 하나씩)",
     "description": "Error when batch URL input has no valid URLs"
   },
   "popupNoActiveTabError": {
-    "message": "未找到活动标签页",
+    "message": "활성 탭을 찾을 수 없습니다",
     "description": "Error when no active tab is available"
   },
   "popupAddedLinksFeedback": {
-    "message": "已添加 $COUNT$ 个链接！",
+    "message": "링크 $COUNT$개를 추가했습니다!",
     "description": "Temporary feedback after adding picked links to batch input",
     "placeholders": {
       "count": {
@@ -3286,55 +3286,55 @@
     }
   },
   "popupObsidianNotEnabledFeedback": {
-    "message": "未启用",
+    "message": "비활성화됨",
     "description": "Temporary feedback when Obsidian integration is not enabled"
   },
   "popupObsidianSentFeedback": {
-    "message": "已发送至 Obsidian！",
+    "message": "Obsidian으로 전송되었습니다!",
     "description": "Temporary feedback when sending to Obsidian succeeds"
   },
   "popupLibraryManualModeEmpty": {
-    "message": "已开启手动模式。使用“保存剪藏”以将当前页面添加到您的本地库中。",
+    "message": "수동 모드가 켜져 있습니다. \"클립 저장\"을 사용하여 현재 페이지를 로컬 라이브러리에 추가하세요.",
     "description": "Library empty state text in manual mode"
   },
   "popupLibraryAutoSaveEmpty": {
-    "message": "在任何页面打开弹窗，当前剪藏将自动保存在此处。",
+    "message": "아무 페이지에서나 팝업을 열면 현재 클립이 여기에 자동으로 저장됩니다.",
     "description": "Library empty state text in auto-save mode"
   },
   "popupLibraryManualToolbarNote": {
-    "message": "手动模式已开启。按保存剪藏以保存当前页面。",
+    "message": "수동 모드가 켜져 있습니다. 클립 저장을 눌러 현재 페이지를 저장하세요.",
     "description": "Library toolbar note in manual mode"
   },
   "popupLibraryAutoToolbarNote": {
-    "message": "当弹窗首次加载当前页面时，库会自动将其保存。",
+    "message": "이 팝업이 처음 로드될 때 라이브러리가 현재 페이지를 자동으로 저장합니다.",
     "description": "Library toolbar note in auto-save mode"
   },
   "popupLibraryCurrentPageBadge": {
-    "message": "当前页面",
+    "message": "현재 페이지",
     "description": "Badge for Library item matching the current page"
   },
   "popupUntitledFallback": {
-    "message": "未命名",
+    "message": "제목 없음",
     "description": "Fallback title for untitled clips"
   },
   "linkPickerTitle": {
-    "message": "链接拾取器",
+    "message": "링크 선택기",
     "description": "Title for in-page link picker overlay"
   },
   "linkPickerHoverInfo": {
-    "message": "将鼠标悬停在元素上以查找链接",
+    "message": "링크를 찾으려면 요소 위로 마우스를 가져가세요",
     "description": "Instruction text for link picker overlay"
   },
   "linkPickerCountZero": {
-    "message": "0 个链接",
+    "message": "0개 링크",
     "description": "Initial link picker selected link count"
   },
   "linkPickerCountOne": {
-    "message": "1 个链接",
+    "message": "1개 링크",
     "description": "Link picker selected link count when exactly one link is selected"
   },
   "linkPickerCountMany": {
-    "message": "$COUNT$ 个链接",
+    "message": "$COUNT$개 링크",
     "description": "Link picker selected link count when zero or many links are selected",
     "placeholders": {
       "count": {
@@ -3343,47 +3343,47 @@
     }
   },
   "linkPickerCancelBtn": {
-    "message": "取消",
+    "message": "취소",
     "description": "Link picker cancel button"
   },
   "linkPickerDoneBtn": {
-    "message": "完成",
+    "message": "완료",
     "description": "Link picker done button"
   },
   "linkPickerUndoBtn": {
-    "message": "撤销",
+    "message": "실행 취소",
     "description": "Link picker undo button"
   },
   "linkPickerUndoTitle": {
-    "message": "撤销上一个选择",
+    "message": "마지막 선택 실행 취소",
     "description": "Tooltip for link picker undo button"
   },
   "linkPickerClearAllBtn": {
-    "message": "全部清除",
+    "message": "모두 지우기",
     "description": "Link picker clear-all button"
   },
   "linkPickerClearAllTitle": {
-    "message": "取消选择所有元素",
+    "message": "모든 요소 선택 취소",
     "description": "Tooltip for link picker clear-all button"
   },
   "linkPickerInstructionsClick": {
-    "message": "单击元素以选择链接",
+    "message": "링크를 선택하려면 요소를 클릭하세요",
     "description": "Link picker instruction line"
   },
   "linkPickerInstructionsEsc": {
-    "message": "按 ESC 键取消",
+    "message": "취소하려면 ESC를 누르세요",
     "description": "Link picker instruction line"
   },
   "linkPickerNoLinksTooltip": {
-    "message": "此元素中没有链接",
+    "message": "이 요소에 링크가 없습니다",
     "description": "Tooltip when a hovered element contains no links"
   },
   "linkPickerLinksFoundTooltipOne": {
-    "message": "找到了 1 个链接",
+    "message": "1개의 링크를 찾았습니다",
     "description": "Tooltip when a hovered element contains exactly one link"
   },
   "linkPickerLinksFoundTooltipMany": {
-    "message": "找到了 $COUNT$ 个链接",
+    "message": "$COUNT$개의 링크를 찾았습니다",
     "description": "Tooltip when a hovered element contains zero or many links",
     "placeholders": {
       "count": {
@@ -3392,11 +3392,11 @@
     }
   },
   "linkPickerCollectedNotificationOne": {
-    "message": "收集了 1 个链接！重新打开扩展以将其添加到批量处理器",
+    "message": "1개의 링크를 수집했습니다! 일괄 처리기에 추가하려면 확장 프로그램을 다시 여세요.",
     "description": "Notification after collecting exactly one link from the page"
   },
   "linkPickerCollectedNotificationMany": {
-    "message": "收集了 $COUNT$ 个链接！重新打开扩展以将它们添加到批量处理器",
+    "message": "$COUNT$개의 링크를 수집했습니다! 일괄 처리기에 추가하려면 확장 프로그램을 다시 여세요.",
     "description": "Notification after collecting zero or many links from the page",
     "placeholders": {
       "count": {
@@ -3405,15 +3405,15 @@
     }
   },
   "batchOverlayTitle": {
-    "message": "MarkSnip - 批量处理",
+    "message": "MarkSnip - 일괄 처리",
     "description": "Title for in-page batch processing overlay"
   },
   "batchOverlayCancelBtn": {
-    "message": "取消批量处理",
+    "message": "일괄 처리 취소",
     "description": "Button label for cancelling batch processing from overlay"
   },
   "batchOverlayCancelling": {
-    "message": "正在取消...",
+    "message": "취소 중...",
     "description": "Batch overlay cancellation status"
   },
   "batchOverlayStatusTitle": {
@@ -3426,59 +3426,59 @@
     }
   },
   "batchPartialRetryWarning": {
-    "message": "重试后内容可能仍为部分内容",
+    "message": "재시도 후에도 콘텐츠가 여전히 불완전할 수 있습니다",
     "description": "Warning when batch retry may still produce partial content"
   },
   "shortcutOpenPopup": {
-    "message": "打开 MarkSnip 弹窗",
+    "message": "MarkSnip 팝업 열기",
     "description": "Keyboard shortcut label for opening popup"
   },
   "shortcutDownloadTab": {
-    "message": "将标签页下载为 Markdown",
+    "message": "현재 탭을 마크다운으로 다운로드",
     "description": "Keyboard shortcut label for downloading tab"
   },
   "shortcutCopyTab": {
-    "message": "将标签页复制为 Markdown",
+    "message": "현재 탭을 마크다운으로 복사",
     "description": "Keyboard shortcut label for copying tab"
   },
   "shortcutCopyTabLink": {
-    "message": "将标签页 URL 复制为 Markdown 链接",
+    "message": "현재 탭 URL을 마크다운 링크로 복사",
     "description": "Keyboard shortcut label for copying tab URL"
   },
   "shortcutCopySelection": {
-    "message": "将选区复制为 Markdown",
+    "message": "현재 선택 영역을 마크다운으로 복사",
     "description": "Keyboard shortcut label for copying selection"
   },
   "shortcutCopySelectedTabsLinks": {
-    "message": "将所选标签页复制为 Markdown 链接",
+    "message": "선택한 탭들을 마크다운 링크로 복사",
     "description": "Keyboard shortcut label for copying selected tab links"
   },
   "shortcutCopySelectionObsidian": {
-    "message": "将选区复制到 Obsidian",
+    "message": "선택 영역을 Obsidian으로 복사",
     "description": "Keyboard shortcut label for copying selection to Obsidian"
   },
   "shortcutCopyTabObsidian": {
-    "message": "将标签页复制到 Obsidian",
+    "message": "탭을 Obsidian으로 복사",
     "description": "Keyboard shortcut label for copying tab to Obsidian"
   },
   "shortcutUnsetSymbolLabel": {
-    "message": "未设置",
+    "message": "지정되지 않음",
     "description": "Accessible label for shortcuts without assigned keys"
   },
   "shortcutAssignInBrowser": {
-    "message": "在浏览器快捷键设置中分配",
+    "message": "브라우저 단축키에서 지정",
     "description": "Button label for opening browser shortcut settings"
   },
   "optionsAppearanceLanguageTitle": {
-    "message": "语言",
+    "message": "언어",
     "description": "Title of the Language setting card on the options page"
   },
   "optionsAppearanceLanguageDesc": {
-    "message": "选择 MarkSnip 界面的显示语言。自动跟随您的浏览器语言。",
+    "message": "MarkSnip 인터페이스의 표시 언어를 선택합니다. 자동(Auto)은 브라우저 언어를 따릅니다.",
     "description": "Description for the Language setting card"
   },
   "optionsAppearanceLanguageAuto": {
-    "message": "自动（浏览器默认）",
+    "message": "자동 (브라우저 기본값)",
     "description": "Label for the auto language option"
   },
   "optionsAppearanceLanguageEnglish": {
@@ -3502,7 +3502,7 @@
     "description": "Label for the Korean language option"
   },
   "optionsLanguageSavedToast": {
-    "message": "语言已更新 — 正在重新加载…",
+    "message": "언어가 업데이트되었습니다 — 새로고침 중…",
     "description": "Toast shown after the user changes the interface language"
   }
 }
