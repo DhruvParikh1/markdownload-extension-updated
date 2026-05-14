@@ -2872,21 +2872,37 @@
     "message": "Additionally, you can parameterize any of the text variables (other than date and keywords) by using the following syntax:",
     "description": "Intro for template variable parameterization"
   },
-  "optionsTemplateVarPascal": {
-    "message": "{variable:pascal} - PascalCase: Every word capital",
-    "description": "Template variable parameterization for PascalCase"
+  "optionsTemplateVarPascalDesc": {
+    "message": "PascalCase: Every word capital",
+    "description": "Description for the {variable:pascal} template filter"
   },
-  "optionsTemplateVarCamel": {
-    "message": "{variable:camel} - camelCase: every word capital except the first word",
-    "description": "Template variable parameterization for camelCase"
+  "optionsTemplateVarCamelDesc": {
+    "message": "camelCase: every word capital except the first word",
+    "description": "Description for the {variable:camel} template filter"
   },
-  "optionsTemplateVarKebab": {
-    "message": "{variable:kebab} - kebab-case: hyphens between words, all lowercase",
-    "description": "Template variable parameterization for kebab-case"
+  "optionsTemplateVarKebabDesc": {
+    "message": "kebab-case: hyphens between words, all lowercase",
+    "description": "Description for the {variable:kebab} template filter"
   },
-  "optionsTemplateVarSnake": {
-    "message": "{variable:snake} - snake_case: underscores between words, all lowercase",
-    "description": "Template variable parameterization for snake_case"
+  "optionsTemplateVarSnakeDesc": {
+    "message": "snake_case: underscores between words, all lowercase",
+    "description": "Description for the {variable:snake} template filter"
+  },
+  "optionsTemplateVarLowercaseDesc": {
+    "message": "lowercase: all letters lowercase",
+    "description": "Description for the {variable:lowercase} template filter"
+  },
+  "optionsTemplateVarUppercaseDesc": {
+    "message": "UPPERCASE: all letters uppercase",
+    "description": "Description for the {variable:uppercase} template filter"
+  },
+  "optionsTemplateVarAsciiDesc": {
+    "message": "ASCII only: strip accents and non-ASCII characters",
+    "description": "Description for the {variable:ascii} template filter"
+  },
+  "optionsTemplateVarSlugifyDesc": {
+    "message": "URL slug: lowercase, ASCII, alphanumeric or hyphen",
+    "description": "Description for the {variable:slugify} template filter"
   },
   "optionsAssistantTargetsEmpty": {
     "message": "No custom assistant targets yet. ChatGPT, Claude, and Perplexity are always available.",

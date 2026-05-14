@@ -114,6 +114,100 @@ describe('Template Processing', () => {
       expect(result).toContain('kebab: test-article-title');
       expect(result).toContain('snake: test_article_title');
     });
+
+    test('should convert title to lowercase', () => {
+      const result = textReplace('{title:lowercase}', mockArticle);
+      expect(result).toBe('test article title');
+    });
+
+    test('should convert title to uppercase', () => {
+      const result = textReplace('{title:uppercase}', mockArticle);
+      expect(result).toBe('TEST ARTICLE TITLE');
+    });
+  });
+
+  describe('ASCII and Slugify Filters', () => {
+    test('should strip Czech diacritics with :ascii', () => {
+      const article = { ...mockArticle, title: 'Zábavné sušenky' };
+      const result = textReplace('{title:ascii}', article);
+      expect(result).toBe('Zabavne susenky');
+    });
+
+    test('should strip German umlauts with :ascii', () => {
+      const article = { ...mockArticle, title: 'Über München' };
+      const result = textReplace('{title:ascii}', article);
+      expect(result).toBe('Uber Munchen');
+    });
+
+    test('should strip French accents with :ascii', () => {
+      const article = { ...mockArticle, title: 'Café à Paris' };
+      const result = textReplace('{title:ascii}', article);
+      expect(result).toBe('Cafe a Paris');
+    });
+
+    test('should strip Vietnamese tone marks with :ascii', () => {
+      const article = { ...mockArticle, title: 'Phở ngon' };
+      const result = textReplace('{title:ascii}', article);
+      expect(result).toBe('Pho ngon');
+    });
+
+    test('should leave already-ASCII input unchanged with :ascii', () => {
+      const article = { ...mockArticle, title: 'Plain Title' };
+      const result = textReplace('{title:ascii}', article);
+      expect(result).toBe('Plain Title');
+    });
+
+    test('should drop Cyrillic characters with :ascii', () => {
+      const article = { ...mockArticle, title: 'Привет мир' };
+      const result = textReplace('{title:ascii}', article);
+      expect(result).toBe(' ');
+    });
+
+    test('should produce a clean URL slug with :slugify (issue example)', () => {
+      const article = { ...mockArticle, title: 'Když upadneš, zase vstaneš — proč?' };
+      const result = textReplace('{title:slugify}', article);
+      expect(result).toBe('kdyz-upadnes-zase-vstanes-proc');
+    });
+
+    test('should collapse whitespace and trim with :slugify', () => {
+      const article = { ...mockArticle, title: '  Multiple   Spaces  ' };
+      const result = textReplace('{title:slugify}', article);
+      expect(result).toBe('multiple-spaces');
+    });
+
+    test('should chain :kebab:ascii to keep ASCII punctuation', () => {
+      const article = { ...mockArticle, title: 'Když, vstaneš' };
+      const result = textReplace('{title:kebab:ascii}', article);
+      expect(result).toBe('kdyz,-vstanes');
+    });
+
+    test('should chain :ascii:uppercase and :uppercase:ascii to same result', () => {
+      const article = { ...mockArticle, title: 'Zábavné' };
+      const a = textReplace('{title:ascii:uppercase}', article);
+      const b = textReplace('{title:uppercase:ascii}', article);
+      expect(a).toBe('ZABAVNE');
+      expect(b).toBe('ZABAVNE');
+    });
+  });
+
+  describe('Filter Pipeline Regressions', () => {
+    test('should not consume {og:image} as {og} + :image filter', () => {
+      const article = {
+        og: 'fallback-value',
+        'og:image': 'https://example.com/photo.png'
+      };
+      const result = textReplace('{og:image}', article);
+      expect(result).toBe('https://example.com/photo.png');
+    });
+
+    test('should resolve longest key first when a meta key ends in a known filter name', () => {
+      const article = {
+        custom: 'short-value',
+        'custom:slugify': 'literal-meta-value'
+      };
+      const result = textReplace('{custom:slugify}', article);
+      expect(result).toBe('literal-meta-value');
+    });
   });
 
   describe('Date Formatting', () => {

@@ -2872,21 +2872,37 @@
     "message": "Además, puedes parametrizar cualquier variable (salvo date y keywords) con la siguiente sintaxis:",
     "description": "Intro for template variable parameterization"
   },
-  "optionsTemplateVarPascal": {
-    "message": "{variable:pascal} - PascalCase: Cada palabra capitalizada",
-    "description": "Template variable parameterization for PascalCase"
+  "optionsTemplateVarPascalDesc": {
+    "message": "PascalCase: Cada palabra capitalizada",
+    "description": "Description for the {variable:pascal} template filter"
   },
-  "optionsTemplateVarCamel": {
-    "message": "{variable:camel} - camelCase: cada palabra capitalizada salvo la primera",
-    "description": "Template variable parameterization for camelCase"
+  "optionsTemplateVarCamelDesc": {
+    "message": "camelCase: cada palabra capitalizada salvo la primera",
+    "description": "Description for the {variable:camel} template filter"
   },
-  "optionsTemplateVarKebab": {
-    "message": "{variable:kebab} - kebab-case: guiones entre palabras, todo en minúscula",
-    "description": "Template variable parameterization for kebab-case"
+  "optionsTemplateVarKebabDesc": {
+    "message": "kebab-case: guiones entre palabras, todo en minúscula",
+    "description": "Description for the {variable:kebab} template filter"
   },
-  "optionsTemplateVarSnake": {
-    "message": "{variable:snake} - snake_case: guiones bajos entre palabras, todo en minúscula",
-    "description": "Template variable parameterization for snake_case"
+  "optionsTemplateVarSnakeDesc": {
+    "message": "snake_case: guiones bajos entre palabras, todo en minúscula",
+    "description": "Description for the {variable:snake} template filter"
+  },
+  "optionsTemplateVarLowercaseDesc": {
+    "message": "minúsculas: todas las letras en minúscula",
+    "description": "Description for the {variable:lowercase} template filter"
+  },
+  "optionsTemplateVarUppercaseDesc": {
+    "message": "MAYÚSCULAS: todas las letras en mayúscula",
+    "description": "Description for the {variable:uppercase} template filter"
+  },
+  "optionsTemplateVarAsciiDesc": {
+    "message": "Solo ASCII: elimina acentos y caracteres no ASCII",
+    "description": "Description for the {variable:ascii} template filter"
+  },
+  "optionsTemplateVarSlugifyDesc": {
+    "message": "Slug de URL: minúsculas, ASCII, solo alfanuméricos o guiones",
+    "description": "Description for the {variable:slugify} template filter"
   },
   "optionsAssistantTargetsEmpty": {
     "message": "No hay destinos personalizados todavía. ChatGPT, Claude y Perplexity siempre están disponibles.",

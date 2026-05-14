@@ -70,20 +70,39 @@
     return name;
   }
 
+  const FILTERS = {
+    kebab:     (s) => s.replace(/ /g, '-').toLowerCase(),
+    snake:     (s) => s.replace(/ /g, '_').toLowerCase(),
+    camel:     (s) => s.replace(/ ./g, (m) => m.trim().toUpperCase()).replace(/^./, (m) => m.toLowerCase()),
+    pascal:    (s) => s.replace(/ ./g, (m) => m.trim().toUpperCase()).replace(/^./, (m) => m.toUpperCase()),
+    lowercase: (s) => s.toLowerCase(),
+    uppercase: (s) => s.toUpperCase(),
+    ascii:     (s) => s.normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/[^\x00-\x7F]/g, ''),
+    slugify:   (s) => FILTERS.ascii(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+  };
+
+  const FILTER_NAMES = Object.keys(FILTERS).join('|');
+
+  function applyFilters(value, chain) {
+    return chain.split(':').filter(Boolean).reduce((acc, name) => FILTERS[name](acc), value);
+  }
+
   function textReplace(string, article, disallowedChars = null, disallowedCharReplacement = '') {
     const shouldSanitizeValues = disallowedChars !== null && disallowedChars !== undefined;
 
-    for (const key in article) {
-      if (Object.prototype.hasOwnProperty.call(article, key) && key !== 'content') {
-        let s = (article[key] || '') + '';
-        if (s && shouldSanitizeValues) s = generateValidFileName(s, disallowedChars, disallowedCharReplacement);
+    const keys = Object.keys(article)
+      .filter((k) => k !== 'content' && Object.prototype.hasOwnProperty.call(article, k))
+      .sort((a, b) => b.length - a.length);
 
-        string = string.replace(new RegExp('{' + key + '}', 'g'), s)
-          .replace(new RegExp('{' + key + ':kebab}', 'g'), s.replace(/ /g, '-').toLowerCase())
-          .replace(new RegExp('{' + key + ':snake}', 'g'), s.replace(/ /g, '_').toLowerCase())
-          .replace(new RegExp('{' + key + ':camel}', 'g'), s.replace(/ ./g, (str) => str.trim().toUpperCase()).replace(/^./, (str) => str.toLowerCase()))
-          .replace(new RegExp('{' + key + ':pascal}', 'g'), s.replace(/ ./g, (str) => str.trim().toUpperCase()).replace(/^./, (str) => str.toUpperCase()));
-      }
+    for (const key of keys) {
+      let s = (article[key] || '') + '';
+      if (s && shouldSanitizeValues) s = generateValidFileName(s, disallowedChars, disallowedCharReplacement);
+
+      const pattern = new RegExp(
+        '{' + escapeRegExp(key) + '((?::(?:' + FILTER_NAMES + '))*)}',
+        'g'
+      );
+      string = string.replace(pattern, (_, chain) => (chain ? applyFilters(s, chain) : s));
     }
 
     const now = new Date();

@@ -21,9 +21,13 @@ describe('Firefox build configuration', () => {
         'browser-polyfill.min.js',
         'shared/default-options.js',
         'shared/notifications.js',
+        'shared/template-utils.js',
         'service-worker.js'
       ])
     });
+
+    const scripts = firefoxManifest.background.scripts;
+    expect(scripts.indexOf('shared/template-utils.js')).toBeLessThan(scripts.indexOf('service-worker.js'));
     expect(firefoxManifest.background.service_worker).toBeUndefined();
     expect(firefoxManifest.permissions).not.toContain('offscreen');
     expect(firefoxManifest.permissions).toEqual(expect.arrayContaining([

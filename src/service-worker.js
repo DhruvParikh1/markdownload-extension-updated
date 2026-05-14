@@ -18,6 +18,8 @@ if (typeof importScripts === 'function') {
   );
 }
 
+const { textReplace, generateValidFileName } = globalThis.markSnipTemplateUtils;
+
 // Log platform info
 browser.runtime.getPlatformInfo().then(async platformInfo => {
   const browserInfo = browser.runtime.getBrowserInfo ? await browser.runtime.getBrowserInfo() : "Can't get browser info"
@@ -2572,92 +2574,6 @@ async function toggleSetting(setting, options = null) {
       } catch { }
     }
   }
-}
-
-/**
-* Replace placeholder strings with article info
-*/
-function textReplace(string, article, disallowedChars = null, disallowedCharReplacement = '') {
-  const shouldSanitizeValues = disallowedChars !== null && disallowedChars !== undefined;
-
-  // Replace values from article object
-  for (const key in article) {
-    if (article.hasOwnProperty(key) && key != "content") {
-      let s = (article[key] || '') + '';
-      if (s && shouldSanitizeValues) s = generateValidFileName(s, disallowedChars, disallowedCharReplacement);
-
-      string = string.replace(new RegExp('{' + key + '}', 'g'), s)
-        .replace(new RegExp('{' + key + ':kebab}', 'g'), s.replace(/ /g, '-').toLowerCase())
-        .replace(new RegExp('{' + key + ':snake}', 'g'), s.replace(/ /g, '_').toLowerCase())
-        .replace(new RegExp('{' + key + ':camel}', 'g'), s.replace(/ ./g, (str) => str.trim().toUpperCase()).replace(/^./, (str) => str.toLowerCase()))
-        .replace(new RegExp('{' + key + ':pascal}', 'g'), s.replace(/ ./g, (str) => str.trim().toUpperCase()).replace(/^./, (str) => str.toUpperCase()));
-    }
-  }
-
-  // Replace date formats
-  const now = new Date();
-  const dateRegex = /{date:(.+?)}/g;
-  const matches = string.match(dateRegex);
-  if (matches && matches.forEach) {
-    matches.forEach(match => {
-      const format = match.substring(6, match.length - 1);
-      const dateString = moment(now).format(format);
-      string = string.replaceAll(match, dateString);
-    });
-  }
-
-  // Replace keywords
-  const keywordRegex = /{keywords:?(.*)?}/g;
-  const keywordMatches = string.match(keywordRegex);
-  if (keywordMatches && keywordMatches.forEach) {
-    keywordMatches.forEach(match => {
-      let seperator = match.substring(10, match.length - 1);
-      try {
-        seperator = JSON.parse(JSON.stringify(seperator).replace(/\\\\/g, '\\'));
-      }
-      catch { }
-      const keywordsString = (article.keywords || []).join(seperator);
-      string = string.replace(new RegExp(match.replace(/\\/g, '\\\\'), 'g'), keywordsString);
-    });
-  }
-
-  // Replace anything left in curly braces
-  const defaultRegex = /{(.*?)}/g;
-  string = string.replace(defaultRegex, '');
-
-  return string;
-}
-
-/**
-* Generate valid filename
-*/
-function escapeRegExp(value) {
-  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-function normalizeFileNameReplacement(replacement = '') {
-  if (!replacement) return '';
-  return String(replacement)
-    .replace(/[\/\?<>\\:\*\|":]/g, '')
-    .replace(new RegExp('\u00A0', 'g'), ' ');
-}
-
-function generateValidFileName(title, disallowedChars = null, disallowedCharReplacement = '') {
-  if (!title) return title;
-  else title = title + '';
-  // Remove < > : " / \ | ? * 
-  var illegalRe = /[\/\?<>\\:\*\|":]/g;
-  // And non-breaking spaces
-  const replacement = normalizeFileNameReplacement(disallowedCharReplacement);
-  var name = title.replace(illegalRe, () => replacement).replace(new RegExp('\u00A0', 'g'), ' ');
-  
-  if (disallowedChars) {
-    for (let c of disallowedChars) {
-      name = name.replace(new RegExp(escapeRegExp(c), 'g'), () => replacement);
-    }
-  }
-  
-  return name;
 }
 
 async function formatTitle(article, providedOptions = null) {

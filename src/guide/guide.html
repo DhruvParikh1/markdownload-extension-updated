@@ -705,9 +705,12 @@ author: {byline}
                             <tr><td><code>{variable:snake}</code></td><td>snake_case</td><td><code>different_types_of_casing</code></td></tr>
                             <tr><td><code>{variable:lowercase}</code></td><td>lowercase</td><td>all lowercase</td></tr>
                             <tr><td><code>{variable:uppercase}</code></td><td>UPPERCASE</td><td>ALL UPPERCASE</td></tr>
+                            <tr><td><code>{variable:ascii}</code></td><td>ASCII only</td><td>Removes accents and non-ASCII characters</td></tr>
+                            <tr><td><code>{variable:slugify}</code></td><td>URL slug</td><td>Lowercase, ASCII, alphanumeric or hyphen</td></tr>
                         </tbody>
                     </table>
                 </div>
+                <p>Filters chain left-to-right: <code>{pageTitle:kebab:ascii}</code> produces ASCII-only output (ASCII punctuation kept); use <code>{pageTitle:slugify}</code> for a fully URL-safe slug.</p>
                 <div class="tip-box">
                     <strong>Note:</strong> Not all websites provide all metadata values. Missing values are replaced with empty strings.
                 </div>
