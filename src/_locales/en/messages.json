@@ -3493,6 +3493,10 @@
     "message": "简体中文",
     "description": "Label for the Simplified Chinese language option"
   },
+  "optionsAppearanceLanguageJapanese": {
+    "message": "日本語",
+    "description": "Label for the Japanese language option"
+  },
   "optionsLanguageSavedToast": {
     "message": "Language updated — reloading…",
     "description": "Toast shown after the user changes the interface language"
