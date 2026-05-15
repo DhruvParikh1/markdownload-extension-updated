@@ -3512,5 +3512,17 @@
   "optionsLanguageSavedToast": {
     "message": "言語が更新されました — 再読み込み中…",
     "description": "Toast shown after the user changes the interface language"
+  },
+  "optionsAppearanceLanguageFrench": {
+    "message": "Français",
+    "description": "Label for the French language option"
+  },
+  "optionsAppearanceLanguagePortugueseBR": {
+    "message": "Português (Brasil)",
+    "description": "Label for the Portuguese (Brazil) language option"
+  },
+  "optionsAppearanceLanguageItalian": {
+    "message": "Italiano",
+    "description": "Label for the Italian language option"
   }
 }

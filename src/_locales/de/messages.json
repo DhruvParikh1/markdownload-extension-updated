@@ -799,7 +799,6 @@
     "message": "Speichern-unter-Dialog immer anzeigen",
     "description": "Toggle label"
   },
-
   "optionsSaveAsHint": {
     "message": "Unabhängig von der Browsereinstellung",
     "description": "Toggle hint"
@@ -1600,7 +1599,6 @@
     "message": "Zum Inhalt springen",
     "description": "Accessibility skip link"
   },
-
   "guideHeaderSubtitle": {
     "message": "Benutzerhandbuch",
     "description": "Subtitle in guide header"
@@ -2400,7 +2398,6 @@
   "guideFaq5Desc": {
     "message": "Eine andere Erweiterung könnte dasselbe Kürzel beansprucht haben. Öffnen Sie die Tastaturkürzel-Einstellungen für Erweiterungen in Ihrem Browser, um die Tasten neu zuzuweisen.",
     "description": "FAQ 5 Description"
-
   },
   "guideFaq6Title": {
     "message": "Markdown-Ausgabe sieht falsch aus",
@@ -3201,7 +3198,6 @@
   },
   "popupFailedFeedback": {
     "message": "Fehlgeschlagen",
-
     "description": "Temporary failure feedback"
   },
   "popupDeleteClipAria": {
@@ -3516,5 +3512,17 @@
   "optionsLanguageSavedToast": {
     "message": "Sprache aktualisiert — wird neu geladen…",
     "description": "Toast shown after the user changes the interface language"
+  },
+  "optionsAppearanceLanguageFrench": {
+    "message": "Français",
+    "description": "Label for the French language option"
+  },
+  "optionsAppearanceLanguagePortugueseBR": {
+    "message": "Português (Brasil)",
+    "description": "Label for the Portuguese (Brazil) language option"
+  },
+  "optionsAppearanceLanguageItalian": {
+    "message": "Italiano",
+    "description": "Label for the Italian language option"
   }
 }
