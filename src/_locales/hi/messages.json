@@ -3505,6 +3505,10 @@
     "message": "हिन्दी",
     "description": "Label for the Hindi language option"
   },
+  "optionsAppearanceLanguageGerman": {
+    "message": "Deutsch",
+    "description": "Label for the German language option"
+  },
   "optionsLanguageSavedToast": {
     "message": "भाषा अपडेट हो गई — रीलोड हो रहा है…",
     "description": "Toast shown after the user changes the interface language"
