@@ -74,6 +74,7 @@
     const content = String(markdown ?? clipState?.markdown ?? '');
     const resolvedTitle = String(title ?? clipState?.title ?? '').trim();
     const resolvedSourceUrl = String(sourceUrl ?? clipState?.pageUrl ?? '').trim();
+    const publishedTime = String(clipState?.publishedTime ?? clipState?.date ?? '').trim();
     const article = {
       title: resolvedTitle,
       content,
@@ -81,7 +82,7 @@
       excerpt: String(clipState?.excerpt ?? ''),
       byline: String(clipState?.byline ?? ''),
       keywords: normalizeWebhookKeywords(clipState?.keywords),
-      publishedTime: String(clipState?.publishedTime ?? '').trim()
+      publishedTime
     };
 
     return {
@@ -98,6 +99,7 @@
     const messageArticle = message?.article && typeof message.article === 'object'
       ? message.article
       : {};
+    const publishedTime = String(messageArticle.publishedTime ?? messageArticle.date ?? '').trim();
 
     return {
       title: String(messageArticle.title ?? message.title ?? '').trim(),
@@ -106,7 +108,7 @@
       excerpt: String(messageArticle.excerpt ?? ''),
       byline: String(messageArticle.byline ?? ''),
       keywords: normalizeWebhookKeywords(messageArticle.keywords),
-      publishedTime: String(messageArticle.publishedTime ?? '').trim()
+      publishedTime
     };
   }
 

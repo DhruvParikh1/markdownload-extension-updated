@@ -68,6 +68,17 @@ describe('library-state helpers', () => {
     });
   });
 
+  test('maps legacy article date metadata to publishedTime for saved library items', () => {
+    const items = libraryState.upsertLibraryItem([], {
+      title: 'Example',
+      markdown: 'Body copy',
+      pageUrl: 'https://example.com/docs',
+      date: '2026-05-05T10:09:52.000Z'
+    }, 10);
+
+    expect(items[0].publishedTime).toBe('2026-05-05T10:09:52.000Z');
+  });
+
   test('replaces existing item when the same normalized URL is saved again', () => {
     const firstPass = libraryState.upsertLibraryItem([], {
       id: 'first',

@@ -122,6 +122,34 @@ describe('Webhook utilities', () => {
     });
   });
 
+  test('maps legacy article date metadata to publishedTime during webhook message handoff', () => {
+    const legacyPublishedAt = '2026-05-05T10:09:52.000Z';
+    const message = buildWebhookSendMessage({
+      targetId: 'notes-target',
+      markdown: '# heading\nBody',
+      clipState: {
+        title: 'Webhook Clip',
+        pageUrl: 'https://example.com/post',
+        date: legacyPublishedAt
+      }
+    });
+
+    expect(message.article.publishedTime).toBe(legacyPublishedAt);
+    expect(buildWebhookArticleFromMessage({
+      type: 'webhook-send',
+      targetId: 'notes-target',
+      markdown: '# heading\nBody',
+      title: 'Webhook Clip',
+      sourceUrl: 'https://example.com/post',
+      article: {
+        title: 'Webhook Clip',
+        content: '# heading\nBody',
+        pageURL: 'https://example.com/post',
+        date: legacyPublishedAt
+      }
+    }).publishedTime).toBe(legacyPublishedAt);
+  });
+
   test('registers browser globals without default options already loaded', () => {
     const webhookUtilsSource = fs.readFileSync(
       path.join(__dirname, '../../shared/webhook-utils.js'),

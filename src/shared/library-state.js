@@ -108,7 +108,7 @@
       keywords: Array.isArray(snapshot.keywords)
         ? snapshot.keywords.map((keyword) => String(keyword || '').trim()).filter(Boolean)
         : [],
-      publishedTime: String(snapshot.publishedTime || '').trim(),
+      publishedTime: String(snapshot.publishedTime || snapshot.date || '').trim(),
       savedAt: timestamp,
       previewText: buildPreviewText(markdown)
     };
