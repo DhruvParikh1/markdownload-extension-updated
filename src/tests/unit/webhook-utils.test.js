@@ -30,7 +30,7 @@ describe('Webhook utilities', () => {
         excerpt: '',
         byline: '',
         keywords: [],
-        date: '2026-05-05T00:00:00.000Z'
+        publishedTime: '2026-05-05T00:00:00.000Z'
       }
     });
 
@@ -65,7 +65,7 @@ describe('Webhook utilities', () => {
         excerpt: '',
         byline: '',
         keywords: [],
-        date: '2026-05-05T00:00:00.000Z'
+        publishedTime: '2026-05-05T00:00:00.000Z'
       }
     });
 
@@ -90,7 +90,7 @@ describe('Webhook utilities', () => {
         excerpt: 'Compact summary',
         byline: 'By Example Author',
         keywords: ['clip', 'webhook'],
-        date: '2026-05-05T10:09:52.000Z'
+        publishedTime: '2026-05-05T10:09:52.000Z'
       }
     });
 
@@ -107,7 +107,7 @@ describe('Webhook utilities', () => {
         excerpt: 'Compact summary',
         byline: 'By Example Author',
         keywords: ['clip', 'webhook'],
-        date: '2026-05-05T10:09:52.000Z'
+        publishedTime: '2026-05-05T10:09:52.000Z'
       }
     });
 
@@ -118,7 +118,7 @@ describe('Webhook utilities', () => {
       excerpt: 'Compact summary',
       byline: 'By Example Author',
       keywords: ['clip', 'webhook'],
-      date: '2026-05-05T10:09:52.000Z'
+      publishedTime: '2026-05-05T10:09:52.000Z'
     });
   });
 
@@ -179,10 +179,36 @@ describe('Webhook utilities', () => {
         excerpt: '',
         byline: '',
         keywords: [],
-        date: '2026-05-05T00:00:00.000Z'
+        publishedTime: '2026-05-05T00:00:00.000Z'
       }
     });
 
     expect(request.url).toBe('https://example.com/api/my-test-article');
+  });
+
+  test('renders publishedTime templates independently from the current clip date', () => {
+    const request = buildWebhookFetchRequest({
+      target: {
+        url: 'https://example.com/hooks/{publishedTime:YYYY-MM-DD}',
+        method: 'POST',
+        headers: [
+          { key: 'X-Published', value: '{publishedTime:YYYY-MM-DD}' }
+        ],
+        bodyTemplate: JSON.stringify({ published: '{publishedTime:YYYY-MM-DD}' })
+      },
+      article: {
+        title: 'My Test Article',
+        content: 'body text',
+        pageURL: 'https://example.com/post',
+        excerpt: '',
+        byline: '',
+        keywords: [],
+        publishedTime: '2026-05-05T10:09:52.000Z'
+      }
+    });
+
+    expect(request.url).toBe('https://example.com/hooks/2026-05-05');
+    expect(request.headers['X-Published']).toBe('2026-05-05');
+    expect(JSON.parse(request.body)).toEqual({ published: '2026-05-05' });
   });
 });

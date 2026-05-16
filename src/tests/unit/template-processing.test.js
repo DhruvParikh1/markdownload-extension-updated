@@ -117,6 +117,10 @@ describe('Template Processing', () => {
   });
 
   describe('Date Formatting', () => {
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
     test('should replace {date:YYYY-MM-DD} with current date', () => {
       const template = 'Date: {date:YYYY-MM-DD}';
       const result = textReplace(template, mockArticle);
@@ -133,15 +137,24 @@ describe('Template Processing', () => {
       expect(result).toBe(`Created: ${today}, Modified: ${today}`);
     });
 
-    test('should use article date when available', () => {
+    test('should keep {date:FORMAT} tied to the current clip date when article date metadata is present', () => {
+      jest.useFakeTimers().setSystemTime(new Date('2026-06-01T12:00:00.000Z'));
       const articleWithDate = { ...mockArticle, date: '2026-05-05T10:09:52.000Z' };
       const template = 'Date: {date:YYYY-MM-DD}';
       const result = textReplace(template, articleWithDate);
 
-      expect(result).toBe('Date: 2026-05-05');
+      expect(result).toBe('Date: 2026-06-01');
     });
 
-    test('should fall back to current date when article date is invalid', () => {
+    test('should format publication metadata with {publishedTime:FORMAT}', () => {
+      const articleWithPublishedTime = { ...mockArticle, publishedTime: '2026-05-05T10:09:52.000Z' };
+      const template = 'Published: {publishedTime:YYYY-MM-DD}';
+      const result = textReplace(template, articleWithPublishedTime);
+
+      expect(result).toBe('Published: 2026-05-05');
+    });
+
+    test('should ignore invalid article date metadata', () => {
       const articleBadDate = { ...mockArticle, date: 'not-a-date' };
       const template = 'Date: {date:YYYY-MM-DD}';
       const result = textReplace(template, articleBadDate);
@@ -150,7 +163,7 @@ describe('Template Processing', () => {
       expect(result).toBe(`Date: ${today}`);
     });
 
-    test('should fall back to current date when article date is empty string', () => {
+    test('should ignore empty article date metadata', () => {
       const articleEmptyDate = { ...mockArticle, date: '' };
       const template = 'Date: {date:YYYY-MM-DD}';
       const result = textReplace(template, articleEmptyDate);

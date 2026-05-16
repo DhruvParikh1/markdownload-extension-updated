@@ -10,7 +10,7 @@ describe('Webhook markdown flow', () => {
       excerpt: 'A compact excerpt',
       pageURL: 'https://example.com/articles/test-clip',
       keywords: ['clip', 'test'],
-      date: '2026-05-05T10:09:52.000Z'
+      publishedTime: '2026-05-05T10:09:52.000Z'
     };
     const markdownOptions = createEffectiveMarkdownOptions(article, {
       includeTemplate: true,

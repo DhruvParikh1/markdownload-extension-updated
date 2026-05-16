@@ -249,6 +249,7 @@
                             <li><code>{byline}</code> — Author metadata</li>
                             <li><code>{dir}</code> — Content direction</li>
                             <li><code>{date:FORMAT}</code> — The current date and time. Check the <a href="https://momentjs.com/docs/#/displaying/format/" target="_blank" rel="noopener noreferrer">format reference</a></li>
+                            <li><code>{publishedTime:FORMAT}</code> — Article publication date metadata, when provided by the page</li>
                             <li><code>{keywords}</code> — Meta keywords (if present). Comma separated by default.</li>
                             <li><code>{keywords:SEPARATOR}</code> — Meta keywords separated by SEPARATOR. For example, to separate by space, use <code>{keywords: }</code></li>
                         </ul>
@@ -783,7 +784,7 @@
                     data-search-keywords="webhook,remote api,http post,custom endpoint,send to url,api key,webhook target"
                     data-setting-key="webhookTargets">
                     <h3 class="card-title">Webhook Targets</h3>
-                    <p class="card-desc">Send clipped content to remote APIs via HTTP POST, PUT, or PATCH. Set the default target in the Default Popup Action setting above. Variables: <code>{title}</code>, <code>{content}</code>, <code>{pageURL}</code>, <code>{excerpt}</code>, <code>{byline}</code>, <code>{date:FORMAT}</code>.</p>
+                    <p class="card-desc">Send clipped content to remote APIs via HTTP POST, PUT, or PATCH. Set the default target in the Default Popup Action setting above. Variables: <code>{title}</code>, <code>{content}</code>, <code>{pageURL}</code>, <code>{excerpt}</code>, <code>{byline}</code>, <code>{date:FORMAT}</code>, <code>{publishedTime:FORMAT}</code>.</p>
 
                     <div id="webhookTargetsList" class="webhook-targets-list" aria-live="polite"></div>
 

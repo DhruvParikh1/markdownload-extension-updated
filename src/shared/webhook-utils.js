@@ -81,7 +81,7 @@
       excerpt: String(clipState?.excerpt ?? ''),
       byline: String(clipState?.byline ?? ''),
       keywords: normalizeWebhookKeywords(clipState?.keywords),
-      date: String(clipState?.date ?? '').trim()
+      publishedTime: String(clipState?.publishedTime ?? '').trim()
     };
 
     return {
@@ -99,7 +99,6 @@
       ? message.article
       : {};
 
-    const resolvedDate = String(messageArticle.date ?? '').trim() || new Date().toISOString();
     return {
       title: String(messageArticle.title ?? message.title ?? '').trim(),
       content: String(messageArticle.content ?? message.markdown ?? ''),
@@ -107,7 +106,7 @@
       excerpt: String(messageArticle.excerpt ?? ''),
       byline: String(messageArticle.byline ?? ''),
       keywords: normalizeWebhookKeywords(messageArticle.keywords),
-      date: resolvedDate
+      publishedTime: String(messageArticle.publishedTime ?? '').trim()
     };
   }
 

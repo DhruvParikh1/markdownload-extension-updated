@@ -69,8 +69,7 @@
       }
     }
 
-    const parsedDate = article.date ? new Date(article.date) : null;
-    const now = parsedDate && !isNaN(parsedDate.getTime()) ? parsedDate : new Date();
+    const now = new Date();
     const dateRegex = /{date:(.+?)}/g;
     const matches = string.match(dateRegex);
     if (matches && matches.forEach) {
@@ -79,6 +78,19 @@
         const dateString = formatDate(now, format);
         string = string.replaceAll(match, dateString);
       });
+    }
+
+    const publishedTimeRegex = /{publishedTime:(.+?)}/g;
+    const publishedTimeMatches = string.match(publishedTimeRegex);
+    if (publishedTimeMatches && publishedTimeMatches.forEach) {
+      const parsedPublishedTime = article.publishedTime ? new Date(article.publishedTime) : null;
+      if (parsedPublishedTime && !isNaN(parsedPublishedTime.getTime())) {
+        publishedTimeMatches.forEach((match) => {
+          const format = match.substring(15, match.length - 1);
+          const dateString = formatDate(parsedPublishedTime, format);
+          string = string.replaceAll(match, dateString);
+        });
+      }
     }
 
     const keywordRegex = /{keywords:?(.*)?}/g;

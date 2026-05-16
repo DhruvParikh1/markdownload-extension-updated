@@ -745,7 +745,7 @@ async function handleWebhookSend(message) {
       excerpt: '',
       byline: '',
       keywords: [],
-      date: new Date().toISOString()
+      publishedTime: ''
     };
 
   const request = globalThis.markSnipWebhookUtils.buildWebhookFetchRequest({
@@ -2531,6 +2531,10 @@ async function toggleSetting(setting, options = null) {
 * Replace placeholder strings with article info
 */
 function textReplace(string, article, disallowedChars = null) {
+  if (globalThis.markSnipTemplateUtils?.textReplace) {
+    return globalThis.markSnipTemplateUtils.textReplace(string, article, disallowedChars);
+  }
+
   // Replace values from article object
   for (const key in article) {
     if (article.hasOwnProperty(key) && key != "content") {

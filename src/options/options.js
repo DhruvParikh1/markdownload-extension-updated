@@ -2350,8 +2350,11 @@ const refreshElements = () => {
 
 const inputChange = async (e) => {
     if (e) {
-        let key = e.target.name;
+        let key = String(e.target.name || '').trim();
         let value = e.target.value;
+        if (!key) {
+            return;
+        }
         if (key == "import-file") {
             fr = new FileReader();
             fr.onload = async (ev) => {
@@ -2763,7 +2766,7 @@ const loaded = () => {
 		        if (input.id === 'settings-search') return;
 		        if (input.closest('#siteRulesCard')) return;
                 if (input.closest('#defaultSendToTargetCard') || input.closest('#assistantTargetsCard')) return;
-                if (input.closest('#webhookTargetEditor')) return;
+                if (input.closest('#webhookTargetsCard')) return;
 		        // Skip permission panel buttons (they have their own handlers)
 		        if (['agentBridgePermContinue', 'agentBridgePermCancel', 'agentBridgePermRetry', 'agentBridgePermDismiss'].includes(input.id)) return;
 	        // Skip colorblind theme dropdown (has its own handlers)

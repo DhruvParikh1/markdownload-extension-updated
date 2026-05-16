@@ -406,6 +406,7 @@ The [Title Template](#title-template), [Downloads Subfolder](#downloads-subfolde
 | Variable        | Description                                                                                                               |
 | --------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | `{date:FORMAT}` | Current date/time. See the [Moment.js format reference](https://momentjs.com/docs/#/displaying/format/) for placeholders. |
+| `{publishedTime:FORMAT}` | Article publication date metadata when provided by the page. Uses the same Moment.js format placeholders. |
 
 ### Meta Tags
 

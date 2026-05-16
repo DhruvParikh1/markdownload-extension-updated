@@ -103,6 +103,12 @@
       normalizedPageUrl,
       title,
       markdown,
+      excerpt: String(snapshot.excerpt || ''),
+      byline: String(snapshot.byline || ''),
+      keywords: Array.isArray(snapshot.keywords)
+        ? snapshot.keywords.map((keyword) => String(keyword || '').trim()).filter(Boolean)
+        : [],
+      publishedTime: String(snapshot.publishedTime || '').trim(),
       savedAt: timestamp,
       previewText: buildPreviewText(markdown)
     };

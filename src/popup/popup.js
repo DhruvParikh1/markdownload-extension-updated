@@ -12,7 +12,7 @@ let currentClipState = {
     excerpt: '',
     byline: '',
     keywords: [],
-    date: ''
+    publishedTime: ''
 };
 let libraryExportInProgress = false;
 let libraryCardCountMode = 'words';
@@ -2144,7 +2144,7 @@ function updateCurrentClipState(nextState = {}) {
         excerpt: String(nextState.excerpt || ''),
         byline: String(nextState.byline || ''),
         keywords: normalizeKeywords(nextState.keywords),
-        date: String(nextState.date || '').trim()
+        publishedTime: String(nextState.publishedTime || '').trim()
     };
     updateSaveLibraryButtonState();
     queuePersistAgentBridgeClip(currentClipState);
@@ -2641,7 +2641,7 @@ async function handleManualLibrarySave(e) {
         excerpt: currentClipState.excerpt,
         byline: currentClipState.byline,
         keywords: currentClipState.keywords,
-        date: currentClipState.date
+        publishedTime: currentClipState.publishedTime
     };
 
     if (!snapshot.pageUrl || !String(snapshot.markdown || '').trim()) {
@@ -3224,7 +3224,7 @@ async function clipTabWithRetry(tab, maxAttempts = 2) {
                         excerpt: message.article?.excerpt,
                         byline: message.article?.byline,
                         keywords: message.article?.keywords,
-                        date: message.article?.date
+                        publishedTime: message.article?.publishedTime
                     });
                     setEditorValue(message.markdown);
                     if (dom.titleInput) {
@@ -4360,7 +4360,7 @@ function notify(message) {
             excerpt: message.article?.excerpt,
             byline: message.article?.byline,
             keywords: message.article?.keywords,
-            date: message.article?.date
+            publishedTime: message.article?.publishedTime
         });
         if (dom.titleInput) {
             dom.titleInput.value = message.article.title;

@@ -642,6 +642,26 @@ describe('Options page search UI', () => {
     }));
   });
 
+  test('ignores controls with empty option keys in the generic autosave listener', async () => {
+    const { dom, browser } = createOptionsPageDom();
+    const { document } = dom.window;
+
+    document.dispatchEvent(new dom.window.Event('DOMContentLoaded', { bubbles: true }));
+    await waitForMicrotasks();
+    await waitFor(dom.window, 50);
+
+    const unnamedInput = document.getElementById('title');
+    unnamedInput.removeAttribute('name');
+    unnamedInput.value = 'unsaved secret';
+
+    unnamedInput.dispatchEvent(new dom.window.KeyboardEvent('keyup', { bubbles: true }));
+    await waitFor(dom.window, 600);
+
+    expect(browser.storage.sync.set).not.toHaveBeenCalledWith(expect.objectContaining({
+      '': 'unsaved secret'
+    }));
+  });
+
   test('restores and saves the popup guide icon toggle', async () => {
     const { dom, browser } = createOptionsPageDom({ showUserGuideIcon: false });
     const { document } = dom.window;
