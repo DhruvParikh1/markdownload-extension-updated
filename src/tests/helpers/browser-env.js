@@ -7,6 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const { JSDOM } = require('jsdom');
 const turndownFactory = require('../../shared/turndown-factory');
+const mathMLApi = require('../../shared/mathml-to-tex');
 
 /**
  * Create a browser-like environment with required libraries loaded
@@ -64,7 +65,10 @@ function createBrowserEnvironment() {
  */
 function createTurndownService(options = {}) {
   const env = createBrowserEnvironment();
-  const { service } = turndownFactory.createTurndownService(options, env);
+  const { service } = turndownFactory.createTurndownService(options, {
+    ...env,
+    mathMLApi
+  });
 
   return { service, env };
 }
@@ -148,30 +152,55 @@ function prepareDocumentForReadability(document, recoveryApi) {
   recoveryApi.annotateStructuralAnchors(document);
 }
 
-function parseArticle(html, url = 'https://example.com') {
+function parseArticle(html, url = 'https://example.com', options = {}) {
+  if (url && typeof url === 'object') {
+    options = url;
+    url = 'https://example.com';
+  }
+
   const env = createBrowserEnvironment();
   const recoveryApi = env.ReadabilityRecovery;
+  const shouldIncludeHiddenContent = options?.skipHiddenContent !== true;
+  const readabilityOptions = {
+    skipHiddenContent: true
+  };
 
   // Parse HTML in JSDOM
   const dom = new JSDOM(html, { url });
   prepareDocumentForReadability(dom.window.document, recoveryApi);
+  const recoveryDom = shouldIncludeHiddenContent && typeof recoveryApi.cloneDocumentWithoutHiddenContent === 'function'
+    ? recoveryApi.cloneDocumentWithoutHiddenContent(dom.window.document)
+    : dom.window.document;
 
-  const firstPassDom = new JSDOM(dom.serialize(), { url });
-  const firstPassReader = new env.Readability(firstPassDom.window.document);
-  const firstPassArticle = firstPassReader.parse();
+  const firstPassDom = new JSDOM(recoveryDom.documentElement.outerHTML, { url });
+  const firstPassReader = new env.Readability(firstPassDom.window.document, readabilityOptions);
+  let firstPassArticle = firstPassReader.parse();
+  let firstPassUsesHiddenFallback = false;
+
+  if (!firstPassArticle?.content && shouldIncludeHiddenContent) {
+    const hiddenFallbackDom = new JSDOM(dom.serialize(), { url });
+    firstPassArticle = new env.Readability(hiddenFallbackDom.window.document, {
+      skipHiddenContent: false
+    }).parse();
+    firstPassUsesHiddenFallback = !!firstPassArticle?.content;
+  }
 
   let article = firstPassArticle;
 
   if (firstPassArticle?.content) {
-    const recoveryPlan = recoveryApi.analyzeNarrowExtraction(dom.window.document, firstPassArticle.content);
+    const sourceRecoveryDocument = firstPassUsesHiddenFallback ? dom.window.document : recoveryDom;
+    const recoveryPlan = recoveryApi.analyzeNarrowExtraction(sourceRecoveryDocument, firstPassArticle.content);
     if (recoveryPlan) {
       const secondPassDom = new JSDOM(html, { url });
       prepareDocumentForReadability(secondPassDom.window.document, recoveryApi);
+      const secondPassRecoveryDocument = shouldIncludeHiddenContent && typeof recoveryApi.cloneDocumentWithoutHiddenContent === 'function'
+        ? recoveryApi.cloneDocumentWithoutHiddenContent(secondPassDom.window.document)
+        : secondPassDom.window.document;
 
-      const recoveryResult = recoveryApi.applyRepeatedSectionPromotion(secondPassDom.window.document, recoveryPlan);
+      const recoveryResult = recoveryApi.applyRepeatedSectionPromotion(secondPassRecoveryDocument, recoveryPlan);
       if (recoveryResult.changed) {
         const recoveryFragment = recoveryApi.buildRepeatedSectionFragment
-          ? recoveryApi.buildRepeatedSectionFragment(secondPassDom.window.document, recoveryPlan)
+          ? recoveryApi.buildRepeatedSectionFragment(secondPassRecoveryDocument, recoveryPlan)
           : null;
         const secondPassArticle = recoveryFragment?.html
           ? buildRecoveredArticle(secondPassDom.window, firstPassArticle, recoveryFragment.html)
@@ -207,17 +236,24 @@ function parseArticle(html, url = 'https://example.com') {
     let recoveredContent = article.content;
 
     const restoredTableContent = typeof recoveryApi.restoreSemanticTables === 'function'
-      ? recoveryApi.restoreSemanticTables(dom.window.document, recoveredContent)
+      ? recoveryApi.restoreSemanticTables(recoveryDom, recoveredContent)
       : null;
     if (restoredTableContent) {
       recoveredContent = restoredTableContent;
     }
 
     const restoredHeadingContent = typeof recoveryApi.restoreMissingPrimaryHeadings === 'function'
-      ? recoveryApi.restoreMissingPrimaryHeadings(dom.window.document, recoveredContent)
+      ? recoveryApi.restoreMissingPrimaryHeadings(recoveryDom, recoveredContent)
       : null;
     if (restoredHeadingContent) {
       recoveredContent = restoredHeadingContent;
+    }
+
+    if (shouldIncludeHiddenContent && typeof recoveryApi.restoreHiddenContentFromSource === 'function') {
+      const restoredHiddenContent = recoveryApi.restoreHiddenContentFromSource(dom.window.document, recoveredContent);
+      if (restoredHiddenContent) {
+        recoveredContent = restoredHiddenContent;
+      }
     }
 
     if (recoveredContent !== article.content) {

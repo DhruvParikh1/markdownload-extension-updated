@@ -18,7 +18,11 @@ function buildGeneratedDownloadFilename(title, mdClipsFolder = '', options = nul
 
   safeTitle = safeTitle
     .split('/')
-    .map((segment) => generateValidFileName(segment, effectiveOptions.disallowedChars))
+    .map((segment) => generateValidFileName(
+      segment,
+      effectiveOptions.disallowedChars,
+      effectiveOptions.disallowedCharReplacement
+    ))
     .join('/');
 
   if (!safeTitle || safeTitle.replace(/\//g, '').trim() === '') {
@@ -29,7 +33,11 @@ function buildGeneratedDownloadFilename(title, mdClipsFolder = '', options = nul
   if (safeFolder) {
     safeFolder = safeFolder
       .split('/')
-      .map((segment) => generateValidFileName(segment, effectiveOptions.disallowedChars))
+      .map((segment) => generateValidFileName(
+        segment,
+        effectiveOptions.disallowedChars,
+        effectiveOptions.disallowedCharReplacement
+      ))
       .join('/');
 
     if (safeFolder && !safeFolder.endsWith('/')) {
@@ -109,6 +117,17 @@ describe('Generated download helpers', () => {
     );
 
     expect(filename).toBe('Research/Inbox/My Clip1.html');
+  });
+
+  test('applies configured replacement for generated export filenames', () => {
+    const filename = buildGeneratedDownloadFilename(
+      'Billing/Plans:Pro#400',
+      'Research/[Inbox]',
+      { disallowedChars: '[]#^', disallowedCharReplacement: '_' },
+      'md'
+    );
+
+    expect(filename).toBe('Research/_Inbox_/Billing/Plans_Pro_400.md');
   });
 
   test('routes generated files through the tracked downloads-api blob path when available', async () => {

@@ -99,6 +99,18 @@ describe('Offscreen markdown option handling', () => {
     spy.mockRestore();
   });
 
+  test('applies configured replacement while preserving template folder separators', () => {
+    const derived = createEffectiveMarkdownOptions(article, {
+      includeTemplate: false,
+      imagePrefix: '{pageTitle}/assets',
+      disallowedChars: '[]#^',
+      disallowedCharReplacement: '_',
+      tableFormatting: {}
+    }, null);
+
+    expect(derived.imagePrefix).toBe('Doc_Page Title/assets');
+  });
+
   test('prefers runtime template utils when the helper is predefined before module loads', () => {
     const originalHelper = global.markSnipTemplateUtils;
     global.markSnipTemplateUtils = {

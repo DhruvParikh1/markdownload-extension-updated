@@ -125,7 +125,11 @@
     return null;
   }
 
-  function primaryHeadingDescriptor(node) {
+  function ownHeadingDescriptor(node) {
+    if (!node) {
+      return null;
+    }
+
     const heading = directHeadingChild(node);
     if (heading) {
       return {
@@ -135,11 +139,53 @@
       };
     }
 
-    for (const child of meaningfulDirectChildren(node)) {
+    return headingWrapperDescriptor(node);
+  }
+
+  function headingPrecedesNode(heading, node) {
+    return !!(
+      heading?.compareDocumentPosition &&
+      node &&
+      (heading.compareDocumentPosition(node) & 4)
+    );
+  }
+
+  function contextualHeadingDescriptor(node) {
+    const ownDescriptor = ownHeadingDescriptor(node);
+    if (ownDescriptor) {
+      return ownDescriptor;
+    }
+
+    const children = meaningfulDirectChildren(node);
+    const dominantChild = children
+      .filter(child => !HEADING_TAG_PATTERN.test(child.tagName))
+      .map(child => ({
+        child,
+        textLength: meaningfulTextLength(child)
+      }))
+      .sort((left, right) => right.textLength - left.textLength)[0]?.child || null;
+
+    for (const child of children) {
       const descriptor = headingWrapperDescriptor(child);
-      if (descriptor) {
+      if (
+        descriptor &&
+        (
+          !dominantChild ||
+          descriptor.wrapper === dominantChild ||
+          headingPrecedesNode(descriptor.heading, dominantChild)
+        )
+      ) {
         return descriptor;
       }
+    }
+
+    return null;
+  }
+
+  function primaryHeadingDescriptor(node) {
+    const contextualDescriptor = contextualHeadingDescriptor(node);
+    if (contextualDescriptor) {
+      return contextualDescriptor;
     }
 
     return null;
@@ -180,7 +226,7 @@
 
       for (let depth = 0; depth < 3 && current; depth += 1) {
         if (!looksExcludedContainer(current)) {
-          const directDescriptor = primaryHeadingDescriptor(current);
+          const directDescriptor = contextualHeadingDescriptor(current);
           if (directDescriptor) {
             return {
               container: current,
@@ -197,10 +243,13 @@
         if (!looksExcludedContainer(parent)) {
           const parentDescriptor = primaryHeadingDescriptor(parent);
           const dominance = dominantNonHeadingChild(parent);
+          const headingPrecedesCurrent = headingPrecedesNode(parentDescriptor?.heading, current);
           if (
             parentDescriptor &&
             dominance?.child &&
-            (dominance.child === current || dominance.child.contains(current))
+            (dominance.child === current || dominance.child.contains(current)) &&
+            !current.contains(parentDescriptor.heading) &&
+            headingPrecedesCurrent
           ) {
             return {
               container: parent,
@@ -236,10 +285,15 @@
         return;
       }
 
+      const dominance = dominantNonHeadingChild(recoveryCandidate.container);
+      const witnessId = dominance?.child?.getAttribute(ANCHOR_ATTRIBUTE) || null;
       const representedContainer = containerId
         ? extractedDocument.body.querySelector(`[${ANCHOR_ATTRIBUTE}="${containerId}"]`)
         : null;
-      const targetNode = resolveInsertionTarget(representedContainer || extractedNode);
+      const representedWitness = !representedContainer && witnessId
+        ? extractedDocument.body.querySelector(`[${ANCHOR_ATTRIBUTE}="${witnessId}"]`)
+        : null;
+      const targetNode = resolveInsertionTarget(representedContainer || representedWitness || extractedNode);
       if (!targetNode || primaryHeadingDescriptor(targetNode)) {
         return;
       }
@@ -254,9 +308,7 @@
         return;
       }
 
-      const dominance = dominantNonHeadingChild(recoveryCandidate.container);
       if (dominance?.child) {
-        const witnessId = dominance.child.getAttribute(ANCHOR_ATTRIBUTE);
         const representsContainer = containerId && (
           targetNode.getAttribute?.(ANCHOR_ATTRIBUTE) === containerId ||
           !!targetNode.querySelector(`[${ANCHOR_ATTRIBUTE}="${containerId}"]`)
@@ -593,6 +645,96 @@
     return parsedDocument;
   }
 
+  function isHiddenContentElement(element) {
+    if (!element?.getAttribute) {
+      return false;
+    }
+
+    if (element.hasAttribute('hidden') || element.getAttribute('aria-hidden') === 'true') {
+      return true;
+    }
+
+    const styleValue = String(element.getAttribute('style') || '').toLowerCase();
+    return styleValue.includes('display: none') || styleValue.includes('visibility: hidden');
+  }
+
+  function hasRecoverableHiddenContent(element) {
+    if (!element?.querySelectorAll) {
+      return false;
+    }
+
+    const hiddenElements = [];
+    if (isHiddenContentElement(element)) {
+      hiddenElements.push(element);
+    }
+
+    element.querySelectorAll('[hidden], [aria-hidden="true"], [style]').forEach(candidate => {
+      if (isHiddenContentElement(candidate)) {
+        hiddenElements.push(candidate);
+      }
+    });
+
+    return hiddenElements.some(hiddenElement => (
+      meaningfulTextLength(hiddenElement) > 0 ||
+      !!hiddenElement.querySelector?.('img, picture, figure, video, iframe, canvas')
+    ));
+  }
+
+  function restoreHiddenContentFromSource(document, articleHtml) {
+    if (!articleHtml) {
+      return null;
+    }
+
+    const extractedDocument = parseArticleHtml(document, articleHtml);
+    const anchoredElements = Array.from(extractedDocument.body.querySelectorAll(`[${ANCHOR_ATTRIBUTE}]`));
+    if (!anchoredElements.length) {
+      return null;
+    }
+
+    const candidates = anchoredElements
+      .map(element => {
+        const anchorId = element.getAttribute(ANCHOR_ATTRIBUTE);
+        const sourceElement = document.querySelector(`[${ANCHOR_ATTRIBUTE}="${anchorId}"]`);
+        return { element, sourceElement };
+      })
+      .filter(candidate => candidate.sourceElement && hasRecoverableHiddenContent(candidate.sourceElement));
+
+    if (!candidates.length) {
+      return null;
+    }
+
+    const deepestCandidates = candidates.filter(candidate => (
+      !candidates.some(other => (
+        other !== candidate &&
+        candidate.element.contains(other.element)
+      ))
+    ));
+
+    deepestCandidates.forEach(({ element, sourceElement }) => {
+      const clone = sourceElement.cloneNode(true);
+      clone.querySelectorAll?.('script, style, noscript').forEach(node => {
+        node.remove();
+      });
+      element.replaceWith(clone);
+    });
+
+    return extractedDocument.body.innerHTML;
+  }
+
+  function cloneDocumentWithoutHiddenContent(document) {
+    if (!document?.cloneNode) {
+      return document;
+    }
+
+    const clone = document.cloneNode(true);
+    clone.querySelectorAll?.('[hidden], [aria-hidden="true"], [style]').forEach(element => {
+      if (isHiddenContentElement(element)) {
+        element.remove();
+      }
+    });
+    return clone;
+  }
+
   function collectAnchorIds(node) {
     if (!node?.querySelectorAll) {
       return [];
@@ -884,6 +1026,8 @@
     analyzeNarrowExtraction,
     applyRepeatedSectionPromotion,
     buildRepeatedSectionFragment,
+    cloneDocumentWithoutHiddenContent,
+    restoreHiddenContentFromSource,
     restoreSemanticTables,
     restoreMissingPrimaryHeadings,
     stripStructuralAnchorsFromHtml

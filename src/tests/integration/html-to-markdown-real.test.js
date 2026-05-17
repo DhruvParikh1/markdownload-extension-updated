@@ -264,6 +264,43 @@ describe('Real HTML to Markdown Conversion', () => {
     });
   });
 
+  describe('MathML', () => {
+    test('should convert native MathML to TeX instead of plain text', () => {
+      const { service } = createTurndownService();
+      const html = `
+        <p>
+          Equation
+          <math>
+            <mrow>
+              <msub>
+                <mi>P</mi>
+                <mrow><mi>i</mi><mo>,</mo><mi>j</mi><mo>,</mo><mi>t</mi><mo>_</mo><mi>a</mi></mrow>
+              </msub>
+            </mrow>
+          </math>
+          should stay as math.
+        </p>
+      `;
+      const result = service.turndown(html);
+
+      expect(result).toContain('$P_{i,j,t_a}$');
+      expect(result).toContain('should stay as math');
+      expect(result).not.toContain('Pi,j,t_a');
+    });
+
+    test('should wrap display MathML in block math fences', () => {
+      const { service } = createTurndownService();
+      const html = `
+        <math display="block">
+          <mrow><mi>E</mi><mo>=</mo><mi>m</mi><msup><mi>c</mi><mn>2</mn></msup></mrow>
+        </math>
+      `;
+      const result = normalizeMarkdown(service.turndown(html));
+
+      expect(result).toBe('$$\nE=mc^{2}\n$$');
+    });
+  });
+
   describe('Complex Real-World HTML', () => {
     test('should convert article with mixed formatting', () => {
       const { service } = createTurndownService();

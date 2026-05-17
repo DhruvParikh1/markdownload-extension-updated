@@ -68,6 +68,10 @@ const SITE_RULE_TEXT_FIELD_IDS = {
 	    ruleId: null
 	};
 
+	function optionsMessage(key, substitutions, fallback) {
+	    return globalThis.markSnipI18n?.t(key, substitutions, fallback) || fallback || key;
+	}
+
 	function getOptionsStateApi() {
 	    return globalThis.markSnipOptionsState || null;
 	}
@@ -369,7 +373,11 @@ function renderAssistantTargetsList() {
     if (targets.length === 0) {
         const emptyState = document.createElement('p');
         emptyState.className = 'assistant-targets-empty';
-        emptyState.textContent = 'No custom assistant targets yet. ChatGPT, Claude, and Perplexity are always available.';
+        emptyState.textContent = optionsMessage(
+            'optionsAssistantTargetsEmpty',
+            null,
+            'No custom assistant targets yet. ChatGPT, Claude, and Perplexity are always available.'
+        );
         list.appendChild(emptyState);
         return;
     }
@@ -397,8 +405,11 @@ function renderAssistantTargetsList() {
         removeButton.type = 'button';
         removeButton.className = 'btn btn-secondary btn-sm assistant-target-item__remove';
         removeButton.dataset.targetId = target.id;
-        removeButton.textContent = 'Remove';
-        removeButton.setAttribute('aria-label', `Remove ${target.name}`);
+        removeButton.textContent = optionsMessage('optionsAssistantTargetRemoveBtn', null, 'Remove');
+        removeButton.setAttribute(
+            'aria-label',
+            optionsMessage('optionsAssistantTargetRemoveAria', [target.name], `Remove ${target.name}`)
+        );
 
         item.appendChild(body);
         item.appendChild(removeButton);
@@ -424,7 +435,7 @@ async function handleAddCustomSendToTarget() {
     const validation = getSendToUrlValidationState(urlInput?.value || '');
 
     if (!name) {
-        showToast('Please enter a target name', 'error');
+        showToast(optionsMessage('optionsAssistantTargetNameRequired', null, 'Please enter a target name'), 'error');
         nameInput?.focus();
         return;
     }
@@ -456,7 +467,10 @@ async function handleAddCustomSendToTarget() {
         urlInput.value = '';
     }
 
-    save({ message: `Added "${name}"`, type: 'success' });
+    save({
+        message: optionsMessage('optionsAssistantTargetAdded', [name], `Added "${name}"`),
+        type: 'success'
+    });
     nameInput?.focus();
 }
 
@@ -475,7 +489,10 @@ function removeCustomSendToTarget(targetId) {
 
     renderDefaultSendToTargetOptions();
     renderAssistantTargetsList();
-    save({ message: `Removed "${removedTarget.name}"`, type: 'success' });
+    save({
+        message: optionsMessage('optionsAssistantTargetRemoved', [removedTarget.name], `Removed "${removedTarget.name}"`),
+        type: 'success'
+    });
 }
 
 function initSendToControls() {
@@ -483,7 +500,7 @@ function initSendToControls() {
     document.getElementById('addSendToCustomTarget')?.addEventListener('click', () => {
         handleAddCustomSendToTarget().catch((error) => {
             console.error('Failed to add custom assistant target:', error);
-            showToast('Failed to add assistant target', 'error');
+            showToast(optionsMessage('optionsAssistantTargetAddFailed', null, 'Failed to add assistant target'), 'error');
         });
     });
     document.getElementById('assistantTargetsList')?.addEventListener('click', (event) => {
@@ -502,7 +519,7 @@ function initSendToControls() {
             event.preventDefault();
             handleAddCustomSendToTarget().catch((error) => {
                 console.error('Failed to add custom assistant target:', error);
-                showToast('Failed to add assistant target', 'error');
+                showToast(optionsMessage('optionsAssistantTargetAddFailed', null, 'Failed to add assistant target'), 'error');
             });
         });
     });
@@ -943,7 +960,7 @@ function initWebhookTargetControls() {
 
 	function resetSiteRuleEditor() {
 	    siteRuleEditorState = { mode: 'create', ruleId: null };
-	    document.getElementById('siteRuleEditorTitle').textContent = 'Add Site Rule';
+	    document.getElementById('siteRuleEditorTitle').textContent = optionsMessage('optionsSiteRuleEditorTitle', null, 'Add Site Rule');
 	    document.getElementById('siteRuleName').value = '';
 	    document.getElementById('siteRulePattern').value = '';
 	    document.getElementById('siteRuleEnabled').checked = true;
@@ -973,7 +990,7 @@ function initWebhookTargetControls() {
 	        const rule = findSiteRule(ruleId);
 	        if (rule) {
 	            siteRuleEditorState = { mode: 'edit', ruleId };
-	            document.getElementById('siteRuleEditorTitle').textContent = 'Edit Site Rule';
+	            document.getElementById('siteRuleEditorTitle').textContent = optionsMessage('optionsSiteRuleEditTitle', null, 'Edit Site Rule');
 	            document.getElementById('siteRuleName').value = rule.name || '';
 	            document.getElementById('siteRulePattern').value = rule.pattern || '';
 	            document.getElementById('siteRuleEnabled').checked = rule.enabled !== false;
@@ -1065,7 +1082,9 @@ function initWebhookTargetControls() {
 	    }
 
 	    const enabledCount = rules.filter((rule) => rule.enabled !== false).length;
-	    summary.textContent = `${rules.length} rule${rules.length === 1 ? '' : 's'} • ${enabledCount} enabled`;
+	    summary.textContent = rules.length === 1
+	        ? optionsMessage('optionsSiteRulesSummaryOne', [enabledCount], `1 rule - ${enabledCount} enabled`)
+	        : optionsMessage('optionsSiteRulesSummaryMany', [rules.length, enabledCount], `${rules.length} rules - ${enabledCount} enabled`);
 	}
 
 	function renderSiteRules() {
@@ -1078,12 +1097,19 @@ function initWebhookTargetControls() {
 
 	    updateSiteRulesSummary(rules);
 	    empty.hidden = rules.length > 0;
+        const enabledLabel = optionsMessage('optionsSiteRuleEnabledLabel', null, 'Enabled');
+        const noOverridesLabel = optionsMessage('optionsSiteRuleNoOverrides', null, 'No overrides');
+        const invalidPatternLabel = optionsMessage('optionsSiteRuleInvalidPattern', null, 'Invalid pattern');
+        const moveUpLabel = optionsMessage('optionsSiteRuleMoveUpBtn', null, 'Up');
+        const moveDownLabel = optionsMessage('optionsSiteRuleMoveDownBtn', null, 'Down');
+        const editLabel = optionsMessage('optionsSiteRuleEditBtn', null, 'Edit');
+        const deleteLabel = optionsMessage('optionsSiteRuleDeleteBtn', null, 'Delete');
 	    list.innerHTML = rules.map((rule, index) => {
 	        const validation = validateSiteRulePatternState(rule.pattern);
 	        const overrideLabels = getSiteRuleOverrideLabels(rule);
 	        const chips = overrideLabels.length > 0
 	            ? overrideLabels.map((label) => `<span class="site-rule-chip">${escapeHtml(label)}</span>`).join('')
-	            : '<span class="site-rule-chip site-rule-chip--muted">No overrides</span>';
+	            : `<span class="site-rule-chip site-rule-chip--muted">${escapeHtml(noOverridesLabel)}</span>`;
 
 	        return `
 	            <article class="site-rule-item${rule.enabled === false ? ' is-disabled' : ''}">
@@ -1095,17 +1121,17 @@ function initWebhookTargetControls() {
 	                        </div>
 	                        <label class="site-rule-toggle-inline">
 	                            <input type="checkbox" data-site-rule-toggle="${escapeHtml(rule.id)}" ${rule.enabled === false ? '' : 'checked'} />
-	                            <span>Enabled</span>
+	                            <span>${escapeHtml(enabledLabel)}</span>
 	                        </label>
 	                    </div>
 	                    <div class="site-rule-chip-list">${chips}</div>
-	                    ${validation.valid ? '' : `<p class="site-rule-item__error">Invalid pattern: ${escapeHtml(validation.error)}</p>`}
+	                    ${validation.valid ? '' : `<p class="site-rule-item__error">${escapeHtml(invalidPatternLabel)}: ${escapeHtml(validation.error)}</p>`}
 	                </div>
 	                <div class="site-rule-item__actions">
-	                    <button type="button" class="btn btn-secondary btn-sm" data-site-rule-action="move-up" data-rule-id="${escapeHtml(rule.id)}" ${index === 0 ? 'disabled' : ''}>Up</button>
-	                    <button type="button" class="btn btn-secondary btn-sm" data-site-rule-action="move-down" data-rule-id="${escapeHtml(rule.id)}" ${index === rules.length - 1 ? 'disabled' : ''}>Down</button>
-	                    <button type="button" class="btn btn-secondary btn-sm" data-site-rule-action="edit" data-rule-id="${escapeHtml(rule.id)}">Edit</button>
-	                    <button type="button" class="btn btn-danger btn-sm" data-site-rule-action="delete" data-rule-id="${escapeHtml(rule.id)}">Delete</button>
+	                    <button type="button" class="btn btn-secondary btn-sm" data-site-rule-action="move-up" data-rule-id="${escapeHtml(rule.id)}" ${index === 0 ? 'disabled' : ''}>${escapeHtml(moveUpLabel)}</button>
+	                    <button type="button" class="btn btn-secondary btn-sm" data-site-rule-action="move-down" data-rule-id="${escapeHtml(rule.id)}" ${index === rules.length - 1 ? 'disabled' : ''}>${escapeHtml(moveDownLabel)}</button>
+	                    <button type="button" class="btn btn-secondary btn-sm" data-site-rule-action="edit" data-rule-id="${escapeHtml(rule.id)}">${escapeHtml(editLabel)}</button>
+	                    <button type="button" class="btn btn-danger btn-sm" data-site-rule-action="delete" data-rule-id="${escapeHtml(rule.id)}">${escapeHtml(deleteLabel)}</button>
 	                </div>
 	            </article>
 	        `;
@@ -1305,13 +1331,19 @@ function updateAgentBridgeActionButton(state = 'disabled') {
     }
 
     if (state === 'permission-needed') {
-        button.textContent = 'Grant Permission';
-        button.setAttribute('aria-label', 'Grant native messaging permission for Agent Bridge');
+        button.textContent = optionsMessage('optionsAgentBridgeGrantPermission', null, 'Grant Permission');
+        button.setAttribute(
+            'aria-label',
+            optionsMessage('optionsAgentBridgeGrantPermissionAria', null, 'Grant native messaging permission for Agent Bridge')
+        );
         return;
     }
 
-    button.textContent = 'Check Connection';
-    button.setAttribute('aria-label', 'Check Agent Bridge connection status');
+    button.textContent = optionsMessage('optionsAgentBridgeCheckStatus', null, 'Check Connection');
+    button.setAttribute(
+        'aria-label',
+        optionsMessage('optionsAgentBridgeCheckStatusAria', null, 'Check Agent Bridge connection status')
+    );
 }
 
 async function resolveAgentBridgeInstallCommand() {
@@ -1478,7 +1510,7 @@ async function refreshAgentBridgeStatusState() {
 
 async function requestAgentBridgePermission() {
     if (!browser.permissions?.request) {
-        showToast("This browser cannot request native messaging permission here", "error");
+        showToast(optionsMessage('optionsAgentBridgePermissionUnsupported', null, "This browser cannot request native messaging permission here"), "error");
         return { granted: false, reloadRequired: false };
     }
 
@@ -1490,7 +1522,7 @@ async function requestAgentBridgePermission() {
     });
 
     if (!granted) {
-        showToast("Agent Bridge permission was not granted", "error");
+        showToast(optionsMessage('optionsAgentBridgePermissionNotGranted', null, "Agent Bridge permission was not granted"), "error");
         return { granted: false, reloadRequired: false };
     }
 
@@ -1512,14 +1544,14 @@ async function reloadExtensionForAgentBridgePermissionGrant() {
     }
     hidePermissionPanel();
     if (statusText) {
-        statusText.textContent = 'Reloading extension';
+        statusText.textContent = optionsMessage('optionsAgentBridgeReloadingStatus', null, 'Reloading extension');
     }
     if (statusHint) {
         statusHint.textContent = 'Permission granted. MarkSnip is reloading once to finish enabling the Agent Bridge.';
     }
     if (refreshBtn) {
         refreshBtn.disabled = true;
-        refreshBtn.textContent = 'Reloading...';
+        refreshBtn.textContent = optionsMessage('optionsAgentBridgeReloadingBtn', null, 'Reloading...');
     }
 
     await new Promise((resolve) => setTimeout(resolve, 150));
@@ -1561,7 +1593,7 @@ async function handlePermissionContinue() {
     const continueBtn = document.getElementById('agentBridgePermContinue');
     if (continueBtn) {
         continueBtn.disabled = true;
-        continueBtn.textContent = 'Requesting...';
+        continueBtn.textContent = optionsMessage('optionsAgentBridgeRequestingBtn', null, 'Requesting...');
     }
 
     try {
@@ -1588,7 +1620,7 @@ async function handlePermissionContinue() {
 
         const refreshedStatus = await refreshAgentBridgeStatusState();
         setCurrentAgentBridgeChoice(agentBridgeSettings, refreshedStatus);
-        showToast("Agent Bridge enabled", "success");
+        showToast(optionsMessage('optionsAgentBridgeEnabledToast', null, "Agent Bridge enabled"), "success");
     } catch (error) {
         console.error('Failed to request Agent Bridge permission:', error);
         showPermissionPanel('denied');
@@ -1742,6 +1774,36 @@ function applyContextMenuTransition(action) {
     } else if (action === 'remove') {
         browser.contextMenus.removeAll();
     }
+}
+
+function normalizeUiLanguagePreference(value) {
+    return value || 'auto';
+}
+
+function didUiLanguagePreferenceChange(previousLanguage, nextLanguage) {
+    return normalizeUiLanguagePreference(previousLanguage) !== normalizeUiLanguagePreference(nextLanguage);
+}
+
+async function applyUiLanguagePreference(nextLanguage, feedback = {
+    message: optionsMessage('optionsLanguageSavedToast', null, 'Language updated — reloading…'),
+    type: 'success'
+}, persistPreference = true) {
+    const normalizedLanguage = normalizeUiLanguagePreference(nextLanguage);
+    options.uiLanguage = normalizedLanguage;
+
+    if (persistPreference) {
+        await browser.storage.sync.set({ uiLanguage: normalizedLanguage });
+    }
+
+    if (feedback !== false) {
+        showToast(feedback?.message || optionsMessage('optionsLanguageSavedToast', null, 'Language updated — reloading…'), feedback?.type || 'success');
+    }
+
+    try {
+        await globalThis.markSnipI18n?.setUiLanguage?.(normalizedLanguage);
+    } catch (_error) {}
+
+    setTimeout(() => location.reload(), 400);
 }
 
 function buildPopupThemeCacheSnapshot(source = options || defaultOptions) {
@@ -1908,6 +1970,7 @@ const saveOptions = e => {
         backmatter: document.querySelector("[name='backmatter']").value,
         title: document.querySelector("[name='title']").value,
         disallowedChars: document.querySelector("[name='disallowedChars']").value,
+        disallowedCharReplacement: document.querySelector("[name='disallowedCharReplacement']").value,
         includeTemplate: document.querySelector("[name='includeTemplate']").checked,
         saveAs: document.querySelector("[name='saveAs']").checked,
         downloadImages: document.querySelector("[name='downloadImages']").checked,
@@ -1925,6 +1988,7 @@ const saveOptions = e => {
         ),
         webhookTargets: getNormalizedWebhookTargets(),
         turndownEscape: document.querySelector("[name='turndownEscape']").checked,
+        skipHiddenContent: document.querySelector("[name='skipHiddenContent']").checked,
         hashtagHandling: getCheckedValue(document.querySelectorAll("input[name='hashtagHandling']")),
         contextMenus: document.querySelector("[name='contextMenus']").checked,
         batchProcessingEnabled: document.querySelector("[name='batchProcessingEnabled']").checked,
@@ -1964,13 +2028,14 @@ const saveOptions = e => {
 	        showThemeToggleInPopup: document.querySelector("[name='showThemeToggleInPopup']").checked,
 	        showUserGuideIcon: document.querySelector("[name='showUserGuideIcon']").checked,
 	        editorTheme: getCheckedValue(document.querySelectorAll("input[name='editorTheme']")),
+	        uiLanguage: getCheckedValue(document.querySelectorAll("input[name='uiLanguage']")) || 'auto',
 	        siteRules: normalizeSiteRulesState(options.siteRules),
 	    }
 
     save();
 }
 
-const save = (feedback = { message: "Options Saved 💾", type: "success" }) => {
+const save = (feedback = { message: optionsMessage('optionsSavedToast', null, "Options Saved 💾"), type: "success" }) => {
 	    const spinner = document.getElementById("spinner");
 	    spinner.style.display = "block";
         options = normalizeImportedOptionsState(options);
@@ -1988,7 +2053,7 @@ const save = (feedback = { message: "Options Saved 💾", type: "success" }) => 
         });
     };
 
-    browser.storage.sync.set(options)
+    return browser.storage.sync.set(options)
         .then(() => {
             if (!options.contextMenus) {
                 return Promise.resolve();
@@ -2010,7 +2075,7 @@ const save = (feedback = { message: "Options Saved 💾", type: "success" }) => 
         })
         .then(() => {
                 if (feedback !== false) {
-                    showToast(feedback?.message || "Options Saved 💾", feedback?.type || "success");
+                    showToast(feedback?.message || optionsMessage('optionsSavedToast', null, "Options Saved 💾"), feedback?.type || "success");
                 }
             spinner.style.display = "none";
         })
@@ -2080,7 +2145,7 @@ function renderTemplatePreviewOutput(outputId, templateValue) {
 
     const normalizedTemplate = String(templateValue || '');
     if (!normalizedTemplate.trim()) {
-        output.textContent = 'Nothing to preview yet.';
+        output.textContent = optionsMessage('optionsTemplatePreviewEmpty', null, 'Nothing to preview yet.');
         output.classList.add('is-empty');
         return;
     }
@@ -2138,17 +2203,20 @@ const setCurrentChoice = result => {
 
     options.preserveCodeFormatting = options.preserveCodeFormatting === true;
     options.autoDetectCodeLanguage = options.autoDetectCodeLanguage !== false;
+    options.skipHiddenContent = options.skipHiddenContent === true;
 
     document.querySelector("[name='frontmatter']").value = options.frontmatter;
     document.querySelector("[name='backmatter']").value = options.backmatter;
     document.querySelector("[name='title']").value = options.title;
     document.querySelector("[name='disallowedChars']").value = options.disallowedChars;
+    document.querySelector("[name='disallowedCharReplacement']").value = options.disallowedCharReplacement || '';
     document.querySelector("[name='includeTemplate']").checked = options.includeTemplate;
     document.querySelector("[name='saveAs']").checked = options.saveAs;
     document.querySelector("[name='downloadImages']").checked = options.downloadImages;
     document.querySelector("[name='imagePrefix']").value = options.imagePrefix;
     document.querySelector("[name='mdClipsFolder']").value = result.mdClipsFolder;
     document.querySelector("[name='turndownEscape']").checked = options.turndownEscape;
+    document.querySelector("[name='skipHiddenContent']").checked = options.skipHiddenContent;
     document.querySelector("[name='contextMenus']").checked = options.contextMenus;
     document.querySelector("[name='batchProcessingEnabled']").checked = options.batchProcessingEnabled !== false;
     document.querySelector("[name='obsidianIntegration']").checked = options.obsidianIntegration;
@@ -2196,6 +2264,7 @@ const setCurrentChoice = result => {
     document.querySelector("[name='showThemeToggleInPopup']").checked = options.showThemeToggleInPopup !== false;
     document.querySelector("[name='showUserGuideIcon']").checked = options.showUserGuideIcon !== false;
     setCheckedValue(document.querySelectorAll("[name='editorTheme']"), options.editorTheme || 'default');
+    setCheckedValue(document.querySelectorAll("[name='uiLanguage']"), options.uiLanguage || 'auto');
 
 	    updateSpecialThemeControlState();
 	    refreshElements();
@@ -2236,7 +2305,7 @@ const setCurrentAgentBridgeChoice = (settingsResult, statusResult = agentBridgeS
         hint = 'Grant native messaging permission to let MarkSnip connect to the local companion.';
         state = 'permission-needed';
     } else if (agentBridgeSettings.enabled && agentBridgeStatus.connecting) {
-        text = 'Checking connection';
+        text = optionsMessage('optionsAgentBridgeCheckingConnection', null, 'Checking connection');
         hint = 'MarkSnip is waiting for the local companion to respond.';
         state = 'starting';
     } else if (agentBridgeSettings.enabled && agentBridgeStatus.connected) {
@@ -2395,7 +2464,7 @@ const inputChange = async (e) => {
 
             await saveLibrarySettingsState(librarySettings);
             setCurrentLibraryChoice(librarySettings);
-            showToast("Library settings saved", "success");
+            showToast(optionsMessage('optionsLibrarySettingsSavedToast', null, "Library settings saved"), "success");
         }
         else if (key === 'agentBridgeEnabled') {
             const nextEnabled = Boolean(e.target.checked);
@@ -2417,7 +2486,17 @@ const inputChange = async (e) => {
             }
             const refreshedStatus = await refreshAgentBridgeStatusState();
             setCurrentAgentBridgeChoice(agentBridgeSettings, refreshedStatus);
-            showToast(nextEnabled ? "Agent Bridge enabled" : "Agent Bridge disabled", "success");
+            showToast(nextEnabled
+                ? optionsMessage('optionsAgentBridgeEnabledToast', null, "Agent Bridge enabled")
+                : optionsMessage('optionsAgentBridgeDisabledToast', null, "Agent Bridge disabled"), "success");
+        }
+        else if (key === 'uiLanguage') {
+            const nextLanguage = value || 'auto';
+            try {
+                await applyUiLanguagePreference(nextLanguage);
+            } catch (err) {
+                showToast(String(err), 'error');
+            }
         }
         else {
             if (e.target.type == "checkbox") value = e.target.checked;
@@ -2425,7 +2504,7 @@ const inputChange = async (e) => {
                 value = normalizeSendToMaxUrlLengthState(value, defaultOptions?.sendToMaxUrlLength);
                 e.target.value = value;
             }
-            
+
             // Handle nested table formatting options
             if (key.startsWith('tableFormatting.')) {
                 const optionName = key.split('.')[1];
@@ -2476,7 +2555,7 @@ const buttonClick = async (e) => {
         if (needsPermission) {
             if (refreshBtn) {
                 refreshBtn.disabled = true;
-                refreshBtn.textContent = 'Granting...';
+                refreshBtn.textContent = optionsMessage('optionsAgentBridgeGrantingBtn', null, 'Granting...');
             }
 
             try {
@@ -2493,7 +2572,7 @@ const buttonClick = async (e) => {
 
                 const status = await refreshAgentBridgeStatusState();
                 setCurrentAgentBridgeChoice(agentBridgeSettings, status);
-                showToast("Agent Bridge permission granted", "success");
+                showToast(optionsMessage('optionsAgentBridgePermissionGrantedToast', null, "Agent Bridge permission granted"), "success");
             } catch (error) {
                 console.error('Failed to request Agent Bridge permission:', error);
                 setCurrentAgentBridgeChoice(agentBridgeSettings, agentBridgeStatus);
@@ -2509,7 +2588,7 @@ const buttonClick = async (e) => {
 
         if (refreshBtn) {
             refreshBtn.disabled = true;
-            refreshBtn.textContent = 'Checking...';
+            refreshBtn.textContent = optionsMessage('optionsAgentBridgeCheckingBtn', null, 'Checking...');
         }
         setCurrentAgentBridgeChoice(agentBridgeSettings, {
             ...agentBridgeStatus,
@@ -2521,7 +2600,7 @@ const buttonClick = async (e) => {
         refreshAgentBridgeStatusState()
             .then((status) => {
                 setCurrentAgentBridgeChoice(agentBridgeSettings, status);
-                showToast("Agent Bridge status refreshed", "success");
+                showToast(optionsMessage('optionsAgentBridgeStatusRefreshedToast', null, "Agent Bridge status refreshed"), "success");
             })
             .catch((error) => {
                 console.error('Failed to refresh Agent Bridge status:', error);
@@ -2539,24 +2618,24 @@ const buttonClick = async (e) => {
         const command = document.getElementById('agentBridgeInstallCommand')?.textContent?.trim() || agentBridgeInstallCommand;
         navigator.clipboard.writeText(command)
             .then(() => {
-                showToast("Install command copied", "success");
+                showToast(optionsMessage('optionsAgentBridgeInstallCommandCopiedToast', null, "Install command copied"), "success");
             })
             .catch((error) => {
                 console.error('Failed to copy Agent Bridge install command:', error);
-                showToast("Failed to copy install command", "error");
+                showToast(optionsMessage('optionsAgentBridgeInstallCommandCopyFailedToast', null, "Failed to copy install command"), "error");
             });
     }
 }
 
 // ── Sidebar Navigation ──
 async function clearLibraryItems() {
-    if (!confirm('Delete all saved Library clips from this browser? This cannot be undone.')) {
+    if (!confirm(optionsMessage('optionsLibraryClearConfirm', null, 'Delete all saved Library clips from this browser? This cannot be undone.'))) {
         return;
     }
 
     try {
         await clearLibraryItemsState();
-        showToast("Library cleared", "success");
+        showToast(optionsMessage('optionsLibraryClearedToast', null, "Library cleared"), "success");
     } catch (error) {
         console.error('Failed to clear library:', error);
         showToast(String(error), "error");
@@ -2655,8 +2734,8 @@ function injectResetLinks() {
         const resetBtn = document.createElement('button');
         resetBtn.type = 'button';
         resetBtn.className = 'reset-setting-link';
-        resetBtn.textContent = 'Reset';
-        resetBtn.title = 'Reset to default';
+        resetBtn.textContent = optionsMessage('optionsResetSettingBtn', null, 'Reset');
+        resetBtn.title = optionsMessage('optionsResetDefaultTitle', null, 'Reset to default');
 
         // If card has a card-title, wrap title + reset in a row
         const titleEl = card.querySelector(':scope > .card-title');
@@ -2680,6 +2759,7 @@ function injectResetLinks() {
 }
 
 async function resetSettingByCard(card) {
+    const previousLanguage = normalizeUiLanguagePreference(options.uiLanguage);
     const localKey = card.dataset.localSettingKey;
 
     if (localKey) {
@@ -2693,7 +2773,7 @@ async function resetSettingByCard(card) {
         }
         await saveLibrarySettingsState(librarySettings);
         setCurrentLibraryChoice(librarySettings);
-        showToast("Setting reset to default", "success");
+        showToast(optionsMessage('optionsSettingResetToast', null, "Setting reset to default"), "success");
         return;
     }
 
@@ -2702,23 +2782,42 @@ async function resetSettingByCard(card) {
     options = resetResult.options;
     setCurrentChoice(options);
     applyContextMenuTransition(resetResult.contextMenuAction);
+    if (keys.some((key) => key.trim() === 'uiLanguage') && didUiLanguagePreferenceChange(previousLanguage, options.uiLanguage)) {
+        await save(false);
+        await applyUiLanguagePreference(options.uiLanguage, undefined, false);
+        return;
+    }
+
     save();
-    showToast("Setting reset to default", "success");
+    showToast(optionsMessage('optionsSettingResetToast', null, "Setting reset to default"), "success");
 }
 
 async function resetAllSettings() {
-    if (!confirm('Reset all settings to defaults? This cannot be undone.')) return;
+    if (!confirm(optionsMessage('optionsResetAllConfirm', null, 'Reset all settings to defaults? This cannot be undone.'))) return;
+    const previousLanguage = normalizeUiLanguagePreference(options.uiLanguage);
     const resetResult = resetAllOptionsState();
     options = resetResult.options;
     setCurrentChoice(options);
     applyContextMenuTransition(resetResult.contextMenuAction);
     await resetLibrarySettingsState();
     setCurrentLibraryChoice(librarySettings);
+    if (didUiLanguagePreferenceChange(previousLanguage, options.uiLanguage)) {
+        await save(false);
+        await applyUiLanguagePreference(options.uiLanguage, {
+            message: optionsMessage('optionsResetAllToast', null, "All settings reset to defaults"),
+            type: 'success'
+        }, false);
+        return;
+    }
+
     save();
-    showToast("All settings reset to defaults", "success");
+    showToast(optionsMessage('optionsResetAllToast', null, "All settings reset to defaults"), "success");
 }
 
-const loaded = () => {
+const loaded = async () => {
+    if (globalThis.markSnipI18n?.localizeDocument) {
+        await globalThis.markSnipI18n.localizeDocument(document).catch(() => {});
+    }
     // Initialize sidebar navigation
 	    initSidebar();
 	    initSearch();

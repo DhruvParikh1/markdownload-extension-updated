@@ -293,10 +293,14 @@
                         </ul>
                         <p>Additionally, you can 'parameterize' any of the text variables (other than date and keywords) by using the following syntax:</p>
                         <ul>
-                            <li><code>{variable:pascal}</code> — PascalCase: Every word capital</li>
-                            <li><code>{variable:camel}</code> — camelCase: every word capital except the first word</li>
-                            <li><code>{variable:kebab}</code> — kebab-case: hyphens between words, all lowercase</li>
-                            <li><code>{variable:snake}</code> — snake_case: underscores between words, all lowercase</li>
+                            <li><code>{variable:pascal}</code> — <span data-i18n="optionsTemplateVarPascalDesc">PascalCase: Every word capital</span></li>
+                            <li><code>{variable:camel}</code> — <span data-i18n="optionsTemplateVarCamelDesc">camelCase: every word capital except the first word</span></li>
+                            <li><code>{variable:kebab}</code> — <span data-i18n="optionsTemplateVarKebabDesc">kebab-case: hyphens between words, all lowercase</span></li>
+                            <li><code>{variable:snake}</code> — <span data-i18n="optionsTemplateVarSnakeDesc">snake_case: underscores between words, all lowercase</span></li>
+                            <li><code>{variable:lowercase}</code> — <span data-i18n="optionsTemplateVarLowercaseDesc">lowercase: all letters lowercase</span></li>
+                            <li><code>{variable:uppercase}</code> — <span data-i18n="optionsTemplateVarUppercaseDesc">UPPERCASE: all letters uppercase</span></li>
+                            <li><code>{variable:ascii}</code> — <span data-i18n="optionsTemplateVarAsciiDesc">ASCII only: strip accents and non-ASCII</span></li>
+                            <li><code>{variable:slugify}</code> — <span data-i18n="optionsTemplateVarSlugifyDesc">URL slug: lowercase, ASCII, alphanumeric or hyphen</span></li>
                         </ul>
                     </div>
                 </details>
@@ -313,11 +317,17 @@
                 </div>
 
                 <!-- Disallowed chars -->
-                <div class="setting-card" data-setting-key="disallowedChars">
+                <div class="setting-card" data-setting-key="disallowedChars,disallowedCharReplacement"
+                    data-search-keywords="filename substitution,filename replacement,delimiter,separator,invalid characters,illegal characters">
                     <h3 class="card-title">Disallowed characters</h3>
-                    <p class="card-desc">Characters to strip from title/filename — in addition to <code>/</code>, <code>?</code>, <code>&lt;</code>, <code>&gt;</code>, <code>\</code>, <code>:</code>, <code>*</code>, <code>|</code>, <code>"</code></p>
+                    <p class="card-desc">Characters to strip or replace in title/filename - in addition to <code>/</code>, <code>?</code>, <code>&lt;</code>, <code>&gt;</code>, <code>\</code>, <code>:</code>, <code>*</code>, <code>|</code>, <code>"</code></p>
                     <div class="input-group">
+                        <label class="input-label" for="disallowedChars">Additional characters</label>
                         <input type="text" id="disallowedChars" name="disallowedChars" class="text-input" role="textbox" />
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label" for="disallowedCharReplacement">Replacement text</label>
+                        <input type="text" id="disallowedCharReplacement" name="disallowedCharReplacement" class="text-input" role="textbox" placeholder="Leave blank to strip" />
                     </div>
                 </div>
 
@@ -385,6 +395,58 @@
             <div class="section" id="section-appearance" data-section-label="Appearance" role="tabpanel" tabindex="0" aria-labelledby="tab-appearance">
                 <h2 class="section-title">Appearance</h2>
                 <p class="section-desc">Customize the look of the MarkSnip popup.</p>
+
+                <!-- Language -->
+                <div class="setting-card" id="uiLanguageGroup" data-setting-key="uiLanguage" data-search-keywords="language,locale,translation,localization,localisation,i18n,internationalization,english,spanish,español,idioma,french,français,francais,fr,fr-FR,langue,chinese,simplified chinese,mandarin,zh,zh_CN,zh-CN,中文,简体中文,简体,语言,japanese,nihongo,ja,ja-JP,日本語,言語,korean,hangul,ko,ko-KR,한국어,언어,hindi,devanagari,hi,hi-IN,हिन्दी,हिंदी,भाषा,german,deutsch,de,de-DE,Sprache,italian,italiano,it,it-IT,lingua,brazilian portuguese,portuguese,português,pt,pt_BR,pt-BR,brasil,brasileiro,língua">
+                    <h3 class="card-title">Language</h3>
+                    <p class="card-desc">Choose the display language for MarkSnip's interface. Auto follows your browser's language.</p>
+                    <div class="radio-group">
+                        <div class="radio-pill">
+                            <input type="radio" name="uiLanguage" id="ui-language-auto" value="auto" />
+                            <label for="ui-language-auto">Auto (browser default)</label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="uiLanguage" id="ui-language-en" value="en" />
+                            <label for="ui-language-en">English</label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="uiLanguage" id="ui-language-es" value="es" />
+                            <label for="ui-language-es">Español</label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="uiLanguage" id="ui-language-fr" value="fr" />
+                            <label for="ui-language-fr">Français</label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="uiLanguage" id="ui-language-zh-cn" value="zh_CN" />
+                            <label for="ui-language-zh-cn">简体中文</label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="uiLanguage" id="ui-language-ja" value="ja" />
+                            <label for="ui-language-ja">日本語</label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="uiLanguage" id="ui-language-ko" value="ko" />
+                            <label for="ui-language-ko">한국어</label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="uiLanguage" id="ui-language-hi" value="hi" />
+                            <label for="ui-language-hi">हिन्दी</label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="uiLanguage" id="ui-language-de" value="de" />
+                            <label for="ui-language-de">Deutsch</label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="uiLanguage" id="ui-language-it" value="it" />
+                            <label for="ui-language-it">Italiano</label>
+                        </div>
+                        <div class="radio-pill">
+                            <input type="radio" name="uiLanguage" id="ui-language-pt-br" value="pt_BR" />
+                            <label for="ui-language-pt-br">Português (Brasil)</label>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Color Mode -->
                 <div class="setting-card" id="popupThemeGroup" data-setting-key="popupTheme,showThemeToggleInPopup" data-search-keywords="theme toggle,dark mode toggle,light mode toggle,popup header theme button,appearance">
@@ -630,7 +692,7 @@
                 <div class="setting-card" id="defaultExportTypeGroup"
                     data-search-keywords="default export,default popup action,popup export,export format,send to assistant,assistant action,plain text,txt,html,pdf,markdown,copy,clipboard,copy to clipboard,chatgpt,claude"
                     data-setting-key="defaultExportType">
-                    <h3 class="card-title">Default Popup Action</h3>
+                    <h3 class="card-title" data-i18n="optionsDefaultPopupActionTitle">Default Popup Action</h3>
                     <p class="card-desc">Controls the popup's main action button and selection action button only. Context menus, shortcuts, batch exports, library exports, Agent Bridge, and Obsidian remain Markdown-based.</p>
                     <div class="radio-group">
                         <div class="radio-pill">
@@ -664,7 +726,7 @@
                 <div class="setting-card" id="downloadMode"
                     data-search-keywords="download,dwnld,downloads api,content link"
                     data-setting-key="downloadMode">
-                    <h3 class="card-title">Download Mode</h3>
+                    <h3 class="card-title" data-i18n="optionsDownloadModeTitle">Download Mode</h3>
                     <p class="card-desc">Method to use for downloading Markdown files. Set to "Content Link" if you're having trouble with the Downloads API
                         (Sometimes conflicts can occur with other download extensions, leading to randomly generated filenames and other symptoms).</p>
                     <p class="option-note"><strong>Note:</strong> "Content Link" mode disables some functionality such as downloading images or using subfolders in the filename.</p>
@@ -729,7 +791,7 @@
                 <div class="setting-card" id="defaultSendToTargetCard"
                     data-search-keywords="default assistant target,send to target,chatgpt,claude,perplexity,custom assistant,custom url"
                     data-setting-key="defaultSendToTarget">
-                    <h3 class="card-title">Default Assistant Target</h3>
+                    <h3 class="card-title" data-i18n="optionsDefaultAssistantTargetTitle">Default Assistant Target</h3>
                     <p class="card-desc">Used when the popup's main action is set to Send to Assistant. If a selected custom target is removed, MarkSnip falls back to ChatGPT.</p>
                     <div class="radio-group" id="defaultSendToTargetOptions">
                         <div class="radio-pill">
@@ -771,7 +833,7 @@
                 <div class="setting-card" id="sendToMaxUrlLengthCard"
                     data-search-keywords="assistant url length,max url length,clipboard fallback,query string,send to assistant,chatgpt,claude,perplexity"
                     data-setting-key="sendToMaxUrlLength">
-                    <h3 class="card-title">Assistant URL Length Cap</h3>
+                    <h3 class="card-title" data-i18n="optionsAssistantUrlLengthTitle">Assistant URL Length Cap</h3>
                     <p class="card-desc">Advanced setting for Send to Assistant links. If a generated assistant URL exceeds this value, MarkSnip copies the Markdown to your clipboard and opens the assistant landing page instead. Default: <strong>3600</strong>. Changing this is not recommended.</p>
                     <div class="input-group">
                         <label class="input-label" for="sendToMaxUrlLength">Maximum URL Length</label>
@@ -1065,7 +1127,7 @@
 
                 <!-- Bullet List Marker -->
                 <div class="setting-card" id="bulletListMarker" data-setting-key="bulletListMarker">
-                    <h3 class="card-title">Bullet List Marker</h3>
+                    <h3 class="card-title" data-i18n="optionsBulletListMarkerTitle">Bullet List Marker</h3>
                     <div class="radio-group">
                         <div class="radio-pill">
                             <input type="radio" name="bulletListMarker" id="*" value="*" />
@@ -1113,7 +1175,7 @@ const helloWorld = () => {
                     <div id="preserveCodeFormatting-container">
                         <div class="toggle-row">
                             <div class="toggle-info">
-                                <label class="toggle-label-text" for="preserveCodeFormatting">Preserve Code Block HTML Formatting</label>
+                                <label class="toggle-label-text" for="preserveCodeFormatting" data-i18n="optionsPreserveCodeFormattingLabel">Preserve Code Block HTML Formatting</label>
                                 <p class="toggle-hint">When enabled, preserves original HTML formatting within code blocks. This can be useful for maintaining exact visual formatting, but may make the Markdown harder to read and use in other tools. When disabled (default), produces clean code blocks.</p>
                             </div>
                             <label class="toggle-switch">
@@ -1289,7 +1351,7 @@ const helloWorld = () => {
                         <div class="radio-card">
                             <input type="radio" name="imageStyle" id="obsidian" value="obsidian" />
                             <label for="obsidian">
-                                <div class="radio-card-title">Obsidian Internal Embed</div>
+                                <div class="radio-card-title" data-i18n="optionsImageStyleObsidian">Obsidian Internal Embed</div>
                                 <pre>![[folder/image.jpg]]</pre>
                             </label>
                         </div>
@@ -1346,6 +1408,24 @@ const helloWorld = () => {
                         </div>
                         <label class="toggle-switch">
                             <input name="turndownEscape" id="turndownEscape" type="checkbox" />
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Hidden Content -->
+                <div class="setting-card" id="skipHiddenContent-container" data-setting-key="skipHiddenContent" data-search-keywords="hidden content accordion collapsed aria-hidden display none">
+                    <div class="toggle-row">
+                        <div class="toggle-info">
+                            <label class="toggle-label-text" for="skipHiddenContent">Skip Hidden Content</label>
+                            <p class="toggle-hint">
+                                Ignore content hidden with CSS, the <code>hidden</code> attribute, or
+                                <code>aria-hidden="true"</code>. Disable this to include collapsed accordions
+                                and other hidden DOM content in clips.
+                            </p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input name="skipHiddenContent" id="skipHiddenContent" type="checkbox" />
                             <span class="toggle-slider"></span>
                         </label>
                     </div>
@@ -1624,7 +1704,7 @@ const helloWorld = () => {
 	                                        <option value="noImage">Strip Images</option>
 	                                        <option value="markdown">Pure Markdown</option>
 	                                        <option value="base64">Base64 Encoded</option>
-	                                        <option value="obsidian">Obsidian Internal Embed</option>
+	                                        <option value="obsidian" data-i18n="optionsImageStyleObsidian">Obsidian Internal Embed</option>
 	                                        <option value="obsidian-nofolder">Obsidian Embed (no folder)</option>
 	                                    </select>
 	                                </div>
@@ -1798,6 +1878,7 @@ const helloWorld = () => {
 	    <div id="spinner" style="display: none;"></div>
 	
 	    <script src="../browser-polyfill.min.js"></script>
+	    <script src="../shared/i18n.js"></script>
 	    <script src="../shared/site-rules.js"></script>
 	    <script src="../shared/default-options.js"></script>
 	    <script src="../shared/context-menus.js"></script>

@@ -9,6 +9,9 @@ All test commands run from `src/`.
 - `npm run test:e2e -- tests/e2e/extension.spec.js` runs deterministic extension smoke coverage.
 - `npm run test:e2e -- tests/e2e/notifications.spec.js` runs notification behavior E2E.
 - `npm run test:e2e -- tests/e2e/batch-processing.spec.js` runs fixture-backed batch processing E2E.
+- `npm run test:e2e:mathml` runs the deterministic extension regression for native MathML to TeX conversion.
+- `npm run test:firefox:live` launches a real Firefox instance, installs the generated Firefox build, clips the local MathML fixture through the popup, and asserts no fallback offscreen/blank tab was opened.
+- `npm run verify:firefox` checks the Firefox manifest/config, focused MathML conversion tests, the real Firefox smoke test, and Firefox `web-ext` lint.
 - `npm run benchmark:popup -- --current "<path-to-src>" --baseline "<path-to-baseline-src>" --iterations 6 --warmup 1` benchmarks popup startup timings against a baseline worktree.
 
 ## Architecture
@@ -55,11 +58,13 @@ If you only want a single live spec, you can still run it directly:
 
 - `npm run test:e2e -- tests/e2e/live-public.spec.js`
 
-Each live case also writes local triage artifacts to `src/test-artifacts/live-public/<case-id>/`:
+Each live case also writes local triage artifacts to `<repo>/test-artifacts/live-public/<case-id>/`:
 
 - `latest-success/` stores the most recent passing HTML snapshot, clipped markdown, and summary.
 - `history/<timestamp>-passed|failed/` stores every captured run without overwriting the last successful baseline.
 - Failed runs include `comparison-to-latest.json` so you can tell whether the page changed since the previous successful run.
+
+The Firefox Verification workflow also has a scheduled/manual live snapshot job. That public URL snapshot harness currently uses Chromium because it compares base/current extension builds through Playwright's Chromium extension loader. Firefox-specific browser behavior is covered by `npm run test:firefox:live`, which uses a real Firefox instance and the generated Firefox build.
 
 ## Popup Benchmark Harness
 

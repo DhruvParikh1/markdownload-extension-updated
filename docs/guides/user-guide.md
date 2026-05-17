@@ -159,6 +159,12 @@ Characters that are automatically stripped from filenames, in addition to the sy
 
 **Default:** `[]#^` (for Obsidian compatibility)
 
+### Disallowed Character Replacement
+
+Optional text used in place of stripped filename characters. Leave this blank to keep the default strip behavior; use `_` or `-` to keep word boundaries when page titles contain slashes or other reserved characters.
+
+**Default:** _(empty)_
+
 ### Front/Back Templates
 
 Text prepended or appended to every clipped Markdown file. Useful for YAML front-matter or other metadata. Uses [Custom Text Substitutions](#custom-text-substitutions).

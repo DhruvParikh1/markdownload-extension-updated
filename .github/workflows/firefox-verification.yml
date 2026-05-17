@@ -1,0 +1,90 @@
+name: Firefox Verification
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: "23 9 * * 1"
+
+jobs:
+  focused:
+    name: Firefox Build and Focused Regression Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: "src/package-lock.json"
+
+      - name: Setup npm
+        run: npm install --global npm@11.8.0
+
+      - name: Install dependencies
+        working-directory: src
+        run: npm ci
+
+      - name: Install Playwright Firefox
+        working-directory: src
+        run: npx playwright install --with-deps firefox
+
+      - name: Verify Firefox build configuration, live smoke, and MathML conversion
+        working-directory: src
+        run: npm run verify:firefox
+
+      - name: Install Playwright Chromium
+        working-directory: src
+        run: npx playwright install --with-deps chromium
+
+      - name: Run deterministic MathML extension test
+        working-directory: src
+        run: xvfb-run -a npm run test:e2e:mathml
+
+      - name: Run Firefox offscreen bridge regression test
+        working-directory: src
+        run: xvfb-run -a npx playwright test tests/e2e/command-download-regression.spec.js -g "Firefox fallback"
+
+  live-snapshots:
+    name: Live Snapshot Regression
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    timeout-minutes: 45
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: "src/package-lock.json"
+
+      - name: Setup npm
+        run: npm install --global npm@11.8.0
+
+      - name: Install dependencies
+        working-directory: src
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        working-directory: src
+        run: npx playwright install --with-deps chromium
+
+      - name: Run default live markdown snapshots
+        working-directory: src
+        run: xvfb-run -a npm run snapshot:live-markdown
+
+      - name: Upload live snapshot artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: firefox-verification-live-snapshots
+          path: src/test-artifacts/live-markdown-comparisons/

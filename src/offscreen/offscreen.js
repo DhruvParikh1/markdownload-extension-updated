@@ -131,8 +131,9 @@ function handleMessages(message, sender) {
     if (message.type === 'article-dom-data') {
       return (async () => {
         try {
+          const options = message.options || defaultOptions;
           const domForArticle = buildDomWithSelection(message.dom, message.selection, true);
-          const article = await getArticleFromDom(domForArticle, defaultOptions, message.pageUrl);
+          const article = await getArticleFromDom(domForArticle, options, message.pageUrl);
           
           // Send the article back to service worker
           await browser.runtime.sendMessage({
@@ -444,7 +445,7 @@ async function handleContextMenuCopy(info, tabId, providedOptions = null) {
       tabId: tabId,
       vault: obsidianVault,
       folder: obsidianFolder,
-      title: generateValidFileName(title, resolved.options.disallowedChars)
+      title: generateValidFileName(title, resolved.options.disallowedChars, resolved.options.disallowedCharReplacement)
     });
     return true;
   }
@@ -465,7 +466,7 @@ async function handleContextMenuCopy(info, tabId, providedOptions = null) {
       tabId: tabId,
       vault: obsidianVault,
       folder: obsidianFolder,
-      title: generateValidFileName(title, resolved.options.disallowedChars)
+      title: generateValidFileName(title, resolved.options.disallowedChars, resolved.options.disallowedCharReplacement)
     });
     return true;
   }
@@ -548,8 +549,8 @@ function createEffectiveMarkdownOptions(article, providedOptions = null, downloa
     options.backmatter = '';
   }
 
-  options.imagePrefix = textReplace(options.imagePrefix, article, options.disallowedChars)
-    .split('/').map(s => generateValidFileName(s, options.disallowedChars)).join('/');
+  options.imagePrefix = textReplace(options.imagePrefix, article, options.disallowedChars, options.disallowedCharReplacement)
+    .split('/').map(s => generateValidFileName(s, options.disallowedChars, options.disallowedCharReplacement)).join('/');
 
   return options;
 }
@@ -575,17 +576,29 @@ async function convertArticleToMarkdown(article, downloadImages = null, provided
 
 function processCodeBlock(node, options) {
   const shouldAutoDetectLanguage = options.autoDetectCodeLanguage !== false;
+  const sharedApi = getCodeBlockUtilsApi();
 
   // If preserveCodeFormatting is enabled, return original HTML content
   if (options.preserveCodeFormatting) {
     return {
-      code: node.innerHTML,
+      code: sharedApi?.extractCodeText
+        ? sharedApi.extractCodeText(node, options)
+        : node.innerHTML,
       language: getCodeLanguage(node)
     };
   }
 
   // Get the raw text content
-  let code = node.textContent.trim();
+  let code;
+  if (sharedApi?.extractCodeText) {
+    code = sharedApi.extractCodeText(node, options).trim();
+  } else {
+    const clonedNode = node.cloneNode(true);
+    clonedNode.querySelectorAll('br-keep, br').forEach(br => {
+      br.replaceWith('\n');
+    });
+    code = clonedNode.textContent.trim();
+  }
   
   // Detect language
   let language = getCodeLanguage(node);
@@ -1067,10 +1080,14 @@ function turndown(content, options, article) {
   // handle multiple lines math
   turndownService.addRule('mathjax', {
     filter(node, options) {
-      return article.math.hasOwnProperty(node.id);
+      return article.math?.hasOwnProperty(node.id) || String(node.nodeName).toLowerCase() === 'math';
     },
     replacement(content, node, options) {
-      const math = article.math[node.id];
+      const math = article.math?.[node.id] || extractMathMLInfoFromNode(node);
+      if (!math?.tex) {
+        return content;
+      }
+
       let tex = math.tex.trim().replaceAll('\xa0', '');
 
       if (math.inline) {
@@ -1343,6 +1360,55 @@ function buildRecoveredArticle(firstPassArticle, recoveredHtml) {
   };
 }
 
+function getMathMLApi() {
+  return typeof MarkSnipMathML !== 'undefined' ? MarkSnipMathML : null;
+}
+
+function extractMathMLInfoFromNode(mathNode) {
+  const mathMLApi = getMathMLApi();
+  if (!mathNode || !mathMLApi?.mathmlToTex) {
+    return null;
+  }
+
+  const tex = mathMLApi.mathmlToTex(mathNode);
+  if (!tex) {
+    return null;
+  }
+
+  return {
+    tex,
+    inline: !mathMLApi.isDisplayMath?.(mathNode)
+  };
+}
+
+function extractMathMLInfoFromString(mathMLSource) {
+  if (!mathMLSource?.trim()) {
+    return null;
+  }
+
+  const findMathElement = documentNode => (
+    documentNode.querySelector('math') ||
+    documentNode.getElementsByTagName('math')?.[0] ||
+    documentNode.getElementsByTagNameNS?.('*', 'math')?.[0] ||
+    null
+  );
+
+  const parser = new DOMParser();
+  const parsed = parser.parseFromString(mathMLSource, "application/xml");
+  const mathNode = findMathElement(parsed);
+  const hasParserError = !!parsed.querySelector('parsererror');
+  if (mathNode && !hasParserError) {
+    return extractMathMLInfoFromNode(mathNode);
+  }
+
+  const htmlParsed = parser.parseFromString(mathMLSource, "text/html");
+  return extractMathMLInfoFromNode(findMathElement(htmlParsed));
+}
+
+function isMathMLSourceType(type) {
+  return /(?:^|[/+])mml\b|mathml/i.test(String(type || ''));
+}
+
 function prepareDomForReadability(dom, options, recoveryApi) {
   // Now options is defined
   if (!options.preserveCodeFormatting) {
@@ -1394,10 +1460,13 @@ function prepareDomForReadability(dom, options, recoveryApi) {
 
   // Process MathJax elements (same as original)
   dom.body.querySelectorAll('script[id^=MathJax-Element-]')?.forEach(mathSource => {
-    const type = mathSource.attributes.type.value;
+    const type = mathSource.getAttribute('type') || '';
+    const mathMLInfo = isMathMLSourceType(type)
+      ? extractMathMLInfoFromString(mathSource.innerText)
+      : null;
     storeMathInfo(mathSource, {
-      tex: mathSource.innerText,
-      inline: type ? !type.includes('mode=display') : false
+      tex: mathMLInfo?.tex || mathSource.innerText,
+      inline: mathMLInfo?.inline ?? (type ? !type.includes('mode=display') : false)
     });
   });
 
@@ -1430,6 +1499,34 @@ function prepareDomForReadability(dom, options, recoveryApi) {
       tex: tex,
       inline: true
     });
+  });
+
+  // Process native MathML, including MathJax assistive MathML and pages that
+  // publish MathML directly instead of source TeX.
+  dom.body.querySelectorAll('math')?.forEach(mathNode => {
+    if (mathNode.closest('.katex-mathml') || mathNode.closest('[marksnip-latex]')) {
+      return;
+    }
+
+    const mathInfo = extractMathMLInfoFromNode(mathNode);
+    if (!mathInfo) {
+      return;
+    }
+
+    storeMathInfo(mathNode, mathInfo);
+  });
+
+  dom.body.querySelectorAll('[data-mathml]')?.forEach(mathMLContainer => {
+    if (mathMLContainer.querySelector('math')) {
+      return;
+    }
+
+    const mathInfo = extractMathMLInfoFromString(mathMLContainer.getAttribute('data-mathml'));
+    if (!mathInfo) {
+      return;
+    }
+
+    storeMathInfo(mathMLContainer, mathInfo);
   });
 
   // Process code highlight elements
@@ -1482,7 +1579,7 @@ function prepareDomForReadability(dom, options, recoveryApi) {
   return { dom, math };
 }
 
-function finalizeArticleMetadata(article, dom, pageUrl, math, recoveryApi) {
+function finalizeArticleMetadata(article, dom, pageUrl, math, recoveryApi, options = defaultOptions, recoveryDom = dom) {
   if (!article) {
     throw new Error('Readability failed to extract article');
   }
@@ -1490,17 +1587,24 @@ function finalizeArticleMetadata(article, dom, pageUrl, math, recoveryApi) {
   let recoveredContent = article.content;
 
   const restoredTableContent = typeof recoveryApi.restoreSemanticTables === 'function'
-    ? recoveryApi.restoreSemanticTables(dom, recoveredContent)
+    ? recoveryApi.restoreSemanticTables(recoveryDom || dom, recoveredContent)
     : null;
   if (restoredTableContent) {
     recoveredContent = restoredTableContent;
   }
 
   const restoredHeadingContent = typeof recoveryApi.restoreMissingPrimaryHeadings === 'function'
-    ? recoveryApi.restoreMissingPrimaryHeadings(dom, recoveredContent)
+    ? recoveryApi.restoreMissingPrimaryHeadings(recoveryDom || dom, recoveredContent)
     : null;
   if (restoredHeadingContent) {
     recoveredContent = restoredHeadingContent;
+  }
+
+  if (options?.skipHiddenContent !== true && typeof recoveryApi.restoreHiddenContentFromSource === 'function') {
+    const restoredHiddenContent = recoveryApi.restoreHiddenContentFromSource(dom, recoveredContent);
+    if (restoredHiddenContent) {
+      recoveredContent = restoredHiddenContent;
+    }
   }
 
   if (recoveredContent !== article.content) {
@@ -1571,22 +1675,40 @@ function finalizeArticleMetadata(article, dom, pageUrl, math, recoveryApi) {
 
 function extractArticleWithRecovery(domString, options) {
   const recoveryApi = getReadabilityRecoveryApi();
+  const shouldIncludeHiddenContent = options?.skipHiddenContent !== true;
+  const readabilityOptions = {
+    skipHiddenContent: true
+  };
 
   const firstPassParser = new DOMParser();
   const firstPassDom = firstPassParser.parseFromString(domString, "text/html");
   const firstPassPrepared = prepareDomForReadability(firstPassDom, options, recoveryApi);
-  const firstPassReadabilityDom = firstPassPrepared.dom.cloneNode(true);
-  const firstPassArticle = new Readability(firstPassReadabilityDom).parse();
+  // Keep Readability scoring anchored to the visible page. Hidden content is restored
+  // into the selected article later so collapsible bodies do not become the article.
+  const firstPassRecoveryDom = shouldIncludeHiddenContent && typeof recoveryApi.cloneDocumentWithoutHiddenContent === 'function'
+    ? recoveryApi.cloneDocumentWithoutHiddenContent(firstPassPrepared.dom)
+    : firstPassPrepared.dom;
+  const firstPassReadabilityDom = firstPassRecoveryDom.cloneNode(true);
+  let firstPassArticle = new Readability(firstPassReadabilityDom, readabilityOptions).parse();
+  let firstPassUsesHiddenFallback = false;
+
+  if (!firstPassArticle?.content && shouldIncludeHiddenContent) {
+    const hiddenFallbackDom = firstPassPrepared.dom.cloneNode(true);
+    firstPassArticle = new Readability(hiddenFallbackDom, { skipHiddenContent: false }).parse();
+    firstPassUsesHiddenFallback = !!firstPassArticle?.content;
+  }
 
   if (!firstPassArticle?.content) {
     return null;
   }
 
-  const recoveryPlan = recoveryApi.analyzeNarrowExtraction(firstPassPrepared.dom, firstPassArticle.content);
+  const firstPassSourceDom = firstPassUsesHiddenFallback ? firstPassPrepared.dom : firstPassRecoveryDom;
+  const recoveryPlan = recoveryApi.analyzeNarrowExtraction(firstPassSourceDom, firstPassArticle.content);
   if (!recoveryPlan) {
     return {
       article: firstPassArticle,
       dom: firstPassPrepared.dom,
+      recoveryDom: firstPassSourceDom,
       math: firstPassPrepared.math
     };
   }
@@ -1594,22 +1716,27 @@ function extractArticleWithRecovery(domString, options) {
   const secondPassParser = new DOMParser();
   const secondPassDom = secondPassParser.parseFromString(domString, "text/html");
   const secondPassPrepared = prepareDomForReadability(secondPassDom, options, recoveryApi);
-  const recoveryResult = recoveryApi.applyRepeatedSectionPromotion(secondPassPrepared.dom, recoveryPlan);
+  const secondPassRecoveryDom = shouldIncludeHiddenContent && typeof recoveryApi.cloneDocumentWithoutHiddenContent === 'function'
+    ? recoveryApi.cloneDocumentWithoutHiddenContent(secondPassPrepared.dom)
+    : secondPassPrepared.dom;
+  const recoveryResult = recoveryApi.applyRepeatedSectionPromotion(secondPassRecoveryDom, recoveryPlan);
   if (!recoveryResult.changed) {
     return {
       article: firstPassArticle,
       dom: firstPassPrepared.dom,
+      recoveryDom: firstPassSourceDom,
       math: firstPassPrepared.math
     };
   }
 
   const recoveryFragment = recoveryApi.buildRepeatedSectionFragment
-    ? recoveryApi.buildRepeatedSectionFragment(secondPassPrepared.dom, recoveryPlan)
+    ? recoveryApi.buildRepeatedSectionFragment(secondPassRecoveryDom, recoveryPlan)
     : null;
   if (!recoveryFragment?.html) {
     return {
       article: firstPassArticle,
       dom: firstPassPrepared.dom,
+      recoveryDom: firstPassSourceDom,
       math: firstPassPrepared.math
     };
   }
@@ -1637,6 +1764,7 @@ function extractArticleWithRecovery(domString, options) {
     return {
       article: firstPassArticle,
       dom: firstPassPrepared.dom,
+      recoveryDom: firstPassSourceDom,
       math: firstPassPrepared.math
     };
   }
@@ -1644,6 +1772,7 @@ function extractArticleWithRecovery(domString, options) {
   return {
     article: secondPassArticle,
     dom: secondPassPrepared.dom,
+    recoveryDom: secondPassRecoveryDom,
     math: secondPassPrepared.math
   };
 }
@@ -1663,7 +1792,9 @@ async function getArticleFromDom(domString, options, pageUrl = null) {
     extracted.dom,
     pageUrl,
     extracted.math,
-    getReadabilityRecoveryApi()
+    getReadabilityRecoveryApi(),
+    options,
+    extracted.recoveryDom
   );
 }
 
@@ -1700,7 +1831,8 @@ async function getArticleFromContent(tabId, selection = false, options = null) {
       type: "get-tab-content",
       tabId: tabId,
       selection: selection,
-      requestId: requestId
+      requestId: requestId,
+      options: options || defaultOptions
     });
     
     const articlePayload = await resultPromise;
@@ -1723,8 +1855,8 @@ async function getArticleFromContent(tabId, selection = false, options = null) {
 async function formatTitle(article, providedOptions = null) {
   const options = providedOptions || defaultOptions;
   
-  let title = textReplace(options.title, article, options.disallowedChars + '/');
-  title = title.split('/').map(s => generateValidFileName(s, options.disallowedChars)).join('/');
+  let title = textReplace(options.title, article, options.disallowedChars + '/', options.disallowedCharReplacement);
+  title = title.split('/').map(s => generateValidFileName(s, options.disallowedChars, options.disallowedCharReplacement)).join('/');
   return title;
 }
 
@@ -1736,8 +1868,8 @@ async function formatMdClipsFolder(article, providedOptions = null) {
 
   let mdClipsFolder = '';
   if (options.mdClipsFolder && options.downloadMode == 'downloadsApi') {
-    mdClipsFolder = textReplace(options.mdClipsFolder, article, options.disallowedChars);
-    mdClipsFolder = mdClipsFolder.split('/').map(s => generateValidFileName(s, options.disallowedChars)).join('/');
+    mdClipsFolder = textReplace(options.mdClipsFolder, article, options.disallowedChars, options.disallowedCharReplacement);
+    mdClipsFolder = mdClipsFolder.split('/').map(s => generateValidFileName(s, options.disallowedChars, options.disallowedCharReplacement)).join('/');
     if (!mdClipsFolder.endsWith('/')) mdClipsFolder += '/';
   }
 
@@ -1752,8 +1884,8 @@ async function formatObsidianFolder(article, providedOptions = null) {
 
   let obsidianFolder = '';
   if (options.obsidianFolder) {
-    obsidianFolder = textReplace(options.obsidianFolder, article, options.disallowedChars);
-    obsidianFolder = obsidianFolder.split('/').map(s => generateValidFileName(s, options.disallowedChars)).join('/');
+    obsidianFolder = textReplace(options.obsidianFolder, article, options.disallowedChars, options.disallowedCharReplacement);
+    obsidianFolder = obsidianFolder.split('/').map(s => generateValidFileName(s, options.disallowedChars, options.disallowedCharReplacement)).join('/');
     if (!obsidianFolder.endsWith('/')) obsidianFolder += '/';
   }
 
@@ -1761,84 +1893,17 @@ async function formatObsidianFolder(article, providedOptions = null) {
 }
 
 /**
-* Replace placeholder strings with article info
+* Replace placeholder strings with article info — delegates to shared module.
 */
-function textReplace(string, article, disallowedChars = null) {
- if (getTemplateUtilsApi()?.textReplace) {
-   return getTemplateUtilsApi().textReplace(string, article, disallowedChars);
- }
-
- // Same implementation as original
- for (const key in article) {
-   if (article.hasOwnProperty(key) && key != "content") {
-     let s = (article[key] || '') + '';
-     if (s && disallowedChars) s = generateValidFileName(s, disallowedChars);
-
-     string = string.replace(new RegExp('{' + key + '}', 'g'), s)
-       .replace(new RegExp('{' + key + ':kebab}', 'g'), s.replace(/ /g, '-').toLowerCase())
-       .replace(new RegExp('{' + key + ':snake}', 'g'), s.replace(/ /g, '_').toLowerCase())
-       .replace(new RegExp('{' + key + ':camel}', 'g'), s.replace(/ ./g, (str) => str.trim().toUpperCase()).replace(/^./, (str) => str.toLowerCase()))
-       .replace(new RegExp('{' + key + ':pascal}', 'g'), s.replace(/ ./g, (str) => str.trim().toUpperCase()).replace(/^./, (str) => str.toUpperCase()));
-   }
- }
-
- // Replace date formats
- const now = new Date();
- const dateRegex = /{date:(.+?)}/g;
- const matches = string.match(dateRegex);
- if (matches && matches.forEach) {
-   matches.forEach(match => {
-     const format = match.substring(6, match.length - 1);
-     const dateString = moment(now).format(format);
-     string = string.replaceAll(match, dateString);
-   });
- }
-
- // Replace keywords
- const keywordRegex = /{keywords:?(.*)?}/g;
- const keywordMatches = string.match(keywordRegex);
- if (keywordMatches && keywordMatches.forEach) {
-   keywordMatches.forEach(match => {
-     let seperator = match.substring(10, match.length - 1);
-     try {
-       seperator = JSON.parse(JSON.stringify(seperator).replace(/\\\\/g, '\\'));
-     }
-     catch { }
-     const keywordsString = (article.keywords || []).join(seperator);
-     string = string.replace(new RegExp(match.replace(/\\/g, '\\\\'), 'g'), keywordsString);
-   });
- }
-
- // Replace anything left in curly braces
- const defaultRegex = /{(.*?)}/g;
- string = string.replace(defaultRegex, '');
-
- return string;
+function textReplace(string, article, disallowedChars = null, disallowedCharReplacement = '') {
+  return getTemplateUtilsApi().textReplace(string, article, disallowedChars, disallowedCharReplacement);
 }
 
 /**
-* Generate valid filename
+* Generate valid filename \u2014 delegates to shared module.
 */
-function generateValidFileName(title, disallowedChars = null) {
- if (getTemplateUtilsApi()?.generateValidFileName) {
-   return getTemplateUtilsApi().generateValidFileName(title, disallowedChars);
- }
-
- if (!title) return title;
- else title = title + '';
- // Remove < > : " / \ | ? * 
- var illegalRe = /[\/\?<>\\:\*\|":]/g;
- // And non-breaking spaces
- var name = title.replace(illegalRe, "").replace(new RegExp('\u00A0', 'g'), ' ');
- 
- if (disallowedChars) {
-   for (let c of disallowedChars) {
-     if (`[\\^$.|?*+()`.includes(c)) c = `\\${c}`;
-     name = name.replace(new RegExp(c, 'g'), '');
-   }
- }
- 
- return name;
+function generateValidFileName(title, disallowedChars = null, disallowedCharReplacement = '') {
+  return getTemplateUtilsApi().generateValidFileName(title, disallowedChars, disallowedCharReplacement);
 }
 
 /**
@@ -1910,7 +1975,7 @@ function getImageFilename(src, options, prependFilePath = true) {
    filename = filename + '.idunno';
  }
 
- filename = generateValidFileName(filename, options.disallowedChars);
+ filename = generateValidFileName(filename, options.disallowedChars, options.disallowedCharReplacement);
 
  return imagePrefix + filename;
 }
@@ -2172,10 +2237,10 @@ async function downloadViaContentScript(markdown, title, tabId, imageList, mdCli
     let filename;
     if (mdClipsFolder) {
       // Flatten the path by including folder in filename
-      filename = `${mdClipsFolder.replace(/\//g, '_')}${generateValidFileName(title, options.disallowedChars)}.md`;
+      filename = `${mdClipsFolder.replace(/\//g, '_')}${generateValidFileName(title, options.disallowedChars, options.disallowedCharReplacement)}.md`;
       console.log(`🔗 [Offscreen] Flattening subfolder path: "${mdClipsFolder}" + "${title}" -> "${filename}"`);
     } else {
-      filename = generateValidFileName(title, options.disallowedChars) + ".md";
+      filename = generateValidFileName(title, options.disallowedChars, options.disallowedCharReplacement) + ".md";
     }
     
     const base64Content = base64EncodeUnicode(markdown);
@@ -2510,14 +2575,15 @@ async function downloadBatchZip(message) {
  */
 async function handleGetArticleContent(message) {
   try {
-    const { tabId, selection, requestId } = message;
+    const { tabId, selection, requestId, options } = message;
     
     // Forward the request to the service worker
     await browser.runtime.sendMessage({
       type: 'forward-get-article-content',
       originalRequestId: requestId,
       tabId: tabId,
-      selection: selection
+      selection: selection,
+      options: options || defaultOptions
     });
     
   } catch (error) {

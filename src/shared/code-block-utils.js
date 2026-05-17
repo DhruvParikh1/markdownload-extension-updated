@@ -30,6 +30,19 @@
     return normalizedLines.join('\n');
   }
 
+  function extractCodeText(node, options = {}) {
+    if (options.preserveCodeFormatting) {
+      return node.innerHTML.replaceAll('<br-keep></br-keep>', '<br>');
+    }
+
+    const clonedNode = node.cloneNode(true);
+    clonedNode.querySelectorAll('br-keep, br').forEach((br) => {
+      br.replaceWith('\n');
+    });
+
+    return normalizeCodeBlockSpacing(clonedNode.textContent || '', 2);
+  }
+
   function detectPreLanguage(node, code, options) {
     const shouldAutoDetectLanguage = options.autoDetectCodeLanguage !== false;
     const idMatch = node.id?.match(/code-lang-(.+)/);
@@ -84,18 +97,7 @@
   }
 
   function convertToFencedCodeBlock(node, options) {
-    let code;
-
-    if (options.preserveCodeFormatting) {
-      code = node.innerHTML.replaceAll('<br-keep></br-keep>', '<br>');
-    } else {
-      const clonedNode = node.cloneNode(true);
-      clonedNode.querySelectorAll('br-keep, br').forEach((br) => {
-        br.replaceWith('\n');
-      });
-      code = clonedNode.textContent || '';
-      code = normalizeCodeBlockSpacing(code, 2);
-    }
+    const code = extractCodeText(node, options);
     const language = detectPreLanguage(node, code, options);
 
     const fenceChar = options.fence.charAt(0);
@@ -120,6 +122,8 @@
 
   return {
     repeat,
+    normalizeCodeBlockSpacing,
+    extractCodeText,
     convertToFencedCodeBlock
   };
 });

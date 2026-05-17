@@ -1,0 +1,3528 @@
+{
+  "extensionName": {
+    "message": "MarkSnip - Recortador Web a Markdown",
+    "description": "The name of the extension"
+  },
+  "extensionDescription": {
+    "message": "Recortador web a Markdown con un solo clic. Guarda artículos, documentos, código y tablas en Markdown limpio para agentes de IA y LLM. Compatible con Obsidian y más.",
+    "description": "The description of the extension"
+  },
+  "actionTitle": {
+    "message": "MarkSnip",
+    "description": "Default title for the extension action"
+  },
+  "cmdDownloadTab": {
+    "message": "Guardar pestaña actual como Markdown",
+    "description": "Command description"
+  },
+  "cmdCopyTab": {
+    "message": "Copiar pestaña actual como Markdown al portapapeles",
+    "description": "Command description"
+  },
+  "cmdCopySelection": {
+    "message": "Copiar selección actual como Markdown al portapapeles",
+    "description": "Command description"
+  },
+  "cmdCopyTabLink": {
+    "message": "Copiar URL de la pestaña actual como enlace Markdown al portapapeles",
+    "description": "Command description"
+  },
+  "cmdCopySelectedTabLink": {
+    "message": "Copiar URL de las pestañas seleccionadas como enlaces Markdown al portapapeles",
+    "description": "Command description"
+  },
+  "cmdSendToObsidianSelection": {
+    "message": "Copiar selección actual como Markdown a Obsidian",
+    "description": "Command description"
+  },
+  "cmdSendToObsidianTab": {
+    "message": "Copiar pestaña actual como Markdown a Obsidian",
+    "description": "Command description"
+  },
+  "contextDownloadTab": {
+    "message": "Descargar pestaña como Markdown",
+    "description": "Context menu item"
+  },
+  "contextDownloadAllTabs": {
+    "message": "Descargar todas las pestañas como Markdown",
+    "description": "Context menu item"
+  },
+  "contextCopyTabLink": {
+    "message": "Copiar URL de pestaña como enlace Markdown",
+    "description": "Context menu item"
+  },
+  "contextCopyAllTabLinks": {
+    "message": "Copiar URL de todas las pestañas como lista de enlaces Markdown",
+    "description": "Context menu item"
+  },
+  "contextCopySelectedTabLinks": {
+    "message": "Copiar URL de pestañas seleccionadas como lista de enlaces Markdown",
+    "description": "Context menu item"
+  },
+  "contextToggleTemplate": {
+    "message": "Incluir plantilla inicial/final",
+    "description": "Context menu item"
+  },
+  "contextToggleImages": {
+    "message": "Descargar imágenes",
+    "description": "Context menu item"
+  },
+  "contextDownloadSelection": {
+    "message": "Descargar selección como Markdown",
+    "description": "Context menu item"
+  },
+  "contextCopySelection": {
+    "message": "Copiar selección como Markdown",
+    "description": "Context menu item"
+  },
+  "contextCopyLink": {
+    "message": "Copiar enlace como Markdown",
+    "description": "Context menu item"
+  },
+  "contextCopyImage": {
+    "message": "Copiar imagen como Markdown",
+    "description": "Context menu item"
+  },
+  "contextCopyTab": {
+    "message": "Copiar pestaña como Markdown",
+    "description": "Context menu item"
+  },
+  "contextSendSelectionObsidian": {
+    "message": "Enviar selección de texto a Obsidian",
+    "description": "Context menu item"
+  },
+  "contextSendTabObsidian": {
+    "message": "Enviar pestaña a Obsidian",
+    "description": "Context menu item"
+  },
+  "notifVersionUpdateTitle": {
+    "message": "MarkSnip actualizado a la v$VERSION$",
+    "description": "Title for version update notification",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
+  "notifVersionUpdateMessage": {
+    "message": "Actualizado de v$PREVIOUS$ a v$CURRENT$.",
+    "description": "Message for version update notification",
+    "placeholders": {
+      "previous": {
+        "content": "$1"
+      },
+      "current": {
+        "content": "$2"
+      }
+    }
+  },
+  "notifVersionUpdateMessageNew": {
+    "message": "MarkSnip actualizado a la v$VERSION$.",
+    "description": "Message for new install notification",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
+  "notifSupportTitle": {
+    "message": "$MILESTONE$ páginas exportadas",
+    "description": "Title for support milestone notification",
+    "placeholders": {
+      "milestone": {
+        "content": "$1"
+      }
+    }
+  },
+  "notifSupportMessage": {
+    "message": "MarkSnip te ha ayudado a exportar más de $MILESTONE$ páginas. Si te ha sido útil, apoya el desarrollo continuo.",
+    "description": "Message for support milestone notification",
+    "placeholders": {
+      "milestone": {
+        "content": "$1"
+      }
+    }
+  },
+  "notifReviewTitle": {
+    "message": "¿Te gusta MarkSnip?",
+    "description": "Title for review request notification"
+  },
+  "notifReviewMessage": {
+    "message": "Una breve reseña ayuda a otros a descubrir MarkSnip y te tomará menos de un minuto.",
+    "description": "Message for review request notification"
+  },
+  "notifActionBuyCoffee": {
+    "message": "Cómprame un café",
+    "description": "Notification action button"
+  },
+  "notifActionReleaseNotes": {
+    "message": "Ver notas de la versión",
+    "description": "Notification action button"
+  },
+  "notifActionLeaveReview": {
+    "message": "Dejar una reseña",
+    "description": "Notification action button"
+  },
+  "popupLoadingText": {
+    "message": "Procesando página...",
+    "description": "Loading indicator text"
+  },
+  "popupImagesToggle": {
+    "message": "Imágenes",
+    "description": "Toggle switch label"
+  },
+  "popupTemplateToggle": {
+    "message": "Plantilla",
+    "description": "Toggle switch label"
+  },
+  "popupContentLabel": {
+    "message": "Contenido:",
+    "description": "Label for content scope segmented control"
+  },
+  "popupScopeSelection": {
+    "message": "Selección",
+    "description": "Segmented control option"
+  },
+  "popupScopeDocument": {
+    "message": "Documento",
+    "description": "Segmented control option"
+  },
+  "popupTitleLabel": {
+    "message": "Título",
+    "description": "Label for title input"
+  },
+  "popupTitlePlaceholder": {
+    "message": "Título del documento...",
+    "description": "Placeholder for title input"
+  },
+  "popupEditorLabel": {
+    "message": "Markdown",
+    "description": "Label above the markdown editor"
+  },
+  "popupPreviewToggleTitle": {
+    "message": "Alternar vista previa",
+    "description": "Tooltip for preview toggle button"
+  },
+  "popupCopySelectionBtn": {
+    "message": "Copiar selección",
+    "description": "Button label"
+  },
+  "popupCopyBtn": {
+    "message": "Copiar",
+    "description": "Button label"
+  },
+  "popupDownloadSelectionBtn": {
+    "message": "Descargar selección",
+    "description": "Button label"
+  },
+  "popupSendToObsidianBtn": {
+    "message": "Enviar a Obsidian",
+    "description": "Button label"
+  },
+  "popupDownloadBtn": {
+    "message": "Descargar",
+    "description": "Button label"
+  },
+  "popupExportArrowTitle": {
+    "message": "Más opciones de exportación",
+    "description": "Tooltip for export dropdown arrow"
+  },
+  "popupSendToLabel": {
+    "message": "Enviar a",
+    "description": "Dropdown section label"
+  },
+  "popupExportAsLabel": {
+    "message": "Exportar como",
+    "description": "Dropdown section label"
+  },
+  "popupExportMarkdown": {
+    "message": "Markdown (.md)",
+    "description": "Dropdown option"
+  },
+  "popupExportText": {
+    "message": "Texto sin formato (.txt)",
+    "description": "Dropdown option"
+  },
+  "popupDownloadTextBtn": {
+    "message": "Descargar TXT",
+    "description": "Primary action label for plain text export"
+  },
+  "popupDownloadTextSelectionBtn": {
+    "message": "Descargar selección como TXT",
+    "description": "Selection action label for plain text export"
+  },
+  "popupExportHtml": {
+    "message": "HTML (.html)",
+    "description": "Dropdown option"
+  },
+  "popupDownloadHtmlBtn": {
+    "message": "Descargar HTML",
+    "description": "Primary action label for HTML export"
+  },
+  "popupDownloadHtmlSelectionBtn": {
+    "message": "Descargar selección como HTML",
+    "description": "Selection action label for HTML export"
+  },
+  "popupExportPdf": {
+    "message": "Guardar como PDF",
+    "description": "Dropdown option"
+  },
+  "popupDownloadPdfSelectionBtn": {
+    "message": "Guardar selección como PDF",
+    "description": "Selection action label for PDF export"
+  },
+  "popupExportPdfNote": {
+    "message": "mediante impresión",
+    "description": "Note next to Save as PDF option"
+  },
+  "popupExportPrint": {
+    "message": "Imprimir",
+    "description": "Dropdown option"
+  },
+  "popupBatchProcessingTitle": {
+    "message": "Procesamiento por lotes",
+    "description": "Title for batch processing section"
+  },
+  "popupUrlsLabel": {
+    "message": "URLs (una por línea)",
+    "description": "Label for batch URLs textarea"
+  },
+  "popupUrlsPlaceholder": {
+    "message": "https://example.com/pagina1\nhttps://example.com/pagina2\n\nO usa enlaces Markdown:\n[Título de la página](https://example.com)",
+    "description": "Placeholder for batch URLs textarea"
+  },
+  "popupPickLinksBtn": {
+    "message": "Elegir enlaces de la página",
+    "description": "Button label"
+  },
+  "popupBatchSaveZip": {
+    "message": "Archivo ZIP",
+    "description": "Toggle option for batch save mode"
+  },
+  "popupBatchSaveIndividual": {
+    "message": "Individual",
+    "description": "Toggle option for batch save mode"
+  },
+  "popupProgressProcessing": {
+    "message": "Procesando...",
+    "description": "Progress indicator status"
+  },
+  "popupCancelBtn": {
+    "message": "Cancelar",
+    "description": "Button label"
+  },
+  "popupConvertAllUrlsBtn": {
+    "message": "Convertir todas las URLs",
+    "description": "Button label"
+  },
+  "popupLibraryTitle": {
+    "message": "Biblioteca",
+    "description": "Title for library section"
+  },
+  "popupSaveClipBtn": {
+    "message": "Guardar recorte",
+    "description": "Button label"
+  },
+  "popupExportAllBtn": {
+    "message": "Exportar todo",
+    "description": "Button label"
+  },
+  "popupDownloadZipBtn": {
+    "message": "Descargar como ZIP",
+    "description": "Dropdown option"
+  },
+  "popupIndividualFilesBtn": {
+    "message": "Archivos .md individuales",
+    "description": "Dropdown option"
+  },
+  "popupCopyAllLinksBtn": {
+    "message": "Copiar todos los enlaces",
+    "description": "Dropdown option"
+  },
+  "popupLibraryEmptyTitle": {
+    "message": "No hay recortes guardados todavía",
+    "description": "Empty state title for library"
+  },
+  "popupShortcutsTitle": {
+    "message": "Atajos de teclado",
+    "description": "Title for shortcuts modal"
+  },
+  "popupThemeToggleTitle": {
+    "message": "Cambiar al modo oscuro",
+    "description": "Tooltip for theme toggle"
+  },
+  "popupUserGuideTitle": {
+    "message": "Guía del usuario",
+    "description": "Tooltip for user guide button"
+  },
+  "popupBatchProcessTitle": {
+    "message": "Procesamiento por lotes",
+    "description": "Tooltip for batch process button"
+  },
+  "popupLibraryToggleTitle": {
+    "message": "Biblioteca",
+    "description": "Tooltip for library toggle button"
+  },
+  "popupSettingsTitle": {
+    "message": "Ajustes",
+    "description": "Tooltip for settings button"
+  },
+  "popupGuideLink": {
+    "message": "Guía del usuario",
+    "description": "Dropdown link label"
+  },
+  "popupShortcutsLink": {
+    "message": "Atajos de teclado",
+    "description": "Dropdown link label"
+  },
+  "popupAlertNoLinksSelected": {
+    "message": "No hay enlaces seleccionados. Por favor, selecciona elementos que contengan enlaces antes de hacer clic en Listo.",
+    "description": "Alert message when no links are selected in picker"
+  },
+  "popupAlertFailedToActivateLinkPicker": {
+    "message": "Error al activar el selector de enlaces. Por favor, inténtalo de nuevo.",
+    "description": "Alert message when link picker fails to activate"
+  },
+  "optionsTitle": {
+    "message": "Opciones de MarkSnip",
+    "description": "Page title for options page"
+  },
+  "optionsHeaderTitle": {
+    "message": "MarkSnip",
+    "description": "Header title on options page"
+  },
+  "optionsHeaderSubtitle": {
+    "message": "Opciones",
+    "description": "Header subtitle on options page"
+  },
+  "optionsSearchPlaceholder": {
+    "message": "Buscar ajustes...",
+    "description": "Placeholder for settings search input"
+  },
+  "optionsTabTemplates": {
+    "message": "Plantillas",
+    "description": "Sidebar tab label"
+  },
+  "optionsTabAppearance": {
+    "message": "Apariencia",
+    "description": "Sidebar tab label"
+  },
+  "optionsTabExports": {
+    "message": "Exportaciones e integraciones",
+    "description": "Sidebar tab label"
+  },
+  "optionsTabLibrary": {
+    "message": "Biblioteca",
+    "description": "Sidebar tab label"
+  },
+  "optionsTabMarkdown": {
+    "message": "Markdown",
+    "description": "Sidebar tab label"
+  },
+  "optionsTabTables": {
+    "message": "Tablas",
+    "description": "Sidebar tab label"
+  },
+  "optionsTabSiteRules": {
+    "message": "Reglas del sitio",
+    "description": "Sidebar tab label"
+  },
+  "optionsTabImportExport": {
+    "message": "Importar / Exportar",
+    "description": "Sidebar tab label"
+  },
+  "optionsHelpCategory": {
+    "message": "Ayuda y recursos",
+    "description": "Sidebar category label"
+  },
+  "optionsUserGuideLink": {
+    "message": "Guía del usuario",
+    "description": "Sidebar link label"
+  },
+  "optionsCommunityCategory": {
+    "message": "Comunidad",
+    "description": "Sidebar category label"
+  },
+  "optionsBuyCoffeeLink": {
+    "message": "Cómprame un café",
+    "description": "Sidebar link label"
+  },
+  "optionsLeaveReviewLink": {
+    "message": "Dejar una reseña",
+    "description": "Sidebar link label"
+  },
+  "optionsReportIssueLink": {
+    "message": "Reportar problema",
+    "description": "Sidebar link label"
+  },
+  "optionsSectionTemplatesTitle": {
+    "message": "Plantillas",
+    "description": "Section title"
+  },
+  "optionsSectionTemplatesDesc": {
+    "message": "Configura el título, la plantilla inicial (front-matter) y la plantilla final (back-matter) para tus archivos Markdown.",
+    "description": "Section description"
+  },
+  "optionsTemplateVarRefTitle": {
+    "message": "Referencia de variables de plantilla",
+    "description": "Summary title for variable reference details"
+  },
+  "optionsTitleTemplateLabel": {
+    "message": "Plantilla de título",
+    "description": "Setting card title"
+  },
+  "optionsTitleTemplateInput": {
+    "message": "Plantilla para título / nombre de archivo",
+    "description": "Input label"
+  },
+  "optionsDisallowedCharsLabel": {
+    "message": "Caracteres no permitidos",
+    "description": "Setting card title"
+  },
+  "optionsDisallowedCharsDesc": {
+    "message": "Caracteres para eliminar o reemplazar en el título/nombre de archivo, además de /, ?, <, >, \\, :, *, |, \"",
+    "description": "Setting description"
+  },
+  "optionsDisallowedCharsAdditional": {
+    "message": "Caracteres adicionales",
+    "description": "Input label"
+  },
+  "optionsDisallowedCharsReplacement": {
+    "message": "Texto de reemplazo",
+    "description": "Input label"
+  },
+  "optionsDisallowedCharsReplacementPlaceholder": {
+    "message": "Dejar en blanco para eliminar",
+    "description": "Input placeholder"
+  },
+  "optionsFrontmatterLabel": {
+    "message": "Plantilla inicial (Front-matter)",
+    "description": "Setting card title"
+  },
+  "optionsFrontmatterInput": {
+    "message": "Texto que aparece en la parte superior del archivo de salida",
+    "description": "Input label"
+  },
+  "optionsLivePreviewLabel": {
+    "message": "Vista previa en vivo",
+    "description": "Preview section label"
+  },
+  "optionsLivePreviewRaw": {
+    "message": "Salida en bruto",
+    "description": "Preview section meta label"
+  },
+  "optionsPreviewHint": {
+    "message": "La vista previa utiliza metadatos de ejemplo y la fecha/hora actual.",
+    "description": "Hint text for preview"
+  },
+  "optionsBackmatterLabel": {
+    "message": "Plantilla final (Back-matter)",
+    "description": "Setting card title"
+  },
+  "optionsBackmatterInput": {
+    "message": "Texto que aparece en la parte inferior del archivo de salida",
+    "description": "Input label"
+  },
+  "optionsIncludeTemplateToggle": {
+    "message": "Añadir plantilla inicial/final al texto recortado",
+    "description": "Toggle label"
+  },
+  "optionsIncludeTemplateHint": {
+    "message": "Igual que el interruptor de Plantilla del panel emergente. Cuando está activado, cada recorte incluye tus plantillas de Front-matter y Back-matter.",
+    "description": "Toggle hint"
+  },
+  "optionsSectionAppearanceTitle": {
+    "message": "Apariencia",
+    "description": "Section title"
+  },
+  "optionsSectionAppearanceDesc": {
+    "message": "Personaliza el aspecto del panel emergente de MarkSnip.",
+    "description": "Section description"
+  },
+  "optionsColorModeTitle": {
+    "message": "Modo de color",
+    "description": "Setting card title"
+  },
+  "optionsColorModeSystem": {
+    "message": "Predeterminado del sistema",
+    "description": "Radio button label"
+  },
+  "optionsColorModeLight": {
+    "message": "Claro",
+    "description": "Radio button label"
+  },
+  "optionsColorModeDark": {
+    "message": "Oscuro",
+    "description": "Radio button label"
+  },
+  "optionsShowThemeToggle": {
+    "message": "Mostrar botón de tema en el panel emergente",
+    "description": "Toggle label"
+  },
+  "optionsShowThemeToggleHint": {
+    "message": "Añade un botón en el encabezado del panel para cambiar con un clic entre modo claro y oscuro.",
+    "description": "Toggle hint"
+  },
+  "optionsSpecialThemesTitle": {
+    "message": "Temas especiales",
+    "description": "Setting card title"
+  },
+  "optionsSpecialThemesDesc": {
+    "message": "Aplica una estética personalizada en el panel, página de opciones, guía y editor.",
+    "description": "Setting description"
+  },
+  "optionsThemeNone": {
+    "message": "Ninguno",
+    "description": "Radio button label"
+  },
+  "optionsThemeColorBlind": {
+    "message": "Daltonismo",
+    "description": "Radio button label"
+  },
+  "optionsThemeClaude": {
+    "message": "Claude",
+    "description": "Radio button label"
+  },
+  "optionsThemePerplexity": {
+    "message": "Perplexity",
+    "description": "Radio button label"
+  },
+  "optionsThemeOpenAI": {
+    "message": "OpenAI",
+    "description": "Radio button label"
+  },
+  "optionsThemeAtla": {
+    "message": "ATLA",
+    "description": "Radio button label"
+  },
+  "optionsThemeBen10": {
+    "message": "Ben 10",
+    "description": "Radio button label"
+  },
+  "optionsColorBlindProfile": {
+    "message": "Perfil de daltonismo",
+    "description": "Input label"
+  },
+  "optionsColorBlindDeuteranopia": {
+    "message": "Deuteranopía",
+    "description": "Dropdown option"
+  },
+  "optionsColorBlindProtanopia": {
+    "message": "Protanopía",
+    "description": "Dropdown option"
+  },
+  "optionsColorBlindTritanopia": {
+    "message": "Tritanopía",
+    "description": "Dropdown option"
+  },
+  "optionsColorBlindHint": {
+    "message": "Usa una paleta WCAG AA en todo el panel, opciones, guía y editor.",
+    "description": "Hint text"
+  },
+  "optionsShowThemeIcon": {
+    "message": "Mostrar icono del tema",
+    "description": "Toggle label"
+  },
+  "optionsShowThemeIconHint": {
+    "message": "Muestra el icono de la mascota en el encabezado al usar temas especiales compatibles.",
+    "description": "Toggle hint"
+  },
+  "optionsAccentColorTitle": {
+    "message": "Color de acento",
+    "description": "Setting card title"
+  },
+  "optionsAccentThemeNote": {
+    "message": "El tema especial activo controla el color de acento mientras está activo.",
+    "description": "Note text"
+  },
+  "optionsAccentSage": {
+    "message": "🌿 Verde salvia",
+    "description": "Radio button label"
+  },
+  "optionsAccentOcean": {
+    "message": "🌊 Azul océano",
+    "description": "Radio button label"
+  },
+  "optionsAccentSlate": {
+    "message": "🪨 Gris pizarra",
+    "description": "Radio button label"
+  },
+  "optionsAccentRose": {
+    "message": "🌹 Rosa",
+    "description": "Radio button label"
+  },
+  "optionsAccentAmber": {
+    "message": "🍯 Ámbar",
+    "description": "Radio button label"
+  },
+  "optionsEditorThemeTitle": {
+    "message": "Tema del editor",
+    "description": "Setting card title"
+  },
+  "optionsEditorThemeDesc": {
+    "message": "Elige un tema de resaltado de sintaxis para el editor Markdown en el panel emergente.",
+    "description": "Setting description"
+  },
+  "optionsEditorThemeLockNote": {
+    "message": "El tema especial activo proporciona sus propios temas de editor mientras está activo.",
+    "description": "Note text"
+  },
+  "optionsEditorThemeDefault": {
+    "message": "Predeterminado",
+    "description": "Radio button label"
+  },
+  "optionsEditorThemeDracula": {
+    "message": "🧛 Dracula",
+    "description": "Radio button label"
+  },
+  "optionsEditorThemeMaterial": {
+    "message": "🎨 Material",
+    "description": "Radio button label"
+  },
+  "optionsEditorThemeMonokai": {
+    "message": "🌙 Monokai",
+    "description": "Radio button label"
+  },
+  "optionsEditorThemeNord": {
+    "message": "❄️ Nord",
+    "description": "Radio button label"
+  },
+  "optionsEditorThemeSolarized": {
+    "message": "☀️ Solarized",
+    "description": "Radio button label"
+  },
+  "optionsEditorThemeTwilight": {
+    "message": "🌆 Twilight",
+    "description": "Radio button label"
+  },
+  "optionsEditorThemeDarkOnlyNote": {
+    "message": "Solo modo oscuro — vuelve a Predeterminado en modo claro",
+    "description": "Tooltip note for dark-only themes"
+  },
+  "optionsPopupBehaviorTitle": {
+    "message": "Comportamiento del panel emergente",
+    "description": "Setting card title"
+  },
+  "optionsCompactMode": {
+    "message": "Modo compacto",
+    "description": "Toggle label"
+  },
+  "optionsCompactModeHint": {
+    "message": "Oculta el panel de ajustes rápidos y reduce el espacio para un panel minimalista. El icono de ajustes sigue accesible en el encabezado.",
+    "description": "Toggle hint"
+  },
+  "optionsShowUserGuideIcon": {
+    "message": "Mostrar icono de la Guía del usuario",
+    "description": "Toggle label"
+  },
+  "optionsShowUserGuideIconHint": {
+    "message": "Muestra el botón de la Guía del usuario en el encabezado del panel para acceso rápido a la ayuda.",
+    "description": "Toggle hint"
+  },
+  "optionsSectionExportsTitle": {
+    "message": "Exportaciones e integraciones",
+    "description": "Section title"
+  },
+  "optionsSectionExportsDesc": {
+    "message": "Configura cómo se exportan los archivos y administra integraciones con Obsidian, asistentes y Agent Bridge.",
+    "description": "Section description"
+  },
+  "optionsEnableContextMenus": {
+    "message": "Habilitar menús contextuales",
+    "description": "Toggle label"
+  },
+  "optionsEnableContextMenusHint": {
+    "message": "Muestra opciones de clic derecho para recortar páginas, texto seleccionado, enlaces y pestañas.",
+    "description": "Toggle hint"
+  },
+  "optionsEnableBatchProcessing": {
+    "message": "Habilitar procesamiento por lotes",
+    "description": "Toggle label"
+  },
+  "optionsEnableBatchProcessingHint": {
+    "message": "Muestra la entrada de procesamiento por lotes en el panel y permite conversión masiva de URLs.",
+    "description": "Toggle hint"
+  },
+  "optionsDefaultPopupActionTitle": {
+    "message": "Acción predeterminada del panel",
+    "description": "Setting card title"
+  },
+  "optionsDefaultPopupActionDesc": {
+    "message": "Controla solo el botón de acción principal del panel y de la selección. Los menús contextuales, atajos, exportaciones por lote, Agent Bridge y Obsidian siguen usando Markdown.",
+    "description": "Setting description"
+  },
+  "optionsExportCopy": {
+    "message": "Copiar al portapapeles",
+    "description": "Radio button label"
+  },
+  "optionsExportMarkdown": {
+    "message": "Markdown (.md)",
+    "description": "Radio button label"
+  },
+  "optionsExportText": {
+    "message": "Texto sin formato (.txt)",
+    "description": "Radio button label"
+  },
+  "optionsExportHtml": {
+    "message": "HTML (.html)",
+    "description": "Radio button label"
+  },
+  "optionsExportPdf": {
+    "message": "PDF",
+    "description": "Radio button label"
+  },
+  "optionsExportSendTo": {
+    "message": "Enviar al Asistente",
+    "description": "Radio button label"
+  },
+  "optionsDownloadModeTitle": {
+    "message": "Modo de descarga",
+    "description": "Setting card title"
+  },
+  "optionsDownloadModeDesc": {
+    "message": "Método a usar para descargar archivos Markdown. Establece en \"Content Link\" si tienes problemas con la API de Descargas (A veces pueden ocurrir conflictos con otras extensiones de descarga, llevando a nombres de archivo generados al azar y otros síntomas).",
+    "description": "Setting description"
+  },
+  "optionsDownloadModeNote": {
+    "message": "Nota: 'Enlace de contenido' deshabilita algunas funciones, como descargar imágenes o usar subcarpetas.",
+    "description": "Note text"
+  },
+  "optionsDownloadModeApi": {
+    "message": "API de Descargas (recomendado)",
+    "description": "Radio button label"
+  },
+  "optionsDownloadModeLink": {
+    "message": "Enlace de contenido",
+    "description": "Radio button label"
+  },
+  "optionsSaveAsToggle": {
+    "message": "Mostrar siempre el cuadro de diálogo Guardar como",
+    "description": "Toggle label"
+  },
+  "optionsSaveAsHint": {
+    "message": "Sin importar el ajuste del navegador",
+    "description": "Toggle hint"
+  },
+  "optionsDownloadImagesToggle": {
+    "message": "Descargar imágenes junto a los archivos markdown",
+    "description": "Toggle label"
+  },
+  "optionsDownloadImagesHint": {
+    "message": "En el modo API de Descargas, los archivos de imagen también se guardan y los enlaces de imagen del markdown se reescriben a esos archivos locales.",
+    "description": "Toggle hint"
+  },
+  "optionsImagePrefixLabel": {
+    "message": "Plantilla para prefijo de archivo de imagen",
+    "description": "Input label"
+  },
+  "optionsClipsFolderTitle": {
+    "message": "Carpeta de recortes",
+    "description": "Setting card title"
+  },
+  "optionsClipsFolderLabel": {
+    "message": "Carpeta dentro de Descargas/ para guardar los recortes de MarkSnip",
+    "description": "Input label"
+  },
+  "optionsDefaultAssistantTargetTitle": {
+    "message": "Asistente de destino predeterminado",
+    "description": "Setting card title"
+  },
+  "optionsDefaultAssistantTargetDesc": {
+    "message": "Usado cuando la acción principal es Enviar al Asistente. Si se elimina un destino personalizado, MarkSnip usará ChatGPT.",
+    "description": "Setting description"
+  },
+  "optionsAssistantTargetsTitle": {
+    "message": "Destinos del Asistente",
+    "description": "Setting card title"
+  },
+  "optionsAssistantTargetsDesc": {
+    "message": "ChatGPT, Claude y Perplexity están integrados. Añade URLs HTTPS personalizadas que acepten un marcador {prompt} en la cadena de consulta.",
+    "description": "Setting description"
+  },
+  "optionsCustomTargetName": {
+    "message": "Nombre del destino",
+    "description": "Input label"
+  },
+  "optionsCustomTargetNamePlaceholder": {
+    "message": "Gemini Workspace",
+    "description": "Input placeholder"
+  },
+  "optionsCustomTargetUrl": {
+    "message": "Plantilla de URL",
+    "description": "Input label"
+  },
+  "optionsCustomTargetUrlPlaceholder": {
+    "message": "https://example.com/new?q={prompt}",
+    "description": "Input placeholder"
+  },
+  "optionsAddTargetBtn": {
+    "message": "Añadir destino",
+    "description": "Button label"
+  },
+  "optionsAssistantTargetHint": {
+    "message": "Usa exactamente un marcador {prompt}. Ejemplo: https://example.com/new?q={prompt}",
+    "description": "Hint text"
+  },
+  "optionsAssistantUrlLengthTitle": {
+    "message": "Límite de longitud de URL del asistente",
+    "description": "Setting card title"
+  },
+  "optionsAssistantUrlLengthDesc": {
+    "message": "Configuración avanzada para los enlaces de Enviar al Asistente. Si una URL de asistente generada excede este valor, MarkSnip copia el Markdown en tu portapapeles y abre en su lugar la página de inicio del asistente. Predeterminado: 3600. No se recomienda cambiar esto.",
+    "description": "Setting description"
+  },
+  "optionsMaxUrlLengthLabel": {
+    "message": "Longitud máxima de URL",
+    "description": "Input label"
+  },
+  "optionsObsidianIntegrationTitle": {
+    "message": "Integración con Obsidian",
+    "description": "Setting card title"
+  },
+  "optionsObsidianIntegrationDesc": {
+    "message": "Para la integración con Obsidian, necesitas instalar y habilitar el plugin comunitario Advanced Obsidian URI. Este plugin ayuda a evitar las limitaciones de caracteres en las URLs usando el portapapeles como origen para crear nuevos archivos. Las imágenes enviadas de esta manera se mantienen como enlaces remotos; los archivos adjuntos no se copian a tu bóveda.",
+    "description": "Setting description"
+  },
+  "optionsEnableObsidian": {
+    "message": "Habilitar integración con Obsidian",
+    "description": "Toggle label"
+  },
+  "guideQuickStartHeading": {
+    "message": "Inicio rápido",
+    "description": "Heading in guide"
+  },
+  "guideQuickStart1": {
+    "message": "Haz clic en el icono de MarkSnip en la barra del navegador para abrir el panel.",
+    "description": "Instruction step"
+  },
+  "guideQuickStart2": {
+    "message": "La página actual pasa por Mozilla Readability para extraer el contenido principal, y luego se convierte a Markdown con Turndown.",
+    "description": "Instruction step"
+  },
+  "guideQuickStart3": {
+    "message": "Edita, copia o descarga el Markdown usando el editor incorporado.",
+    "description": "Instruction step"
+  },
+  "guideQuickStartTip": {
+    "message": "Consejo: Usa Alt+Shift+M para abrir el panel emergente sin hacer clic.",
+    "description": "Tip text"
+  },
+  "guideWelcomeTitle": {
+    "message": "¡Bienvenido a MarkSnip!",
+    "description": "Welcome banner title"
+  },
+  "guideWelcomeDesc1": {
+    "message": "Gracias por instalar MarkSnip. Esta guía te ayudará a empezar a recortar páginas web como Markdown.",
+    "description": "Welcome text"
+  },
+  "guideWelcomeDesc2": {
+    "message": "Empieza con Inicio rápido o consulta la tabla de contenidos a la izquierda.",
+    "description": "Welcome text"
+  },
+  "guideTroubleshootingTitle": {
+    "message": "Solución de problemas / Preguntas frecuentes",
+    "description": "Heading in guide"
+  },
+  "guideFaq1Title": {
+    "message": "El panel dice 'Procesando página...' y no pasa nada",
+    "description": "FAQ question"
+  },
+  "guideFaq1Desc": {
+    "message": "Algunas páginas bloquean los scripts. Prueba a refrescar, o comprueba que MarkSnip tiene permiso para el sitio. Las páginas internas (chrome://) no se pueden recortar.",
+    "description": "FAQ answer"
+  },
+  "guideFaq2Title": {
+    "message": "Las imágenes no se descargan",
+    "description": "FAQ question"
+  },
+  "guideFaq2Desc": {
+    "message": "Asegúrate de que el Modo de descarga es 'API de Descargas' y que Descargar imágenes está activado.",
+    "description": "FAQ answer"
+  },
+  "guideFaq3Title": {
+    "message": "Enviar a Obsidian no está visible",
+    "description": "FAQ question"
+  },
+  "guideFaq3Desc": {
+    "message": "Habilita la integración en los Ajustes. También necesitas el plugin Advanced Obsidian URI en Obsidian.",
+    "description": "FAQ answer"
+  },
+  "optionsObsidianVaultLabel": {
+    "message": "Nombre del Vault de Obsidian",
+    "description": "Label for Obsidian Vault Name"
+  },
+  "optionsObsidianVaultPlaceholder": {
+    "message": "Si está en blanco, se usará el predeterminado.",
+    "description": "Placeholder for Obsidian Vault Name"
+  },
+  "optionsObsidianFolderLabel": {
+    "message": "Nombre de la carpeta de Obsidian",
+    "description": "Label for Obsidian Folder Name"
+  },
+  "optionsObsidianFolderPlaceholder": {
+    "message": "Introduce el nombre de la carpeta, ej. Recortes",
+    "description": "Placeholder for Obsidian Folder Name"
+  },
+  "optionsAgentBridgeTitle": {
+    "message": "Agent Bridge (Puente para Agentes)",
+    "description": "Title for Agent Bridge section"
+  },
+  "optionsAgentBridgeDesc": {
+    "message": "Instala la aplicación local acompañante para permitir a herramientas CLI extraer el Markdown.",
+    "description": "Description for Agent Bridge"
+  },
+  "optionsAgentBridgeEnableLabel": {
+    "message": "Habilitar Agent Bridge",
+    "description": "Label to enable Agent Bridge"
+  },
+  "optionsAgentBridgeEnableHint": {
+    "message": "Cuando está apagado, MarkSnip no conectará con la aplicación local.",
+    "description": "Hint for Agent Bridge toggle"
+  },
+  "optionsAgentBridgePermPreflightTitle": {
+    "message": "¿Permitir acceso local?",
+    "description": "Title for Agent Bridge permission preflight"
+  },
+  "optionsAgentBridgePermPreflightDesc": {
+    "message": "MarkSnip está a punto de pedir permiso al navegador para conectarse localmente.",
+    "description": "Description for Agent Bridge permission preflight"
+  },
+  "optionsAgentBridgePermBullet1": {
+    "message": "Solo para Agent Bridge",
+    "description": "Agent Bridge permission bullet 1"
+  },
+  "optionsAgentBridgePermBullet2": {
+    "message": "Únicamente en esta máquina",
+    "description": "Agent Bridge permission bullet 2"
+  },
+  "optionsAgentBridgePermBullet3": {
+    "message": "El recorte normal funciona sin esto",
+    "description": "Agent Bridge permission bullet 3"
+  },
+  "optionsAgentBridgePermContinue": {
+    "message": "Continuar",
+    "description": "Continue button for Agent Bridge permission"
+  },
+  "optionsAgentBridgePermCancel": {
+    "message": "Cancelar",
+    "description": "Cancel button for Agent Bridge permission"
+  },
+  "optionsAgentBridgePermGuide": {
+    "message": "Ver guía de configuración",
+    "description": "Link to setup guide for Agent Bridge permission"
+  },
+  "optionsAgentBridgePermDeniedDesc": {
+    "message": "Permiso denegado. Agent Bridge sigue apagado. El recorte normal sigue funcionando.",
+    "description": "Description when Agent Bridge permission is denied"
+  },
+  "optionsAgentBridgePermRetry": {
+    "message": "Reintentar",
+    "description": "Retry button for Agent Bridge permission"
+  },
+  "optionsAgentBridgeStatusLabel": {
+    "message": "Estado",
+    "description": "Label for Agent Bridge status"
+  },
+  "optionsAgentBridgeStatusTextDisabled": {
+    "message": "Desactivado",
+    "description": "Disabled status text for Agent Bridge"
+  },
+  "optionsAgentBridgeStatusHint": {
+    "message": "Habilita Agent Bridge para que MarkSnip se conecte.",
+    "description": "Hint for Agent Bridge status"
+  },
+  "optionsAgentBridgeCheckStatus": {
+    "message": "Comprobar conexión",
+    "description": "Button to check Agent Bridge connection status"
+  },
+  "optionsAgentBridgeSetupGuideTitle": {
+    "message": "Guía de configuración",
+    "description": "Title for Agent Bridge setup guide"
+  },
+  "optionsAgentBridgeSetupGuideStep1": {
+    "message": "Para conectar MarkSnip con herramientas locales CLI:",
+    "description": "Step 1 of Agent Bridge setup guide"
+  },
+  "optionsAgentBridgeSetupGuideStep2a": {
+    "message": "Descarga el archivo local para tu sistema operativo desde",
+    "description": "Step 2a of Agent Bridge setup guide"
+  },
+  "optionsAgentBridgeSetupGuideStep2b": {
+    "message": "la página de Releases",
+    "description": "Step 2b of Agent Bridge setup guide"
+  },
+  "optionsAgentBridgeSetupGuideStep3": {
+    "message": "Ejecuta el comando de instalación para registrar el host de mensajería nativa:",
+    "description": "Step 3 of Agent Bridge setup guide"
+  },
+  "optionsAgentBridgeSetupGuideStep4": {
+    "message": "Activa el interruptor arriba y MarkSnip se conectará automáticamente.",
+    "description": "Step 4 of Agent Bridge setup guide"
+  },
+  "optionsAgentBridgeSetupNote": {
+    "message": "Característica solo local. Estos ajustes no se exportan ni se sincronizan.",
+    "description": "Note for Agent Bridge setup"
+  },
+  "optionsLibrarySection": {
+    "message": "Biblioteca",
+    "description": "Title for Library section"
+  },
+  "optionsLibrarySectionDesc": {
+    "message": "Gestiona la Biblioteca que guarda recortes localmente en este navegador.",
+    "description": "Description for Library section"
+  },
+  "optionsLibraryEnableLabel": {
+    "message": "Habilitar Biblioteca",
+    "description": "Label to enable Library"
+  },
+  "optionsLibraryEnableHint": {
+    "message": "Muestra la vista de Biblioteca en el panel. Desactivarlo la oculta sin borrar nada.",
+    "description": "Hint for Library toggle"
+  },
+  "optionsLibraryAutoSaveLabel": {
+    "message": "Guardar páginas automáticamente al abrir el panel",
+    "description": "Label for automatic save option"
+  },
+  "optionsLibraryAutoSaveHint": {
+    "message": "Cuando está apagado, la Biblioteca del panel muestra un botón manual de <strong>Guardar recorte</strong> en su lugar.",
+    "description": "Hint for automatic save option"
+  },
+  "optionsLibraryItemsToKeepTitle": {
+    "message": "Elementos a mantener",
+    "description": "Title for Library Items to Keep"
+  },
+  "optionsLibraryItemsToKeepDesc": {
+    "message": "Número máximo de recortes a conservar. Si lo bajas, se borrarán los más antiguos.",
+    "description": "Description for Library Items to Keep"
+  },
+  "optionsLibraryItemsToKeepLabel": {
+    "message": "Límite de recortes guardados",
+    "description": "Label for saved clip limit"
+  },
+  "optionsLibraryItemsToKeepNote": {
+    "message": "Los ajustes de Biblioteca se exportan, pero los recortes guardados son locales y se excluyen.",
+    "description": "Note for Library Items to Keep"
+  },
+  "optionsLibraryClearTitle": {
+    "message": "Vaciar Biblioteca",
+    "description": "Title to clear Library"
+  },
+  "optionsLibraryClearDesc": {
+    "message": "Borra todos los recortes guardados localmente. No se puede deshacer.",
+    "description": "Description to clear Library"
+  },
+  "optionsLibraryClearBtn": {
+    "message": "Vaciar Biblioteca",
+    "description": "Button to clear Library"
+  },
+  "optionsMarkdownSection": {
+    "message": "Markdown",
+    "description": "Title for Markdown section"
+  },
+  "optionsMarkdownSectionDesc": {
+    "message": "Configura cómo el HTML se convierte a sintaxis Markdown.",
+    "description": "Description for Markdown section"
+  },
+  "optionsHeadingStyleTitle": {
+    "message": "Estilo de encabezados",
+    "description": "Title for Heading Style"
+  },
+  "optionsHeadingStyleSetext": {
+    "message": "Estilo Setext",
+    "description": "Option for Setext-Style headings"
+  },
+  "optionsHeadingStyleAtx": {
+    "message": "Estilo Atx",
+    "description": "Option for Atx-Style headings"
+  },
+  "optionsHrTitle": {
+    "message": "Regla horizontal",
+    "description": "Title for Horizontal Rule"
+  },
+  "optionsBulletListMarkerTitle": {
+    "message": "Marcador de lista de viñetas",
+    "description": "Title for Bullet List Marker"
+  },
+  "optionsCodeBlocksTitle": {
+    "message": "Bloques de código",
+    "description": "Title for Code Blocks"
+  },
+  "optionsCodeBlocksIndented": {
+    "message": "Indentado",
+    "description": "Option for Indented code blocks"
+  },
+  "optionsCodeBlocksFenced": {
+    "message": "Cercado (Fenced)",
+    "description": "Option for Fenced code blocks"
+  },
+  "optionsPreserveCodeFormattingLabel": {
+    "message": "Preservar formato HTML en bloques de código",
+    "description": "Label to preserve code block HTML formatting"
+  },
+  "optionsPreserveCodeFormattingHint": {
+    "message": "Cuando está habilitado, preserva el formato HTML original dentro de los bloques de código. Esto puede ser útil para mantener el formato visual exacto, pero puede hacer que el Markdown sea más difícil de leer y usar en otras herramientas. Cuando está deshabilitado (predeterminado), produce bloques de código limpios.",
+    "description": "Hint to preserve code block HTML formatting"
+  },
+  "optionsAutoDetectCodeLanguageLabel": {
+    "message": "Autodetectar lenguaje de código",
+    "description": "Label to auto-detect code block language"
+  },
+  "optionsAutoDetectCodeLanguageHint": {
+    "message": "Usa highlight.js para inferir el lenguaje del bloque de código cercado cuando no hay un lenguaje explícito presente. Deshabilita esto si los fragmentos de código son frecuentemente etiquetados con lenguajes incorrectos.",
+    "description": "Hint to auto-detect code block language"
+  },
+  "optionsCodeBlockFenceTitle": {
+    "message": "Cerca del bloque de código",
+    "description": "Title for Code Block Fence"
+  },
+  "optionsEmDelimiterTitle": {
+    "message": "Delimitador de énfasis (cursiva)",
+    "description": "Title for Emphasis Delimiter"
+  },
+  "optionsRoamSpecificNote": {
+    "message": "(Específico para Roam)",
+    "description": "Note for Roam specific option"
+  },
+  "optionsStrongDelimiterTitle": {
+    "message": "Delimitador de negrita (fuerte)",
+    "description": "Title for Strong Delimiter"
+  },
+  "optionsLinkStyleTitle": {
+    "message": "Estilo de enlaces",
+    "description": "Title for Link Style"
+  },
+  "optionsLinkStyleInlined": {
+    "message": "En línea",
+    "description": "Option for Inlined links"
+  },
+  "optionsLinkStyleReferenced": {
+    "message": "Referenciado",
+    "description": "Option for Referenced links"
+  },
+  "optionsLinkStyleStripLinks": {
+    "message": "Eliminar enlaces",
+    "description": "Option to Strip Links"
+  },
+  "optionsLinkReferenceStyleTitle": {
+    "message": "Estilo de referencia de enlaces",
+    "description": "Title for Link Reference Style"
+  },
+  "optionsLinkReferenceStyleFull": {
+    "message": "Completo",
+    "description": "Option for Full link references"
+  },
+  "optionsLinkReferenceStyleCollapsed": {
+    "message": "Colapsado",
+    "description": "Option for Collapsed link references"
+  },
+  "optionsLinkReferenceStyleShortcut": {
+    "message": "Atajo",
+    "description": "Option for Shortcut link references"
+  },
+  "optionsImageStyleTitle": {
+    "message": "Estilo de imágenes",
+    "description": "Title for Image Style"
+  },
+  "optionsImageStyleOriginalSource": {
+    "message": "Fuente original",
+    "description": "Option for Original Source image style"
+  },
+  "optionsImageStyleStripImages": {
+    "message": "Eliminar imágenes",
+    "description": "Option to Strip Images"
+  },
+  "optionsImageStyleNote1": {
+    "message": "<strong>Nota:</strong> Lo siguiente solo aplica si Descargar imágenes está activado.",
+    "description": "Note for image styles when downloading images"
+  },
+  "optionsImageStyleMarkdown": {
+    "message": "Markdown puro",
+    "description": "Option for Pure Markdown image style"
+  },
+  "optionsImageStyleBase64": {
+    "message": "Codificación Base64",
+    "description": "Option for Base64 Encoded image style"
+  },
+  "optionsImageStyleObsidian": {
+    "message": "Incrustación interna de Obsidian",
+    "description": "Option for Obsidian Internal Embed image style"
+  },
+  "optionsImageStyleObsidianNoFolder": {
+    "message": "Incrustación de Obsidian (sin carpeta)",
+    "description": "Option for Obsidian Embed without folder"
+  },
+  "optionsImageRefStyleTitle": {
+    "message": "Estilo de referencia de imágenes",
+    "description": "Title for Image Reference Style"
+  },
+  "optionsImageRefStyleNote": {
+    "message": "<strong>Nota:</strong> Lo siguiente solo aplica si el Estilo de imágenes es markdown (no estilo Obsidian).",
+    "description": "Note for Image Reference Style"
+  },
+  "optionsTurndownEscapeLabel": {
+    "message": "Escapar caracteres Markdown",
+    "description": "Label to Escape Markdown Characters"
+  },
+  "optionsTurndownEscapeHint": {
+    "message": "Por defecto, se usan barras invertidas (<code>\\</code>) para escapar caracteres Markdown en la entrada HTML. Esto asegura que estos caracteres no sean interpretados como Markdown. Por ejemplo, el contenido de <code>&lt;h1&gt;1. Hello world&lt;/h1&gt;</code> necesita ser escapado a <code>1\\. Hello world</code>, de lo contrario será interpretado como un elemento de lista en lugar de un encabezado. Deshabilitar esta opción deshabilita este escape.",
+    "description": "Hint to Escape Markdown Characters"
+  },
+  "optionsSkipHiddenContentLabel": {
+    "message": "Omitir contenido oculto",
+    "description": "Label to Skip Hidden Content"
+  },
+  "optionsSkipHiddenContentHint": {
+    "message": "Ignora el contenido oculto con CSS, el atributo <code>hidden</code>, o <code>aria-hidden=\"true\"</code>. Deshabilita esto para incluir acordeones colapsados y otro contenido DOM oculto en los recortes.",
+    "description": "Hint to Skip Hidden Content"
+  },
+  "optionsHashtagHandlingTitle": {
+    "message": "Manejo de hashtags",
+    "description": "Title for Hashtag Handling"
+  },
+  "optionsHashtagHandlingDesc": {
+    "message": "Controla cómo se escriben las palabras tipo hashtag (por ejemplo <code>#IA</code>) en el texto recortado. Útil para herramientas como Obsidian que tratan los hashtags como etiquetas.",
+    "description": "Description for Hashtag Handling"
+  },
+  "optionsHashtagHandlingKeep": {
+    "message": "Mantener",
+    "description": "Option to Keep hashtags"
+  },
+  "optionsHashtagHandlingRemove": {
+    "message": "Quitar #",
+    "description": "Option to Remove hashtags"
+  },
+  "optionsHashtagHandlingEscape": {
+    "message": "Escapar #",
+    "description": "Option to Escape hashtags"
+  },
+  "optionsHashtagHandlingExample": {
+    "message": "Ejemplo: <code>#research</code> pasa a <code>research</code> en <strong>Quitar #</strong>, o <code>\\#research</code> en <strong>Escapar #</strong>.",
+    "description": "Example for Hashtag Handling"
+  },
+  "optionsTablesSection": {
+    "message": "Tablas",
+    "description": "Title for Tables section"
+  },
+  "optionsTablesSectionDesc": {
+    "message": "Configura cómo se convierten las tablas HTML a tablas Markdown.",
+    "description": "Description for Tables section"
+  },
+  "optionsTableStripLinksLabel": {
+    "message": "Eliminar enlaces de las tablas",
+    "description": "Label to strip links from tables"
+  },
+  "optionsTableStripLinksHint": {
+    "message": "Crea tablas más limpias quitando todos los hipervínculos de sus celdas.",
+    "description": "Hint to strip links from tables"
+  },
+  "optionsTableOff": {
+    "message": "Apagado",
+    "description": "Off option label"
+  },
+  "optionsTableOn": {
+    "message": "Encendido",
+    "description": "On option label"
+  },
+  "optionsTableStripFormattingLabel": {
+    "message": "Eliminar formato (negrita, cursiva, etc.)",
+    "description": "Label to strip formatting from tables"
+  },
+  "optionsTableStripFormattingHint": {
+    "message": "Elimina formatos como negrita y cursiva de las celdas de la tabla. El resultado son tablas de texto sin formato.",
+    "description": "Hint to strip formatting from tables"
+  },
+  "optionsTablePrettyPrintLabel": {
+    "message": "Impresión bonita (Pretty print)",
+    "description": "Label to pretty print tables"
+  },
+  "optionsTablePrettyPrintHint": {
+    "message": "Añade espaciado y alineación a las columnas para mejorar la lectura.",
+    "description": "Hint to pretty print tables"
+  },
+  "optionsTableCenterTextLabel": {
+    "message": "Centrar texto en columnas",
+    "description": "Label to center text in table columns"
+  },
+  "optionsTableCenterTextHint": {
+    "message": "Centra el texto dentro de las columnas de la tabla. Crea un aspecto más pulido.",
+    "description": "Hint to center text in table columns"
+  },
+  "optionsSiteRulesSection": {
+    "message": "Reglas del sitio",
+    "description": "Title for Site Rules section"
+  },
+  "optionsSiteRulesSectionDesc": {
+    "message": "Reglas comodín para sobrescribir ajustes en sitios concretos. La primera coincidencia gana.",
+    "description": "Description for Site Rules section"
+  },
+  "optionsSiteRulesListTitle": {
+    "message": "Lista de reglas",
+    "description": "Title for Rule List"
+  },
+  "optionsSiteRulesListDesc": {
+    "message": "Usa patrones como <code>example.com/*</code>, <code>docs.example.com/blog/*</code>, o <code>*.example.com/*</code>. Las cadenas de consulta y los hashes son ignorados.",
+    "description": "Description for Rule List patterns"
+  },
+  "optionsSiteRulesSummaryZero": {
+    "message": "0 reglas",
+    "description": "Summary for 0 rules"
+  },
+  "optionsSiteRulesAddRuleBtn": {
+    "message": "Añadir regla",
+    "description": "Button to add site rule"
+  },
+  "optionsSiteRulesEmptyTitle": {
+    "message": "Aún no hay reglas del sitio.",
+    "description": "Title when no site rules exist"
+  },
+  "optionsSiteRulesEmptyDesc": {
+    "message": "Añade una regla para cambiar la plantilla o formato de tabla en ciertos dominios.",
+    "description": "Description when no site rules exist"
+  },
+  "optionsSiteRuleEditorTitle": {
+    "message": "Añadir regla del sitio",
+    "description": "Title for Site Rule Editor"
+  },
+  "optionsSiteRuleEditorHint": {
+    "message": "La falta del esquema coincide tanto con <code>http</code> como <code>https</code>. La falta de la ruta implica <code>/*</code>.",
+    "description": "Hint for Site Rule Editor"
+  },
+  "optionsSiteRuleNameLabel": {
+    "message": "Nombre de la regla",
+    "description": "Label for Site Rule Name"
+  },
+  "optionsSiteRuleNamePlaceholder": {
+    "message": "Plantilla para docs",
+    "description": "Placeholder for Site Rule Name"
+  },
+  "optionsSiteRulePatternLabel": {
+    "message": "Patrón URL comodín",
+    "description": "Label for Site Rule Pattern"
+  },
+  "optionsSiteRuleEnabledLabel": {
+    "message": "Habilitado",
+    "description": "Label for Site Rule Enabled state"
+  },
+  "optionsSiteRuleNoOverrides": {
+    "message": "Sin sobrescrituras",
+    "description": "Empty state label for a Site Rule without overrides"
+  },
+  "optionsSiteRuleInvalidPattern": {
+    "message": "Patrón no válido",
+    "description": "Prefix for invalid Site Rule pattern errors"
+  },
+  "optionsSiteRuleMoveUpBtn": {
+    "message": "Subir",
+    "description": "Button to move a Site Rule up"
+  },
+  "optionsSiteRuleMoveDownBtn": {
+    "message": "Bajar",
+    "description": "Button to move a Site Rule down"
+  },
+  "optionsSiteRuleEditBtn": {
+    "message": "Editar",
+    "description": "Button to edit a Site Rule"
+  },
+  "optionsSiteRuleDeleteBtn": {
+    "message": "Eliminar",
+    "description": "Button to delete a Site Rule"
+  },
+  "optionsSiteRuleEnabledHint": {
+    "message": "Las reglas deshabilitadas se ignoran.",
+    "description": "Hint for Site Rule Enabled state"
+  },
+  "optionsSiteRuleBooleanOverridesTitle": {
+    "message": "Sobrescrituras booleanas",
+    "description": "Title for Boolean Overrides"
+  },
+  "optionsSiteRuleTemplateLabel": {
+    "message": "Plantilla",
+    "description": "Label for Site Rule Template"
+  },
+  "optionsSiteRuleInherit": {
+    "message": "Heredar",
+    "description": "Option to Inherit setting"
+  },
+  "optionsSiteRuleDownloadImagesLabel": {
+    "message": "Descargar imágenes",
+    "description": "Label for Site Rule Download Images"
+  },
+  "optionsSiteRuleTemplateOverridesTitle": {
+    "message": "Sobrescrituras de plantillas",
+    "description": "Title for Template Overrides"
+  },
+  "optionsSiteRuleOverrideFrontmatter": {
+    "message": "Sobrescribir Frontmatter",
+    "description": "Label to override frontmatter"
+  },
+  "optionsSiteRuleOverrideBackmatter": {
+    "message": "Sobrescribir Backmatter",
+    "description": "Label to override backmatter"
+  },
+  "optionsSiteRuleOverrideTitle": {
+    "message": "Sobrescribir Plantilla de Título",
+    "description": "Label to override title template"
+  },
+  "optionsSiteRuleOverrideImagePrefix": {
+    "message": "Sobrescribir Prefijo de Imagen",
+    "description": "Label to override image prefix"
+  },
+  "optionsSiteRuleOverrideMdClipsFolder": {
+    "message": "Sobrescribir Carpeta de Descargas",
+    "description": "Label to override downloads folder"
+  },
+  "optionsSiteRuleImageOverridesTitle": {
+    "message": "Sobrescrituras de imagen",
+    "description": "Title for Image Overrides"
+  },
+  "optionsSiteRuleKeepOriginalSource": {
+    "message": "Mantener fuente original",
+    "description": "Option to keep original image source"
+  },
+  "optionsSiteRuleTableOverridesTitle": {
+    "message": "Sobrescrituras de tablas",
+    "description": "Title for Table Formatting Overrides"
+  },
+  "optionsSiteRuleSaveBtn": {
+    "message": "Guardar regla",
+    "description": "Button to save site rule"
+  },
+  "optionsSiteRuleCancelBtn": {
+    "message": "Cancelar",
+    "description": "Button to cancel site rule editing"
+  },
+  "optionsImportExportSection": {
+    "message": "Importar / Exportar",
+    "description": "Title for Import / Export section"
+  },
+  "optionsImportExportSectionDesc": {
+    "message": "Haz una copia de seguridad o restaura tus ajustes.",
+    "description": "Description for Import / Export section"
+  },
+  "optionsPermissionsPrivacyTitle": {
+    "message": "Permisos y Privacidad",
+    "description": "Title for Permissions & Privacy"
+  },
+  "optionsPermissionsPrivacyDesc": {
+    "message": "MarkSnip procesa las páginas localmente y solo accede al contenido de la página cuando activas un recorte.",
+    "description": "Description for Permissions & Privacy"
+  },
+  "optionsPermissionSiteAccessTitle": {
+    "message": "Acceso al sitio para recorte",
+    "description": "Title for Site Access permission"
+  },
+  "optionsPermissionIncludedBadge": {
+    "message": "Incluido en la extensión",
+    "description": "Badge indicating permission is included"
+  },
+  "optionsPermissionSiteAccessBullet1": {
+    "message": "Necesario para recortar cualquier página bajo tu petición.",
+    "description": "Site access permission bullet 1"
+  },
+  "optionsPermissionSiteAccessBullet2": {
+    "message": "No se utiliza para monitorizar tu navegación en segundo plano.",
+    "description": "Site access permission bullet 2"
+  },
+  "optionsPermissionSiteAccessBullet3": {
+    "message": "El contenido no se envía a servidores externos.",
+    "description": "Site access permission bullet 3"
+  },
+  "optionsPermissionSiteAccessBullet4": {
+    "message": "Lo gestiona el navegador como parte de la instalación.",
+    "description": "Site access permission bullet 4"
+  },
+  "optionsPermissionLocalCompanionTitle": {
+    "message": "Acceso a la aplicación local",
+    "description": "Title for Local Companion access"
+  },
+  "optionsPermissionOptionalBadge": {
+    "message": "Opcional",
+    "description": "Badge indicating permission is optional"
+  },
+  "optionsPermissionLocalCompanionBullet2": {
+    "message": "Solo habla con el programa acompañante local de MarkSnip instalado en esta máquina.",
+    "description": "Local companion access bullet 2"
+  },
+  "optionsPermissionLocalCompanionBullet4": {
+    "message": "Se detiene al apagar Agent Bridge.",
+    "description": "Local companion access bullet 4"
+  },
+  "optionsImportTitle": {
+    "message": "Importar",
+    "description": "Title for Import"
+  },
+  "optionsImportDesc": {
+    "message": "Restaura ajustes desde un archivo de copia de seguridad previo.",
+    "description": "Description for Import"
+  },
+  "optionsImportBtn": {
+    "message": "Elegir archivo...",
+    "description": "Button to choose file for import"
+  },
+  "optionsExportTitle": {
+    "message": "Exportar",
+    "description": "Title for Export"
+  },
+  "optionsExportDesc": {
+    "message": "Descarga tus ajustes como un archivo JSON.",
+    "description": "Description for Export"
+  },
+  "optionsExportBtn": {
+    "message": "Exportar",
+    "description": "Button to export options"
+  },
+  "optionsResetTitle": {
+    "message": "Restablecer a valores de fábrica",
+    "description": "Title for Reset All"
+  },
+  "optionsResetDesc": {
+    "message": "Restaura todos los ajustes predeterminados. No se puede deshacer.",
+    "description": "Description for Reset All"
+  },
+  "optionsResetBtn": {
+    "message": "Restablecer a valores de fábrica",
+    "description": "Button to reset all options"
+  },
+  "optionsSearchNoResultsPrefix": {
+    "message": "Ningún ajuste coincide con \"",
+    "description": "Prefix for no search results message"
+  },
+  "optionsSearchNoResultsSuffix": {
+    "message": "\"",
+    "description": "Suffix for no search results message"
+  },
+  "optionsSearchGuideInstead": {
+    "message": "Buscar en la Guía del usuario",
+    "description": "Link text to search the guide instead"
+  },
+  "guideSkipLink": {
+    "message": "Saltar al contenido",
+    "description": "Accessibility skip link"
+  },
+  "guideHeaderSubtitle": {
+    "message": "Guía del usuario",
+    "description": "Subtitle in guide header"
+  },
+  "guideSearchPlaceholder": {
+    "message": "Buscar en la guía...",
+    "description": "Search input placeholder"
+  },
+  "guideSearchClear": {
+    "message": "Borrar",
+    "description": "Clear search button"
+  },
+  "guideSearchNoResults": {
+    "message": "Sin resultados para \"",
+    "description": "Prefix for no search results"
+  },
+  "guideSearchHint": {
+    "message": "Intenta con otras palabras o busca en la tabla de contenidos.",
+    "description": "Hint when no search results found"
+  },
+  "guideTocQuickStart": {
+    "message": "Inicio rápido",
+    "description": "TOC link for Quick Start"
+  },
+  "guideTocUsingPopup": {
+    "message": "Uso del panel",
+    "description": "TOC link for Using the Popup"
+  },
+  "guideTocBatchProcessing": {
+    "message": "Procesamiento por lotes",
+    "description": "TOC link for Batch Processing"
+  },
+  "guideTocContextMenus": {
+    "message": "Menús contextuales y atajos",
+    "description": "TOC link for Context Menus & Shortcuts"
+  },
+  "guideTocSettings": {
+    "message": "Ajustes y personalización",
+    "description": "TOC link for Settings"
+  },
+  "guideTocObsidianDownloads": {
+    "message": "Obsidian y Descargas",
+    "description": "TOC link for Obsidian & Downloads"
+  },
+  "guideTocPermissionsPrivacy": {
+    "message": "Permisos y Privacidad",
+    "description": "TOC link for Permissions & Privacy"
+  },
+  "guideTocTroubleshooting": {
+    "message": "Solución de problemas / FAQ",
+    "description": "TOC link for Troubleshooting"
+  },
+  "guideTocTextSubstitutions": {
+    "message": "Sustituciones de texto",
+    "description": "TOC link for Text Substitutions"
+  },
+  "guideUsingPopupHeading": {
+    "message": "Uso del panel",
+    "description": "Heading for Using the Popup section"
+  },
+  "guideUsingPopupQuickSettings": {
+    "message": "Ajustes rápidos",
+    "description": "Heading for Quick Settings subsection"
+  },
+  "guideUsingPopupQuickSettingsDesc1": {
+    "message": "En la parte superior del panel encontrarás dos interruptores:",
+    "description": "Description for Quick Settings"
+  },
+  "guideUsingPopupQuickSettingsImg": {
+    "message": "<strong>Imágenes</strong> &mdash; cuando está activado, las imágenes se descargan junto al Markdown (requiere modo API de Descargas).",
+    "description": "Images toggle description in guide"
+  },
+  "guideUsingPopupQuickSettingsTpl": {
+    "message": "<strong>Plantilla</strong> &mdash; cuando está activado, las plantillas inicial y final se incluyen en la salida.",
+    "description": "Template toggle description in guide"
+  },
+  "guideUsingPopupScope": {
+    "message": "Alcance: Selección vs Documento",
+    "description": "Heading for Clipping Scope subsection"
+  },
+  "guideUsingPopupScopeDesc": {
+    "message": "Debajo de los interruptores hay un control segmentado con dos botones:",
+    "description": "Description for Clipping Scope"
+  },
+  "guideUsingPopupScopeSel": {
+    "message": "<strong>Selección</strong> &mdash; recorta solo el texto que seleccionaste en la página antes de abrir el panel.",
+    "description": "Selection scope description"
+  },
+  "guideUsingPopupScopeDoc": {
+    "message": "<strong>Documento</strong> &mdash; recorta toda la página (predeterminado).",
+    "description": "Document scope description"
+  },
+  "guideUsingPopupTitle": {
+    "message": "Edición del Título",
+    "description": "Heading for Editing the Title subsection"
+  },
+  "guideUsingPopupTitleDesc": {
+    "message": "El campo del <strong>Título</strong> determina el nombre de archivo del archivo Markdown descargado. Se completa automáticamente desde la plantilla de título (configurable en opciones) pero puedes editarlo libremente antes de guardar.",
+    "description": "Description for Editing the Title"
+  },
+  "guideUsingPopupPreview": {
+    "message": "Vista previa Markdown",
+    "description": "Heading for Markdown Preview subsection"
+  },
+  "guideUsingPopupPreviewDesc1": {
+    "message": "El área principal del panel es un editor Markdown con resaltado de sintaxis (impulsado por CodeMirror). Puedes hacer ediciones rápidas aquí antes de descargar.",
+    "description": "Description 1 for Markdown Preview"
+  },
+  "guideUsingPopupPreviewDesc2": {
+    "message": "Arriba del editor hay dos botones:",
+    "description": "Description 2 for Markdown Preview"
+  },
+  "guideUsingPopupPreviewCopyAll": {
+    "message": "<strong>Copiar todo</strong> &mdash; copia el Markdown completo al portapapeles.",
+    "description": "Copy All description"
+  },
+  "guideUsingPopupPreviewCopySel": {
+    "message": "<strong>Copiar selección</strong> &mdash; aparece cuando seleccionas texto <em>dentro del editor</em>, permitiéndote copiar solo la parte resaltada.",
+    "description": "Copy Selection description"
+  },
+  "guideUsingPopupActions": {
+    "message": "Botones de Acción",
+    "description": "Heading for Action Buttons subsection"
+  },
+  "guideUsingPopupActionsMain": {
+    "message": "Usa tu acción predeterminada del panel configurada. Elige Markdown (<code>.md</code>), Texto sin formato (<code>.txt</code>), HTML (<code>.html</code>), PDF, o <strong>Enviar al Asistente</strong>.",
+    "description": "Main Action description"
+  },
+  "guideUsingPopupActionsSel": {
+    "message": "Aparece cuando el texto está seleccionado dentro del editor; exporta o envía solo el texto seleccionado usando la misma acción predeterminada del panel.",
+    "description": "Selection Action description"
+  },
+  "guideUsingPopupActionsObsidian": {
+    "message": "Copia el Markdown al portapapeles y abre Obsidian a través del plugin Advanced URI para crear una nueva nota (solo visible cuando la integración con Obsidian está habilitada).",
+    "description": "Send to Obsidian description"
+  },
+  "guideUsingPopupActionsNote": {
+    "message": "<strong>Nota:</strong> Esta configuración de acción predeterminada del panel solo afecta a las acciones del panel. Los menús contextuales, atajos de teclado de descarga, exportaciones por lotes, exportaciones de Biblioteca, Agent Bridge y las acciones de Obsidian siguen basados en Markdown.",
+    "description": "Note for Action Buttons"
+  },
+  "guideBatchProcessingHeading": {
+    "message": "Procesamiento por lotes",
+    "description": "Heading for Batch Processing section"
+  },
+  "guideBatchProcessingDesc": {
+    "message": "Haz clic en el icono de lotes en el panel para cambiar a modo lote.",
+    "description": "Description for Batch Processing"
+  },
+  "guideBatchAddUrls": {
+    "message": "Añadir URLs",
+    "description": "Heading for Adding URLs subsection"
+  },
+  "guideBatchAddUrlsDesc": {
+    "message": "Pega URLs en el área de texto, una por línea. También puedes usar enlaces Markdown:",
+    "description": "Description for Adding URLs"
+  },
+  "guideBatchPickLinks": {
+    "message": "Elegir enlaces de la página",
+    "description": "Heading for Pick Links from Page subsection"
+  },
+  "guideBatchPickLinksDesc": {
+    "message": "Haz clic en <strong>Elegir enlaces de la página</strong> para entrar al selector visual de enlaces. Esto inyecta una capa superpuesta en la página actual que te permite hacer clic en enlaces para seleccionarlos. Una barra de herramientas flotante muestra cuántos enlaces has seleccionado, y un botón de <strong>Listo</strong> los envía de vuelta a la lista de URLs del lote.",
+    "description": "Description for Pick Links from Page"
+  },
+  "guideBatchOutputFormat": {
+    "message": "Formato de salida",
+    "description": "Heading for Output Format subsection"
+  },
+  "guideBatchOutputZip": {
+    "message": "<strong>Archivo ZIP</strong> &mdash; todos los archivos Markdown convertidos se agrupan en una única descarga <code>.zip</code>.",
+    "description": "ZIP file output description"
+  },
+  "guideBatchOutputIndiv": {
+    "message": "<strong>Individual</strong> &mdash; cada página se descarga como un archivo <code>.md</code> separado.",
+    "description": "Individual output description"
+  },
+  "guideBatchOutputDesc": {
+    "message": "Haz clic en <strong>Convertir todas las URLs</strong> para empezar el procesamiento. Una barra de progreso muestra el estado actual incluyendo el conteo y la URL que se está procesando.",
+    "description": "Description for Output Format button"
+  },
+  "guideContextMenusHeading": {
+    "message": "Menús contextuales y atajos",
+    "description": "Heading for Context Menus & Shortcuts section"
+  },
+  "guideContextMenusDesc": {
+    "message": "Haz clic derecho en una página para acceder a las acciones de MarkSnip bajo el menú contextual. Estas están disponibles cuando <strong>Habilitar Menús Contextuales</strong> está activado en ajustes.",
+    "description": "Description for Context Menus"
+  },
+  "guideContextDownload": {
+    "message": "Acciones de Descarga",
+    "description": "Heading for Download Actions subsection"
+  },
+  "guideContextDownloadTab": {
+    "message": "Descarga la pestaña actual como Markdown sin abrir el panel.",
+    "description": "Download Tab description"
+  },
+  "guideContextDownloadSel": {
+    "message": "Descarga el texto resaltado como Markdown.",
+    "description": "Download Selection description"
+  },
+  "guideContextDownloadAll": {
+    "message": "Descarga cada pestaña abierta en la ventana actual como archivos Markdown.",
+    "description": "Download All Tabs description"
+  },
+  "guideContextCopy": {
+    "message": "Acciones de Copiado",
+    "description": "Heading for Copy Actions subsection"
+  },
+  "guideContextCopyTab": {
+    "message": "Copia la página completa al portapapeles como Markdown.",
+    "description": "Copy Tab description"
+  },
+  "guideContextCopySel": {
+    "message": "Convierte la selección a Markdown y la copia.",
+    "description": "Copy Selection description"
+  },
+  "guideContextCopyLink": {
+    "message": "Copia el enlace al que le hiciste clic derecho como <code>[texto](url)</code>.",
+    "description": "Copy Link description"
+  },
+  "guideContextCopyImage": {
+    "message": "Copia la imagen a la que le hiciste clic derecho como <code>![alt](src)</code>.",
+    "description": "Copy Image description"
+  },
+  "guideContextCopyTabUrl": {
+    "message": "Copia la URL de la pestaña como <code>[título](url)</code>.",
+    "description": "Copy Tab URL description"
+  },
+  "guideContextCopyAllUrls": {
+    "message": "Copia las URLs de todas las pestañas abiertas.",
+    "description": "Copy All Tab URLs description"
+  },
+  "guideContextCopySelUrls": {
+    "message": "Copia URLs de múltiples pestañas seleccionadas (<kbd>Ctrl</kbd>/<kbd>Cmd</kbd>) como una lista de enlaces.",
+    "description": "Copy Selected Tab URLs description"
+  },
+  "guideContextObsidian": {
+    "message": "Acciones de Obsidian",
+    "description": "Heading for Obsidian Actions subsection"
+  },
+  "guideContextObsidianDesc": {
+    "message": "Solo aparecen si la integración está activada:",
+    "description": "Description for Obsidian Actions"
+  },
+  "guideContextObsidianSel": {
+    "message": "Envía la selección a Obsidian como una nueva nota.",
+    "description": "Send Text Selection to Obsidian description"
+  },
+  "guideContextObsidianTab": {
+    "message": "Envía la página entera a Obsidian como una nueva nota.",
+    "description": "Send Tab to Obsidian description"
+  },
+  "guideContextObsidianNote": {
+    "message": "Al final del menú contextual también encontrarás casillas de verificación para <strong>Incluir plantilla frontal/posterior</strong> y <strong>Descargar Imágenes</strong>.",
+    "description": "Note for Obsidian Actions"
+  },
+  "guideContextShortcuts": {
+    "message": "Atajos de teclado",
+    "description": "Heading for Keyboard Shortcuts subsection"
+  },
+  "guideContextShortcutsPopup": {
+    "message": "Abrir el panel de MarkSnip",
+    "description": "Shortcut for Open popup"
+  },
+  "guideContextShortcutsDownload": {
+    "message": "Descargar pestaña actual",
+    "description": "Shortcut for Download tab"
+  },
+  "guideContextShortcutsCopy": {
+    "message": "Copiar pestaña actual",
+    "description": "Shortcut for Copy tab"
+  },
+  "guideContextShortcutsLink": {
+    "message": "Copiar URL de la pestaña actual",
+    "description": "Shortcut for Copy tab link"
+  },
+  "guideContextShortcutsExtra": {
+    "message": "Comandos adicionales sin atajos predeterminados (asigna los tuyos en la configuración de atajos del navegador):",
+    "description": "Extra shortcuts text"
+  },
+  "guideContextShortcutsExtra1": {
+    "message": "Copiar selección actual como Markdown",
+    "description": "Extra shortcut 1"
+  },
+  "guideContextShortcutsExtra2": {
+    "message": "Copiar pestañas seleccionadas",
+    "description": "Extra shortcut 2"
+  },
+  "guideContextShortcutsExtra3": {
+    "message": "Copiar selección a Obsidian",
+    "description": "Extra shortcut 3"
+  },
+  "guideContextShortcutsExtra4": {
+    "message": "Copiar pestaña a Obsidian",
+    "description": "Extra shortcut 4"
+  },
+  "guideSettingsHeading": {
+    "message": "Ajustes y personalización",
+    "description": "Heading for Settings section"
+  },
+  "guideSettingsDesc": {
+    "message": "Abre la página de opciones haciendo clic en el ícono del engranaje en el encabezado del panel, o haciendo clic derecho en el ícono de MarkSnip y seleccionando <strong>Opciones</strong>.",
+    "description": "Description for Settings section"
+  },
+  "guideSettingsTemplates": {
+    "message": "Plantillas",
+    "description": "Heading for Templates subsection"
+  },
+  "guideSettingsTemplatesTitle": {
+    "message": "Plantilla de título",
+    "description": "Subheading for Title Template"
+  },
+  "guideSettingsTemplatesTitleDesc": {
+    "message": "Controla el campo del título del panel y el nombre de archivo resultante. Usa <a href=\"#text-substitutions\">Sustituciones de texto personalizadas</a>. Predeterminado: <code>{pageTitle}</code>",
+    "description": "Description for Title Template"
+  },
+  "guideSettingsTemplatesFolder": {
+    "message": "Subcarpeta de Descargas",
+    "description": "Subheading for Downloads Subfolder"
+  },
+  "guideSettingsTemplatesFolderDesc": {
+    "message": "Una subcarpeta dentro de la carpeta de descargas de tu navegador donde se guardan los archivos Markdown. Solo disponible en el modo API de Descargas. Usa <a href=\"#text-substitutions\">sustituciones de texto</a>.",
+    "description": "Description for Downloads Subfolder"
+  },
+  "guideSettingsTemplatesChars": {
+    "message": "Caracteres no permitidos",
+    "description": "Subheading for Disallowed Characters"
+  },
+  "guideSettingsTemplatesCharsDesc": {
+    "message": "Caracteres eliminados automáticamente de los nombres de archivo, además de los caracteres reservados por el sistema. Predeterminado: <code>[]#^</code> (para compatibilidad con Obsidian).",
+    "description": "Description for Disallowed Characters"
+  },
+  "guideSettingsTemplatesFrontBack": {
+    "message": "Plantillas inicial/final",
+    "description": "Subheading for Front/Back Templates"
+  },
+  "guideSettingsTemplatesFrontBackDesc": {
+    "message": "Texto añadido antes o después de cada archivo Markdown recortado. Útil para el front-matter de YAML u otros metadatos. Usa <a href=\"#text-substitutions\">sustituciones de texto</a>.",
+    "description": "Description for Front/Back Templates"
+  },
+  "guideSettingsDownloads": {
+    "message": "Descargas",
+    "description": "Heading for Downloads subsection"
+  },
+  "guideSettingsDownloadsMenus": {
+    "message": "Menús contextuales",
+    "description": "Subheading for Context Menus"
+  },
+  "guideSettingsDownloadsMenusDesc": {
+    "message": "Alterna los elementos del menú contextual de clic derecho para que aparezcan o no. Predeterminado: <strong>On</strong>.",
+    "description": "Description for Context Menus"
+  },
+  "guideSettingsDownloadsAction": {
+    "message": "Acción predeterminada",
+    "description": "Subheading for Default Popup Action"
+  },
+  "guideSettingsDownloadsActionDesc": {
+    "message": "Controla los botones de acción principales del panel. Elige <strong>Markdown</strong>, <strong>Texto sin formato</strong>, <strong>HTML</strong>, <strong>PDF</strong>, o <strong>Enviar al Asistente</strong>. Esto no cambia las descargas del menú contextual, los atajos de teclado de descarga, la salida por lotes, las exportaciones de la Biblioteca, la salida de Agent Bridge o los envíos a Obsidian.",
+    "description": "Description for Default Popup Action"
+  },
+  "guideSettingsDownloadsTarget": {
+    "message": "Asistente de destino",
+    "description": "Subheading for Default Assistant Target"
+  },
+  "guideSettingsDownloadsTargetDesc": {
+    "message": "Cuando se selecciona <strong>Enviar al Asistente</strong>, elige el destino predeterminado del panel como <strong>ChatGPT</strong>, <strong>Claude</strong>, <strong>Perplexity</strong>, o una de tus URLs de asistente personalizadas.",
+    "description": "Description for Default Assistant Target"
+  },
+  "guideSettingsDownloadsTargets": {
+    "message": "Destinos del Asistente",
+    "description": "Subheading for Assistant Targets"
+  },
+  "guideSettingsDownloadsTargetsDesc": {
+    "message": "ChatGPT, Claude y Perplexity están integrados. Añade URLs de asistentes HTTPS personalizadas que acepten un marcador <code>{prompt}</code> en la cadena de consulta. MarkSnip inserta el Markdown actual en ese marcador cuando envías desde el panel.",
+    "description": "Description for Assistant Targets"
+  },
+  "guideSettingsDownloadsLength": {
+    "message": "Límite de longitud de URL",
+    "description": "Subheading for Assistant URL Length Cap"
+  },
+  "guideSettingsDownloadsLengthDesc": {
+    "message": "Controla qué tan larga puede ser una URL de asistente generada antes de que MarkSnip recurra a copiar el Markdown en tu portapapeles y abrir en su lugar la página de inicio del asistente. El valor predeterminado es <strong>3600</strong>, y no se recomienda cambiarlo.",
+    "description": "Description for Assistant URL Length Cap"
+  },
+  "guideSettingsMarkdown": {
+    "message": "Opciones de Markdown",
+    "description": "Heading for Markdown Options subsection"
+  },
+  "guideSettingsMarkdownHeading": {
+    "message": "Estilo de encabezados",
+    "description": "Subheading for Heading Style"
+  },
+  "guideSettingsMarkdownHeadingDesc": {
+    "message": "<strong>Setext</strong> usa subrayados (<code>===</code> / <code>---</code>); <strong>Atx</strong> (predeterminado) usa prefijos <code>#</code>.",
+    "description": "Description for Heading Style"
+  },
+  "guideSettingsMarkdownHr": {
+    "message": "Regla Horizontal",
+    "description": "Subheading for Horizontal Rule Style"
+  },
+  "guideSettingsMarkdownHrDesc": {
+    "message": "Elige entre <code>***</code>, <code>---</code>, o <code>___</code> (predeterminado).",
+    "description": "Description for Horizontal Rule Style"
+  },
+  "guideSettingsMarkdownBullet": {
+    "message": "Viñetas",
+    "description": "Subheading for Bullet List Marker"
+  },
+  "guideSettingsMarkdownBulletDesc": {
+    "message": "<code>*</code>, <code>-</code> (predeterminado), o <code>+</code>.",
+    "description": "Description for Bullet List Marker"
+  },
+  "guideSettingsMarkdownCode": {
+    "message": "Estilo de código",
+    "description": "Subheading for Code Block Style"
+  },
+  "guideSettingsMarkdownCodeDesc": {
+    "message": "<strong>Indentado</strong> (cuatro espacios de sangría) o <strong>Cercado</strong> (predeterminado, envuelto en <code>```</code> o <code>~~~</code>).",
+    "description": "Description for Code Block Style"
+  },
+  "guideSettingsMarkdownPreserve": {
+    "message": "Preservar formato en código",
+    "description": "Subheading for Preserve Code Block Formatting"
+  },
+  "guideSettingsMarkdownPreserveDesc": {
+    "message": "Cuando está habilitado, preserva el formato HTML original dentro de los bloques de código. Predeterminado: <strong>Off</strong>.",
+    "description": "Description for Preserve Code Block Formatting"
+  },
+  "guideSettingsMarkdownEmStrong": {
+    "message": "Delimitadores de énfasis y negrita",
+    "description": "Subheading for Emphasis & Strong Delimiters"
+  },
+  "guideSettingsMarkdownEmStrongDesc": {
+    "message": "Cursiva: <code>_</code> (predeterminado), <code>*</code>, o <code>__</code> (para Roam). Negrita: <code>**</code> (predeterminado) o <code>__</code>.",
+    "description": "Description for Emphasis & Strong Delimiters"
+  },
+  "guideSettingsMarkdownLink": {
+    "message": "Estilo de enlaces",
+    "description": "Subheading for Link Style"
+  },
+  "guideSettingsMarkdownLinkDesc": {
+    "message": "<strong>En línea</strong> (predeterminado): <code>[Google](http://google.com)</code>. <strong>Referenciado</strong>: definiciones de enlace separadas al final. <strong>Eliminar enlaces</strong>: quita los enlaces por completo.",
+    "description": "Description for Link Style"
+  },
+  "guideSettingsMarkdownImage": {
+    "message": "Estilo de imágenes",
+    "description": "Subheading for Image Style"
+  },
+  "guideSettingsMarkdownImageCol1": {
+    "message": "Estilo",
+    "description": "Table column Style"
+  },
+  "guideSettingsMarkdownImageCol2": {
+    "message": "Salida",
+    "description": "Table column Output"
+  },
+  "guideSettingsMarkdownImageCol3": {
+    "message": "Requiere descargar imágenes",
+    "description": "Table column Requires Download Images"
+  },
+  "guideSettingsMarkdownImageNo": {
+    "message": "No",
+    "description": "Table cell No"
+  },
+  "guideSettingsMarkdownImageYes": {
+    "message": "Sí",
+    "description": "Table cell Yes"
+  },
+  "guideSettingsMarkdownImageRemoved": {
+    "message": "<em>(imagen eliminada)</em>",
+    "description": "Table cell Image removed"
+  },
+  "guideSettingsMarkdownImageOriginal": {
+    "message": "Fuente original",
+    "description": "Table cell Original Source"
+  },
+  "guideSettingsMarkdownImageStrip": {
+    "message": "Eliminar imágenes",
+    "description": "Table cell Strip Images"
+  },
+  "guideSettingsMarkdownImagePure": {
+    "message": "Markdown puro (predeterminado)",
+    "description": "Table cell Pure Markdown"
+  },
+  "guideSettingsMarkdownImageBase64": {
+    "message": "Codificación Base64",
+    "description": "Table cell Base64 Encoded"
+  },
+  "guideSettingsMarkdownImageObsidian": {
+    "message": "Incrustación de Obsidian",
+    "description": "Table cell Obsidian Internal Embed"
+  },
+  "guideSettingsMarkdownImageObsidianNo": {
+    "message": "Incrustación de Obsidian (sin carpeta)",
+    "description": "Table cell Obsidian Embed (no folder)"
+  },
+  "guideSettingsMarkdownEscape": {
+    "message": "Escapar caracteres Markdown",
+    "description": "Subheading for Escape Markdown Characters"
+  },
+  "guideSettingsMarkdownEscapeDesc": {
+    "message": "Escapa los caracteres especiales de Markdown con barra invertida para prevenir una mala interpretación. Predeterminado: <strong>On</strong>.",
+    "description": "Description for Escape Markdown Characters"
+  },
+  "guideSettingsMarkdownHashtag": {
+    "message": "Manejo de hashtags",
+    "description": "Subheading for Hashtag Handling"
+  },
+  "guideSettingsMarkdownHashtagDesc": {
+    "message": "<strong>Mantener</strong> (predeterminado), <strong>Quitar #</strong>, o <strong>Escapar #</strong>. Solo afecta al texto del artículo; la sintaxis de Markdown y el código se preservan.",
+    "description": "Description for Hashtag Handling"
+  },
+  "guideSettingsTables": {
+    "message": "Formato de tablas",
+    "description": "Heading for Table Formatting Options"
+  },
+  "guideSettingsTablesCol1": {
+    "message": "Opción",
+    "description": "Table column Option"
+  },
+  "guideSettingsTablesCol2": {
+    "message": "Descripción",
+    "description": "Table column Description"
+  },
+  "guideSettingsTablesCol3": {
+    "message": "Predeterminado",
+    "description": "Table column Default"
+  },
+  "guideSettingsTablesStripLinks": {
+    "message": "Eliminar enlaces de tablas",
+    "description": "Table cell Strip Links"
+  },
+  "guideSettingsTablesStripLinksDesc": {
+    "message": "Elimina los hipervínculos de las celdas de la tabla, manteniendo solo el texto.",
+    "description": "Table cell Strip Links Description"
+  },
+  "guideSettingsTablesStripForm": {
+    "message": "Eliminar formato",
+    "description": "Table cell Strip Formatting"
+  },
+  "guideSettingsTablesStripFormDesc": {
+    "message": "Elimina la negrita, la cursiva y otro formato de las celdas de la tabla.",
+    "description": "Table cell Strip Formatting Description"
+  },
+  "guideSettingsTablesPretty": {
+    "message": "Impresión bonita",
+    "description": "Table cell Pretty Print"
+  },
+  "guideSettingsTablesPrettyDesc": {
+    "message": "Alinea las columnas con espacios.",
+    "description": "Table cell Pretty Print Description"
+  },
+  "guideSettingsTablesCenter": {
+    "message": "Centrar el texto en las columnas",
+    "description": "Table cell Center Text"
+  },
+  "guideSettingsTablesCenterDesc": {
+    "message": "Centra el texto dentro de las columnas.",
+    "description": "Table cell Center Text Description"
+  },
+  "guideSettingsImportExport": {
+    "message": "Importar / Exportar",
+    "description": "Heading for Import / Export Settings"
+  },
+  "guideSettingsImportExportImport": {
+    "message": "<strong>Importar</strong> &mdash; restaura configuraciones desde un archivo JSON exportado previamente.",
+    "description": "Description for Import"
+  },
+  "guideSettingsImportExportExport": {
+    "message": "<strong>Exportar</strong> &mdash; guarda todos los ajustes actuales a un archivo JSON para tener copia de seguridad o transferir a otro navegador.",
+    "description": "Description for Export"
+  },
+  "guideObsidianHeading": {
+    "message": "Obsidian y Descargas",
+    "description": "Heading for Obsidian & Downloads"
+  },
+  "guideObsidianIntegration": {
+    "message": "Integración con Obsidian",
+    "description": "Heading for Obsidian Integration"
+  },
+  "guideObsidianIntegrationDesc": {
+    "message": "Habilita esto para mostrar el botón <strong>Enviar a Obsidian</strong> y las acciones del menú contextual de Obsidian. Requiere el plugin comunitario <strong>Advanced Obsidian URI</strong>.",
+    "description": "Description for Obsidian Integration"
+  },
+  "guideObsidianIntegrationVault": {
+    "message": "<strong>Nombre del Vault</strong> &mdash; déjalo en blanco para el predeterminado.",
+    "description": "Vault Name description"
+  },
+  "guideObsidianIntegrationFolder": {
+    "message": "<strong>Nombre de la Carpeta</strong> &mdash; soporta <a href=\"#text-substitutions\">sustituciones de texto</a> (ej. <code>{date:YYYY-MM-DD}/</code>).",
+    "description": "Folder Name description"
+  },
+  "guideObsidianIntegrationNote": {
+    "message": "<strong>Nota:</strong> Las imágenes enviadas a través de Obsidian se mantienen como enlaces remotos. La extensión no coloca archivos adjuntos dentro de la bóveda.",
+    "description": "Note for Obsidian Integration"
+  },
+  "guideObsidianMode": {
+    "message": "Modo de Descarga",
+    "description": "Heading for Download Mode"
+  },
+  "guideObsidianModeCol1": {
+    "message": "Modo",
+    "description": "Table column Mode"
+  },
+  "guideObsidianModeCol2": {
+    "message": "Descripción",
+    "description": "Table column Description"
+  },
+  "guideObsidianModeApi": {
+    "message": "<strong>API de Descargas</strong> (recomendado)",
+    "description": "Downloads API mode name"
+  },
+  "guideObsidianModeApiDesc": {
+    "message": "Usa la API de descarga del navegador. Soporta subcarpetas, descarga de imágenes y cuadros de diálogo de Guardar Como.",
+    "description": "Downloads API description"
+  },
+  "guideObsidianModeLink": {
+    "message": "<strong>Enlace de Contenido</strong>",
+    "description": "Content Link mode name"
+  },
+  "guideObsidianModeLinkDesc": {
+    "message": "Recurre a un enlace de contenido para descargar. Más limitado &mdash; deshabilita las descargas de imágenes y subcarpetas.",
+    "description": "Content Link description"
+  },
+  "guideObsidianModeSaveAs": {
+    "message": "Mostrar cuadro de diálogo",
+    "description": "Subheading for Show Save As Dialog"
+  },
+  "guideObsidianModeSaveAsDesc": {
+    "message": "Fuerza el cuadro de diálogo de Guardar Como del navegador para cada descarga. No recomendado cuando Descargar imágenes está activado.",
+    "description": "Description for Show Save As Dialog"
+  },
+  "guideObsidianImage": {
+    "message": "Descargar Imágenes",
+    "description": "Heading for Image Downloads"
+  },
+  "guideObsidianImageDesc": {
+    "message": "Cuando está habilitado (solo modo API de Descargas), las imágenes se descargan junto al archivo Markdown con referencias locales.",
+    "description": "Description for Image Downloads"
+  },
+  "guideObsidianImagePrefix": {
+    "message": "Prefijo de Imagen",
+    "description": "Subheading for Image Filename Prefix"
+  },
+  "guideObsidianImagePrefixDesc": {
+    "message": "Un prefijo o subcarpeta para las imágenes descargadas. Usa <a href=\"#text-substitutions\">sustituciones de texto</a>. Incluir un <code>/</code> crea una subcarpeta. Predeterminado: <code>{pageTitle}/</code>.",
+    "description": "Description for Image Filename Prefix"
+  },
+  "guidePermissionsHeading": {
+    "message": "Permisos y Privacidad",
+    "description": "Heading for Permissions & Privacy"
+  },
+  "guidePermissionsIntro": {
+    "message": "MarkSnip procesa las páginas completamente dentro de tu navegador. No envía el contenido de la página a ningún servidor externo. Esta sección explica qué permisos de navegador usa MarkSnip, por qué son necesarios y cuándo son ejercitados realmente.",
+    "description": "Intro for Permissions & Privacy"
+  },
+  "guidePermissionsSite": {
+    "message": "Acceso al sitio",
+    "description": "Heading for Site Access"
+  },
+  "guidePermissionsSiteDesc": {
+    "message": "MarkSnip pide acceso a las páginas web para que pueda recortar páginas en toda la red cuando activas un recorte. Esto cubre los recortes del panel, atajos de teclado, acciones de menús contextuales, acciones de enlaces en pestañas múltiples, y procesamiento por lotes de URLs abiertas en nuevas pestañas.",
+    "description": "Description for Site Access"
+  },
+  "guidePermissionsSiteBullet1": {
+    "message": "<strong>Solo funciona cuando tú recortas</strong> &mdash; MarkSnip no monitorea tu actividad de navegación ni lee las páginas en segundo plano.",
+    "description": "Site Access bullet 1"
+  },
+  "guidePermissionsSiteBullet2": {
+    "message": "<strong>Procesado localmente</strong> &mdash; el contenido de la página se convierte a Markdown dentro de tu navegador y nunca es enviado a un servicio remoto.",
+    "description": "Site Access bullet 2"
+  },
+  "guidePermissionsSiteBullet3": {
+    "message": "<strong>Gestionado por el navegador</strong> &mdash; puedes revisar este permiso en los ajustes de la extensión de tu navegador en cualquier momento.",
+    "description": "Site Access bullet 3"
+  },
+  "guidePermissionsOther": {
+    "message": "Otros Permisos Centrales",
+    "description": "Heading for Other Core Permissions"
+  },
+  "guidePermissionsOtherDesc": {
+    "message": "Más allá del acceso al sitio, MarkSnip usa un conjunto pequeño de permisos estándar del navegador para hacer funcionar sus principales características. Estos permisos soportan acciones locales del navegador; no cambian el hecho de que el recorte permanece local.",
+    "description": "Description for Other Core Permissions"
+  },
+  "guidePermissionsOtherCol1": {
+    "message": "Permiso",
+    "description": "Table column Permission"
+  },
+  "guidePermissionsOtherCol2": {
+    "message": "Por qué lo usa",
+    "description": "Table column Why MarkSnip uses it"
+  },
+  "guidePermissionsOtherCol3": {
+    "message": "Cuándo importa",
+    "description": "Table column When it matters"
+  },
+  "guidePermissionsOtherActiveTabDesc": {
+    "message": "Permite a MarkSnip trabajar con la página en la que lo invocaste explícitamente.",
+    "description": "activeTab description"
+  },
+  "guidePermissionsOtherActiveTabWhen": {
+    "message": "Al abrir el panel o usar un atajo de teclado en la pestaña actual.",
+    "description": "activeTab when it matters"
+  },
+  "guidePermissionsOtherDownloadsDesc": {
+    "message": "Guarda archivos Markdown, exportaciones en ZIP y las imágenes descargadas a través del navegador.",
+    "description": "downloads description"
+  },
+  "guidePermissionsOtherDownloadsWhen": {
+    "message": "Al descargar recortes o lotes.",
+    "description": "downloads when it matters"
+  },
+  "guidePermissionsOtherClipboardDesc": {
+    "message": "Escribe el Markdown generado en tu portapapeles.",
+    "description": "clipboardWrite description"
+  },
+  "guidePermissionsOtherClipboardWhen": {
+    "message": "Al usar funciones de Copiar.",
+    "description": "clipboardWrite when it matters"
+  },
+  "guidePermissionsOtherStorageDesc": {
+    "message": "Recuerda tus ajustes, plantillas, temas e interruptores de características.",
+    "description": "storage description"
+  },
+  "guidePermissionsOtherStorageWhen": {
+    "message": "Siempre que guardas o restauras configuraciones.",
+    "description": "storage when it matters"
+  },
+  "guidePermissionsOtherContextMenusDesc": {
+    "message": "Agrega acciones de clic derecho para páginas, selecciones, enlaces, imágenes y pestañas.",
+    "description": "contextMenus description"
+  },
+  "guidePermissionsOtherContextMenusWhen": {
+    "message": "Si los menús contextuales están habilitados.",
+    "description": "contextMenus when it matters"
+  },
+  "guidePermissionsOtherScriptingDesc": {
+    "message": "Inyecta los ayudantes de captura de MarkSnip en la página en el momento de realizar el recorte.",
+    "description": "scripting description"
+  },
+  "guidePermissionsOtherScriptingWhen": {
+    "message": "Siempre que MarkSnip lee el contenido de la página.",
+    "description": "scripting when it matters"
+  },
+  "guidePermissionsOtherOffscreenDesc": {
+    "message": "Usa un documento oculto para los flujos de trabajo de portapapeles y descargas de Manifest V3 en navegadores Chromium.",
+    "description": "offscreen description"
+  },
+  "guidePermissionsOtherOffscreenWhen": {
+    "message": "En algunas acciones de copiado y descarga.",
+    "description": "offscreen when it matters"
+  },
+  "guidePermissionsBridge": {
+    "message": "Permiso para Agent Bridge",
+    "description": "Heading for Agent Bridge Permission"
+  },
+  "guidePermissionsBridgeDesc": {
+    "message": "La característica Agent Bridge requiere un permiso del navegador adicional llamado <strong>Native Messaging</strong>. Este es un permiso <em>opcional</em> &mdash; MarkSnip funciona a la perfección sin él.",
+    "description": "Description for Agent Bridge Permission"
+  },
+  "guidePermissionsBridgeBullet1": {
+    "message": "<strong>Lo que hace</strong> &mdash; permite a MarkSnip comunicarse con un pequeño programa acompañante local instalado en tu equipo.",
+    "description": "Agent Bridge bullet 1"
+  },
+  "guidePermissionsBridgeBullet2": {
+    "message": "<strong>Solo local</strong> &mdash; la comunicación se queda en tu computadora. Ningún dato sale de tu equipo.",
+    "description": "Agent Bridge bullet 2"
+  },
+  "guidePermissionsBridgeBullet3": {
+    "message": "<strong>Cuándo es usado</strong> &mdash; solo mientras Agent Bridge está activado. Apagar el interruptor detiene toda actividad de mensajería nativa.",
+    "description": "Agent Bridge bullet 3"
+  },
+  "guidePermissionsBridgeBullet4": {
+    "message": "<strong>Cómo concederlo</strong> &mdash; habilita el interruptor de Agent Bridge en los Ajustes. MarkSnip mostrará una explicación antes de que aparezca la ventana de aviso de permiso del navegador.",
+    "description": "Agent Bridge bullet 4"
+  },
+  "guidePermissionsBridgeBullet5": {
+    "message": "<strong>Cómo revocarlo</strong> &mdash; una vez concedido, este permiso no puede ser eliminado de forma selectiva. Para revocarlo completamente, debes reinstalar la extensión. Apagar el interruptor de Agent Bridge detiene toda actividad de mensajería nativa sin necesidad de revocar el permiso.",
+    "description": "Agent Bridge bullet 5"
+  },
+  "guidePermissionsBridgeNote": {
+    "message": "<strong>Nota:</strong> Si deniegas el permiso, el recorte regular no se verá afectado en absoluto. Siempre puedes intentar de nuevo más tarde.",
+    "description": "Agent Bridge Note"
+  },
+  "guideFaq4Title": {
+    "message": "Faltan las acciones del menú contextual",
+    "description": "FAQ 4 Title"
+  },
+  "guideFaq4Desc": {
+    "message": "Verifica que <strong>Habilitar Menús Contextuales</strong> esté encendido en los <a href=\"#download-settings\">Ajustes de Descargas</a>.",
+    "description": "FAQ 4 Description"
+  },
+  "guideFaq5Title": {
+    "message": "Los atajos de teclado no funcionan",
+    "description": "FAQ 5 Title"
+  },
+  "guideFaq5Desc": {
+    "message": "Es posible que otra extensión use el mismo atajo. Cámbialo en la configuración de tu navegador.",
+    "description": "FAQ 5 Description"
+  },
+  "guideFaq6Title": {
+    "message": "La salida Markdown se ve mal",
+    "description": "FAQ 6 Title"
+  },
+  "guideFaq6Desc": {
+    "message": "Revisa las <a href=\"#markdown-options\">Opciones de Markdown</a> para ajustar el estilo de los encabezados, estilo de enlace, estilo de bloques de código y configuraciones de escape para que encajen en tu flujo de trabajo.",
+    "description": "FAQ 6 Description"
+  },
+  "guideTextSubHeading": {
+    "message": "Sustituciones de texto personalizadas",
+    "description": "Heading for Custom Text Substitutions"
+  },
+  "guideTextSubIntro": {
+    "message": "La Plantilla de Título, Subcarpeta de Descargas, Plantillas Inicial/Final, Prefijo de Archivo de Imagen y Nombre de Carpeta de Obsidian soportan estas variables:",
+    "description": "Intro for Text Substitutions"
+  },
+  "guideTextSubMeta": {
+    "message": "Metadatos del Artículo",
+    "description": "Heading for Article Metadata"
+  },
+  "guideTextSubCol1": {
+    "message": "Variable",
+    "description": "Table column Variable"
+  },
+  "guideTextSubCol2": {
+    "message": "Descripción",
+    "description": "Table column Description"
+  },
+  "guideTextSubMetaTitle": {
+    "message": "Título del artículo (determinado por Readability)",
+    "description": "Article title description"
+  },
+  "guideTextSubMetaPageTitle": {
+    "message": "Título de la página actual (etiqueta <code>&lt;title&gt;</code>)",
+    "description": "Page title description"
+  },
+  "guideTextSubMetaLength": {
+    "message": "Longitud del artículo en caracteres",
+    "description": "Length description"
+  },
+  "guideTextSubMetaExcerpt": {
+    "message": "Descripción del artículo o pequeño resumen",
+    "description": "Excerpt description"
+  },
+  "guideTextSubMetaByline": {
+    "message": "Autor",
+    "description": "Byline description"
+  },
+  "guideTextSubMetaDir": {
+    "message": "Dirección del contenido (ej. <code>ltr</code>)",
+    "description": "Direction description"
+  },
+  "guideTextSubMetaBaseUri": {
+    "message": "URI base parseada",
+    "description": "Base URI description"
+  },
+  "guideTextSubMetaUrl": {
+    "message": "URL de la barra de direcciones",
+    "description": "Page URL description"
+  },
+  "guideTextSubMetaKeywords": {
+    "message": "Meta keywords, separados por comas",
+    "description": "Keywords description"
+  },
+  "guideTextSubUrl": {
+    "message": "Componentes de URL",
+    "description": "Heading for URL Components"
+  },
+  "guideTextSubUrlOrigin": {
+    "message": "Esquema + dominio + puerto",
+    "description": "Origin description"
+  },
+  "guideTextSubUrlHost": {
+    "message": "Dominio + puerto",
+    "description": "Host description"
+  },
+  "guideTextSubUrlHostname": {
+    "message": "Dominio solo",
+    "description": "Hostname description"
+  },
+  "guideTextSubUrlPort": {
+    "message": "Puerto",
+    "description": "Port description"
+  },
+  "guideTextSubUrlProtocol": {
+    "message": "Protocolo con dos puntos (<code>:</code>) al final",
+    "description": "Protocol description"
+  },
+  "guideTextSubUrlPathname": {
+    "message": "Ruta",
+    "description": "Pathname description"
+  },
+  "guideTextSubUrlSearch": {
+    "message": "Cadena de consulta incluyendo <code>?</code>",
+    "description": "Search description"
+  },
+  "guideTextSubUrlHash": {
+    "message": "Identificador de fragmento incluyendo <code>#</code>",
+    "description": "Hash description"
+  },
+  "guideTextSubUrlNote": {
+    "message": "Todos los componentes URL también están disponibles con el prefijo <code>page</code> (ej. <code>{pageOrigin}</code>, <code>{pageHostname}</code>).",
+    "description": "Note for URL components"
+  },
+  "guideTextSubDate": {
+    "message": "Fecha y hora",
+    "description": "Heading for Date/Time"
+  },
+  "guideTextSubDateDesc": {
+    "message": "Usa <code>{date:FORMAT}</code> con tokens de formato de Moment.js. Ejemplo: <code>{date:YYYY-MM-DD}</code>.",
+    "description": "Description for Date/Time"
+  },
+  "guideTextSubTags": {
+    "message": "Etiquetas Meta",
+    "description": "Heading for Meta Tags"
+  },
+  "guideTextSubTagsDesc": {
+    "message": "Cualquier valor de una etiqueta <code>&lt;meta&gt;</code> puede ser referenciado, ej. <code>{og:image}</code>, <code>{og:description}</code>.",
+    "description": "Description for Meta Tags"
+  },
+  "guideTextSubParams": {
+    "message": "Parámetros",
+    "description": "Heading for Parameterizations"
+  },
+  "guideTextSubParamsDesc": {
+    "message": "Cambia las mayúsculas de cualquier variable de texto (excepto <code>{date}</code> y <code>{keywords}</code>) añadiendo dos puntos y el estilo:",
+    "description": "Description for Parameterizations"
+  },
+  "guideTextSubParamsCol1": {
+    "message": "Sintaxis",
+    "description": "Table column Syntax"
+  },
+  "guideTextSubParamsCol2": {
+    "message": "Estilo",
+    "description": "Table column Style"
+  },
+  "guideTextSubParamsCol3": {
+    "message": "Ejemplo",
+    "description": "Table column Example"
+  },
+  "guideTextSubParamsLower": {
+    "message": "minúsculas",
+    "description": "lowercase example"
+  },
+  "guideTextSubParamsUpper": {
+    "message": "MAYÚSCULAS",
+    "description": "uppercase example"
+  },
+  "guideTextSubParamsNote": {
+    "message": "<strong>Nota:</strong> No todos los sitios web proveen todos los valores de los metadatos. Los valores faltantes son reemplazados con strings vacíos.",
+    "description": "Note for Parameterizations"
+  },
+  "guidePageTitle": {
+    "message": "Guía de Usuario MarkSnip",
+    "description": "Guide page title"
+  },
+  "guideOpenSettingsTitle": {
+    "message": "Abrir Ajustes",
+    "description": "Tooltip for opening settings from the guide"
+  },
+  "guideSearchAriaLabel": {
+    "message": "Buscar en la guía",
+    "description": "ARIA label for guide search input"
+  },
+  "guideTocAriaLabel": {
+    "message": "Tabla de contenidos",
+    "description": "ARIA label for guide table of contents"
+  },
+  "guideSearchResultsAriaLabel": {
+    "message": "Resultados de búsqueda",
+    "description": "ARIA label for guide search results region"
+  },
+  "guideSearchClearAriaLabel": {
+    "message": "Limpiar búsqueda",
+    "description": "ARIA label for guide search clear button"
+  },
+  "guideWelcomeDismissLabel": {
+    "message": "Cerrar mensaje de bienvenida",
+    "description": "ARIA label for dismissing guide welcome message"
+  },
+  "guideSearchResultsCountZero": {
+    "message": "0 resultados",
+    "description": "Guide search result count when there are no results"
+  },
+  "guideSearchResultsCountOne": {
+    "message": "1 resultado",
+    "description": "Guide search result count when there is one result"
+  },
+  "guideSearchResultsCountMany": {
+    "message": "$COUNT$ resultados",
+    "description": "Guide search result count when there are multiple results",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "guideTocClippingScope": {
+    "message": "Alcance del Recorte",
+    "description": "TOC link for Clipping Scope"
+  },
+  "guideTocTableOptions": {
+    "message": "Opciones de Tabla",
+    "description": "TOC link for Table Options"
+  },
+  "guideSummaryQuickStart": {
+    "message": "Empieza con MarkSnip en tres pasos",
+    "description": "Guide search summary for Quick Start"
+  },
+  "guideSummaryUsingPopup": {
+    "message": "La interfaz principal del panel para recortar páginas",
+    "description": "Guide search summary for Using the Popup"
+  },
+  "guideSummaryQuickSettings": {
+    "message": "Alternar imágenes y plantillas",
+    "description": "Guide search summary for Quick Settings"
+  },
+  "guideSummaryClippingScope": {
+    "message": "Elegir entre recortar selección o documento entero",
+    "description": "Guide search summary for Clipping Scope"
+  },
+  "guideSummaryEditingTitle": {
+    "message": "Establece el nombre de archivo para tu Markdown",
+    "description": "Guide search summary for Editing the Title"
+  },
+  "guideSummaryMarkdownPreview": {
+    "message": "Edita y copia Markdown en el editor integrado",
+    "description": "Guide search summary for Markdown Preview"
+  },
+  "guideSummaryActionButtons": {
+    "message": "Descargar, enviar, copiar o mandar a Obsidian",
+    "description": "Guide search summary for Action Buttons"
+  },
+  "guideSummaryBatchProcessing": {
+    "message": "Convierte múltiples URLs a Markdown a la vez",
+    "description": "Guide search summary for Batch Processing"
+  },
+  "guideSummaryAddingUrls": {
+    "message": "Pega URLs o usa la sintaxis de enlaces Markdown",
+    "description": "Guide search summary for Adding URLs"
+  },
+  "guideSummaryPickLinks": {
+    "message": "Selecciona visualmente enlaces de la página actual",
+    "description": "Guide search summary for Pick Links from Page"
+  },
+  "guideSummaryOutputFormat": {
+    "message": "Elige ZIP o archivos individuales",
+    "description": "Guide search summary for Output Format"
+  },
+  "guideSummaryContextMenus": {
+    "message": "Acciones de clic derecho y atajos de teclado",
+    "description": "Guide search summary for Context Menus and Shortcuts"
+  },
+  "guideSummaryDownloadActions": {
+    "message": "Opciones de descarga en menú contextual",
+    "description": "Guide search summary for Download Actions"
+  },
+  "guideSummaryCopyActions": {
+    "message": "Opciones de copia en menú contextual",
+    "description": "Guide search summary for Copy Actions"
+  },
+  "guideSummaryObsidianActions": {
+    "message": "Acciones del menú contextual para Obsidian",
+    "description": "Guide search summary for Obsidian Actions"
+  },
+  "guideSummaryKeyboardShortcuts": {
+    "message": "Atajos de teclado por defecto y personalización",
+    "description": "Guide search summary for Keyboard Shortcuts"
+  },
+  "guideSummarySettings": {
+    "message": "Configura todos los ajustes de la extensión",
+    "description": "Guide search summary for Settings and Customization"
+  },
+  "guideSummaryTemplates": {
+    "message": "Plantilla de título, inicial y final",
+    "description": "Guide search summary for Templates"
+  },
+  "guideSummaryDownloadSettings": {
+    "message": "Configura el comportamiento de descarga y menús",
+    "description": "Guide search summary for Download Settings"
+  },
+  "guideSummaryMarkdownOptions": {
+    "message": "Estilo de encabezados, bloques de código, enlaces, imágenes y más",
+    "description": "Guide search summary for Markdown Options"
+  },
+  "guideSummaryTableOptions": {
+    "message": "Configura el formato de las tablas",
+    "description": "Guide search summary for Table Options"
+  },
+  "guideSummaryImportExport": {
+    "message": "Copia de seguridad y restauración",
+    "description": "Guide search summary for Import / Export"
+  },
+  "guideSummaryObsidianDownloads": {
+    "message": "Integración con Obsidian, modos de descarga e imágenes",
+    "description": "Guide search summary for Obsidian and Downloads"
+  },
+  "guideSummaryObsidianIntegration": {
+    "message": "Envía recortes directamente a Obsidian",
+    "description": "Guide search summary for Obsidian Integration"
+  },
+  "guideSummaryDownloadMode": {
+    "message": "Elige entre API de Descargas y Enlace de Contenido",
+    "description": "Guide search summary for Download Mode"
+  },
+  "guideSummaryImageDownloads": {
+    "message": "Descargar imágenes junto a archivos Markdown",
+    "description": "Guide search summary for Image Downloads"
+  },
+  "guideSummaryPermissionsPrivacy": {
+    "message": "Qué permisos utiliza MarkSnip y por qué",
+    "description": "Guide search summary for Permissions and Privacy"
+  },
+  "guideSummarySiteAccessPermission": {
+    "message": "Por qué MarkSnip solicita acceso a todas las páginas",
+    "description": "Guide search summary for Site Access Permission"
+  },
+  "guideSummaryOtherCorePermissions": {
+    "message": "Para qué sirven el resto de permisos integrados",
+    "description": "Guide search summary for Other Core Permissions"
+  },
+  "guideSummaryAgentBridgePermission": {
+    "message": "Permiso de mensajería nativa opcional para Agent Bridge",
+    "description": "Guide search summary for Agent Bridge Permission"
+  },
+  "guideSummaryTroubleshooting": {
+    "message": "Problemas comunes y soluciones",
+    "description": "Guide search summary for Troubleshooting / FAQ"
+  },
+  "guideSummaryTextSubstitutions": {
+    "message": "Variables para plantillas, títulos y nombres de archivo",
+    "description": "Guide search summary for Text Substitutions"
+  },
+  "optionsSectionsAriaLabel": {
+    "message": "Secciones de opciones",
+    "description": "ARIA label for the options sidebar tab list"
+  },
+  "optionsTemplateVarRefIntro": {
+    "message": "Para el título, así como el texto personalizado de la plantilla inicial y final, puedes usar los siguientes valores de reemplazo de texto. Por favor ten en cuenta que no todos los sitios web proveerán todos los valores.",
+    "description": "Intro text for options template variable reference"
+  },
+  "optionsTemplateVarArticleTitle": {
+    "message": "{title} - Título del artículo",
+    "description": "Template variable reference for article title"
+  },
+  "optionsTemplateVarPageTitle": {
+    "message": "{pageTitle} - Título real de la pestaña HTML",
+    "description": "Template variable reference for page title"
+  },
+  "optionsTemplateVarLength": {
+    "message": "{length} - Longitud del artículo en caracteres",
+    "description": "Template variable reference for article length"
+  },
+  "optionsTemplateVarExcerpt": {
+    "message": "{excerpt} - Descripción del artículo o un corto extracto del contenido",
+    "description": "Template variable reference for excerpt"
+  },
+  "optionsTemplateVarByline": {
+    "message": "{byline} - Metadatos de autor",
+    "description": "Template variable reference for byline"
+  },
+  "optionsTemplateVarDir": {
+    "message": "{dir} - Dirección de contenido",
+    "description": "Template variable reference for content direction"
+  },
+  "optionsTemplateVarDate": {
+    "message": "{date:FORMAT} - La fecha y hora actual. Revisa la referencia del formato",
+    "description": "Template variable reference for date"
+  },
+  "optionsTemplateVarKeywords": {
+    "message": "{keywords} - Meta palabras clave (si están presentes). Separadas por comas de forma predeterminada.",
+    "description": "Template variable reference for keywords"
+  },
+  "optionsTemplateVarKeywordsSeparator": {
+    "message": "{keywords:SEPARATOR} - Meta palabras clave separadas por SEPARATOR. Por ejemplo, para separarlas por un espacio, usa {keywords: }",
+    "description": "Template variable reference for custom keyword separator"
+  },
+  "optionsTemplateVarMetaTags": {
+    "message": "También hay soporte para todas las etiquetas meta que no han sido mencionadas arriba, en el caso que la página que estés recortando tenga soporte para ellas. Por ejemplo, intenta con {og:image} o cualquier otra etiqueta ampliamente soportada.",
+    "description": "Template variable reference for arbitrary meta tags"
+  },
+  "optionsTemplateVarUrlInfo": {
+    "message": "Información de la URL:",
+    "description": "Heading for URL template variable reference"
+  },
+  "optionsTemplateVarBaseUri": {
+    "message": "{baseURI} - URI base/documento analizada (comportamiento legacy).",
+    "description": "Template variable reference for base URI"
+  },
+  "optionsTemplateVarPageUrl": {
+    "message": "{pageURL} / {tabURL} - URL actual en la barra de direcciones de la pestaña.",
+    "description": "Template variable reference for page URL"
+  },
+  "optionsTemplateVarOrigin": {
+    "message": "{origin} - Origen a partir de {baseURI} (esquema + dominio + puerto).",
+    "description": "Template variable reference for origin"
+  },
+  "optionsTemplateVarHost": {
+    "message": "{host} - Dominio y puerto a partir de {baseURI}.",
+    "description": "Template variable reference for host"
+  },
+  "optionsTemplateVarHostname": {
+    "message": "{hostname} - Nombre del dominio a partir de {baseURI}.",
+    "description": "Template variable reference for hostname"
+  },
+  "optionsTemplateVarPort": {
+    "message": "{port} - Número de puerto a partir de {baseURI}.",
+    "description": "Template variable reference for port"
+  },
+  "optionsTemplateVarProtocol": {
+    "message": "{protocol} - Protocolo a partir de {baseURI}, incluyendo los dos puntos (:).",
+    "description": "Template variable reference for protocol"
+  },
+  "optionsTemplateVarPathname": {
+    "message": "{pathname} - Ruta a partir de {baseURI}, sin incluir cadena de búsqueda o fragmento.",
+    "description": "Template variable reference for pathname"
+  },
+  "optionsTemplateVarSearch": {
+    "message": "{search} - Cadena de búsqueda a partir de {baseURI}, incluyendo '?'",
+    "description": "Template variable reference for query string"
+  },
+  "optionsTemplateVarHash": {
+    "message": "{hash} - Identificador de fragmento a partir de {baseURI}, incluyendo '#'",
+    "description": "Template variable reference for hash"
+  },
+  "optionsTemplateVarPageComponents": {
+    "message": "{pageOrigin}, {pageHost}, {pageHostname}, {pagePort}, {pageProtocol}, {pagePathname}, {pageSearch}, {pageHash} - Mismos componentes pero usando {pageURL}.",
+    "description": "Template variable reference for page URL components"
+  },
+  "optionsTemplateVarExamplesTitle": {
+    "message": "Ejemplos:",
+    "description": "Heading for template variable examples"
+  },
+  "optionsTemplateVarSpaExample": {
+    "message": "Ejemplo en una SPA (estilo Gemini):",
+    "description": "Heading for SPA route template variable example"
+  },
+  "optionsTemplateVarAddressBarUrl": {
+    "message": "URL de la barra de direcciones:",
+    "description": "Label for address bar URL example"
+  },
+  "optionsTemplateVarParsedBaseUri": {
+    "message": "URI parseada/base:",
+    "description": "Label for parsed base URI example"
+  },
+  "optionsTemplateVarStandardExample": {
+    "message": "Ejemplo de página estándar (sin comportamiento especial de base):",
+    "description": "Heading for standard template variable example"
+  },
+  "optionsTemplateVarSameUrlNote": {
+    "message": "{baseURI} y {pageURL} generalmente son iguales.",
+    "description": "Template variable example note"
+  },
+  "optionsTemplateVarSnippetsTitle": {
+    "message": "Trozos de código para plantillas:",
+    "description": "Heading for template snippets"
+  },
+  "optionsTemplateVarRecommendedSource": {
+    "message": "source: {pageURL} (recomendado para la URL de la pestaña actual)",
+    "description": "Template snippet for recommended source URL"
+  },
+  "optionsTemplateVarBaseSource": {
+    "message": "source_base: {baseURI} (URI de documento/base)",
+    "description": "Template snippet for base source URL"
+  },
+  "optionsTemplateVarSourceParts": {
+    "message": "source_parts: {pageOrigin}{pagePathname}{pageSearch}{pageHash}",
+    "description": "Template snippet for source URL parts"
+  },
+  "optionsTemplateVarParameterizationIntro": {
+    "message": "Además, puedes parametrizar cualquier variable (salvo date y keywords) con la siguiente sintaxis:",
+    "description": "Intro for template variable parameterization"
+  },
+  "optionsTemplateVarPascalDesc": {
+    "message": "PascalCase: Cada palabra capitalizada",
+    "description": "Description for the {variable:pascal} template filter"
+  },
+  "optionsTemplateVarCamelDesc": {
+    "message": "camelCase: cada palabra capitalizada salvo la primera",
+    "description": "Description for the {variable:camel} template filter"
+  },
+  "optionsTemplateVarKebabDesc": {
+    "message": "kebab-case: guiones entre palabras, todo en minúscula",
+    "description": "Description for the {variable:kebab} template filter"
+  },
+  "optionsTemplateVarSnakeDesc": {
+    "message": "snake_case: guiones bajos entre palabras, todo en minúscula",
+    "description": "Description for the {variable:snake} template filter"
+  },
+  "optionsTemplateVarLowercaseDesc": {
+    "message": "minúsculas: todas las letras en minúscula",
+    "description": "Description for the {variable:lowercase} template filter"
+  },
+  "optionsTemplateVarUppercaseDesc": {
+    "message": "MAYÚSCULAS: todas las letras en mayúscula",
+    "description": "Description for the {variable:uppercase} template filter"
+  },
+  "optionsTemplateVarAsciiDesc": {
+    "message": "Solo ASCII: elimina acentos y caracteres no ASCII",
+    "description": "Description for the {variable:ascii} template filter"
+  },
+  "optionsTemplateVarSlugifyDesc": {
+    "message": "Slug de URL: minúsculas, ASCII, solo alfanuméricos o guiones",
+    "description": "Description for the {variable:slugify} template filter"
+  },
+  "optionsAssistantTargetsEmpty": {
+    "message": "No hay destinos personalizados todavía. ChatGPT, Claude y Perplexity siempre están disponibles.",
+    "description": "Empty state for custom assistant targets list"
+  },
+  "optionsAssistantTargetRemoveBtn": {
+    "message": "Eliminar",
+    "description": "Button label to remove a custom assistant target"
+  },
+  "optionsAssistantTargetRemoveAria": {
+    "message": "Eliminar $NAME$",
+    "description": "ARIA label to remove a custom assistant target",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsAssistantTargetNameRequired": {
+    "message": "Introduce un nombre",
+    "description": "Toast when adding a custom assistant target without a name"
+  },
+  "optionsAssistantTargetAdded": {
+    "message": "Se ha añadido \"$NAME$\"",
+    "description": "Toast when a custom assistant target is added",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsAssistantTargetRemoved": {
+    "message": "Se ha eliminado \"$NAME$\"",
+    "description": "Toast when a custom assistant target is removed",
+    "placeholders": {
+      "name": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsAssistantTargetAddFailed": {
+    "message": "Error al añadir destino",
+    "description": "Toast when adding a custom assistant target fails"
+  },
+  "optionsSiteRuleEditTitle": {
+    "message": "Editar Regla de Sitio",
+    "description": "Title for editing an existing site rule"
+  },
+  "optionsSiteRulesSummaryOne": {
+    "message": "1 regla - $ENABLED$ habilitada",
+    "description": "Summary text for site rules list when there is exactly one rule",
+    "placeholders": {
+      "enabled": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsSiteRulesSummaryMany": {
+    "message": "$RULES$ reglas - $ENABLED$ habilitadas",
+    "description": "Summary text for site rules list when there are zero or many rules",
+    "placeholders": {
+      "rules": {
+        "content": "$1"
+      },
+      "enabled": {
+        "content": "$2"
+      }
+    }
+  },
+  "optionsAgentBridgeGrantPermission": {
+    "message": "Conceder permiso",
+    "description": "Button label to grant Agent Bridge permission"
+  },
+  "optionsAgentBridgeGrantPermissionAria": {
+    "message": "Conceder permiso de mensajería nativa para Agent Bridge",
+    "description": "ARIA label for granting Agent Bridge permission"
+  },
+  "optionsAgentBridgeCheckStatusAria": {
+    "message": "Comprobar el estado de conexión de Agent Bridge",
+    "description": "ARIA label for checking Agent Bridge status"
+  },
+  "optionsAgentBridgeCopyInstallCommandAria": {
+    "message": "Copiar el comando de instalación al portapapeles",
+    "description": "ARIA label for copying Agent Bridge install command"
+  },
+  "optionsAgentBridgePermissionUnsupported": {
+    "message": "Este navegador no permite solicitar este permiso aquí",
+    "description": "Toast when native messaging permission cannot be requested"
+  },
+  "optionsAgentBridgePermissionNotGranted": {
+    "message": "No se ha concedido permiso al Agent Bridge",
+    "description": "Toast when Agent Bridge permission is denied"
+  },
+  "optionsAgentBridgeReloadingStatus": {
+    "message": "Recargando extensión",
+    "description": "Agent Bridge status text while reloading"
+  },
+  "optionsAgentBridgeReloadingHint": {
+    "message": "Permiso concedido. MarkSnip se recargará una vez para terminar la activación del Agent Bridge.",
+    "description": "Agent Bridge hint while reloading after permission grant"
+  },
+  "optionsAgentBridgeReloadingBtn": {
+    "message": "Recargando...",
+    "description": "Agent Bridge button text while reloading"
+  },
+  "optionsAgentBridgeRequestingBtn": {
+    "message": "Solicitando...",
+    "description": "Agent Bridge button text while requesting permission"
+  },
+  "optionsAgentBridgeEnabledToast": {
+    "message": "Agent Bridge habilitado",
+    "description": "Toast when Agent Bridge is enabled"
+  },
+  "optionsAgentBridgeDisabledToast": {
+    "message": "Agent Bridge deshabilitado",
+    "description": "Toast when Agent Bridge is disabled"
+  },
+  "optionsAgentBridgeToggleHintEnabled": {
+    "message": "MarkSnip abre una conexión nativa mientras este interruptor está activado.",
+    "description": "Hint for enabled Agent Bridge toggle"
+  },
+  "optionsAgentBridgeHostVersion": {
+    "message": "Host $VERSION$",
+    "description": "Agent Bridge host version label",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
+  "optionsAgentBridgeGrantingBtn": {
+    "message": "Concediendo...",
+    "description": "Agent Bridge button text while granting permission"
+  },
+  "optionsAgentBridgeCheckingBtn": {
+    "message": "Comprobando...",
+    "description": "Agent Bridge button text while checking connection"
+  },
+  "optionsAgentBridgeCheckingConnection": {
+    "message": "Comprobando conexión",
+    "description": "Agent Bridge status text while checking connection"
+  },
+  "optionsAgentBridgePermissionGrantedToast": {
+    "message": "Se ha concedido el permiso a Agent Bridge",
+    "description": "Toast when Agent Bridge permission is granted"
+  },
+  "optionsAgentBridgeStatusRefreshedToast": {
+    "message": "El estado del Agent Bridge se ha actualizado",
+    "description": "Toast when Agent Bridge status refresh completes"
+  },
+  "optionsAgentBridgeInstallCommandCopiedToast": {
+    "message": "Comando de instalación copiado",
+    "description": "Toast when Agent Bridge install command is copied"
+  },
+  "optionsAgentBridgeInstallCommandCopyFailedToast": {
+    "message": "Fallo al copiar el comando",
+    "description": "Toast when Agent Bridge install command copy fails"
+  },
+  "optionsSavedToast": {
+    "message": "Ajustes Guardados 💾",
+    "description": "Toast when options are saved"
+  },
+  "optionsExampleArticleTitle": {
+    "message": "Ejemplo de Artículo",
+    "description": "Sample article title used in template preview"
+  },
+  "optionsExampleArticleSummary": {
+    "message": "Resumen compacto de ejemplo para previsualización de plantillas.",
+    "description": "Sample article summary used in template preview"
+  },
+  "optionsTemplatePreviewEmpty": {
+    "message": "No hay nada para previsualizar.",
+    "description": "Empty template preview output"
+  },
+  "optionsLibrarySettingsSavedToast": {
+    "message": "Ajustes de la biblioteca guardados",
+    "description": "Toast when library settings are saved"
+  },
+  "optionsLibraryClearConfirm": {
+    "message": "¿Borrar todos los recortes guardados de este navegador? No se puede deshacer.",
+    "description": "Confirmation before clearing saved Library clips"
+  },
+  "optionsLibraryClearedToast": {
+    "message": "Biblioteca vaciada",
+    "description": "Toast when Library clips are cleared"
+  },
+  "optionsResetDefaultTitle": {
+    "message": "Restaurar",
+    "description": "Tooltip for per-setting reset button"
+  },
+  "optionsResetSettingBtn": {
+    "message": "Restaurar",
+    "description": "Button to reset one setting"
+  },
+  "optionsSettingResetToast": {
+    "message": "Ajuste restaurado por defecto",
+    "description": "Toast when a setting is reset to default"
+  },
+  "optionsResetAllConfirm": {
+    "message": "¿Restaurar todos los ajustes a sus valores de fábrica? No se puede deshacer.",
+    "description": "Confirmation before resetting all settings"
+  },
+  "optionsResetAllToast": {
+    "message": "Todos los ajustes se han restaurado a sus valores de fábrica",
+    "description": "Toast when all settings are reset"
+  },
+  "optionsPermissionLocalCompanionBullet1": {
+    "message": "Solo se usa para el Agent Bridge.",
+    "description": "Local companion permission bullet 1"
+  },
+  "optionsPermissionLocalCompanionBullet3": {
+    "message": "El recorte normal funciona sin este permiso.",
+    "description": "Local companion permission bullet 3"
+  },
+  "popupLogoAlt": {
+    "message": "Logo de MarkSnip",
+    "description": "Alt text for MarkSnip popup logo"
+  },
+  "popupOpenLibraryAria": {
+    "message": "Abrir Biblioteca",
+    "description": "ARIA label for opening the popup Library"
+  },
+  "popupContentScopeAria": {
+    "message": "Alcance del contenido",
+    "description": "ARIA label for popup content scope control"
+  },
+  "popupCloseLibraryAria": {
+    "message": "Cerrar Biblioteca",
+    "description": "ARIA label for closing the popup Library"
+  },
+  "popupCloseShortcutsAria": {
+    "message": "Cerrar atajos",
+    "description": "ARIA label for closing the shortcuts modal"
+  },
+  "popupProcessingUrls": {
+    "message": "Procesando URLs...",
+    "description": "Batch progress status while processing URLs"
+  },
+  "popupStartingBackgroundBatch": {
+    "message": "Iniciando lote en segundo plano...",
+    "description": "Batch progress status while handing work to the background script"
+  },
+  "popupPreviewRenderFailed": {
+    "message": "Fallo al renderizar vista previa: $ERROR$",
+    "description": "Preview rendering failure message",
+    "placeholders": {
+      "error": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCancelling": {
+    "message": "Cancelando...",
+    "description": "Button text while cancelling an operation"
+  },
+  "popupBatchDisabledError": {
+    "message": "El Procesamiento por Lotes está desactivado",
+    "description": "Error when batch processing is disabled"
+  },
+  "popupSendToTargetTitle": {
+    "message": "Enviar a $TARGET$",
+    "description": "Tooltip for custom assistant target in popup",
+    "placeholders": {
+      "target": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupSendSelectionToTargetTitle": {
+    "message": "Enviar seleccion a $TARGET$",
+    "description": "Button label for sending selected text to an assistant target",
+    "placeholders": {
+      "target": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupCopiedFeedback": {
+    "message": "¡Copiado!",
+    "description": "Temporary success feedback after copying"
+  },
+  "popupCopiedSelectionFeedback": {
+    "message": "¡Selección copiada!",
+    "description": "Temporary success feedback after copying a selection"
+  },
+  "popupNothingToCopyFeedback": {
+    "message": "Nada que copiar",
+    "description": "Temporary feedback when no content is available to copy"
+  },
+  "popupNothingToSendFeedback": {
+    "message": "Nada que enviar",
+    "description": "Temporary feedback when no content is available to send"
+  },
+  "popupFailedFeedback": {
+    "message": "Fallido",
+    "description": "Temporary failure feedback"
+  },
+  "popupDeleteClipAria": {
+    "message": "Borrar recorte: $TITLE$",
+    "description": "ARIA label for deleting a Library clip",
+    "placeholders": {
+      "title": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupShortcutsLoading": {
+    "message": "Cargando...",
+    "description": "Shortcuts modal loading text"
+  },
+  "popupShortcutsLoadError": {
+    "message": "No se pudieron cargar los atajos.",
+    "description": "Shortcuts modal error text"
+  },
+  "popupUrlValidationValidOne": {
+    "message": "1 URL válida",
+    "description": "Batch URL validation count phrase when exactly one URL is valid"
+  },
+  "popupUrlValidationValidMany": {
+    "message": "$VALID$ URLs válidas",
+    "description": "Batch URL validation count phrase when zero or many URLs are valid",
+    "placeholders": {
+      "valid": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupUrlValidationInvalidOne": {
+    "message": "1 línea no válida",
+    "description": "Batch URL validation count phrase when exactly one line is invalid"
+  },
+  "popupUrlValidationInvalidMany": {
+    "message": "$INVALID$ líneas no válidas",
+    "description": "Batch URL validation count phrase when zero or many lines are invalid",
+    "placeholders": {
+      "invalid": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupUrlValidationNoValidOne": {
+    "message": "1 línea no válida - no hay URLs válidas",
+    "description": "Batch URL validation message when exactly one line is invalid and none are valid"
+  },
+  "popupUrlValidationNoValidMany": {
+    "message": "$INVALID$ líneas no válidas - no hay URLs válidas",
+    "description": "Batch URL validation message when zero or many lines are invalid and none are valid",
+    "placeholders": {
+      "invalid": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupUrlValidationMixedFormat": {
+    "message": "$VALID_PART$, $INVALID_PART$",
+    "description": "Format string joining the valid and invalid URL count phrases",
+    "placeholders": {
+      "valid_part": {
+        "content": "$1"
+      },
+      "invalid_part": {
+        "content": "$2"
+      }
+    }
+  },
+  "popupEnterValidUrlsError": {
+    "message": "Por favor ingresa URLs válidas (una por línea)",
+    "description": "Error when batch URL input has no valid URLs"
+  },
+  "popupNoActiveTabError": {
+    "message": "No se encontró pestaña activa",
+    "description": "Error when no active tab is available"
+  },
+  "popupAddedLinksFeedback": {
+    "message": "¡Se añadieron $COUNT$ enlaces!",
+    "description": "Temporary feedback after adding picked links to batch input",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "popupObsidianNotEnabledFeedback": {
+    "message": "No Habilitado",
+    "description": "Temporary feedback when Obsidian integration is not enabled"
+  },
+  "popupObsidianSentFeedback": {
+    "message": "¡Enviado a Obsidian!",
+    "description": "Temporary feedback when sending to Obsidian succeeds"
+  },
+  "popupLibraryManualModeEmpty": {
+    "message": "El modo manual está activado. Usa 'Guardar recorte' para agregar.",
+    "description": "Library empty state text in manual mode"
+  },
+  "popupLibraryAutoSaveEmpty": {
+    "message": "Abre el panel en cualquier página y el recorte se guardará aquí automáticamente.",
+    "description": "Library empty state text in auto-save mode"
+  },
+  "popupLibraryManualToolbarNote": {
+    "message": "Modo manual. Pulsa 'Guardar recorte' para guardarlo.",
+    "description": "Library toolbar note in manual mode"
+  },
+  "popupLibraryAutoToolbarNote": {
+    "message": "La Biblioteca guarda la página actual automáticamente al abrir el panel.",
+    "description": "Library toolbar note in auto-save mode"
+  },
+  "popupLibraryCurrentPageBadge": {
+    "message": "Página actual",
+    "description": "Badge for Library item matching the current page"
+  },
+  "popupUntitledFallback": {
+    "message": "Sin título",
+    "description": "Fallback title for untitled clips"
+  },
+  "linkPickerTitle": {
+    "message": "Selector de Enlaces",
+    "description": "Title for in-page link picker overlay"
+  },
+  "linkPickerHoverInfo": {
+    "message": "Pasa el ratón para encontrar enlaces",
+    "description": "Instruction text for link picker overlay"
+  },
+  "linkPickerCountZero": {
+    "message": "0 enlaces",
+    "description": "Initial link picker selected link count"
+  },
+  "linkPickerCountOne": {
+    "message": "1 enlace",
+    "description": "Link picker selected link count when exactly one link is selected"
+  },
+  "linkPickerCountMany": {
+    "message": "$COUNT$ enlaces",
+    "description": "Link picker selected link count when zero or many links are selected",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "linkPickerCancelBtn": {
+    "message": "Cancelar",
+    "description": "Link picker cancel button"
+  },
+  "linkPickerDoneBtn": {
+    "message": "Listo",
+    "description": "Link picker done button"
+  },
+  "linkPickerUndoBtn": {
+    "message": "Deshacer",
+    "description": "Link picker undo button"
+  },
+  "linkPickerUndoTitle": {
+    "message": "Deshacer última selección",
+    "description": "Tooltip for link picker undo button"
+  },
+  "linkPickerClearAllBtn": {
+    "message": "Limpiar todo",
+    "description": "Link picker clear-all button"
+  },
+  "linkPickerClearAllTitle": {
+    "message": "Deseleccionar todos los elementos",
+    "description": "Tooltip for link picker clear-all button"
+  },
+  "linkPickerInstructionsClick": {
+    "message": "Haz clic para seleccionar enlaces",
+    "description": "Link picker instruction line"
+  },
+  "linkPickerInstructionsEsc": {
+    "message": "Presiona ESC para cancelar",
+    "description": "Link picker instruction line"
+  },
+  "linkPickerNoLinksTooltip": {
+    "message": "No hay enlaces aquí",
+    "description": "Tooltip when a hovered element contains no links"
+  },
+  "linkPickerLinksFoundTooltipOne": {
+    "message": "1 enlace encontrado",
+    "description": "Tooltip when a hovered element contains exactly one link"
+  },
+  "linkPickerLinksFoundTooltipMany": {
+    "message": "$COUNT$ enlaces encontrados",
+    "description": "Tooltip when a hovered element contains zero or many links",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "linkPickerCollectedNotificationOne": {
+    "message": "¡1 enlace recolectado! Vuelve a abrir la extensión para agregarlo al procesamiento por lotes",
+    "description": "Notification after collecting exactly one link from the page"
+  },
+  "linkPickerCollectedNotificationMany": {
+    "message": "¡$COUNT$ enlaces recolectados! Vuelve a abrir la extensión para agregarlos al procesamiento por lotes",
+    "description": "Notification after collecting zero or many links from the page",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "batchOverlayTitle": {
+    "message": "MarkSnip - Procesamiento por Lotes",
+    "description": "Title for in-page batch processing overlay"
+  },
+  "batchOverlayCancelBtn": {
+    "message": "Cancelar",
+    "description": "Button label for cancelling batch processing from overlay"
+  },
+  "batchOverlayCancelling": {
+    "message": "Cancelando...",
+    "description": "Batch overlay cancellation status"
+  },
+  "batchOverlayStatusTitle": {
+    "message": "MarkSnip - $STATUS$",
+    "description": "Batch overlay title with current status",
+    "placeholders": {
+      "status": {
+        "content": "$1"
+      }
+    }
+  },
+  "batchPartialRetryWarning": {
+    "message": "El contenido podría ser parcial tras el reintento",
+    "description": "Warning when batch retry may still produce partial content"
+  },
+  "shortcutOpenPopup": {
+    "message": "Abrir panel de MarkSnip",
+    "description": "Keyboard shortcut label for opening popup"
+  },
+  "shortcutDownloadTab": {
+    "message": "Descargar pestaña como Markdown",
+    "description": "Keyboard shortcut label for downloading tab"
+  },
+  "shortcutCopyTab": {
+    "message": "Copiar pestaña como Markdown",
+    "description": "Keyboard shortcut label for copying tab"
+  },
+  "shortcutCopyTabLink": {
+    "message": "Copiar enlace de pestaña como Markdown",
+    "description": "Keyboard shortcut label for copying tab URL"
+  },
+  "shortcutCopySelection": {
+    "message": "Copiar selección como Markdown",
+    "description": "Keyboard shortcut label for copying selection"
+  },
+  "shortcutCopySelectedTabsLinks": {
+    "message": "Copiar enlaces de pestañas seleccionadas",
+    "description": "Keyboard shortcut label for copying selected tab links"
+  },
+  "shortcutCopySelectionObsidian": {
+    "message": "Copiar selección a Obsidian",
+    "description": "Keyboard shortcut label for copying selection to Obsidian"
+  },
+  "shortcutCopyTabObsidian": {
+    "message": "Copiar pestaña a Obsidian",
+    "description": "Keyboard shortcut label for copying tab to Obsidian"
+  },
+  "shortcutUnsetSymbolLabel": {
+    "message": "Desasignado",
+    "description": "Accessible label for shortcuts without assigned keys"
+  },
+  "shortcutAssignInBrowser": {
+    "message": "Asignar en ajustes del navegador",
+    "description": "Button label for opening browser shortcut settings"
+  },
+  "optionsAppearanceLanguageTitle": {
+    "message": "Idioma",
+    "description": "Title of the Language setting card on the options page"
+  },
+  "optionsAppearanceLanguageDesc": {
+    "message": "Elige el idioma de visualización de la interfaz de MarkSnip. Automático usa el idioma de tu navegador.",
+    "description": "Description for the Language setting card"
+  },
+  "optionsAppearanceLanguageAuto": {
+    "message": "Automático (idioma del navegador)",
+    "description": "Label for the auto language option"
+  },
+  "optionsAppearanceLanguageEnglish": {
+    "message": "English",
+    "description": "Label for the English language option"
+  },
+  "optionsAppearanceLanguageSpanish": {
+    "message": "Español",
+    "description": "Label for the Spanish language option"
+  },
+  "optionsAppearanceLanguageChinese": {
+    "message": "简体中文",
+    "description": "Label for the Simplified Chinese language option"
+  },
+  "optionsAppearanceLanguageJapanese": {
+    "message": "日本語",
+    "description": "Label for the Japanese language option"
+  },
+  "optionsAppearanceLanguageKorean": {
+    "message": "한국어",
+    "description": "Label for the Korean language option"
+  },
+  "optionsAppearanceLanguageHindi": {
+    "message": "हिन्दी",
+    "description": "Label for the Hindi language option"
+  },
+  "optionsAppearanceLanguageGerman": {
+    "message": "Deutsch",
+    "description": "Label for the German language option"
+  },
+  "optionsLanguageSavedToast": {
+    "message": "Idioma actualizado: recargando…",
+    "description": "Toast shown after the user changes the interface language"
+  },
+  "optionsAppearanceLanguageFrench": {
+    "message": "Français",
+    "description": "Label for the French language option"
+  },
+  "optionsAppearanceLanguagePortugueseBR": {
+    "message": "Português (Brasil)",
+    "description": "Label for the Portuguese (Brazil) language option"
+  },
+  "optionsAppearanceLanguageItalian": {
+    "message": "Italiano",
+    "description": "Label for the Italian language option"
+  }
+}

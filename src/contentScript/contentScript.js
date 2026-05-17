@@ -3,7 +3,11 @@ function notifyExtension() {
     browser.runtime.sendMessage({ type: "clip", dom: content});
 }
 
-function getHTMLOfDocument() {
+function shouldSkipHiddenContent(captureOptions = {}) {
+    return captureOptions?.skipHiddenContent === true;
+}
+
+function getHTMLOfDocument(captureOptions = {}) {
     const clonedDocument = document.implementation.createHTMLDocument('');
     const clonedHtml = document.documentElement.cloneNode(true);
     clonedDocument.replaceChild(clonedHtml, clonedDocument.documentElement);
@@ -40,7 +44,7 @@ function getHTMLOfDocument() {
     }
 
     // remove hidden content from the cloned page only
-    if (document.body && clonedDocument.body) {
+    if (shouldSkipHiddenContent(captureOptions) && document.body && clonedDocument.body) {
         removeHiddenNodes(document.body, clonedDocument.body);
     }
 
@@ -283,9 +287,9 @@ async function marksnipPrepareForCapture() {
     }
 }
 
-function getSelectionAndDom() {
+function getSelectionAndDom(captureOptions = {}) {
     try {
-      const dom = getHTMLOfDocument();
+      const dom = getHTMLOfDocument(captureOptions);
       const selection = getHTMLOfSelection();
       
       if (!dom) {
@@ -393,12 +397,24 @@ if (typeof window.linkPickerState === 'undefined') {
     };
 }
 
+function markSnipMessage(key, substitutions, fallback) {
+    return window.markSnipI18n?.t(key, substitutions, fallback) || fallback || key;
+}
+
+function markSnipI18nReady() {
+    return window.markSnipI18n?.ready?.().catch(() => {}) || Promise.resolve();
+}
+
 // Listen for link picker activation message
 if (!window.linkPickerMessageListenerAdded) {
     browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
         if (message.type === "ACTIVATE_LINK_PICKER") {
-            initLinkPickerMode();
-            return Promise.resolve({ success: true });
+            return initLinkPickerMode()
+                .then(() => ({ success: true }))
+                .catch((error) => {
+                    console.error("Failed to activate link picker:", error);
+                    return { success: false, error: String(error?.message || error) };
+                });
         }
     });
     window.linkPickerMessageListenerAdded = true;
@@ -423,6 +439,8 @@ async function initLinkPickerMode() {
     window.linkPickerState.selectedLinks = new Set();
     window.linkPickerState.selectedElements = new Set();
     window.linkPickerState.lastSelectedElement = null;
+
+    await markSnipI18nReady();
 
     // Read accent color from storage
     let accentColors = ACCENT_COLORS.sage;
@@ -692,35 +710,76 @@ function injectLinkPickerStyles(colors) {
     document.body.appendChild(overlay);
 }
 
+function createPanelText(className, text) {
+    const element = document.createElement('div');
+    element.className = className;
+    element.textContent = text;
+    return element;
+}
+
+function createLinkPickerButton(className, id, label, title) {
+    const button = document.createElement('button');
+    button.className = className;
+    button.id = id;
+    button.type = 'button';
+    if (title) {
+        button.title = title;
+    }
+    button.textContent = label;
+    return button;
+}
+
 function createControlPanel(colors) {
     const panel = document.createElement('div');
     panel.className = 'marksnip-link-picker-panel';
     panel.id = 'marksnip-link-picker-panel';
-    panel.innerHTML = `
-        <div class="marksnip-link-picker-panel-title">Link Picker</div>
-        <div class="marksnip-link-picker-panel-info">Hover over elements to find links</div>
-        <div class="marksnip-link-picker-panel-count" id="marksnip-link-count">0 links</div>
-        <div class="marksnip-link-picker-panel-buttons">
-            <button class="marksnip-link-picker-btn marksnip-link-picker-btn-cancel" id="marksnip-link-picker-cancel">
-                Cancel
-            </button>
-            <button class="marksnip-link-picker-btn marksnip-link-picker-btn-done" id="marksnip-link-picker-done">
-                Done
-            </button>
-        </div>
-        <div class="marksnip-link-picker-panel-buttons" style="margin-top: 8px;">
-            <button class="marksnip-link-picker-btn marksnip-link-picker-btn-cancel" id="marksnip-link-picker-undo" title="Undo last selection">
-                Undo
-            </button>
-            <button class="marksnip-link-picker-btn marksnip-link-picker-btn-cancel" id="marksnip-link-picker-clear" title="Deselect all elements">
-                Clear All
-            </button>
-        </div>
-        <div class="marksnip-link-picker-instructions">
-            Click elements to select links<br>
-            Press ESC to cancel
-        </div>
-    `;
+
+    const title = createPanelText('marksnip-link-picker-panel-title', markSnipMessage('linkPickerTitle', null, 'Link Picker'));
+    const info = createPanelText('marksnip-link-picker-panel-info', markSnipMessage('linkPickerHoverInfo', null, 'Hover over elements to find links'));
+    const count = createPanelText('marksnip-link-picker-panel-count', markSnipMessage('linkPickerCountZero', null, '0 links'));
+    count.id = 'marksnip-link-count';
+
+    const primaryButtons = document.createElement('div');
+    primaryButtons.className = 'marksnip-link-picker-panel-buttons';
+    primaryButtons.appendChild(createLinkPickerButton(
+        'marksnip-link-picker-btn marksnip-link-picker-btn-cancel',
+        'marksnip-link-picker-cancel',
+        markSnipMessage('linkPickerCancelBtn', null, 'Cancel')
+    ));
+    primaryButtons.appendChild(createLinkPickerButton(
+        'marksnip-link-picker-btn marksnip-link-picker-btn-done',
+        'marksnip-link-picker-done',
+        markSnipMessage('linkPickerDoneBtn', null, 'Done')
+    ));
+
+    const secondaryButtons = document.createElement('div');
+    secondaryButtons.className = 'marksnip-link-picker-panel-buttons';
+    secondaryButtons.style.marginTop = '8px';
+    secondaryButtons.appendChild(createLinkPickerButton(
+        'marksnip-link-picker-btn marksnip-link-picker-btn-cancel',
+        'marksnip-link-picker-undo',
+        markSnipMessage('linkPickerUndoBtn', null, 'Undo'),
+        markSnipMessage('linkPickerUndoTitle', null, 'Undo last selection')
+    ));
+    secondaryButtons.appendChild(createLinkPickerButton(
+        'marksnip-link-picker-btn marksnip-link-picker-btn-cancel',
+        'marksnip-link-picker-clear',
+        markSnipMessage('linkPickerClearAllBtn', null, 'Clear All'),
+        markSnipMessage('linkPickerClearAllTitle', null, 'Deselect all elements')
+    ));
+
+    const instructions = document.createElement('div');
+    instructions.className = 'marksnip-link-picker-instructions';
+    instructions.appendChild(document.createTextNode(markSnipMessage('linkPickerInstructionsClick', null, 'Click elements to select links')));
+    instructions.appendChild(document.createElement('br'));
+    instructions.appendChild(document.createTextNode(markSnipMessage('linkPickerInstructionsEsc', null, 'Press ESC to cancel')));
+
+    panel.appendChild(title);
+    panel.appendChild(info);
+    panel.appendChild(count);
+    panel.appendChild(primaryButtons);
+    panel.appendChild(secondaryButtons);
+    panel.appendChild(instructions);
     document.body.appendChild(panel);
     window.linkPickerState.controlPanel = panel;
 
@@ -801,9 +860,12 @@ function highlightElement(element, mouseX, mouseY) {
     const linkCount = extractLinksFromElement(element).length;
 
     if (linkCount > 0) {
-        showTooltip(`${linkCount} link${linkCount !== 1 ? 's' : ''} found`, mouseX, mouseY);
+        const tooltipText = linkCount === 1
+            ? markSnipMessage('linkPickerLinksFoundTooltipOne', null, '1 link found')
+            : markSnipMessage('linkPickerLinksFoundTooltipMany', [linkCount], `${linkCount} links found`);
+        showTooltip(tooltipText, mouseX, mouseY);
     } else {
-        showTooltip('No links in this element', mouseX, mouseY);
+        showTooltip(markSnipMessage('linkPickerNoLinksTooltip', null, 'No links in this element'), mouseX, mouseY);
     }
 }
 
@@ -943,7 +1005,13 @@ function updateLinkCount() {
     const doneBtn = document.getElementById('marksnip-link-picker-done');
 
     if (countElement) {
-        countElement.textContent = `${count} link${count !== 1 ? 's' : ''}`;
+        if (count === 0) {
+            countElement.textContent = markSnipMessage('linkPickerCountZero', null, '0 links');
+        } else if (count === 1) {
+            countElement.textContent = markSnipMessage('linkPickerCountOne', null, '1 link');
+        } else {
+            countElement.textContent = markSnipMessage('linkPickerCountMany', [count], `${count} links`);
+        }
 
         // Bump animation on count — retrigger by removing/re-adding the class
         countElement.classList.remove('marksnip-bump');
@@ -968,7 +1036,7 @@ function finishLinkPicker() {
     const links = Array.from(window.linkPickerState.selectedLinks);
 
     if (links.length === 0) {
-        alert('No links selected. Please select elements containing links before clicking Done.');
+        alert(markSnipMessage('popupAlertNoLinksSelected', null, 'No links selected. Please select elements containing links before clicking Done.'));
         return;
     }
 
@@ -1016,15 +1084,26 @@ function showSuccessNotification(linkCount) {
         border: 1px solid rgba(255, 255, 255, 0.12);
         animation: fadeIn 0.3s ease-out;
     `;
-    notification.innerHTML = `
-        <div style="font-size: 44px; margin-bottom: 14px; line-height: 1;">✓</div>
-        <div style="font-size: 18px; font-weight: 600; color: #ffffff; margin-bottom: 8px;">
-            ${linkCount} link${linkCount !== 1 ? 's' : ''} collected!
-        </div>
-        <div style="font-size: 13px; color: rgba(255, 255, 255, 0.6);">
-            Reopen the extension to add them to the batch processor
-        </div>
-    `;
+    const checkIcon = document.createElement('div');
+    checkIcon.style.cssText = 'font-size: 44px; margin-bottom: 14px; line-height: 1;';
+    checkIcon.textContent = '\u2713';
+
+    const message = document.createElement('div');
+    message.style.cssText = 'font-size: 18px; font-weight: 600; color: #ffffff; margin-bottom: 8px;';
+    message.textContent = linkCount === 1
+        ? markSnipMessage(
+            'linkPickerCollectedNotificationOne',
+            null,
+            '1 link collected! Reopen the extension to add it to the batch processor'
+        )
+        : markSnipMessage(
+            'linkPickerCollectedNotificationMany',
+            [linkCount],
+            `${linkCount} links collected! Reopen the extension to add them to the batch processor`
+        );
+
+    notification.appendChild(checkIcon);
+    notification.appendChild(message);
     document.body.appendChild(notification);
 
     // Remove after 2 seconds

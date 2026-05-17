@@ -22,6 +22,7 @@
   function createTurndownService(options = {}, deps = {}) {
     const TurndownService = deps.TurndownService || root.TurndownService;
     const turndownPluginGfm = deps.turndownPluginGfm || root.turndownPluginGfm;
+    const mathMLApi = deps.mathMLApi || root.MarkSnipMathML;
 
     if (!TurndownService) {
       throw new Error('TurndownService is required to create a Turndown instance.');
@@ -61,6 +62,21 @@
       },
       replacement: function (content) {
         return content;
+      }
+    });
+
+    service.addRule('mathml', {
+      filter: function (node) {
+        return String(node.nodeName).toLowerCase() === 'math' && typeof mathMLApi?.mathmlToTex === 'function';
+      },
+      replacement: function (content, node) {
+        const tex = mathMLApi.mathmlToTex(node);
+        if (!tex) return content;
+
+        if (mathMLApi.isDisplayMath?.(node)) {
+          return `$$\n${tex}\n$$`;
+        }
+        return `$${tex}$`;
       }
     });
 

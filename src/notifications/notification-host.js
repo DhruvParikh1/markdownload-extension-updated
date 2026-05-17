@@ -390,6 +390,7 @@
     buildCard() {
       const isVersionUpdate = this.notification.type === 'version-update';
       const isMilestone = this.notification.type === 'support-milestone';
+      const isReviewRequest = this.notification.type === 'review-request';
 
       const card = document.createElement('section');
       card.className = 'card';
@@ -407,7 +408,7 @@
 
       const eyebrow = document.createElement('div');
       eyebrow.className = 'eyebrow';
-      eyebrow.textContent = isVersionUpdate ? 'MarkSnip Update' : 'Milestone';
+      eyebrow.textContent = isVersionUpdate ? 'MarkSnip Update' : isReviewRequest ? 'Quick Ask' : 'Milestone';
 
       const close = document.createElement('button');
       close.className = 'close';

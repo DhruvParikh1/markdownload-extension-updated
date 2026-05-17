@@ -3,7 +3,8 @@
   "scripts": {
     "npminstall": "npm install",
     "generate:release-highlights": "node scripts/generate-release-highlights.js",
-    "build:manifests": "npm run generate:release-highlights && node scripts/generate-browser-manifests.js",
+    "build:browser-manifests": "node scripts/generate-browser-manifests.js",
+    "build:manifests": "npm run generate:release-highlights && npm run build:browser-manifests",
     "build": "npm run build:manifests && web-ext build -s .build/firefox",
     "build:chrome": "npm run build:manifests && cd .build/chrome && zip -r ../../../dist/marksnip-chrome-$(node -p \"require('../../manifest.json').version\").zip . -x '*.DS_Store'",
     "build:all": "npm run build && npm run build:chrome",
@@ -17,6 +18,13 @@
     "test:integration": "jest --testPathPattern=tests/integration",
     "test:e2e": "playwright test",
     "test:e2e:ci": "playwright test tests/e2e/extension.spec.js tests/e2e/notifications.spec.js tests/e2e/batch-processing.spec.js tests/e2e/command-download-regression.spec.js",
+    "test:e2e:mathml": "playwright test tests/e2e/extension.spec.js -g \"clips native MathML\"",
+    "test:firefox:focused": "jest --runTestsByPath tests/unit/firefox-build-config.test.js tests/unit/mathml-to-tex.test.js tests/integration/html-to-markdown-real.test.js",
+    "test:firefox:live": "npm run build:browser-manifests && node scripts/run-firefox-live-smoke.js",
+    "snapshot:live-markdown": "node scripts/capture-live-markdown-snapshots.js",
+    "verify:live-snapshots": "npm run snapshot:live-markdown",
+    "verify:live-snapshots:hidden": "npm run snapshot:live-markdown -- --include-hidden-content",
+    "verify:firefox": "npm run test:firefox:focused && npm run test:firefox:live -- --headless && web-ext lint -s .build/firefox",
     "lint:js": "eslint .",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
@@ -30,6 +38,8 @@
     "eslint-config-prettier": "^10.1.8",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
+    "playwright-extra": "^4.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
     "web-ext": "^7.4.0"
   }
 }

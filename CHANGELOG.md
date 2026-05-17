@@ -1,5 +1,25 @@
 # Changelog
 
+## 4.6.0
+
+### User Highlights
+
+- Collapsed FAQ answers and other hidden article sections are now kept by default. Turn on Skip Hidden Content when you want a strict visible-only clip.
+- MathML now exports as TeX, so equations from math-heavy pages stay readable instead of flattening into mashed-together text.
+- Code examples keep their line breaks on pages that build code blocks out of spans and `<br>` tags.
+- Filename cleanup can now replace blocked characters with your own text, like `_` or `-`, across downloads, image paths, Library exports, and Obsidian paths.
+- Firefox clipping avoids the stray fallback tab, and shorter Obsidian sends can go straight through the Advanced URI data path without using the clipboard.
+
+### Technical Notes
+
+- **Hidden Content Recovery**: Added `skipHiddenContent` as an option, defaulting to hidden content included. Readability scoring stays anchored to visible content while hidden content from matched source anchors is restored into the extracted article, and the content script removes hidden nodes only when the option is enabled.
+- **MathML and Code Conversion**: Added shared MathML-to-TeX conversion for native MathML, MathJax MathML scripts, `data-mathml` containers, and Turndown fallback handling. Shared code-block extraction now preserves `br` and span-based newlines in both cleanup and preserve-code-formatting paths.
+- **Filename Replacement Pipeline**: Added `disallowedCharReplacement` to defaults, options UI, guide documentation, template substitution, image filename generation, generated downloads, Library exports, and Obsidian folder/title handling.
+- **Obsidian Send Path**: Added shared Obsidian Advanced URI helpers that use inline `data` transport when the payload fits and fall back to clipboard transport for larger Markdown, with explicit clipboard-copy failure detection.
+- **Firefox Clipping Bridge**: Added popup-managed Firefox offscreen bridge, service-worker readiness tracking, native offscreen support detection, and fallback retry behavior so Firefox clipping does not open an extra extension tab when the popup bridge is ready.
+- **Notifications and Store Prompts**: Added a one-time review request after successful exports, browser-specific store review URLs, priority ordering that keeps support milestone cards ahead of review prompts, and a clearer **Quick Ask** notification eyebrow.
+- **Regression Coverage**: Added a Firefox verification workflow, focused Firefox live smoke test, live Markdown snapshot capture tooling, MathML and WeChat code-block E2E fixtures, hidden-content recovery tests, filename replacement tests, Obsidian transport tests, and notification priority tests.
+
 ## 4.5.0
 
 ### User Highlights

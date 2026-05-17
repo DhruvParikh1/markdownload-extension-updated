@@ -7,6 +7,7 @@ const defaultOptions = {
   fence: "```",
   preserveCodeFormatting: false,
   autoDetectCodeLanguage: true,
+  skipHiddenContent: false,
   emDelimiter: "_",
   strongDelimiter: "**",
   linkStyle: "inlined",
@@ -28,6 +29,7 @@ const defaultOptions = {
   imagePrefix: '{pageTitle}/',
   mdClipsFolder: null,
   disallowedChars: '[]#^',
+  disallowedCharReplacement: '',
   downloadMode: 'downloadsApi',
   defaultExportType: 'markdown',
   defaultSendToTarget: 'chatgpt',
@@ -55,6 +57,7 @@ const defaultOptions = {
   showThemeToggleInPopup: true,
   showUserGuideIcon: true,
   editorTheme: 'default',
+  uiLanguage: 'auto',
   siteRules: [],
 }
 

@@ -70,6 +70,7 @@ const baseOptions = {
   imagePrefix: '{pageTitle}/',
   mdClipsFolder: '',
   disallowedChars: '[]#^',
+  disallowedCharReplacement: '',
   downloadMode: 'downloadsApi',
   defaultExportType: 'markdown',
   defaultSendToTarget: 'chatgpt',
@@ -90,6 +91,7 @@ const baseOptions = {
   compactMode: false,
   showUserGuideIcon: true,
   editorTheme: 'default',
+  uiLanguage: 'auto',
   siteRules: []
 };
 
@@ -146,7 +148,13 @@ async function waitForMicrotasks() {
   await Promise.resolve();
 }
 
-function createOptionsPageDom(optionOverrides = {}, libraryOverrides = {}) {
+async function flushPendingPromises(count = 20) {
+  for (let i = 0; i < count; i += 1) {
+    await Promise.resolve();
+  }
+}
+
+function createOptionsPageDom(optionOverrides = {}, libraryOverrides = {}, config = {}) {
   const dom = new JSDOM(optionsHtml, {
     url: 'https://example.com/options.html',
     pretendToBeVisual: true,
@@ -154,6 +162,10 @@ function createOptionsPageDom(optionOverrides = {}, libraryOverrides = {}) {
   });
 
   const storedOptions = mergeOptions(optionOverrides);
+  const defaultOptionsForDom = {
+    defaultWebhookBodyTemplate: sharedDefaultOptions.defaultWebhookBodyTemplate,
+    ...(config.defaultOptionOverrides ? mergeOptions(config.defaultOptionOverrides) : storedOptions)
+  };
   let localState = {
     librarySettings: {
       enabled: true,
@@ -209,10 +221,7 @@ function createOptionsPageDom(optionOverrides = {}, libraryOverrides = {}) {
   dom.window.chrome = browser;
   dom.window.moment = moment;
   dom.window.createMenus = jest.fn();
-  dom.window.eval(`var defaultOptions = ${JSON.stringify({
-    ...storedOptions,
-    defaultWebhookBodyTemplate: sharedDefaultOptions.defaultWebhookBodyTemplate
-  })};`);
+  dom.window.eval(`var defaultOptions = ${JSON.stringify(defaultOptionsForDom)};`);
   dom.window.eval(searchCoreSource);
   dom.window.eval(libraryStateSource);
   dom.window.eval(optionsStateSource);
@@ -441,6 +450,63 @@ describe('Options page search UI', () => {
       }
     });
     expect(getLocalState().libraryItems).toEqual([{ id: 'saved-item' }]);
+  });
+
+  test('language card reset applies the default language without waiting for manual reload', async () => {
+    const { dom, browser } = createOptionsPageDom({ uiLanguage: 'es' }, {}, {
+      defaultOptionOverrides: { uiLanguage: 'auto' }
+    });
+    const { document } = dom.window;
+    const setUiLanguage = jest.fn(() => Promise.resolve());
+    dom.window.markSnipI18n = {
+      localizeDocument: jest.fn(() => Promise.resolve()),
+      t: jest.fn((key, substitutions, fallback) => fallback || key),
+      setUiLanguage
+    };
+
+    document.dispatchEvent(new dom.window.Event('DOMContentLoaded', { bubbles: true }));
+    await waitForMicrotasks();
+    await waitFor(dom.window, 50);
+
+    const timeoutSpy = jest.fn();
+    dom.window.setTimeout = timeoutSpy;
+    document.querySelector('#uiLanguageGroup .reset-setting-link').click();
+    await flushPendingPromises();
+
+    expect(browser.storage.sync.set).toHaveBeenCalledWith(expect.objectContaining({
+      uiLanguage: 'auto'
+    }));
+    expect(setUiLanguage).toHaveBeenCalledWith('auto');
+    expect(timeoutSpy.mock.calls.some(([, delay]) => delay === 400)).toBe(true);
+  });
+
+  test('reset all applies a changed language default without waiting for manual reload', async () => {
+    const { dom, browser } = createOptionsPageDom({ uiLanguage: 'es' }, {}, {
+      defaultOptionOverrides: { uiLanguage: 'auto' }
+    });
+    const { document } = dom.window;
+    const setUiLanguage = jest.fn(() => Promise.resolve());
+    dom.window.markSnipI18n = {
+      localizeDocument: jest.fn(() => Promise.resolve()),
+      t: jest.fn((key, substitutions, fallback) => fallback || key),
+      setUiLanguage
+    };
+    dom.window.confirm = jest.fn(() => true);
+
+    document.dispatchEvent(new dom.window.Event('DOMContentLoaded', { bubbles: true }));
+    await waitForMicrotasks();
+    await waitFor(dom.window, 50);
+
+    const timeoutSpy = jest.fn();
+    dom.window.setTimeout = timeoutSpy;
+    document.getElementById('reset-all').click();
+    await flushPendingPromises();
+
+    expect(browser.storage.sync.set).toHaveBeenCalledWith(expect.objectContaining({
+      uiLanguage: 'auto'
+    }));
+    expect(setUiLanguage).toHaveBeenCalledWith('auto');
+    expect(timeoutSpy.mock.calls.some(([, delay]) => delay === 400)).toBe(true);
   });
 
   test('clear library removes saved library items from local storage', async () => {

@@ -1,7 +1,14 @@
 {
-  "generatedAt": "2026-04-04T22:50:12.498Z",
+  "generatedAt": "2026-05-14T00:20:06.398Z",
   "source": "CHANGELOG.md",
   "versions": {
+    "4.6.0": [
+      "Collapsed FAQ answers and other hidden article sections are now kept by default. Turn on Skip Hidden Content when you want a strict visible-only clip.",
+      "MathML now exports as TeX, so equations from math-heavy pages stay readable instead of flattening into mashed-together text.",
+      "Code examples keep their line breaks on pages that build code blocks out of spans and <br> tags.",
+      "Filename cleanup can now replace blocked characters with your own text, like _ or -, across downloads, image paths, Library exports, and Obsidian paths.",
+      "Firefox clipping avoids the stray fallback tab, and shorter Obsidian sends can go straight through the Advanced URI data path without using the clipboard."
+    ],
     "4.5.0": [
       "The popup can now use Copy to Clipboard or Send to Assistant as its main action, with built-in targets for ChatGPT, Claude, and Perplexity plus custom assistant URLs.",
       "A new OpenAI special theme joins the extension, and the popup can show a one-click light/dark theme toggle in the header.",

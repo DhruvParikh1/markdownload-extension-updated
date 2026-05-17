@@ -3,6 +3,7 @@
 if (typeof importScripts === 'function') {
   importScripts(
     'browser-polyfill.min.js',
+    'shared/i18n.js',
     'background/moment.min.js',
     'background/apache-mime-types.js',
     'shared/notifications.js',
@@ -11,11 +12,14 @@ if (typeof importScripts === 'function') {
     'shared/template-utils.js',
     'shared/webhook-utils.js',
     'shared/agent-bridge-state.js',
+    'shared/obsidian-utils.js',
     'shared/library-export.js',
     'shared/context-menus.js',
     'shared/download-tracker.js'
   );
 }
+
+const { textReplace, generateValidFileName } = globalThis.markSnipTemplateUtils;
 
 // Log platform info
 browser.runtime.getPlatformInfo().then(async platformInfo => {
@@ -55,7 +59,9 @@ if (browser.tabs?.onUpdated?.addListener) {
 }
 
 // Create context menus when service worker starts
-createMenus();
+createMenus().catch((error) => {
+  console.error('[ContextMenus] Failed to create menus:', error);
+});
 initializeAgentBridge().catch((error) => {
   console.error('[Agent Bridge] Failed to initialize:', error);
 });
@@ -80,6 +86,14 @@ let agentBridgeConnectPromise = null;
 let agentBridgeReconnectTimer = null;
 let agentBridgeSuccessfulConnect = false;
 let agentBridgeOffscreenReady = false;
+
+function i18nMessage(key, substitutions, fallback) {
+  return globalThis.markSnipI18n?.t(key, substitutions, fallback) || fallback || key;
+}
+
+function ensureI18nReady() {
+  return globalThis.markSnipI18n?.ready?.().catch(() => {}) || Promise.resolve();
+}
 
 function runNotificationStateTask(task) {
   const run = notificationStateTaskChain.then(() => task(), () => task());
@@ -487,9 +501,11 @@ async function recordNotificationMetrics(delta, options = {}) {
   }
 
   const state = await runNotificationStateTask(async () => {
+    await ensureI18nReady();
     let state = await loadNotificationState();
     state = notificationHelpers.applyMetricDelta(state, normalizedDelta);
-    state = notificationHelpers.queueNextSupportNotification(state, {
+    state = notificationHelpers.queueUsageNotifications(state, {
+      browser: getCurrentBrowserLabel(),
       buyMeACoffeeUrl: notificationHelpers.BUY_ME_A_COFFEE_URL,
       releaseNotesUrl: notificationHelpers.RELEASES_URL
     });
@@ -538,6 +554,7 @@ async function dismissPendingNotification(notificationId) {
   clearPendingNotificationDisplayLock(notificationId);
 
   return runNotificationStateTask(async () => {
+    await ensureI18nReady();
     let state = notificationHelpers.dismissNotification(await loadNotificationState(), notificationId);
     state = notificationHelpers.queueNextSupportNotification(state, {
       buyMeACoffeeUrl: notificationHelpers.BUY_ME_A_COFFEE_URL,
@@ -552,6 +569,7 @@ async function handleInstalled(details) {
   const currentVersion = browser.runtime.getManifest().version;
 
   await runNotificationStateTask(async () => {
+    await ensureI18nReady();
     let state = await loadNotificationState();
     const previousInstalledVersion = state.lastInstalledVersion;
 
@@ -858,7 +876,7 @@ async function handleMessages(message, sender, _sendResponse) {
       }
       break;
     case "offscreen-ready":
-      // The offscreen document is ready - no action needed
+      markFirefoxOffscreenPageReady(sender);
       break;
     case "markdown-result":
       await handleMarkdownResult(message);
@@ -868,11 +886,11 @@ async function handleMessages(message, sender, _sendResponse) {
       break;
 
     case "get-tab-content":
-      await getTabContentForOffscreen(message.tabId, message.selection, message.requestId);
+      await getTabContentForOffscreen(message.tabId, message.selection, message.requestId, message.options);
       break;
 
     case "forward-get-article-content":
-      await forwardGetArticleContent(message.tabId, message.selection, message.originalRequestId);
+      await forwardGetArticleContent(message.tabId, message.selection, message.originalRequestId, message.options);
       break;
 
     case "execute-content-download":
@@ -1147,12 +1165,13 @@ async function handleLibraryExportRequest(message, sender) {
   const files = libraryExportApi?.createLibraryExportFiles
     ? libraryExportApi.createLibraryExportFiles(items, {
       disallowedChars: options.disallowedChars,
+      disallowedCharReplacement: options.disallowedCharReplacement,
       generateValidFileName,
       ensureUniquePath: ensureUniqueBatchEntryPath,
       usedPaths
     })
     : items.map((item) => ({
-      filename: ensureUniqueBatchEntryPath(`${String(generateValidFileName(String(item?.title || '').trim() || 'Untitled', options.disallowedChars) || 'Untitled').trim() || 'Untitled'}.md`, usedPaths),
+      filename: ensureUniqueBatchEntryPath(`${String(generateValidFileName(String(item?.title || '').trim() || 'Untitled', options.disallowedChars, options.disallowedCharReplacement) || 'Untitled').trim() || 'Untitled'}.md`, usedPaths),
       content: String(item?.markdown || '')
     }));
   const zipFilename = libraryExportApi?.createLibraryExportZipFilename
@@ -1180,12 +1199,13 @@ async function handleLibraryExportIndividualRequest(message, sender) {
   const files = libraryExportApi?.createLibraryExportFiles
     ? libraryExportApi.createLibraryExportFiles(items, {
       disallowedChars: options.disallowedChars,
+      disallowedCharReplacement: options.disallowedCharReplacement,
       generateValidFileName,
       ensureUniquePath: ensureUniqueBatchEntryPath,
       usedPaths
     })
     : items.map((item) => ({
-      filename: ensureUniqueBatchEntryPath(`${String(generateValidFileName(String(item?.title || '').trim() || 'Untitled', options.disallowedChars) || 'Untitled').trim() || 'Untitled'}.md`, usedPaths),
+      filename: ensureUniqueBatchEntryPath(`${String(generateValidFileName(String(item?.title || '').trim() || 'Untitled', options.disallowedChars, options.disallowedCharReplacement) || 'Untitled').trim() || 'Untitled'}.md`, usedPaths),
       content: String(item?.markdown || '')
     }));
 
@@ -1211,9 +1231,13 @@ async function handleLibraryExportIndividualRequest(message, sender) {
 
 async function injectBatchProgressOverlay(tabId, current, total, url, pageTitle, accentColors) {
   try {
+    await ensureI18nReady();
+    const title = i18nMessage('batchOverlayTitle', null, 'MarkSnip - Batch Processing');
+    const cancelLabel = i18nMessage('batchOverlayCancelBtn', null, 'Cancel Batch');
+    const cancellingLabel = i18nMessage('batchOverlayCancelling', null, 'Cancelling...');
     await browser.scripting.executeScript({
       target: { tabId },
-      func: (current, total, url, pageTitle, colors) => {
+      func: (current, total, url, pageTitle, colors, labels) => {
         // Remove any previous overlay
         const existing = document.getElementById('marksnip-batch-overlay');
         if (existing) existing.remove();
@@ -1292,21 +1316,25 @@ async function injectBatchProgressOverlay(tabId, current, total, url, pageTitle,
         const panel = document.createElement('div');
         panel.id = 'marksnip-batch-overlay';
         panel.innerHTML = `
-          <div class="marksnip-bo-title">MarkSnip — Batch Processing</div>
+          <div class="marksnip-bo-title">${labels.title}</div>
           <div class="marksnip-bo-count">${current} / ${total}</div>
           <div class="marksnip-bo-url" title="${url}">${displayText}</div>
           <div class="marksnip-bo-bar-bg"><div class="marksnip-bo-bar" style="width:${pct}%"></div></div>
-          <button class="marksnip-bo-cancel" id="marksnip-bo-cancel-btn">Cancel Batch</button>
+          <button class="marksnip-bo-cancel" id="marksnip-bo-cancel-btn">${labels.cancel}</button>
         `;
         document.body.appendChild(panel);
 
         document.getElementById('marksnip-bo-cancel-btn').addEventListener('click', () => {
           const btn = document.getElementById('marksnip-bo-cancel-btn');
-          if (btn) { btn.textContent = 'Cancelling...'; btn.disabled = true; }
+          if (btn) { btn.textContent = labels.cancelling; btn.disabled = true; }
           browser.runtime.sendMessage({ type: 'cancel-batch' }).catch(() => {});
         });
       },
-      args: [current, total, url, pageTitle, accentColors]
+      args: [current, total, url, pageTitle, accentColors, {
+        title,
+        cancel: cancelLabel,
+        cancelling: cancellingLabel
+      }]
     });
   } catch (e) {
     console.debug('[Batch] Could not inject progress overlay:', e);
@@ -1315,9 +1343,13 @@ async function injectBatchProgressOverlay(tabId, current, total, url, pageTitle,
 
 async function updateBatchProgressOverlay(tabId, current, total, url, pageTitle, statusText) {
   try {
+    await ensureI18nReady();
+    const title = statusText
+      ? i18nMessage('batchOverlayStatusTitle', [statusText], `MarkSnip - ${statusText}`)
+      : '';
     await browser.scripting.executeScript({
       target: { tabId },
-      func: (current, total, url, pageTitle, statusText) => {
+      func: (current, total, url, pageTitle, title) => {
         const panel = document.getElementById('marksnip-batch-overlay');
         if (!panel) return;
         const pct = total > 0 ? Math.round((current / total) * 100) : 0;
@@ -1328,9 +1360,9 @@ async function updateBatchProgressOverlay(tabId, current, total, url, pageTitle,
         if (countEl) countEl.textContent = `${current} / ${total}`;
         if (urlEl) { urlEl.textContent = pageTitle || url; urlEl.title = url; }
         if (barEl) barEl.style.width = `${pct}%`;
-        if (titleEl && statusText) titleEl.textContent = `MarkSnip — ${statusText}`;
+        if (titleEl && title) titleEl.textContent = title;
       },
-      args: [current, total, url, pageTitle, statusText]
+      args: [current, total, url, pageTitle, title]
     });
   } catch (e) {
     // Tab may have navigated or closed
@@ -1603,25 +1635,29 @@ async function handleBatchConversionInServiceWorker(message) {
  *  @param {boolean} selection - Whether to get selection or full content
  * @param {string} requestId - Request ID to track this specific request
  */
-async function getTabContentForOffscreen(tabId, selection, requestId) {
+async function getTabContentForOffscreen(tabId, selection, requestId, options = null) {
   try {
     console.log(`Getting tab content for ${tabId}`);
     await ensureScripts(tabId);
     const tabInfo = await browser.tabs.get(tabId).catch(() => null);
     const fallbackPageUrl = tabInfo?.url || null;
+    const captureOptions = {
+      skipHiddenContent: options?.skipHiddenContent === true
+    };
     
     const results = await browser.scripting.executeScript({
       target: { tabId: tabId },
-      func: async () => {
+      func: async (captureOptions) => {
         if (typeof marksnipPrepareForCapture === 'function') {
           await marksnipPrepareForCapture();
         }
         if (typeof getSelectionAndDom === 'function') {
-          return getSelectionAndDom();
+          return getSelectionAndDom(captureOptions);
         }
         console.warn('getSelectionAndDom not found');
         return null;
-      }
+      },
+      args: [captureOptions]
     });
     
     console.log(`Script execution results for tab ${tabId}:`, results);
@@ -1657,23 +1693,27 @@ async function getTabContentForOffscreen(tabId, selection, requestId) {
  * @param {boolean} selection - Whether to get selection or full content
  * @param {string} originalRequestId - Original request ID to track this specific request
  * */
-async function forwardGetArticleContent(tabId, selection, originalRequestId) {
+async function forwardGetArticleContent(tabId, selection, originalRequestId, options = null) {
   try {
     await ensureScripts(tabId);
     const tabInfo = await browser.tabs.get(tabId).catch(() => null);
     const fallbackPageUrl = tabInfo?.url || null;
+    const captureOptions = {
+      skipHiddenContent: options?.skipHiddenContent === true
+    };
     
     const results = await browser.scripting.executeScript({
       target: { tabId: tabId },
-      func: async () => {
+      func: async (captureOptions) => {
         if (typeof marksnipPrepareForCapture === 'function') {
           await marksnipPrepareForCapture();
         }
         if (typeof getSelectionAndDom === 'function') {
-          return getSelectionAndDom();
+          return getSelectionAndDom(captureOptions);
         }
         return null;
-      }
+      },
+      args: [captureOptions]
     });
     
     if (results && results[0]?.result) {
@@ -1683,7 +1723,8 @@ async function forwardGetArticleContent(tabId, selection, originalRequestId) {
         requestId: originalRequestId,
         dom: results[0].result.dom,
         selection: selection ? results[0].result.selection : null,
-        pageUrl: results[0].result.pageUrl || fallbackPageUrl
+        pageUrl: results[0].result.pageUrl || fallbackPageUrl,
+        options: options || defaultOptions
       });
     } else {
       throw new Error('Failed to get content from tab');
@@ -1829,13 +1870,52 @@ async function handleImageDownloadsContentScript(message) {
  * Track the Firefox offscreen extension page tab
  */
 let firefoxOffscreenTabId = null;
+let firefoxOffscreenPageReadyAt = 0;
+const FIREFOX_OFFSCREEN_READY_RECENT_MS = 5000;
+
+function hasNativeOffscreenDocumentSupport() {
+  return typeof chrome !== 'undefined' && !!chrome.offscreen;
+}
+
+function markFirefoxOffscreenPageReady(sender = {}) {
+  const senderUrl = sender?.url || '';
+  if (!senderUrl.includes('/offscreen/offscreen.html')) {
+    return;
+  }
+
+  firefoxOffscreenPageReadyAt = Date.now();
+  if (Number.isInteger(sender?.tab?.id)) {
+    firefoxOffscreenTabId = sender.tab.id;
+  }
+}
+
+function hasRecentFirefoxOffscreenPageReady() {
+  return firefoxOffscreenPageReadyAt > 0 &&
+    Date.now() - firefoxOffscreenPageReadyAt < FIREFOX_OFFSCREEN_READY_RECENT_MS;
+}
+
+async function waitForFirefoxOffscreenBridge(timeoutMs = 1500) {
+  const startedAt = Date.now();
+  while (Date.now() - startedAt < timeoutMs) {
+    if (firefoxOffscreenPageReadyAt > 0) {
+      return true;
+    }
+    await new Promise(resolve => setTimeout(resolve, 50));
+  }
+  return firefoxOffscreenPageReadyAt > 0;
+}
+
+self.hasNativeOffscreenDocumentSupport = hasNativeOffscreenDocumentSupport;
+self.markFirefoxOffscreenPageReady = markFirefoxOffscreenPageReady;
 
 /**
  * Ensures the offscreen document exists (Chrome) or an equivalent
  * extension page is loaded (Firefox).
  */
-async function ensureOffscreenDocumentExists() {
-  if (typeof chrome !== 'undefined' && chrome.offscreen) {
+async function ensureOffscreenDocumentExists(options = {}) {
+  const allowFirefoxTab = options.allowFirefoxTab !== false;
+
+  if (self.hasNativeOffscreenDocumentSupport()) {
     // Chrome — use native offscreen API
     const offscreenUrl = chrome.runtime.getURL('offscreen/offscreen.html');
     const existingContexts = await chrome.runtime.getContexts({
@@ -1851,6 +1931,15 @@ async function ensureOffscreenDocumentExists() {
       justification: 'HTML to Markdown conversion'
     });
   } else {
+    if (!allowFirefoxTab) {
+      await waitForFirefoxOffscreenBridge();
+      return;
+    }
+
+    if (hasRecentFirefoxOffscreenPageReady()) {
+      return;
+    }
+
     // Firefox — load offscreen.html as a regular extension page.
     // Check if we already have a live tab for it.
     if (firefoxOffscreenTabId != null) {
@@ -1887,7 +1976,10 @@ async function ensureOffscreenDocumentExists() {
  * Handle clip request — uses offscreen document on both Chrome and Firefox.
  */
 async function handleClipRequest(message, tabId) {
-  await ensureOffscreenDocumentExists();
+  const allowFirefoxTab = message?.offscreenBridgeReady !== true;
+  await ensureOffscreenDocumentExists({
+    allowFirefoxTab
+  });
 
   const options = await getOptions();
   const requestId = generateRequestId();
@@ -1897,7 +1989,7 @@ async function handleClipRequest(message, tabId) {
     pageUrl = tabInfo?.url || null;
   }
 
-  await browser.runtime.sendMessage({
+  const processMessage = {
     target: 'offscreen',
     type: 'process-content',
     requestId: requestId,
@@ -1907,7 +1999,19 @@ async function handleClipRequest(message, tabId) {
     },
     tabId: tabId,
     options: options
-  });
+  };
+
+  try {
+    await browser.runtime.sendMessage(processMessage);
+  } catch (error) {
+    if (self.hasNativeOffscreenDocumentSupport() || !allowFirefoxTab) {
+      throw error;
+    }
+
+    firefoxOffscreenPageReadyAt = 0;
+    await ensureOffscreenDocumentExists({ allowFirefoxTab: true });
+    await browser.runtime.sendMessage(processMessage);
+  }
 }
 
 /**
@@ -2397,6 +2501,9 @@ async function handleStorageChange(changes, areaName) {
   // Only handle sync storage changes
   if (areaName === 'sync') {
     console.log('Options changed, recreating context menus...');
+    if (Object.prototype.hasOwnProperty.call(changes, 'uiLanguage')) {
+      await globalThis.markSnipI18n?.setUiLanguage?.(changes.uiLanguage.newValue || 'auto').catch(() => {});
+    }
     // Recreate all context menus with updated options
     await createMenus();
     return;
@@ -2411,25 +2518,22 @@ async function handleStorageChange(changes, areaName) {
 /**
  * Open Obsidian URI in current tab
  */
-async function openObsidianUri(vault, folder, title) {
+async function openObsidianUri(vault, folder, title, markdown = '', options = {}) {
   try {
-    // Ensure folder ends with / if it's not empty
-    let folderPath = folder || '';
-    if (folderPath && !folderPath.endsWith('/')) {
-      folderPath += '/';
-    }
+    const uriInfo = markSnipObsidian.createObsidianAdvancedUri({
+      vault,
+      folder,
+      title,
+      markdown,
+      maxDataUriLength: options.maxDataUriLength
+    });
 
-    // Ensure title has .md extension
-    const filename = title.endsWith('.md') ? title : title + '.md';
-    const filepath = folderPath + filename;
-
-    // Use correct URI scheme: adv-uri (not advanced-uri)
-    const uri = `obsidian://adv-uri?vault=${encodeURIComponent(vault)}&filepath=${encodeURIComponent(filepath)}&clipboard=true&mode=new`;
-
-    console.log('Opening Obsidian URI:', uri);
-    await browser.tabs.update({ url: uri });
+    console.log(`Opening Obsidian URI via ${uriInfo.transport} transport:`, uriInfo.uri);
+    await browser.tabs.update({ url: uriInfo.uri });
+    return uriInfo;
   } catch (error) {
     console.error('Failed to open Obsidian URI:', error);
+    throw error;
   }
 }
 
@@ -2440,13 +2544,29 @@ async function handleObsidianIntegration(message) {
   const { markdown, tabId, vault, folder, title } = message;
 
   try {
+    const uriInfo = markSnipObsidian.createObsidianAdvancedUri({
+      vault,
+      folder,
+      title,
+      markdown
+    });
+
+    if (uriInfo.transport === 'data') {
+      console.log('[Service Worker] Using Obsidian URI data transport; clipboard copy skipped.');
+      await browser.tabs.update({ url: uriInfo.uri });
+      await recordNotificationMetrics({ obsidianSends: 1, exports: 1 }, {
+        tabId
+      });
+      return;
+    }
+
     console.log('[Service Worker] Copying markdown to clipboard in tab:', tabId);
 
     // Ensure content script is loaded
     await ensureScripts(tabId);
 
     // Copy to clipboard using execCommand (doesn't require user gesture)
-    await browser.scripting.executeScript({
+    const copyResults = await browser.scripting.executeScript({
       target: { tabId: tabId },
       func: (markdownText) => {
         // Use execCommand directly since Clipboard API requires user gesture
@@ -2474,6 +2594,10 @@ async function handleObsidianIntegration(message) {
       args: [markdown]
     });
 
+    if (copyResults?.[0]?.result !== true) {
+      throw new Error('Failed to copy markdown for Obsidian clipboard transport.');
+    }
+
     console.log('[Service Worker] Clipboard copy initiated, waiting for clipboard to sync...');
 
     // Wait for clipboard to fully sync to system before navigating away
@@ -2484,7 +2608,7 @@ async function handleObsidianIntegration(message) {
     console.log('[Service Worker] Opening Obsidian URI...');
 
     // Open Obsidian URI
-    await openObsidianUri(vault, folder, title);
+    await browser.tabs.update({ url: uriInfo.uri });
     await recordNotificationMetrics({ obsidianSends: 1, exports: 1 }, {
       tabId
     });
@@ -2527,87 +2651,10 @@ async function toggleSetting(setting, options = null) {
   }
 }
 
-/**
-* Replace placeholder strings with article info
-*/
-function textReplace(string, article, disallowedChars = null) {
-  if (globalThis.markSnipTemplateUtils?.textReplace) {
-    return globalThis.markSnipTemplateUtils.textReplace(string, article, disallowedChars);
-  }
-
-  // Replace values from article object
-  for (const key in article) {
-    if (article.hasOwnProperty(key) && key != "content") {
-      let s = (article[key] || '') + '';
-      if (s && disallowedChars) s = generateValidFileName(s, disallowedChars);
-
-      string = string.replace(new RegExp('{' + key + '}', 'g'), s)
-        .replace(new RegExp('{' + key + ':kebab}', 'g'), s.replace(/ /g, '-').toLowerCase())
-        .replace(new RegExp('{' + key + ':snake}', 'g'), s.replace(/ /g, '_').toLowerCase())
-        .replace(new RegExp('{' + key + ':camel}', 'g'), s.replace(/ ./g, (str) => str.trim().toUpperCase()).replace(/^./, (str) => str.toLowerCase()))
-        .replace(new RegExp('{' + key + ':pascal}', 'g'), s.replace(/ ./g, (str) => str.trim().toUpperCase()).replace(/^./, (str) => str.toUpperCase()));
-    }
-  }
-
-  // Replace date formats
-  const now = new Date();
-  const dateRegex = /{date:(.+?)}/g;
-  const matches = string.match(dateRegex);
-  if (matches && matches.forEach) {
-    matches.forEach(match => {
-      const format = match.substring(6, match.length - 1);
-      const dateString = moment(now).format(format);
-      string = string.replaceAll(match, dateString);
-    });
-  }
-
-  // Replace keywords
-  const keywordRegex = /{keywords:?(.*)?}/g;
-  const keywordMatches = string.match(keywordRegex);
-  if (keywordMatches && keywordMatches.forEach) {
-    keywordMatches.forEach(match => {
-      let seperator = match.substring(10, match.length - 1);
-      try {
-        seperator = JSON.parse(JSON.stringify(seperator).replace(/\\\\/g, '\\'));
-      }
-      catch { }
-      const keywordsString = (article.keywords || []).join(seperator);
-      string = string.replace(new RegExp(match.replace(/\\/g, '\\\\'), 'g'), keywordsString);
-    });
-  }
-
-  // Replace anything left in curly braces
-  const defaultRegex = /{(.*?)}/g;
-  string = string.replace(defaultRegex, '');
-
-  return string;
-}
-
-/**
-* Generate valid filename
-*/
-function generateValidFileName(title, disallowedChars = null) {
-  if (!title) return title;
-  else title = title + '';
-  // Remove < > : " / \ | ? * 
-  var illegalRe = /[\/\?<>\\:\*\|":]/g;
-  // And non-breaking spaces
-  var name = title.replace(illegalRe, "").replace(new RegExp('\u00A0', 'g'), ' ');
-  
-  if (disallowedChars) {
-    for (let c of disallowedChars) {
-      if (`[\\^$.|?*+()`.includes(c)) c = `\\${c}`;
-      name = name.replace(new RegExp(c, 'g'), '');
-    }
-  }
-  
-  return name;
-}
-
 async function formatTitle(article, providedOptions = null) {
   const options = providedOptions || defaultOptions;
-  let title = textReplace(options.title, article, options.disallowedChars + '/');
-  title = title.split('/').map(s => generateValidFileName(s, options.disallowedChars)).join('/');
+  let title = textReplace(options.title, article, options.disallowedChars + '/', options.disallowedCharReplacement);
+  title = title.split('/').map(s => generateValidFileName(s, options.disallowedChars, options.disallowedCharReplacement)).join('/');
   return title;
 }
 
@@ -2650,6 +2697,7 @@ async function ensureScripts(tabId) {
               target: { tabId: tabId },
               files: [
                   "/browser-polyfill.min.js",
+                  "/shared/i18n.js",
                   "/contentScript/contentScript.js"
               ]
           });
@@ -3093,7 +3141,7 @@ async function _handleDownloadDirectly(markdown, title, tabId, imageList = {}, m
       
       // Final fallback: content script method
       await ensureScripts(tabId);
-      const filename = mdClipsFolder + generateValidFileName(title, options.disallowedChars) + ".md";
+      const filename = mdClipsFolder + generateValidFileName(title, options.disallowedChars, options.disallowedCharReplacement) + ".md";
       const base64Content = base64EncodeUnicode(markdown);
       
       await browser.scripting.executeScript({
@@ -3114,7 +3162,7 @@ async function _handleDownloadDirectly(markdown, title, tabId, imageList = {}, m
     console.log(`🔗 [Service Worker] Using content script fallback`);
     
     await ensureScripts(tabId);
-    const filename = mdClipsFolder + generateValidFileName(title, options.disallowedChars) + ".md";
+    const filename = mdClipsFolder + generateValidFileName(title, options.disallowedChars, options.disallowedCharReplacement) + ".md";
     const base64Content = base64EncodeUnicode(markdown);
     
     await browser.scripting.executeScript({
@@ -3148,7 +3196,7 @@ function buildGeneratedDownloadFilename(title, mdClipsFolder = '', options = nul
 
   safeTitle = safeTitle
     .split('/')
-    .map((segment) => generateValidFileName(segment, effectiveOptions.disallowedChars))
+    .map((segment) => generateValidFileName(segment, effectiveOptions.disallowedChars, effectiveOptions.disallowedCharReplacement))
     .join('/');
 
   if (!safeTitle || safeTitle.replace(/\//g, '').trim() === '') {
@@ -3159,7 +3207,7 @@ function buildGeneratedDownloadFilename(title, mdClipsFolder = '', options = nul
   if (safeFolder) {
     safeFolder = safeFolder
       .split('/')
-      .map((segment) => generateValidFileName(segment, effectiveOptions.disallowedChars))
+      .map((segment) => generateValidFileName(segment, effectiveOptions.disallowedChars, effectiveOptions.disallowedCharReplacement))
       .join('/');
 
     if (safeFolder && !safeFolder.endsWith('/')) {
@@ -3360,7 +3408,7 @@ async function downloadMarkdown(markdown, title, tabId, imageList = {}, mdClipsF
     // Content link mode - use content script
     try {
       await ensureScripts(tabId);
-      const filename = mdClipsFolder + generateValidFileName(title, options.disallowedChars) + ".md";
+      const filename = mdClipsFolder + generateValidFileName(title, options.disallowedChars, options.disallowedCharReplacement) + ".md";
       const base64Content = base64EncodeUnicode(markdown);
       
       console.log(`🔗 [Service Worker] Using content script download: ${filename}`);

@@ -3,7 +3,7 @@
  * Tests actual article extraction using Mozilla's Readability.js
  */
 
-const { parseArticle } = require('../helpers/browser-env');
+const { createTurndownService, parseArticle } = require('../helpers/browser-env');
 
 describe('Real Readability Integration', () => {
   describe('Article Extraction', () => {
@@ -94,6 +94,148 @@ describe('Real Readability Integration', () => {
       expect(article).not.toBeNull();
       expect(article.title).toBe('News Article');
       expect(article.content).toContain('main content');
+    });
+
+    test('should preserve hidden article content by default and skip it only when enabled', () => {
+      const html = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>Accordion Article</title>
+          </head>
+          <body>
+            <article>
+              <h1>Accordion Article</h1>
+              <p>This visible paragraph gives Readability enough article text to keep the article body focused on the main content area.</p>
+              <p>It describes an event with substantial detail so the extraction is stable and not confused with nearby page chrome.</p>
+              <section>
+                <h2>Frequently Asked Questions</h2>
+                <div aria-hidden="true">
+                  <p>ARIA hidden answer token should be optional hidden content.</p>
+                </div>
+                <div style="display: none;">
+                  <p>Display none answer token should be optional hidden content.</p>
+                </div>
+              </section>
+              <p>The final visible paragraph keeps the article cohesive after the optional hidden content section.</p>
+            </article>
+          </body>
+        </html>
+      `;
+
+      const { article: includeHiddenArticle } = parseArticle(html);
+      const { article: skipHiddenArticle } = parseArticle(html, { skipHiddenContent: true });
+
+      expect(includeHiddenArticle).not.toBeNull();
+      expect(includeHiddenArticle.content).toContain('ARIA hidden answer token');
+      expect(includeHiddenArticle.content).toContain('Display none answer token');
+      expect(skipHiddenArticle).not.toBeNull();
+      expect(skipHiddenArticle.content).not.toContain('ARIA hidden answer token');
+      expect(skipHiddenArticle.content).not.toContain('Display none answer token');
+    });
+
+    test('should include hidden accordion content without narrowing extraction to only the accordion body', () => {
+      const html = `
+        <!DOCTYPE html>
+        <html>
+          <head><title>Celebrating Children</title></head>
+          <body>
+            <main>
+              <div class="page-2-col">
+                <div class="page__main-col">
+                  <article class="text-container section-block">
+                    <div class="section-block__int">
+                      <div class="text-container-int text-container-int--left prose">
+                        <p>This annual event, presented by GrowSmart in collaboration with Virginia Beach Parks & Recreation, Virginia Beach City Public Schools, and Healthy Families Virginia Beach, is free and open to the public. Programming includes a Fun Run activity around Mt. Trashmore Park, inflatables, kid-friendly games, crafts and other activities.</p>
+                      </div>
+                    </div>
+                  </article>
+                  <article class="max-w-wide mx-auto px-s7 lg:px-s9 my-s12 xl:px-s10 text-primary-800 prose">
+                    <h2>Celebrating Children FAQ</h2>
+                    <div class="text-container-int text-container-int--center prose">
+                      <ul class="accordion-items list-none mb-s10">
+                        <li class="accordion__item">
+                          <button class="accordion__trigger flex justify-between items-start text-left space-x-s3"><h3>What to expect?</h3><span><svg><use></use></svg></span></button>
+                          <div class="accordion__content-wrapper" style="display: none;">
+                            <p>Celebrating Children is a free community event in April offered by the City of Virginia Beach, GrowSmart and the Department of Parks and Recreation to celebrate healthy and happy childhood for all!</p>
+                            <p>Every Fun Run Participant will receive a medal!</p>
+                          </div>
+                        </li>
+                        <li class="accordion__item">
+                          <button class="accordion__trigger flex justify-between items-start text-left space-x-s3"><h3>Who is the event for?</h3><span><svg><use></use></svg></span></button>
+                          <div class="accordion__content-wrapper" style="display: none;">
+                            <p>Celebrating Children is geared towards families with children 0-8 years old but older siblings and relatives are also welcome to participate!</p>
+                          </div>
+                        </li>
+                        <li class="accordion__item">
+                          <button class="accordion__trigger flex justify-between items-start text-left space-x-s3"><h3>When and where will the event take place?</h3><span><svg><use></use></svg></span></button>
+                          <div class="accordion__content-wrapper" style="display: none;">
+                            <p>2027 Celebrating Children details coming soon with enough detail to exercise hidden accordion recovery.</p>
+                          </div>
+                        </li>
+                        <li class="accordion__item">
+                          <button class="accordion__trigger flex justify-between items-start text-left space-x-s3"><h3>How much does it cost?</h3><span><svg><use></use></svg></span></button>
+                          <div class="accordion__content-wrapper" style="display: none;">
+                            <p>This event is 100% free of charge and open to the public thanks to generous support.</p>
+                          </div>
+                        </li>
+                        <li class="accordion__item">
+                          <button class="accordion__trigger flex justify-between items-start text-left space-x-s3"><h3>Are you ready to register for the Fun Run?</h3><span><svg><use></use></svg></span></button>
+                          <div class="accordion__content-wrapper" style="display: none;">
+                            <p>Register in advance for the Fun Run or Walk so a race packet can be reserved for your family.</p>
+                          </div>
+                        </li>
+                        <li class="accordion__item">
+                          <button class="accordion__trigger flex justify-between items-start text-left space-x-s3"><h3>Are you interested in volunteering?</h3><span><svg><use></use></svg></span></button>
+                          <div class="accordion__content-wrapper" style="display: none;">
+                            <p>Email the event team and they will discuss ways to help make the event successful.</p>
+                          </div>
+                        </li>
+                        <li class="accordion__item">
+                          <button class="accordion__trigger flex justify-between items-start text-left space-x-s3"><h3>Who are the exhibitors?</h3><span><svg><use></use></svg></span></button>
+                          <div class="accordion__content-wrapper" style="display: none;">
+                            <p>Coming Soon!</p>
+                          </div>
+                        </li>
+                      </ul>
+                    </div>
+                  </article>
+                  <article class="text-container section-block">
+                    <div>
+                      <h2>In addition to the Fun Run, you can expect to find at the event:</h2>
+                      <ul>
+                        <li>Kid-friendly games, crafts and activities</li>
+                        <li>Petting Zoo</li>
+                      </ul>
+                    </div>
+                  </article>
+                  <article>
+                    <h2>This event is brought to you by:</h2>
+                  </article>
+                  <article>
+                    <h2>Thank you to our 2026 sponsors:</h2>
+                  </article>
+                </div>
+              </div>
+            </main>
+          </body>
+        </html>
+      `;
+
+      const { article } = parseArticle(html, { skipHiddenContent: false });
+      const { service } = createTurndownService();
+      const markdown = service.turndown(article.content);
+
+      expect(markdown.trim().startsWith('This annual event, presented by GrowSmart')).toBe(true);
+      expect(markdown.trim().startsWith('## This event is brought to you by:')).toBe(false);
+      expect(markdown).toContain('## Celebrating Children FAQ');
+      expect(markdown).toContain('What to expect?');
+      expect(markdown).toContain('Every Fun Run Participant will receive a medal');
+      expect(markdown).toContain('## In addition to the Fun Run, you can expect to find at the event:');
+      expect(markdown).toContain('## This event is brought to you by:');
+      expect(markdown).toContain('Petting Zoo');
+      expect(markdown.indexOf('## Celebrating Children FAQ')).toBeLessThan(markdown.indexOf('## In addition to the Fun Run'));
+      expect(markdown.indexOf('## In addition to the Fun Run')).toBeLessThan(markdown.indexOf('## This event is brought to you by:'));
     });
 
     test('should preserve images in article', () => {

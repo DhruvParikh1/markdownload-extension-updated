@@ -1,4 +1,6 @@
 const {
+  buildObsidianFilepath,
+  createObsidianAdvancedUri,
   createObsidianSourceImageMap,
   getObsidianTransportOptions,
   prepareMarkdownForObsidian
@@ -65,5 +67,44 @@ describe('Obsidian markdown helpers', () => {
     expect(prepareMarkdownForObsidian(remoteMarkdown, {})).toBe(
       '![](https://cdn.example.com/image.png)'
     );
+  });
+
+  test('builds Advanced URI data transport for payloads that fit in the URI budget', () => {
+    const result = createObsidianAdvancedUri({
+      vault: 'Research Vault',
+      folder: 'Clips',
+      title: 'Article Title',
+      markdown: '# Article Title\n\nBody text',
+      maxDataUriLength: 1000
+    });
+
+    expect(result.transport).toBe('data');
+    expect(result.filepath).toBe('Clips/Article Title.md');
+    expect(result.uri).toContain('obsidian://adv-uri?');
+    expect(result.uri).toContain('vault=Research%20Vault');
+    expect(result.uri).toContain('filepath=Clips%2FArticle%20Title.md');
+    expect(result.uri).toContain('data=%23%20Article%20Title%0A%0ABody%20text');
+    expect(result.uri).not.toContain('clipboard=true');
+  });
+
+  test('falls back to clipboard transport when encoded markdown would make the URI too large', () => {
+    const result = createObsidianAdvancedUri({
+      vault: 'Vault',
+      folder: 'Clips',
+      title: 'Large Article.md',
+      markdown: 'Long body '.repeat(200),
+      maxDataUriLength: 120
+    });
+
+    expect(result.transport).toBe('clipboard');
+    expect(result.filepath).toBe('Clips/Large Article.md');
+    expect(result.uri).toContain('clipboard=true');
+    expect(result.uri).not.toContain('data=');
+  });
+
+  test('normalizes Obsidian file paths without duplicating markdown extensions', () => {
+    expect(buildObsidianFilepath('Folder/Subfolder', 'Note')).toBe('Folder/Subfolder/Note.md');
+    expect(buildObsidianFilepath('Folder/Subfolder/', 'Note.md')).toBe('Folder/Subfolder/Note.md');
+    expect(buildObsidianFilepath('', '')).toBe('Untitled.md');
   });
 });

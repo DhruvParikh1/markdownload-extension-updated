@@ -25,7 +25,8 @@ module.exports = {
     downloadImages: false,
     imagePrefix: 'image-',
     mdClipsFolder: '',
-    disallowedChars: '[]#^'
+    disallowedChars: '[]#^',
+    disallowedCharReplacement: ''
   },
 
   // Setext headings style
@@ -162,6 +163,7 @@ clipped: {date:YYYY-MM-DD}
     imagePrefix: 'img-',
     mdClipsFolder: 'markdown-clips',
     disallowedChars: '[]#^',
+    disallowedCharReplacement: '',
     turndownEscape: true,
     contextMenus: true
   }

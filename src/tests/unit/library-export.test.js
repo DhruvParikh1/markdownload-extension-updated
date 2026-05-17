@@ -36,4 +36,17 @@ describe('library-export helpers', () => {
     expect(libraryExport.ensureUniqueLibraryExportPath('/Folder/Clip.md', usedPaths)).toBe('Folder/Clip (2).md');
     expect(libraryExport.ensureUniqueLibraryExportPath('Folder/Clip.md', usedPaths)).toBe('Folder/Clip (3).md');
   });
+
+  test('applies configured replacement to library export filenames', () => {
+    const files = libraryExport.createLibraryExportFiles([
+      { title: 'Billing/Plans:Pro#400', markdown: '# Export' }
+    ], {
+      disallowedChars: '#',
+      disallowedCharReplacement: '_'
+    });
+
+    expect(files).toEqual([
+      { filename: 'Billing_Plans_Pro_400.md', content: '# Export' }
+    ]);
+  });
 });
