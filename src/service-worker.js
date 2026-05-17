@@ -10,6 +10,7 @@ if (typeof importScripts === 'function') {
     'shared/site-rules.js',
     'shared/default-options.js',
     'shared/template-utils.js',
+    'shared/webhook-utils.js',
     'shared/agent-bridge-state.js',
     'shared/obsidian-utils.js',
     'shared/library-export.js',
@@ -738,6 +739,78 @@ const {
   markSnipBlobUrls
 } = downloadTracker.getState();
 
+const WEBHOOK_FETCH_TIMEOUT_MS = 30000;
+
+async function handleWebhookSend(message) {
+  const { targetId, markdown, title, sourceUrl } = message;
+  if (!targetId || !markdown) {
+    return { success: false, error: 'Missing required parameters' };
+  }
+
+  const storage = await browser.storage.sync.get(['webhookTargets']);
+  const targets = Array.isArray(storage.webhookTargets) ? storage.webhookTargets : [];
+  const target = targets.find((t) => t.id === targetId);
+  if (!target) {
+    return { success: false, error: 'Webhook target not found. Check your settings.' };
+  }
+
+  const article = globalThis.markSnipWebhookUtils?.buildWebhookArticleFromMessage
+    ? globalThis.markSnipWebhookUtils.buildWebhookArticleFromMessage(message)
+    : {
+      title: title || '',
+      content: markdown,
+      pageURL: sourceUrl || '',
+      excerpt: '',
+      byline: '',
+      keywords: [],
+      publishedTime: ''
+    };
+
+  const request = globalThis.markSnipWebhookUtils.buildWebhookFetchRequest({
+    target,
+    article
+  });
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), WEBHOOK_FETCH_TIMEOUT_MS);
+
+  try {
+    const fetchOptions = {
+      method: request.method,
+      headers: request.headers,
+      signal: controller.signal
+    };
+
+    if (request.body) {
+      fetchOptions.body = request.body;
+    }
+
+    const response = await fetch(request.url, fetchOptions);
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      let responseBody = '';
+      try {
+        responseBody = await response.text().catch(() => '');
+      } catch {}
+      const summarizedError = globalThis.markSnipWebhookUtils.summarizeWebhookResponseText(responseBody);
+      return {
+        success: false,
+        error: `Server returned ${response.status}${summarizedError ? ': ' + summarizedError : ''}`,
+        status: response.status
+      };
+    }
+
+    return { success: true, status: response.status };
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      return { success: false, error: 'Request timed out. The server did not respond within 30 seconds.' };
+    }
+    return { success: false, error: `Connection failed: ${error.message}` };
+  }
+}
+
 // Add listener to handle filename conflicts from other extensions
 // onDeterminingFilename is Chrome-only
 if (browser.downloads.onDeterminingFilename) {
@@ -878,6 +951,8 @@ async function handleMessages(message, sender, _sendResponse) {
       break;
     case "get-batch-state":
       return Promise.resolve(batchState);
+    case "webhook-send":
+      return await handleWebhookSend(message);
   }
 }
 

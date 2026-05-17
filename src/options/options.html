@@ -249,6 +249,7 @@
                             <li><code>{byline}</code> — Author metadata</li>
                             <li><code>{dir}</code> — Content direction</li>
                             <li><code>{date:FORMAT}</code> — The current date and time. Check the <a href="https://momentjs.com/docs/#/displaying/format/" target="_blank" rel="noopener noreferrer">format reference</a></li>
+                            <li><code>{publishedTime:FORMAT}</code> — Article publication date metadata, when provided by the page</li>
                             <li><code>{keywords}</code> — Meta keywords (if present). Comma separated by default.</li>
                             <li><code>{keywords:SEPARATOR}</code> — Meta keywords separated by SEPARATOR. For example, to separate by space, use <code>{keywords: }</code></li>
                         </ul>
@@ -838,6 +839,56 @@
                         <label class="input-label" for="sendToMaxUrlLength">Maximum URL Length</label>
                         <input type="number" id="sendToMaxUrlLength" name="sendToMaxUrlLength" class="text-input" role="spinbutton" min="1" step="100" inputmode="numeric" />
                     </div>
+                </div>
+
+                <!-- Webhook Targets -->
+                <div class="setting-card" id="webhookTargetsCard"
+                    data-search-keywords="webhook,remote api,http post,custom endpoint,send to url,api key,webhook target"
+                    data-setting-key="webhookTargets">
+                    <h3 class="card-title">Webhook Targets</h3>
+                    <p class="card-desc">Send clipped content to remote APIs via HTTP POST, PUT, or PATCH. Set the default target in the Default Popup Action setting above. Variables: <code>{title}</code>, <code>{content}</code>, <code>{pageURL}</code>, <code>{excerpt}</code>, <code>{byline}</code>, <code>{date:FORMAT}</code>, <code>{publishedTime:FORMAT}</code>.</p>
+
+                    <div id="webhookTargetsList" class="webhook-targets-list" aria-live="polite"></div>
+
+                    <details class="info-panel webhook-target-editor" id="webhookTargetEditor">
+                        <summary id="webhookEditorSummary">Add Webhook Target</summary>
+                        <div class="info-panel-content">
+                            <div class="webhook-target-editor__fields">
+                                <div class="input-group">
+                                    <label class="input-label" for="webhookTargetName">Target Name</label>
+                                    <input type="text" id="webhookTargetName" class="text-input" role="textbox" placeholder="My Notes API" />
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label" for="webhookTargetUrl">URL</label>
+                                    <input type="text" id="webhookTargetUrl" class="text-input" role="textbox" placeholder="https://api.example.com/v1/pages" spellcheck="false" />
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label" for="webhookTargetMethod">Method</label>
+                                    <select id="webhookTargetMethod" class="text-input">
+                                        <option value="POST">POST</option>
+                                        <option value="PUT">PUT</option>
+                                        <option value="PATCH">PATCH</option>
+                                    </select>
+                                </div>
+                                <div class="input-group">
+                                    <div class="webhook-header-label-row">
+                                        <label class="input-label">Headers</label>
+                                        <button type="button" id="webhookAddHeader" class="btn btn-sm btn-text webhook-header-add">+ Add</button>
+                                    </div>
+                                    <div id="webhookHeadersList" class="webhook-headers-list"></div>
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label" for="webhookTargetBody">Body Template (JSON)</label>
+                                    <textarea id="webhookTargetBody" class="text-input webhook-body-input" rows="6" spellcheck="false"></textarea>
+                                    <p class="input-hint">Defines the JSON structure of the HTTP request body. The <code>{content}</code> variable receives the full markdown (including frontmatter/backmatter if enabled). Leave empty to use the default template. This is separate from the project's Frontmatter/Backmatter settings, which control the markdown content itself.</p>
+                                </div>
+                                <div class="webhook-target-editor__actions">
+                                    <button type="button" id="webhookAddTarget" class="btn btn-primary">Save Target</button>
+                                    <button type="button" id="webhookCancelEdit" class="btn btn-text">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
                 </div>
 
                 <!-- Obsidian Integration -->
@@ -1837,6 +1888,7 @@ const helloWorld = () => {
     <script src="../shared/library-state.js"></script>
     <script src="../shared/search-core.js"></script>
     <script src="../shared/options-state.js"></script>
+    <script src="../shared/webhook-utils.js"></script>
     <script src="options-search.js"></script>
     <script src="options.js"></script>
 </body>

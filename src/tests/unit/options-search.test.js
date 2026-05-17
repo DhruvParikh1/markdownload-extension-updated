@@ -22,6 +22,10 @@ const optionsStateSource = fs.readFileSync(
   path.join(__dirname, '../../shared/options-state.js'),
   'utf8'
 );
+const webhookUtilsSource = fs.readFileSync(
+  path.join(__dirname, '../../shared/webhook-utils.js'),
+  'utf8'
+);
 const templateUtilsSource = fs.readFileSync(
   path.join(__dirname, '../../shared/template-utils.js'),
   'utf8'
@@ -35,6 +39,7 @@ const libraryStateSource = fs.readFileSync(
   'utf8'
 );
 const moment = require('../../background/moment.min.js');
+const { defaultOptions: sharedDefaultOptions } = require('../../shared/default-options.js');
 
 const baseOptions = {
   headingStyle: 'atx',
@@ -157,9 +162,10 @@ function createOptionsPageDom(optionOverrides = {}, libraryOverrides = {}, confi
   });
 
   const storedOptions = mergeOptions(optionOverrides);
-  const defaultOptionsForDom = config.defaultOptionOverrides
-    ? mergeOptions(config.defaultOptionOverrides)
-    : storedOptions;
+  const defaultOptionsForDom = {
+    defaultWebhookBodyTemplate: sharedDefaultOptions.defaultWebhookBodyTemplate,
+    ...(config.defaultOptionOverrides ? mergeOptions(config.defaultOptionOverrides) : storedOptions)
+  };
   let localState = {
     librarySettings: {
       enabled: true,
@@ -219,6 +225,7 @@ function createOptionsPageDom(optionOverrides = {}, libraryOverrides = {}, confi
   dom.window.eval(searchCoreSource);
   dom.window.eval(libraryStateSource);
   dom.window.eval(optionsStateSource);
+  dom.window.eval(webhookUtilsSource);
   dom.window.eval(optionsSearchSource);
   dom.window.eval(templateUtilsSource);
   dom.window.eval(optionsSource);
@@ -698,6 +705,26 @@ describe('Options page search UI', () => {
 
     expect(browser.storage.sync.set).toHaveBeenCalledWith(expect.objectContaining({
       sendToMaxUrlLength: 5100
+    }));
+  });
+
+  test('ignores controls with empty option keys in the generic autosave listener', async () => {
+    const { dom, browser } = createOptionsPageDom();
+    const { document } = dom.window;
+
+    document.dispatchEvent(new dom.window.Event('DOMContentLoaded', { bubbles: true }));
+    await waitForMicrotasks();
+    await waitFor(dom.window, 50);
+
+    const unnamedInput = document.getElementById('title');
+    unnamedInput.removeAttribute('name');
+    unnamedInput.value = 'unsaved secret';
+
+    unnamedInput.dispatchEvent(new dom.window.KeyboardEvent('keyup', { bubbles: true }));
+    await waitFor(dom.window, 600);
+
+    expect(browser.storage.sync.set).not.toHaveBeenCalledWith(expect.objectContaining({
+      '': 'unsaved secret'
     }));
   });
 

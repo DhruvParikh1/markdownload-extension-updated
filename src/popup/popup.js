@@ -8,7 +8,11 @@ let libraryItems = [];
 let currentClipState = {
     title: '',
     markdown: '',
-    pageUrl: ''
+    pageUrl: '',
+    excerpt: '',
+    byline: '',
+    keywords: [],
+    publishedTime: ''
 };
 let libraryExportInProgress = false;
 let libraryCardCountMode = 'words';
@@ -58,6 +62,17 @@ const ACCENT_CLASS_NAMES = ['accent-sage', 'accent-ocean', 'accent-slate', 'acce
 const DEFAULT_SEND_TO_TARGET = 'chatgpt';
 const DEFAULT_SEND_TO_MAX_URL_LENGTH = 3600;
 const POPUP_PRIMARY_ACTION_SET = new Set(['markdown', 'text', 'html', 'pdf', 'copy', 'sendTo']);
+const WEBHOOK_EXPORT_PREFIX = 'webhook:';
+
+function isWebhookExportType(value) {
+  return String(value || '').startsWith(WEBHOOK_EXPORT_PREFIX);
+}
+
+function getWebhookTargetIdFromExportType(value) {
+  return String(value || '').startsWith(WEBHOOK_EXPORT_PREFIX)
+    ? String(value).slice(WEBHOOK_EXPORT_PREFIX.length)
+    : null;
+}
 const EXPORT_TYPE_ORDER = ['markdown', 'text', 'html', 'pdf'];
 const EXPORT_TYPE_SET = new Set(EXPORT_TYPE_ORDER);
 const SEND_TO_TARGETS = {
@@ -311,15 +326,26 @@ function normalizePopupOptions(source = {}) {
         normalizedOptions.sendToMaxUrlLength,
         defaultOptions?.sendToMaxUrlLength
     );
-    normalizedOptions.defaultExportType = POPUP_PRIMARY_ACTION_SET.has(normalizedOptions.defaultExportType)
+    normalizedOptions.webhookTargets = normalizeWebhookTargets(normalizedOptions.webhookTargets);
+    normalizedOptions.defaultExportType = POPUP_PRIMARY_ACTION_SET.has(normalizedOptions.defaultExportType) || isWebhookExportType(normalizedOptions.defaultExportType)
         ? normalizedOptions.defaultExportType
         : defaultOptions.defaultExportType;
+    if (isWebhookExportType(normalizedOptions.defaultExportType)) {
+        const targetId = getWebhookTargetIdFromExportType(normalizedOptions.defaultExportType);
+        const targetExists = normalizedOptions.webhookTargets.some((t) => t.id === targetId);
+        if (!targetExists) {
+            normalizedOptions.defaultExportType = defaultOptions.defaultExportType;
+        }
+    }
     return normalizedOptions;
 }
 
 function resolvePopupPrimaryActionType(options = currentOptions) {
     const actionType = String(options?.defaultExportType || '').trim();
-    return POPUP_PRIMARY_ACTION_SET.has(actionType) ? actionType : 'markdown';
+    if (POPUP_PRIMARY_ACTION_SET.has(actionType) || isWebhookExportType(actionType)) {
+        return actionType;
+    }
+    return 'markdown';
 }
 
 function resolveSendToTarget(targetId = currentOptions?.defaultSendToTarget, options = currentOptions) {
@@ -342,6 +368,23 @@ function resolveSendToTarget(targetId = currentOptions?.defaultSendToTarget, opt
 
     return SEND_TO_TARGETS[DEFAULT_SEND_TO_TARGET];
 }
+
+function resolveWebhookTarget(targetId, options = currentOptions) {
+    const targets = normalizeWebhookTargets(options?.webhookTargets);
+    return targets.find((t) => t.id === targetId) || null;
+}
+
+function normalizeWebhookTargets(targets) {
+    if (!Array.isArray(targets)) {
+        return [];
+    }
+    const optionsStateApi = globalThis.markSnipOptionsState;
+    if (optionsStateApi?.normalizeWebhookTargets) {
+        return optionsStateApi.normalizeWebhookTargets(targets);
+    }
+    return targets;
+}
+
 const dom = {
     root: document.documentElement,
     body: document.body,
@@ -500,6 +543,18 @@ function getPopupPrimaryActionConfig(options = currentOptions) {
         };
     }
 
+    const webhookTargetId = getWebhookTargetIdFromExportType(primaryActionType);
+    if (webhookTargetId) {
+        const target = resolveWebhookTarget(webhookTargetId, options);
+        if (target) {
+            return {
+                mainLabel: `Send to ${target.name}`,
+                selectionLabel: `Send Selection to ${target.name}`,
+                icon: 'send'
+            };
+        }
+    }
+
     return getExportTypeConfig(primaryActionType);
 }
 
@@ -571,6 +626,58 @@ function renderSendToDropdownOptions(options = currentOptions) {
                 await handleSendToAction(target.id, { triggerButton: dom.downloadButton });
             } catch (error) {
                 console.error(`Error sending to ${target.name}:`, error);
+            }
+        });
+        dom.sendToCustomTargets.appendChild(button);
+    });
+
+    // Render webhook targets in the Send To section
+    const webhookTargets = normalizeWebhookTargets(options?.webhookTargets);
+    if (customTargets.length > 0 && webhookTargets.length > 0) {
+        const divider = document.createElement('hr');
+        divider.className = 'dd-section-divider';
+        divider.setAttribute('aria-hidden', 'true');
+        dom.sendToCustomTargets.appendChild(divider);
+    }
+    renderWebhookDropdownOptions(options);
+}
+
+function renderWebhookDropdownOptions(options = currentOptions) {
+    if (!dom.sendToCustomTargets) {
+        return;
+    }
+
+    const primaryActionType = resolvePopupPrimaryActionType(options);
+    const webhookTargets = normalizeWebhookTargets(options?.webhookTargets);
+    if (webhookTargets.length === 0) {
+        return;
+    }
+
+    const existingItems = dom.sendToCustomTargets.querySelectorAll('.webhook-dd-item');
+    existingItems.forEach((el) => el.remove());
+
+    webhookTargets.forEach((target) => {
+        const button = document.createElement('button');
+        button.className = 'dd-item webhook-dd-item';
+        button.type = 'button';
+        button.role = 'menuitem';
+        button.hidden = primaryActionType === `webhook:${target.id}`;
+        button.dataset.targetId = target.id;
+        button.innerHTML = `
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+            </svg>
+            <span class="dd-item__label"></span>
+        `;
+        button.querySelector('.dd-item__label').textContent = target.name;
+        button.title = `Send to ${target.name}`;
+        button.addEventListener('click', async (event) => {
+            event.preventDefault();
+            try {
+                await handleWebhookSendAction(target.id, { triggerButton: dom.downloadButton });
+            } catch (error) {
+                console.error(`Error sending to webhook target ${target.name}:`, error);
             }
         });
         dom.sendToCustomTargets.appendChild(button);
@@ -1994,6 +2101,7 @@ const defaultOptions = {
     defaultSendToTarget: DEFAULT_SEND_TO_TARGET,
     sendToCustomTargets: [],
     sendToMaxUrlLength: DEFAULT_SEND_TO_MAX_URL_LENGTH,
+    webhookTargets: [],
     obsidianIntegration: false,
     batchProcessingEnabled: true,
     popupTheme: 'system',
@@ -2055,10 +2163,16 @@ function resolveClipPageUrl(article = {}) {
 }
 
 function updateCurrentClipState(nextState = {}) {
+    const normalizeKeywords = globalThis.markSnipWebhookUtils?.normalizeWebhookKeywords
+        || ((v) => Array.isArray(v) ? v.filter(k => String(k || '').trim()) : []);
     currentClipState = {
         title: String(nextState.title || '').trim(),
         markdown: String(nextState.markdown || ''),
-        pageUrl: String(nextState.pageUrl || '').trim()
+        pageUrl: String(nextState.pageUrl || '').trim(),
+        excerpt: String(nextState.excerpt || ''),
+        byline: String(nextState.byline || ''),
+        keywords: normalizeKeywords(nextState.keywords),
+        publishedTime: String(nextState.publishedTime || '').trim()
     };
     updateSaveLibraryButtonState();
     queuePersistAgentBridgeClip(currentClipState);
@@ -2558,7 +2672,11 @@ async function handleManualLibrarySave(e) {
     const snapshot = {
         title: dom.titleInput?.value || currentClipState.title,
         markdown: getEditorValue(),
-        pageUrl: currentClipState.pageUrl
+        pageUrl: currentClipState.pageUrl,
+        excerpt: currentClipState.excerpt,
+        byline: currentClipState.byline,
+        keywords: currentClipState.keywords,
+        publishedTime: currentClipState.publishedTime
     };
 
     if (!snapshot.pageUrl || !String(snapshot.markdown || '').trim()) {
@@ -3150,7 +3268,11 @@ async function clipTabWithRetry(tab, maxAttempts = 2) {
                     updateCurrentClipState({
                         title: message.article?.title,
                         markdown: message.markdown,
-                        pageUrl: resolveClipPageUrl(message.article)
+                        pageUrl: resolveClipPageUrl(message.article),
+                        excerpt: message.article?.excerpt,
+                        byline: message.article?.byline,
+                        keywords: message.article?.keywords,
+                        publishedTime: message.article?.publishedTime
                     });
                     setEditorValue(message.markdown);
                     if (dom.titleInput) {
@@ -3649,7 +3771,7 @@ browser.runtime.onMessage.addListener(notify);
 browser.storage.onChanged.addListener((changes, areaName) => {
     if (areaName === "sync") {
         const themeSettingKeys = ['popupTheme', 'specialTheme', 'colorBlindTheme', 'specialThemeIcon', 'popupAccent', 'compactMode', 'showThemeToggleInPopup', 'editorTheme'];
-        const popupActionKeys = ['defaultExportType', 'defaultSendToTarget', 'sendToCustomTargets', 'sendToMaxUrlLength'];
+        const popupActionKeys = ['defaultExportType', 'defaultSendToTarget', 'sendToCustomTargets', 'sendToMaxUrlLength', 'webhookTargets'];
         if (themeSettingKeys.some((key) => Object.prototype.hasOwnProperty.call(changes, key))) {
             currentOptions = normalizePopupOptions({
                 ...defaultOptions,
@@ -3905,6 +4027,101 @@ async function handleSendToAction(targetId = currentOptions?.defaultSendToTarget
     }
 }
 
+async function handleWebhookSendAction(targetId, { selectionOnly = false, triggerButton = null } = {}) {
+    closeSplitDropdown();
+    if (selectionOnly && !editorHasSelection()) {
+        return;
+    }
+
+    const content = selectionOnly ? getEditorSelection() : getEditorValue();
+    if (!String(content || '').trim()) {
+        if (triggerButton) {
+            setPrimaryActionFeedback(triggerButton, 'Nothing to send', 'error');
+            setTimeout(resetPrimaryActionFeedback, 1800);
+        }
+        return;
+    }
+
+    const target = resolveWebhookTarget(targetId, currentOptions);
+    if (!target) {
+        if (triggerButton) {
+            setPrimaryActionFeedback(triggerButton, 'Target not found', 'error');
+            setTimeout(resetPrimaryActionFeedback, 2200);
+        }
+        return;
+    }
+
+    if (triggerButton) {
+        setPrimaryActionFeedback(triggerButton, `Sending to ${target.name}...`, 'success', 'send');
+    }
+
+    try {
+        const result = await browser.runtime.sendMessage({
+            ...(globalThis.markSnipWebhookUtils?.buildWebhookSendMessage
+                ? globalThis.markSnipWebhookUtils.buildWebhookSendMessage({
+                    targetId,
+                    markdown: content,
+                    title: getCurrentExportTitle(),
+                    clipState: currentClipState
+                })
+                : {
+                    type: 'webhook-send',
+                    targetId,
+                    markdown: content,
+                    title: getCurrentExportTitle(),
+                    sourceUrl: currentClipState?.pageUrl || ''
+                })
+        });
+
+        if (result?.success) {
+            await recordSuccessfulSendMetric();
+            window.close();
+        } else {
+            if (triggerButton) {
+                setPrimaryActionFeedback(triggerButton, 'Failed', 'error', 'send');
+                setTimeout(resetPrimaryActionFeedback, 3000);
+            }
+            showToastWithRetry(result?.error || 'Failed to send to webhook target', targetId, { selectionOnly, triggerButton });
+        }
+    } catch (error) {
+        console.error('Webhook send error:', error);
+        if (triggerButton) {
+            setPrimaryActionFeedback(triggerButton, 'Error', 'error', 'send');
+            setTimeout(resetPrimaryActionFeedback, 3000);
+        }
+        const message = globalThis.markSnipWebhookUtils?.resolveWebhookSendErrorMessage
+            ? globalThis.markSnipWebhookUtils.resolveWebhookSendErrorMessage(error)
+            : (error?.message || 'Failed to send to webhook target');
+        showToastWithRetry(message, targetId, { selectionOnly, triggerButton });
+    }
+}
+
+function showToastWithRetry(message, targetId, sendOptions) {
+    const existing = document.querySelector('.popup-toast');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.className = 'popup-toast popup-toast--error';
+    toast.setAttribute('role', 'alert');
+    document.body.appendChild(toast);
+
+    const msgSpan = document.createElement('span');
+    msgSpan.textContent = message;
+    toast.appendChild(msgSpan);
+
+    const retryBtn = document.createElement('button');
+    retryBtn.type = 'button';
+    retryBtn.className = 'btn btn-sm btn-text popup-toast__retry';
+    retryBtn.textContent = 'Retry';
+    retryBtn.addEventListener('click', () => {
+        toast.remove();
+        handleWebhookSendAction(targetId, sendOptions).catch((e) =>
+            console.error('Retry webhook send failed:', e)
+        );
+    });
+    toast.appendChild(retryBtn);
+}
+
 async function exportCurrentContent(kind, { selectionOnly = false, closeAfter = false } = {}) {
     if (selectionOnly && !editorHasSelection()) {
         return;
@@ -4000,6 +4217,14 @@ async function download(e) {
             return;
         }
 
+        const webhookTargetId = getWebhookTargetIdFromExportType(primaryActionType);
+        if (webhookTargetId) {
+            await handleWebhookSendAction(webhookTargetId, {
+                triggerButton: dom.downloadButton
+            });
+            return;
+        }
+
         await exportCurrentContent(primaryActionType, {
             closeAfter: shouldClosePopupAfterExport(primaryActionType)
         });
@@ -4023,6 +4248,15 @@ async function downloadSelection(e) {
 
         if (primaryActionType === 'copy') {
             await handlePrimaryCopyAction({
+                selectionOnly: true,
+                triggerButton: dom.downloadSelectionButton
+            });
+            return;
+        }
+
+        const webhookTargetId = getWebhookTargetIdFromExportType(primaryActionType);
+        if (webhookTargetId) {
+            await handleWebhookSendAction(webhookTargetId, {
                 selectionOnly: true,
                 triggerButton: dom.downloadSelectionButton
             });
@@ -4227,7 +4461,11 @@ function notify(message) {
         updateCurrentClipState({
             title: message.article?.title,
             markdown: message.markdown,
-            pageUrl: resolveClipPageUrl(message.article)
+            pageUrl: resolveClipPageUrl(message.article),
+            excerpt: message.article?.excerpt,
+            byline: message.article?.byline,
+            keywords: message.article?.keywords,
+            publishedTime: message.article?.publishedTime
         });
         if (dom.titleInput) {
             dom.titleInput.value = message.article.title;

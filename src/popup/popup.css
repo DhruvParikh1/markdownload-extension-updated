@@ -4022,3 +4022,32 @@ kbd + kbd { margin-left: 2px; }
         box-shadow: none;
     }
 }
+
+/* Toast Notifications */
+.popup-toast {
+    position: fixed;
+    bottom: var(--space-2, 8px);
+    left: var(--space-2, 8px);
+    right: var(--space-2, 8px);
+    padding: var(--space-2, 8px) var(--space-3, 12px);
+    border-radius: var(--radius-md, 6px);
+    font-size: var(--text-sm, 12px);
+    z-index: 1000;
+    color: var(--text-inverse, #fff);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2, 8px);
+    transition: opacity var(--transition, 0.3s ease);
+}
+.popup-toast--error {
+    background: var(--error, #e74c3c);
+}
+.popup-toast__retry {
+    flex-shrink: 0;
+    text-decoration: underline;
+    color: inherit;
+    opacity: 0.9;
+}
+.popup-toast__retry:hover {
+    opacity: 1;
+}

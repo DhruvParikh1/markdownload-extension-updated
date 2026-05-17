@@ -116,6 +116,19 @@
       });
     }
 
+    const publishedTimeRegex = /{publishedTime:(.+?)}/g;
+    const publishedTimeMatches = string.match(publishedTimeRegex);
+    if (publishedTimeMatches && publishedTimeMatches.forEach) {
+      const parsedPublishedTime = article.publishedTime ? new Date(article.publishedTime) : null;
+      if (parsedPublishedTime && !isNaN(parsedPublishedTime.getTime())) {
+        publishedTimeMatches.forEach((match) => {
+          const format = match.substring(15, match.length - 1);
+          const dateString = formatDate(parsedPublishedTime, format);
+          string = string.replaceAll(match, dateString);
+        });
+      }
+    }
+
     const keywordRegex = /{keywords:?(.*)?}/g;
     const keywordMatches = string.match(keywordRegex);
     if (keywordMatches && keywordMatches.forEach) {

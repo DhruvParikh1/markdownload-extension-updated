@@ -10,6 +10,7 @@ const defaultOptions = {
   defaultSendToTarget: 'chatgpt',
   sendToCustomTargets: [],
   sendToMaxUrlLength: 3600,
+  webhookTargets: [],
   specialTheme: 'none',
   colorBlindTheme: 'deuteranopia',
   showUserGuideIcon: true,
@@ -119,6 +120,32 @@ const defaultOptions = {
     ]);
   });
 
+  test('normalizeImportedOptions preserves webhook URL path placeholders after saving', () => {
+    const normalized = optionsState.normalizeImportedOptions({
+      webhookTargets: [
+        {
+          id: 'notes',
+          name: 'Notes',
+          url: 'https://example.com/hooks/{title:kebab}',
+          method: 'POST',
+          headers: [],
+          bodyTemplate: JSON.stringify({ content: '{content}' })
+        }
+      ]
+    }, defaultOptions);
+
+    expect(normalized.webhookTargets).toEqual([
+      {
+        id: 'notes',
+        name: 'Notes',
+        url: 'https://example.com/hooks/{title:kebab}',
+        method: 'POST',
+        headers: [],
+        bodyTemplate: JSON.stringify({ content: '{content}' })
+      }
+    ]);
+  });
+
   test('normalizeImportedOptions falls back to ChatGPT when the selected custom target is missing', () => {
     const normalized = optionsState.normalizeImportedOptions({
       defaultExportType: 'sendTo',
@@ -216,7 +243,8 @@ test('normalizeImportedOptions ignores non-plain option inputs', () => {
     defaultExportType: 'markdown',
     defaultSendToTarget: 'chatgpt',
     sendToCustomTargets: [],
-    sendToMaxUrlLength: 3600
+    sendToMaxUrlLength: 3600,
+    webhookTargets: []
   });
 });
 
@@ -248,7 +276,8 @@ test('resetAllOptions handles non-plain defaults without blowing up', () => {
     defaultExportType: 'markdown',
     defaultSendToTarget: 'chatgpt',
     sendToCustomTargets: [],
-    sendToMaxUrlLength: 3600
+    sendToMaxUrlLength: 3600,
+    webhookTargets: []
   });
   expect(result.contextMenuAction).toBe('remove');
 });

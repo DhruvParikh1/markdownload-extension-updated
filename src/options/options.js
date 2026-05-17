@@ -245,6 +245,75 @@ function normalizeSendToMaxUrlLengthState(value, fallbackValue = defaultOptions?
         : normalizedFallback;
 }
 
+function getDefaultWebhookBodyTemplate() {
+    const explicitDefault = defaultOptions?.defaultWebhookBodyTemplate;
+    if (typeof explicitDefault === 'string' && explicitDefault.trim()) {
+        return explicitDefault;
+    }
+
+    const runtimeDefault = globalThis.markSnipWebhookUtils?.DEFAULT_WEBHOOK_BODY_TEMPLATE;
+    if (typeof runtimeDefault === 'string' && runtimeDefault.trim()) {
+        return runtimeDefault;
+    }
+
+    throw new Error('Default webhook body template is unavailable');
+}
+
+function normalizeWebhookTargetsState(targets) {
+    const optionsStateApi = getOptionsStateApi();
+    if (optionsStateApi?.normalizeWebhookTargets) {
+        return optionsStateApi.normalizeWebhookTargets(targets);
+    }
+
+    if (!Array.isArray(targets)) {
+        return [];
+    }
+
+    const VALID_METHODS = new Set(['POST', 'PUT', 'PATCH']);
+    const seenIds = new Set();
+    return targets.reduce((result, target, index) => {
+        if (!target || typeof target !== 'object') {
+            return result;
+        }
+
+        const id = String(target.id || '').trim() || `wh-${index + 1}`;
+        const name = String(target.name || '').trim();
+        const url = String(target.url || '').trim();
+        if (!id || !name || !url) {
+            return result;
+        }
+
+        if (seenIds.has(id)) {
+            return result;
+        }
+
+        let parsedUrl;
+        try { parsedUrl = new URL(url); } catch { return result; }
+        if (parsedUrl.protocol !== 'https:') {
+            return result;
+        }
+
+        const method = VALID_METHODS.has(String(target.method || '').toUpperCase())
+            ? String(target.method).toUpperCase() : 'POST';
+
+        let bodyTemplate = String(target.bodyTemplate || '').trim();
+        if (bodyTemplate) {
+            try { JSON.parse(bodyTemplate); } catch { bodyTemplate = ''; }
+        }
+
+        const headers = Array.isArray(target.headers) ? target.headers.filter((h) => {
+            return h && typeof h === 'object' && String(h.key || '').trim().length > 0;
+        }).map((h) => ({
+            key: String(h.key).trim(),
+            value: String(h.value || '').trim()
+        })) : [];
+
+        seenIds.add(id);
+        result.push({ id, name, url, method, headers, bodyTemplate });
+        return result;
+    }, []);
+}
+
 function getNormalizedSendToTargets() {
     const targets = normalizeCustomSendToTargetsState(options?.sendToCustomTargets);
     options.sendToCustomTargets = targets;
@@ -455,6 +524,379 @@ function initSendToControls() {
         });
     });
 }
+// ── Webhook Targets ──────────────────────────────────────────
+
+let editingWebhookTargetId = null;
+
+function buildWebhookTargetId() {
+    return `wh-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
+}
+
+function getNormalizedWebhookTargets() {
+    const optionsStateApi = getOptionsStateApi();
+    if (optionsStateApi?.normalizeWebhookTargets) {
+        return optionsStateApi.normalizeWebhookTargets(options.webhookTargets || []);
+    }
+    return Array.isArray(options.webhookTargets) ? options.webhookTargets : [];
+}
+
+function renderWebhookTargetsList() {
+    const list = document.getElementById('webhookTargetsList');
+    if (!list) {
+        return;
+    }
+
+    const targets = getNormalizedWebhookTargets();
+
+    list.innerHTML = '';
+    if (targets.length === 0) {
+        const emptyState = document.createElement('p');
+        emptyState.className = 'assistant-targets-empty';
+        emptyState.textContent = 'No webhook targets configured yet.';
+        list.appendChild(emptyState);
+        return;
+    }
+
+    targets.forEach((target) => {
+        const item = document.createElement('article');
+        item.className = 'assistant-target-item';
+
+        const body = document.createElement('div');
+        body.className = 'assistant-target-item__body';
+
+        const header = document.createElement('div');
+        header.className = 'assistant-target-item__header';
+
+        const name = document.createElement('h4');
+        name.className = 'assistant-target-item__name';
+        name.textContent = target.name;
+
+        const methodBadge = document.createElement('span');
+        methodBadge.className = 'webhook-method-badge';
+        methodBadge.textContent = target.method;
+
+        header.appendChild(methodBadge);
+        header.appendChild(name);
+
+        const meta = document.createElement('code');
+        meta.className = 'assistant-target-item__meta';
+        meta.textContent = target.url;
+        meta.title = target.url;
+
+        body.appendChild(header);
+        body.appendChild(meta);
+
+        const actions = document.createElement('div');
+        actions.className = 'assistant-target-item__actions';
+
+        const editButton = document.createElement('button');
+        editButton.type = 'button';
+        editButton.className = 'btn btn-secondary btn-sm';
+        editButton.dataset.targetId = target.id;
+        editButton.dataset.action = 'edit-webhook';
+        editButton.textContent = 'Edit';
+        editButton.setAttribute('aria-label', `Edit ${target.name}`);
+
+        const removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.className = 'btn btn-secondary btn-sm assistant-target-item__remove';
+        removeButton.dataset.targetId = target.id;
+        removeButton.textContent = 'Remove';
+        removeButton.setAttribute('aria-label', `Remove ${target.name}`);
+
+        actions.appendChild(editButton);
+        actions.appendChild(removeButton);
+
+        item.appendChild(body);
+        item.appendChild(actions);
+        list.appendChild(item);
+    });
+}
+
+function renderDefaultExportTypeOptions() {
+    const container = document.getElementById('defaultExportTypeGroup');
+    if (!container) {
+        return;
+    }
+
+    // Remove old webhook radio buttons (keep the built-in ones)
+    const existingWebhookRadios = container.querySelectorAll('.radio-pill[data-webhook-target]');
+    existingWebhookRadios.forEach((el) => el.remove());
+
+    const targets = getNormalizedWebhookTargets();
+    const radioGroup = container.querySelector('.radio-group');
+    if (!radioGroup) {
+        return;
+    }
+
+    targets.forEach((target) => {
+        const pill = document.createElement('div');
+        pill.className = 'radio-pill';
+        pill.dataset.webhookTarget = target.id;
+
+        const input = document.createElement('input');
+        input.type = 'radio';
+        input.name = 'defaultExportType';
+        input.id = `export-webhook-${target.id}`;
+        input.value = `webhook:${target.id}`;
+        // Attach change listener directly since dynamically created radios
+        // are not covered by the synchronous event listener loop in loaded()
+        input.addEventListener('change', inputChange);
+
+        const label = document.createElement('label');
+        label.setAttribute('for', input.id);
+        label.textContent = `Webhook: ${target.name}`;
+
+        pill.appendChild(input);
+        pill.appendChild(label);
+        radioGroup.appendChild(pill);
+    });
+}
+
+function populateWebhookTargetForm(target) {
+    const nameInput = document.getElementById('webhookTargetName');
+    const urlInput = document.getElementById('webhookTargetUrl');
+    const methodSelect = document.getElementById('webhookTargetMethod');
+    const bodyTextarea = document.getElementById('webhookTargetBody');
+    const headersList = document.getElementById('webhookHeadersList');
+
+    if (nameInput) nameInput.value = target.name;
+    if (urlInput) urlInput.value = target.url;
+    if (methodSelect) methodSelect.value = target.method;
+    if (bodyTextarea) bodyTextarea.value = target.bodyTemplate || getDefaultWebhookBodyTemplate();
+
+    if (headersList) {
+        headersList.innerHTML = '';
+        (target.headers || []).forEach((h) => {
+            const row = document.createElement('div');
+            row.className = 'webhook-header-row';
+            row.innerHTML = `
+                <input type="text" class="text-input webhook-header-key" placeholder="Key" spellcheck="false" value="${escapeHtml(h.key)}" />
+                <input type="text" class="text-input webhook-header-value" placeholder="Value" spellcheck="false" value="${escapeHtml(h.value)}" />
+                <button type="button" class="btn btn-sm btn-text webhook-header-remove" aria-label="Remove header">&times;</button>
+            `;
+            row.querySelector('.webhook-header-remove').addEventListener('click', () => {
+                row.remove();
+            });
+            headersList.appendChild(row);
+        });
+    }
+}
+
+function handleSaveWebhookTarget() {
+    const nameInput = document.getElementById('webhookTargetName');
+    const urlInput = document.getElementById('webhookTargetUrl');
+    const methodSelect = document.getElementById('webhookTargetMethod');
+    const bodyTextarea = document.getElementById('webhookTargetBody');
+
+    const name = String(nameInput?.value || '').trim();
+    const url = String(urlInput?.value || '').trim();
+    const method = String(methodSelect?.value || 'POST').trim().toUpperCase();
+    const bodyTemplate = String(bodyTextarea?.value || '').trim();
+
+    if (!name) {
+        showToast('Please enter a target name', 'error');
+        nameInput?.focus();
+        return;
+    }
+
+    if (!url) {
+        showToast('Please enter a URL', 'error');
+        urlInput?.focus();
+        return;
+    }
+
+    try {
+        const parsedUrl = new URL(url);
+        if (parsedUrl.protocol !== 'https:') {
+            showToast('URL must use HTTPS', 'error');
+            urlInput?.focus();
+            return;
+        }
+    } catch {
+        showToast('Please enter a valid URL', 'error');
+        urlInput?.focus();
+        return;
+    }
+
+    if (bodyTemplate) {
+        try {
+            JSON.parse(bodyTemplate);
+        } catch {
+            showToast('Body template must be valid JSON (or leave empty)', 'error');
+            bodyTextarea?.focus();
+            return;
+        }
+    }
+
+    const headerInputs = document.querySelectorAll('#webhookHeadersList .webhook-header-row');
+    const headers = Array.from(headerInputs).map((row) => ({
+        key: row.querySelector('.webhook-header-key')?.value || '',
+        value: row.querySelector('.webhook-header-value')?.value || ''
+    })).filter((h) => h.key.trim().length > 0);
+
+    if (editingWebhookTargetId) {
+        // Edit existing target
+        const currentTargets = getNormalizedWebhookTargets();
+        const index = currentTargets.findIndex((t) => t.id === editingWebhookTargetId);
+        if (index !== -1) {
+            currentTargets[index] = { ...currentTargets[index], name, url, method, headers, bodyTemplate };
+            options.webhookTargets = currentTargets;
+        }
+        editingWebhookTargetId = null;
+        resetWebhookTargetForm();
+        renderWebhookTargetsList();
+        renderDefaultExportTypeOptions();
+        save({ message: `Updated webhook target "${name}"`, type: 'success' });
+    } else {
+        // Add new target
+        const newTarget = {
+            id: buildWebhookTargetId(),
+            name,
+            url,
+            method,
+            headers,
+            bodyTemplate
+        };
+
+        const currentTargets = getNormalizedWebhookTargets();
+        options.webhookTargets = [...currentTargets, newTarget];
+
+        resetWebhookTargetForm();
+
+        renderWebhookTargetsList();
+        renderDefaultExportTypeOptions();
+        save({ message: `Added webhook target "${name}"`, type: 'success' });
+    }
+}
+
+function removeWebhookTarget(targetId) {
+    const targets = getNormalizedWebhookTargets();
+    const removedTarget = targets.find((t) => t.id === targetId);
+    options.webhookTargets = targets.filter((t) => t.id !== targetId);
+
+    // If editing the removed target, cancel edit
+    if (editingWebhookTargetId === targetId) {
+        editingWebhookTargetId = null;
+        resetWebhookTargetForm();
+    }
+
+    // If this target was the default, reset to markdown
+    if (options.defaultExportType === `webhook:${targetId}`) {
+        options.defaultExportType = 'markdown';
+    }
+
+    renderWebhookTargetsList();
+    renderDefaultExportTypeOptions();
+    save({ message: `Removed "${removedTarget?.name || targetId}"`, type: 'success' });
+}
+
+function resetWebhookTargetForm() {
+    const editor = document.getElementById('webhookTargetEditor');
+    if (editor) {
+        editor.open = false;
+    }
+    const nameInput = document.getElementById('webhookTargetName');
+    const urlInput = document.getElementById('webhookTargetUrl');
+    const methodSelect = document.getElementById('webhookTargetMethod');
+    const bodyTextarea = document.getElementById('webhookTargetBody');
+    if (nameInput) nameInput.value = '';
+    if (urlInput) urlInput.value = '';
+    if (methodSelect) methodSelect.value = 'POST';
+    if (bodyTextarea) bodyTextarea.value = getDefaultWebhookBodyTemplate();
+    const headersList = document.getElementById('webhookHeadersList');
+    if (headersList) headersList.innerHTML = '';
+
+    const summary = document.getElementById('webhookEditorSummary');
+    if (summary) summary.textContent = 'Add Webhook Target';
+    editingWebhookTargetId = null;
+}
+
+function initWebhookTargetControls() {
+    document.getElementById('webhookAddTarget')?.addEventListener('click', () => {
+        try {
+            handleSaveWebhookTarget();
+        } catch (error) {
+            console.error('Failed to save webhook target:', error);
+            showToast('Failed to save webhook target', 'error');
+        }
+    });
+
+    document.getElementById('webhookCancelEdit')?.addEventListener('click', () => {
+        resetWebhookTargetForm();
+    });
+
+    // Pre-fill body template with default when the editor is opened
+    const editor = document.getElementById('webhookTargetEditor');
+    if (editor) {
+        editor.addEventListener('toggle', () => {
+            if (editor.open) {
+                const bodyTextarea = document.getElementById('webhookTargetBody');
+                if (bodyTextarea && !bodyTextarea.value.trim()) {
+                    bodyTextarea.value = getDefaultWebhookBodyTemplate();
+                }
+            }
+        });
+    }
+
+    const bodyTextarea = document.getElementById('webhookTargetBody');
+    if (bodyTextarea) {
+        bodyTextarea.placeholder = getDefaultWebhookBodyTemplate();
+    }
+
+    document.getElementById('webhookAddHeader')?.addEventListener('click', () => {
+        const list = document.getElementById('webhookHeadersList');
+        if (!list) {
+            return;
+        }
+
+        const row = document.createElement('div');
+        row.className = 'webhook-header-row';
+        row.innerHTML = `
+            <input type="text" class="text-input webhook-header-key" placeholder="Key" spellcheck="false" />
+            <input type="text" class="text-input webhook-header-value" placeholder="Value" spellcheck="false" />
+            <button type="button" class="btn btn-sm btn-text webhook-header-remove" aria-label="Remove header">&times;</button>
+        `;
+        row.querySelector('.webhook-header-remove').addEventListener('click', () => {
+            row.remove();
+        });
+        list.appendChild(row);
+        row.querySelector('.webhook-header-key')?.focus();
+    });
+
+    // Delegate click events on the targets list (edit + remove)
+    document.getElementById('webhookTargetsList')?.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-target-id]');
+        if (!button) {
+            return;
+        }
+
+        const action = button.dataset.action;
+
+        if (action === 'edit-webhook') {
+            const targetId = button.dataset.targetId;
+            const targets = getNormalizedWebhookTargets();
+            const target = targets.find((t) => t.id === targetId);
+            if (!target) {
+                return;
+            }
+
+            editingWebhookTargetId = targetId;
+            populateWebhookTargetForm(target);
+
+            const summary = document.getElementById('webhookEditorSummary');
+            if (summary) summary.textContent = `Edit: ${target.name}`;
+
+            const editor = document.getElementById('webhookTargetEditor');
+            if (editor) editor.open = true;
+            return;
+        }
+
+        // Fallback: remove (also handles clicks on .assistant-target-item__remove without data-action)
+        removeWebhookTarget(button.dataset.targetId);
+    });
+}
+
 
 	function getSiteRulesList() {
 	    return normalizeSiteRulesState(options?.siteRules);
@@ -1234,11 +1676,13 @@ function normalizeImportedOptionsState(importedOptions) {
         normalizedOptions.sendToMaxUrlLength,
         defaultOptions?.sendToMaxUrlLength
     );
+    normalizedOptions.webhookTargets = normalizeWebhookTargetsState(normalizedOptions.webhookTargets);
 
     const validPrimaryActions = new Set(['markdown', 'text', 'html', 'pdf', 'copy', 'sendTo']);
-    normalizedOptions.defaultExportType = validPrimaryActions.has(normalizedOptions.defaultExportType)
-        ? normalizedOptions.defaultExportType
-        : defaultOptions.defaultExportType;
+    const exportType = String(normalizedOptions.defaultExportType || '').trim();
+    normalizedOptions.defaultExportType = validPrimaryActions.has(exportType) || exportType.startsWith('webhook:')
+      ? exportType
+      : defaultOptions.defaultExportType;
 
     return normalizedOptions;
 }
@@ -1542,6 +1986,7 @@ const saveOptions = e => {
             document.querySelector("[name='sendToMaxUrlLength']")?.value,
             defaultOptions?.sendToMaxUrlLength
         ),
+        webhookTargets: getNormalizedWebhookTargets(),
         turndownEscape: document.querySelector("[name='turndownEscape']").checked,
         skipHiddenContent: document.querySelector("[name='skipHiddenContent']").checked,
         hashtagHandling: getCheckedValue(document.querySelectorAll("input[name='hashtagHandling']")),
@@ -1805,6 +2250,10 @@ const setCurrentChoice = result => {
 	    setCheckedValue(document.querySelectorAll("[name='defaultExportType']"), options.defaultExportType || 'markdown');
         renderDefaultSendToTargetOptions();
         renderAssistantTargetsList();
+        renderWebhookTargetsList();
+        renderDefaultExportTypeOptions();
+        // Re-apply defaultExportType radio selection after webhook radio buttons are created
+        setCheckedValue(document.querySelectorAll("input[name='defaultExportType']"), options.defaultExportType || 'markdown');
 
 	    setCheckedValue(document.querySelectorAll("[name='popupTheme']"), options.popupTheme || 'system');
     setCheckedValue(document.querySelectorAll("[name='specialTheme']"), options.specialTheme || 'none');
@@ -1970,8 +2419,11 @@ const refreshElements = () => {
 
 const inputChange = async (e) => {
     if (e) {
-        let key = e.target.name;
+        let key = String(e.target.name || '').trim();
         let value = e.target.value;
+        if (!key) {
+            return;
+        }
         if (key == "import-file") {
             fr = new FileReader();
             fr.onload = async (ev) => {
@@ -2373,6 +2825,7 @@ const loaded = async () => {
 	    bindTemplatePreviewListeners();
 	    renderTemplatePreviews();
         initSendToControls();
+        initWebhookTargetControls();
 
 	    // Restore saved options
 	    restoreOptions();
@@ -2412,6 +2865,7 @@ const loaded = async () => {
 		        if (input.id === 'settings-search') return;
 		        if (input.closest('#siteRulesCard')) return;
                 if (input.closest('#defaultSendToTargetCard') || input.closest('#assistantTargetsCard')) return;
+                if (input.closest('#webhookTargetsCard')) return;
 		        // Skip permission panel buttons (they have their own handlers)
 		        if (['agentBridgePermContinue', 'agentBridgePermCancel', 'agentBridgePermRetry', 'agentBridgePermDismiss'].includes(input.id)) return;
 	        // Skip colorblind theme dropdown (has its own handlers)
