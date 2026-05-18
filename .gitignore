@@ -21,6 +21,7 @@ tmp/
 capture-store-screenshots.js
 capture-marquee-promo.js
 capture-small-promo-tile.js
+capture-store-gallery.js
 docs/store-screenshots/promo-marquee.html
 docs/store-screenshots/promo-small-tile.html
 .agents/skills/marksnip-add-language/
