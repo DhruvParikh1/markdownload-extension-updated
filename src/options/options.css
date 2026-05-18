@@ -2315,6 +2315,21 @@ a:hover {
     padding-top: 0;
 }
 
+/* Preserve toggle spacing when rows are wrapped for conditional visibility. */
+.setting-card > :has(> .toggle-row) > .toggle-row {
+    padding: var(--space-3) 0;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.setting-card > :has(> .toggle-row):first-child > .toggle-row {
+    padding-top: 0;
+}
+
+.setting-card > :has(> .toggle-row):last-child > .toggle-row {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
 .toggle-info {
     flex: 1;
     min-width: 0;
