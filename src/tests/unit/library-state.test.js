@@ -15,6 +15,12 @@ describe('library-state helpers', () => {
     expect(libraryState.sanitizeItemsToKeep('0')).toBe(10);
     expect(libraryState.sanitizeItemsToKeep('3.9')).toBe(3);
     expect(libraryState.sanitizeItemsToKeep('7')).toBe(7);
+    // High-magnitude inputs that browsers can surface in scientific notation
+    // must not silently truncate to 1 and trash saved items. Cap at MAX_ITEMS_TO_KEEP.
+    expect(libraryState.sanitizeItemsToKeep('1e+20')).toBe(libraryState.MAX_ITEMS_TO_KEEP);
+    expect(libraryState.sanitizeItemsToKeep('1e10')).toBe(libraryState.MAX_ITEMS_TO_KEEP);
+    expect(libraryState.sanitizeItemsToKeep('99999999999999999999')).toBe(libraryState.MAX_ITEMS_TO_KEEP);
+    expect(libraryState.sanitizeItemsToKeep('50000')).toBe(libraryState.MAX_ITEMS_TO_KEEP);
   });
 
   test('builds readable preview text from markdown', () => {

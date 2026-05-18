@@ -10,6 +10,8 @@
     itemsToKeep: 10
   });
 
+  const MAX_ITEMS_TO_KEEP = 1000;
+
   function deepClone(value) {
     if (Array.isArray(value)) {
       return value.map((item) => deepClone(item));
@@ -26,11 +28,13 @@
   }
 
   function sanitizeItemsToKeep(value, fallback = DEFAULT_LIBRARY_SETTINGS.itemsToKeep) {
-    const parsed = Number.parseInt(String(value ?? '').trim(), 10);
-    if (!Number.isFinite(parsed) || parsed < 1) {
+    // Use Number() rather than parseInt so scientific notation ("1e+20") parses
+    // as a number instead of silently truncating to 1 and destroying saved items.
+    const numeric = Number(String(value ?? '').trim());
+    if (!Number.isFinite(numeric) || numeric < 1) {
       return fallback;
     }
-    return parsed;
+    return Math.min(MAX_ITEMS_TO_KEEP, Math.floor(numeric));
   }
 
   function normalizeLibrarySettings(settings = {}) {
@@ -187,6 +191,7 @@
   const api = {
     STORAGE_KEYS,
     DEFAULT_LIBRARY_SETTINGS,
+    MAX_ITEMS_TO_KEEP,
     sanitizeItemsToKeep,
     normalizeLibrarySettings,
     normalizePageUrl,

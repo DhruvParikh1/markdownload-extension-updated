@@ -1359,10 +1359,15 @@ function normalizeLibrarySettingsState(settings) {
         return libraryApi.normalizeLibrarySettings(settings);
     }
 
+    const rawItemsToKeep = Number(String(settings?.itemsToKeep ?? '').trim());
+    const safeItemsToKeep = Number.isFinite(rawItemsToKeep) && rawItemsToKeep >= 1
+        ? Math.min(1000, Math.floor(rawItemsToKeep))
+        : 10;
+
     return {
         enabled: settings?.enabled !== false,
         autoSaveOnPopupOpen: settings?.autoSaveOnPopupOpen !== false,
-        itemsToKeep: Math.max(1, Number.parseInt(settings?.itemsToKeep ?? 10, 10) || 10)
+        itemsToKeep: safeItemsToKeep
     };
 }
 
@@ -2458,8 +2463,12 @@ const inputChange = async (e) => {
                     ...librarySettings,
                     itemsToKeep: value
                 }).itemsToKeep;
-                document.querySelector("[name='libraryItemsToKeep']").value = librarySettings.itemsToKeep;
-                await trimLibraryItemsState(librarySettings.itemsToKeep);
+                // Only trim on commit (change/blur), never on debounced keyup —
+                // typing "50" otherwise trims through 5 before reaching 50.
+                if (e.type === 'change') {
+                    document.querySelector("[name='libraryItemsToKeep']").value = librarySettings.itemsToKeep;
+                    await trimLibraryItemsState(librarySettings.itemsToKeep);
+                }
             }
 
             await saveLibrarySettingsState(librarySettings);
